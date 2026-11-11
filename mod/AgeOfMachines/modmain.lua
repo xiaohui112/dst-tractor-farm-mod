@@ -157,16 +157,28 @@ AOM_ATTACH.priority = 2
 AOM_ATTACH.mount_valid = false
 
 -- 客户端只用 prefab/tag 和已同步挂件判断提示，执行时仍由服务端校验组件和余量。
+-- 客户端拿不到容器里的挂件实体（_attachment:value() 恒为 nil），挂件类型改读同步过来的 net_string。
+local function GetClientAttachmentType(target)
+    local net = target ~= nil and target._atttype_net or nil
+    local kind = net ~= nil and net:value() or nil
+    return kind ~= "" and kind or nil
+end
+
+-- 原版种子没有 farmplantable 标签，客户端只能按 prefab 名判断（与 containers.lua 同规则）。
+local function IsSeedItem(item)
+    return item.prefab == "seeds"
+        or (type(item.prefab) == "string" and string.match(item.prefab, "_seeds") ~= nil)
+end
+
 AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,right)
     if not right or target==nil or not target:HasTag(AOM_TAG.TRACTOR) then return end
-    local att=target._attachment and target._attachment:value()
-    local kind=att and att.attachment_type
+    local kind=GetClientAttachmentType(target)
     if item.HasTag ~= nil and item:HasTag(AOM_TAG.ATTACHMENT) then
         table.insert(actions,AOM_ATTACH)
     elseif item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.WEEDER) then
         table.insert(actions,AOM_REPAIR)
     elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
-        or kind==AOM_ATTACHMENT_TYPE.SEEDER and item:HasTag("farmplantable")
+        or kind==AOM_ATTACHMENT_TYPE.SEEDER and IsSeedItem(item)
         or kind==AOM_ATTACHMENT_TYPE.FERTILIZER and item:HasTag("fertilizer") then
         table.insert(actions,AOM_LOAD)
     end
