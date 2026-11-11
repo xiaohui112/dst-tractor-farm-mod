@@ -333,6 +333,8 @@ def check_local_functions_defined():
     import re
     for path in sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True)):
         src = open(path, encoding="utf-8").read()
+        # 不把提示文字（例如 Work off (...)）或注释误识别为函数调用。
+        src = re.sub(r'--\[\[[\s\S]*?\]\]|--[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', ' ', src)
         defined = set(re.findall(r"^\s*local function (\w+)\s*\(", src, re.M))
         defined |= set(re.findall(r"^\s*local (\w+)\s*=\s*function", src, re.M))
         # `local x = ...` 的任何赋值也算定义（闭包捕获的变量合法）

@@ -9,6 +9,8 @@ local AOMFarmWork = require("aom_farm_work")
 local AOM = require("aom_common")
 local LandClearer = require("aom_landclearer_tool")
 local Weeder = require("aom_weeder_tool")
+local Harvester = require("aom_harvester_tool")
+local Seeder = require("aom_seeder_tool")
 local Irrigator = require("aom_irrigator")
 
 local assets =
@@ -77,7 +79,7 @@ return
 	MakeAttachment("aom_plow", AOM.TYPE.PLOW, { uses = LandClearer.MAX_USES }),
 
 	MakeAttachment("aom_seeder", AOM.TYPE.SEEDER, {
-		uses = 100,
+		uses = Seeder.MAX_USES,
 	}),
 
 	MakeAttachment("aom_irrigator", AOM.TYPE.IRRIGATOR, {
@@ -94,5 +96,5 @@ return
 	}),
 
 	MakeAttachment("aom_harvester", AOM.TYPE.HARVESTER, {
-		uses = 40,
+		uses = Harvester.MAX_USES,
 	})

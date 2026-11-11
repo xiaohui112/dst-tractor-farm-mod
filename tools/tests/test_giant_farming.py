@@ -48,7 +48,9 @@ function center(v)return math.floor((v+2)/4)*4 end
 function tkey(x,z)return center(x)..':'..center(z)end
 function SpawnPrefab(name)
  local v={prefab=name,valid=true,x=0,z=0,components={},tags={}}
- if name=='farm_soil' then v.tags.soil=true elseif string.sub(name,1,11)=='farm_plant_' then v.tags.farm_plant=true elseif string.sub(name,1,5)=='weed_' then v.tags.weed=true end
+ if name=='farm_soil' then v.tags.soil=true elseif string.sub(name,1,11)=='farm_plant_' then v.tags.farm_plant=true elseif string.sub(name,1,5)=='weed_' then
+  v.tags.farm_plant=true;v.tags.weed=true;v.tags.weedplantstress=true;v.weed_def={}
+ end
  function v:IsValid()return self.valid end
  function v:HasTag(t)return self.tags[t]end
  function v:Remove()self.valid=false end
@@ -100,7 +102,8 @@ function make_inst(counts,season)
  TheWorld.state.season=season
  local inst={prefab='aom_tractor_chassis',_seed_strategy='GIANT',_attachment_type='plow',components={},x=0,z=0,_working=false,PushEvent=function()end}
  inst.Transform={GetWorldPosition=function()return inst.x,0,inst.z end}
- inst.components.finiteuses={used=0,Use=function(self,n)self.used=self.used+n end}
+ inst.components.finiteuses={used=0,Use=function(self,n)self.used=self.used+n end,
+ GetUses=function(self)return math.max(0,1000-self.used)end,SetUses=function(self,n)self.used=1000-n end}
  inst.AnimState={IsCurrentAnimation=function()return false end}
  local function net(v)return {value=function()return v end,set=function(self,n)v=n end}end
  inst._workstatus=net(false);inst._workreason_net=net('');inst._planprogress_net=net('');inst._fuel=net(800)
@@ -109,9 +112,13 @@ function make_inst(counts,season)
  function c:CanAcceptCount(item)for i=2,9 do if not self.slots[i]then return item.components.stackable and item.components.stackable:StackSize() or 1 end end;return 0 end
  function c:RemoveItem(item)for k,v in pairs(self.slots)do if v==item then self.slots[k]=nil end end end
  function c:GiveItem(item)for i=2,9 do if not self.slots[i]then self.slots[i]=item;return true end end;error('container full')end
- local uses=60
- c.slots[1]={attachment_type='plow',IsValid=function()return true end,components={finiteuses={
- GetUses=function()return uses end,SetUses=function(_,n)uses=n end,Use=function(_,n)uses=uses-n end}}}
+ -- 快速规划测试自动切换配套工具；流程测试另用真实挂件 prefab。
+ local uses={plow=60,seeder=100,weeder=50,harvester=40}
+ c.slots[1]=setmetatable({IsValid=function()return true end,components={finiteuses={
+ GetUses=function()return uses[inst._attachment_type] or 60 end,
+ SetUses=function(_,n)uses[inst._attachment_type]=n end,
+ Use=function(_,n)uses[inst._attachment_type]=(uses[inst._attachment_type] or 60)-n end}}},
+ {__index=function(_,k)if k=='attachment_type' then return inst._attachment_type end end})
  inst.components.container=c
  inst._rider={components={},Transform=inst.Transform,PushEvent=function()end}
  local i=2;for crop,n in pairs(counts)do c.slots[i]=make_seed(crop,n);i=i+1 end
@@ -121,6 +128,7 @@ function make_inst(counts,season)
  return inst
 end
 Block=require('aom_block_plan');Drive=require('aom_drive');Farm=require('aom_farm_work');Seed=require('aom_seed_strategy')
+L=require('aom_locale').Text
 function reset_world()ENTITIES={};TILES={};PLANT_FAIL=false end
 function crop_count()local n=0;for _,v in ipairs(ENTITIES)do if v.valid and v:HasTag('farm_plant')then n=n+1 end end;return n end
 ''')

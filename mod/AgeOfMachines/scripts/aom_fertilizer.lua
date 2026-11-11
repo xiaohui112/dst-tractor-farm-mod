@@ -1,5 +1,7 @@
 -- 农田按需施肥：肥料留在原容器，养分与每次消耗沿用原版组件。
 local M={TARGET=100}
+local Locale=require("aom_locale")
+local L=Locale.Text
 local function Number(n) return type(n)=="number" and n==n and n>=0 and n<math.huge end
 
 function M.Doses(item)
@@ -83,10 +85,10 @@ function M.Apply(x,z,doer,item,quiet)
 end
 
 local function Missing(inst,n)
-    local names={"生长素","堆肥","粪肥"}
+    local names={L("生长素"),L("堆肥"),L("粪肥")}
     local missing={}
     for i=1,3 do if n[i]<M.TARGET then missing[#missing+1]=names[i] end end
-    inst._fertilizer_missing_text="缺少可补充"..table.concat(missing,"、").."的肥料，请补料后按 F 继续"
+    inst._fertilizer_missing_text=L("缺少可补充%s的肥料，请补料后按 F 继续",table.concat(missing,Locale.Separator()))
 end
 
 function M.WorkTile(inst,x,z)
@@ -134,10 +136,10 @@ function M.Sync(inst)
         for i=1,math.min(3,#order) do
             local key=order[i]
             local name=STRINGS and STRINGS.NAMES and STRINGS.NAMES[string.upper(key)] or key
-            labels[#labels+1]=name.." "..counts[key].."次"
+            labels[#labels+1]=L("%s %d次",name,counts[key])
         end
-        if #order>3 then labels[#labels+1]="等"..#order.."种" end
-        inst._fertilizerstock_net:set(table.concat(labels,"；"))
+        if #order>3 then labels[#labels+1]=L("等%d种",#order) end
+        inst._fertilizerstock_net:set(table.concat(labels,Locale.IsEnglish() and "; " or "；"))
     end
 end
 

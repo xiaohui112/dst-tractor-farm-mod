@@ -1,5 +1,6 @@
 -- 水箱单位始终为一次普通水壶用量；土壤水分点数只交给原版管理器处理。
 local Soil=require("aom_soil_moisture")
+local L=require("aom_locale").Text
 local M={}
 function M.Capacity() return TUNING.WATERINGCAN_USES or 40 end
 
@@ -26,24 +27,24 @@ function M.IsSource(item)
 end
 
 function M.Load(store,item)
-    if not M.IsSource(item) then return false,"需要水壶或冰块。" end
+    if not M.IsSource(item) then return false,L("需要水壶或冰块。") end
     local room=store:GetWaterMax()-store:GetWater()
-    if room<=0 then return false,"水箱已满。" end
+    if room<=0 then return false,L("水箱已满。") end
     if item.prefab=="ice" then
-        if store:AddWater(1)~=1 then return false,"无法补水。" end
+        if store:AddWater(1)~=1 then return false,L("无法补水。") end
         local stack=item.components.stackable
         if stack and stack:StackSize()>1 then stack:Get(1):Remove() else item:Remove() end
     else
         local uses=item.components.finiteuses
-        if not uses or not item.components.fillable then return false,"需要有效的水壶。" end
+        if not uses or not item.components.fillable then return false,L("需要有效的水壶。") end
         -- 普通/高级水壶原版每次均为25水分；高级壶只增加容量。
         local count=math.min(room,math.max(0,math.floor(uses:GetUses())))
-        if count<=0 then return false,"水壶已空，请先装水。" end
+        if count<=0 then return false,L("水壶已空，请先装水。") end
         local added=store:AddWater(count)
-        if added<=0 then return false,"无法补水。" end
+        if added<=0 then return false,L("无法补水。") end
         uses:Use(added)
     end
-    return true,"水箱："..store:GetWater().."/"..store:GetWaterMax()
+    return true,L("水箱：%d/%d",store:GetWater(),store:GetWaterMax())
 end
 
 function M.Sync(inst)

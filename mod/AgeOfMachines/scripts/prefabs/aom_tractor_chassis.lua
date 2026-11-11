@@ -12,6 +12,9 @@ local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
 local Weeder = require("aom_weeder_tool")
+local Harvester = require("aom_harvester_tool")
+local Seeder = require("aom_seeder_tool")
+local Durability = require("aom_durability")
 local Irrigator = require("aom_irrigator")
 local DriverVisual = require("aom_driver_visual")
 local Fertilizer = require("aom_fertilizer")
@@ -47,7 +50,7 @@ local FUEL_PREFAB = "charcoal"
 local MAX_FUEL = 800
 local FUEL_PER_TICK = 1
 local MAX_HEALTH = 600
-local MAX_USES = 1000
+local MAX_USES = Durability.MAX_USES
 local STARTING_FUEL = 400
 
 ---------------------------------------------------------------------------
@@ -78,6 +81,10 @@ end
 -- 挂件变化
 ---------------------------------------------------------------------------
 
+local function OnUsesChanged(inst)
+    Irrigator.Sync(inst)
+    Durability.Sync(inst)
+end
 local function OnAttachmentChanged(inst)
 	local previous=inst._watched_attachment
 	local item = inst.components.container:GetItemInSlot(1)
@@ -91,14 +98,15 @@ local function OnAttachmentChanged(inst)
 		AOMDrive.SetWorking(inst, false)
 	end
 	if previous~=item then
-        if previous then inst:RemoveEventCallback("percentusedchange",Irrigator.Sync,previous) end
+        if previous then inst:RemoveEventCallback("percentusedchange",OnUsesChanged,previous) end
         inst._watched_attachment=item
-        if item then inst:ListenForEvent("percentusedchange",Irrigator.Sync,item) end
+        if item then inst:ListenForEvent("percentusedchange",OnUsesChanged,item) end
         AOMDrive.SetWorking(inst,false)
     end
-    Irrigator.Sync(inst)
+    OnUsesChanged(inst)
     DriverVisual.UpdateAttachment(inst,inst._aom_driver_animstate)
     Fertilizer.Watch(inst)
+    Durability.WatchSeeds(inst)
 	-- 收割机用车头时间轴，其余配件沿用车尾；前层在车身前面绘制。
 	if inst._attachment_type==AOM.TYPE.HARVESTER then
 		inst.AnimState:OverrideSymbol("attachment", "aom_attachment_symbols", "empty")
@@ -135,6 +143,7 @@ local function ConsumeOne(item)
 end
 
 local function TryRefuel(inst, doer, item)
+	if inst._destroyed or inst.components.health:IsDead() then return false end
 	-- 支持原版燃料（wood / charcoal 等 burnable）
 	if item == nil or item.components.fuel == nil then
 		return false
@@ -144,19 +153,20 @@ local function TryRefuel(inst, doer, item)
 		return false
 	end
 	local v = item.components.fuel.fuelvalue
-	-- 只按油箱实际能吸收的量结算：满了就不再消耗燃料
+	if type(v)~="number" or v~=v or v<=0 or v==math.huge then return false end
+	if item.components.fuel.fueltype~=nil and item.components.fuel.fueltype~=FUELTYPE.BURNABLE then return false end
+	-- 燃料以整份投入，余量封顶；只要增加油量就消耗一份，满箱不消耗。
 	local used = math.min(room, v)
 	SetFuel(inst, GetFuel(inst) + used)
-	if used >= v then
-		ConsumeOne(item)
-	end
+	ConsumeOne(item)
 	return true
 end
 
 local function TryRepair(inst, doer, item)
-	-- 开垦机/除草机保留耗尽物品；1份燧石恢复10次，满耐久不扣材料。
+	if inst._destroyed or inst.components.health:IsDead() then return false end
+	-- 四种耐久挂件均可用燧石恢复10次；满耐久不扣材料。
 	if item~=nil and item.prefab=="flint" then
-		if not (LandClearer.Repair(inst) or Weeder.Repair(inst)) then return false end
+		if not (LandClearer.Repair(inst) or Seeder.Repair(inst) or Weeder.Repair(inst) or Harvester.Repair(inst)) then return false end
 		ConsumeOne(item)
 		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
 		return true
@@ -205,17 +215,29 @@ local function OnLoad(inst, data)
 	end
 end
 
-local function OnLoadPostPass(inst)
-	OnAttachmentChanged(inst)
-end
-
 local function OnHealthDead(inst)
+	if inst._destroyed then return end
+	inst._destroyed=true
 	if inst._rider ~= nil and inst._rider.components.rider ~= nil then
 		AOMDrive.Dismount(inst, inst._rider)
 	end
 	AOMDrive.SetWorking(inst, false)
+	inst.components.rideable.canride=false
 	inst.AnimState:PlayAnimation("death")
-	inst.components.workable:SetWorkLeft(-1)  -- 死人不可拆
+	inst.components.workable:SetWorkable(false)
+	-- 损毁只回收挂件及物料，不产生一台满血新车；掉落后不再保存死亡载体。
+	inst.components.container:DropEverything()
+	inst.persists=false
+	inst:DoTaskInTime(1,inst.Remove)
+end
+
+local function OnLoadPostPass(inst)
+    if inst.components.health:IsDead() then
+        OnHealthDead(inst)
+        -- 旧死亡存档的组件加载顺序不固定；最后再回收后来恢复的容器内容。
+        inst.components.container:DropEverything()
+        inst.components.rideable.canride=false
+    else OnAttachmentChanged(inst) end
 end
 
 ---------------------------------------------------------------------------
@@ -223,10 +245,11 @@ end
 ---------------------------------------------------------------------------
 
 local function can_place_tractor(inst, pt, mouseover, deployer)
-	if not TheWorld.Map:CanPlantAtPoint(pt.x, 0, pt.z) then
+	local cx,_,cz=TheWorld.Map:GetTileCenterPoint(pt.x,0,pt.z)
+	if cx==nil or not TheWorld.Map:CanPlantAtPoint(cx, 0, cz) then
 		return false
 	end
-	local ents = TheWorld.Map:GetEntitiesOnTileAtPoint(pt.x, 0, pt.z)
+	local ents = TheWorld.Map:GetEntitiesOnTileAtPoint(cx, 0, cz)
 	for _, ent in ipairs(ents) do
 		if ent ~= inst and ent ~= deployer
 			and not (ent:HasTag("NOBLOCK") or ent:HasTag("locomotor")
@@ -249,6 +272,7 @@ local function item_ondeploy(inst, pt, deployer)
 	if inst.aom_packed_uses ~= nil then
 		obj.components.finiteuses:SetUses(inst.aom_packed_uses)
 	end
+    if inst.aom_packed_health~=nil then obj.components.health:SetVal(inst.aom_packed_health) end
     if inst.aom_packed_plan then AOMBlock.OnLoad(obj,inst.aom_packed_plan) end
     if inst.aom_packed_strategy then
         obj._seed_strategy=inst.aom_packed_strategy
@@ -261,7 +285,7 @@ local function item_ondeploy(inst, pt, deployer)
 			local item = inst.components.container:GetItemInSlot(i)
 			if item ~= nil then
 				inst.components.container:RemoveItem(item, true)
-				obj.components.container:GiveItem(item)
+				obj.components.container:GiveItem(item,i,Vector3(cx,cy,cz))
 			end
 		end
 	end
@@ -299,6 +323,10 @@ local function fn()
 	inst._water_net=net_float(inst.GUID,"aom_tractor_chassis.water","aomwaterdirty")
 	inst._watermax_net=net_float(inst.GUID,"aom_tractor_chassis.watermax","aomwaterdirty")
 	inst._fuel = net_float(inst.GUID, "aom_tractor_chassis.fuel", "aomfueldirty")
+    inst._uses_net=net_float(inst.GUID,"aom_tractor_chassis.uses","aomusesdirty")
+    inst._tooluses_net=net_float(inst.GUID,"aom_tractor_chassis.tooluses","aomusesdirty")
+    inst._toolmax_net=net_float(inst.GUID,"aom_tractor_chassis.toolmax","aomusesdirty")
+    inst._seedcount_net=net_float(inst.GUID,"aom_tractor_chassis.seedcount","aomseedsdirty")
 	inst._attachment = net_entity(inst.GUID, "aom_tractor_chassis.attachment", "aomattachmentdirty")
 	-- 驾驶/作业状态同步给客户端（UI 与其它玩家可见）
 	inst._rider_net = net_entity(inst.GUID, "aom_tractor_chassis.rider", "aomriderdirty")
@@ -356,11 +384,15 @@ local function fn()
 	inst:AddComponent("finiteuses")
 	inst.components.finiteuses:SetMaxUses(MAX_USES)
 	inst.components.finiteuses:SetUses(MAX_USES)
+    inst:ListenForEvent("percentusedchange",Durability.Sync)
+    Durability.Sync(inst)
 
 	inst:AddComponent("workable")
 	inst.components.workable:SetWorkAction(ACTIONS.HAMMER)
 	inst.components.workable:SetWorkLeft(4)
 	inst.components.workable:SetOnFinishCallback(function()
+		if inst._destroyed then return end
+		AOMDrive.SetWorking(inst,false)
 		-- 锤子拆除 = "打包搬家"：产出打包物品，并带走燃料/耐久/挂件/物料。
 		-- 不能生成本体 prefab，否则等于凭空造一台新车，状态全部重置。
 		local x, _, z = inst.Transform:GetWorldPosition()
@@ -369,6 +401,7 @@ local function fn()
 			drop.Transform:SetPosition(x, 0, z)
 			drop.aom_packed_fuel = GetFuel(inst)
 			drop.aom_packed_uses = inst.components.finiteuses:GetUses()
+            drop.aom_packed_health=inst.components.health.currenthealth
             drop.aom_packed_plan = AOMBlock.OnSave(inst)
             drop.aom_packed_strategy = inst._seed_strategy
 			-- 挂件与物料：连同容器内容一起转交给打包物品
@@ -378,13 +411,13 @@ local function fn()
 					local item = inst.components.container:GetItemInSlot(i)
 					if item ~= nil then
 						inst.components.container:RemoveItem(item, true)
-						table.insert(items, item)
+						table.insert(items, {item=item,slot=i})
 					end
 				end
 				-- 放进打包物品的容器（随 container 存档，读档不丢）
 				if drop.components.container ~= nil then
-					for _, item in ipairs(items) do
-						drop.components.container:GiveItem(item)
+					for _, entry in ipairs(items) do
+						drop.components.container:GiveItem(entry.item,entry.slot,Vector3(x,0,z))
 					end
 				end
 			end
@@ -441,8 +474,11 @@ local function fn()
 end
 
 -- 放置预览（与 farm_plow_item_placer 同构）
+local function placer_postinit(inst)
+    inst.components.placer.snap_to_tile=true
+end
 local placer = MakePlacer(
-	"aom_tractor_placer",
+	"aom_tractor_item_placer",
 	"aom_tractor_chassis",
 	"aom_tractor_chassis",
 	"idle",
@@ -452,9 +488,9 @@ local placer = MakePlacer(
 	1,       -- scale
 	nil,     -- fixedcameraoffset
 	nil,     -- facing
-	nil,     -- postinit
+		placer_postinit,
 	Vector3(0, 0, 0),
-	can_place_tractor
+		nil     -- onfailedplacement，不是可放置校验回调
 )
 
 -- 打包物品：可放背包，放置后生成本体
@@ -497,12 +533,13 @@ local function item_fn()
 	inst.components.container.skipopensnd = true
 
 	inst:AddComponent("deployable")
+	inst.components.deployable:SetDeployMode(DEPLOYMODE.CUSTOM)
 	inst.components.deployable.ondeploy = item_ondeploy
-	inst.components.deployable.placer = "aom_tractor_placer"
 
     inst.OnSave=function(item,data)
         data.aom_packed_fuel=item.aom_packed_fuel
         data.aom_packed_uses=item.aom_packed_uses
+        data.aom_packed_health=item.aom_packed_health
         data.aom_packed_plan=item.aom_packed_plan
         data.aom_packed_strategy=item.aom_packed_strategy
     end
@@ -510,6 +547,7 @@ local function item_fn()
         if not data then return end
         item.aom_packed_fuel=data.aom_packed_fuel
         item.aom_packed_uses=data.aom_packed_uses
+        item.aom_packed_health=data.aom_packed_health
         item.aom_packed_plan=data.aom_packed_plan
         item.aom_packed_strategy=data.aom_packed_strategy
     end

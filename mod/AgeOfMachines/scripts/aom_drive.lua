@@ -13,6 +13,7 @@
 
 local AOMFarmWork = require("aom_farm_work")
 local AOM = require("aom_common")
+local L = require("aom_locale").Text
 
 local AOMDrive = {}
 local AOMSeed = require("aom_seed_strategy")
@@ -20,6 +21,8 @@ local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
 local Weeder = require("aom_weeder_tool")
+local Harvester = require("aom_harvester_tool")
+local Seeder = require("aom_seeder_tool")
 local Irrigator = require("aom_irrigator")
 local Fertilizer = require("aom_fertilizer")
 
@@ -40,7 +43,8 @@ function AOMDrive.SetFuel(inst, v)
 	inst._fuel:set(fuel)
 	if inst.components.rideable ~= nil then
 		-- 原版 MOUNT.fn 检查 canride；它的 setter 同步 rideable 标签。
-		inst.components.rideable.canride = fuel > 0
+		inst.components.rideable.canride = fuel>0 and not inst._destroyed
+            and not (inst.components.health and inst.components.health:IsDead())
 	end
 end
 
@@ -134,7 +138,7 @@ local PLAN_MESSAGES = {
     NO_FAMILY="实际坑位不满足同类距离，请换开垦机整理坑位",
 }
 local function SetPlanMessage(inst,reason)
-    local text=reason and (PLAN_MESSAGES[reason] or "当前布局无法通过作物条件检查") or ""
+    local text=reason and L(PLAN_MESSAGES[reason] or "当前布局无法通过作物条件检查") or ""
     if inst._workreason_net then inst._workreason_net:set(text) end
     if inst._planprogress_net then inst._planprogress_net:set(AOMBlock.DescribeProgress(inst)) end
     if reason and reason~="NEXT_TILE" then
@@ -175,10 +179,16 @@ end
 
 -- 在当前所在地皮上作业一次。整格工序返回 reason / ready，区分改动与完整完成。
 function AOMDrive.WorkHere(inst, workx, workz)
+	if inst._destroyed or (inst.components.health and inst.components.health:IsDead()) then return false,"DESTROYED",false end
+	if inst.components.finiteuses:GetUses()<=0 then return false,"BROKEN_CHASSIS",false end
 	local att = inst._attachment_type
 	if att == nil then
 		return false, "NO_ATTACHMENT"
 	end
+    if att==AOM.TYPE.SEEDER then
+        local usable,reason=Seeder.CanWork(inst)
+        if not usable then return false,reason,false end
+    end
 
 	local driver = inst._rider
 	local source=driver or inst
@@ -197,6 +207,10 @@ function AOMDrive.WorkHere(inst, workx, workz)
         local usable,reason=Weeder.CanWork(inst)
         if not usable then return false,reason,false end
         worked,work_reason,ready=AOMFarmWork.Weed(cx,y,cz,driver)
+    elseif att==AOM.TYPE.HARVESTER then
+        local usable,reason=Harvester.CanWork(inst)
+        if not usable then return false,reason,false end
+        worked,work_reason,ready=AOMFarmWork.Harvest(cx,y,cz,driver)
     elseif att==AOM.TYPE.IRRIGATOR then
         worked,work_reason,ready=Irrigator.WaterTile(inst,cx,cz)
     elseif att==AOM.TYPE.FERTILIZER then
@@ -217,12 +231,14 @@ function AOMDrive.WorkHere(inst, workx, workz)
 		inst.components.finiteuses:Use(1)
 		if att==AOM.TYPE.PLOW then LandClearer.Use(inst) end
 		if att==AOM.TYPE.WEEDER then Weeder.Use(inst) end
+		if att==AOM.TYPE.HARVESTER then Harvester.Use(inst) end
+		if att==AOM.TYPE.SEEDER then Seeder.Use(inst) end
 		if inst.AnimState:IsCurrentAnimation("idle") then
 			inst.AnimState:PlayAnimation("work")
 			inst.AnimState:PushAnimation("idle", true)
 		end
 	end
-	if att==AOM.TYPE.PLOW or att==AOM.TYPE.WEEDER or att==AOM.TYPE.IRRIGATOR or att==AOM.TYPE.FERTILIZER then return worked,work_reason,ready end
+	if att==AOM.TYPE.PLOW or att==AOM.TYPE.WEEDER or att==AOM.TYPE.HARVESTER or att==AOM.TYPE.IRRIGATOR or att==AOM.TYPE.FERTILIZER then return worked,work_reason,ready end
 	return worked
 end
 
@@ -236,8 +252,13 @@ local WORK_MESSAGES={
     NO_ATTACHMENT="请先安装挂件",
     BROKEN_ATTACHMENT="开垦机耐久已耗尽，请下车用燧石修理后按 F 继续",
     BROKEN_WEEDER="除草机耐久已耗尽，请下车用燧石修理后按 F 继续",
+    BROKEN_HARVESTER="收割机耐久已耗尽，请下车用燧石修理后按 F 继续",
+    BROKEN_SEEDER="播种机耐久已耗尽，请下车用燧石修理后按 F 继续",
+    BROKEN_CHASSIS="底盘耐久已耗尽，请下车用齿轮修理后按 F 继续",
+    DESTROYED="拖拉机已损毁",
     UNCLEARABLE_WEED="本格有无法用铲子清理的杂草或残渣，已暂停除草",
     WEEDING_INCOMPLETE="本格除草尚未完成，已保留实际进度，请检查后按 F 重试",
+    HARVEST_INCOMPLETE="本格收割或巨大作物拆分尚未完成，已保留实际进度，请检查后按 F 重试",
     PROTECTED_CROP="本格有作物，已保留原状；收获后再开垦",
     BLOCKED_MOUND="地块或坑位被占用，本格未完成，请清理后按 F 重试",
     UNCLEARABLE_DEBRIS="本格有无法用铲子清理的杂物，已停止开垦",
@@ -254,9 +275,9 @@ local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
     fertilizer="肥料不足，请补充后按 F 继续作业"}
 local function StopForReason(inst,reason)
     if inst._workreason_net then
-        inst._workreason_net:set(reason=="FERTILIZER_MISSING" and inst._fertilizer_missing_text
+        inst._workreason_net:set(L(reason=="FERTILIZER_MISSING" and inst._fertilizer_missing_text
             or reason=="EMPTY" and EMPTY_MESSAGES[inst._attachment_type]
-            or WORK_MESSAGES[reason] or PLAN_MESSAGES[reason] or "本格作业暂停，请检查面板提示")
+            or WORK_MESSAGES[reason] or PLAN_MESSAGES[reason] or "本格作业暂停，请检查面板提示"))
     end
     AOMDrive.SetWorking(inst,false)
 end
@@ -274,6 +295,12 @@ function AOMDrive.WorkTile(inst,cx,cz)
         worked_any=true
         ConsumeFuel(inst,AOM.FUEL_PER_TICK)
         if ready==false then StopForReason(inst,reason);return true,reason end
+        if inst.components.finiteuses:GetUses()<=0 then
+            StopForReason(inst,"BROKEN_CHASSIS");return true,"BROKEN_CHASSIS"
+        end
+        if inst._attachment_type==AOM.TYPE.SEEDER and not Seeder.CanWork(inst) then
+            StopForReason(inst,"BROKEN_SEEDER");return true,"BROKEN_SEEDER"
+        end
         if inst._attachment_type==AOM.TYPE.IRRIGATOR and inst.components.aom_attachment_store:GetWater()==0 then
             StopForReason(inst,"EMPTY");return true,"EMPTY"
         end
@@ -282,6 +309,9 @@ function AOMDrive.WorkTile(inst,cx,cz)
         end
         if inst._attachment_type==AOM.TYPE.WEEDER and not Weeder.CanWork(inst) then
             StopForReason(inst,"BROKEN_WEEDER");return true,"BROKEN_WEEDER"
+        end
+        if inst._attachment_type==AOM.TYPE.HARVESTER and not Harvester.CanWork(inst) then
+            StopForReason(inst,"BROKEN_HARVESTER");return true,"BROKEN_HARVESTER"
         end
         if GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
     end
@@ -346,7 +376,7 @@ local STRATEGY_NAME = {
 }
 
 function AOMDrive.GetSeedStrategyName(inst)
-	return STRATEGY_NAME[inst._seed_strategy or "SEQUENTIAL"] or "顺序播种"
+	return L(STRATEGY_NAME[inst._seed_strategy or "SEQUENTIAL"] or "顺序播种")
 end
 
 function AOMDrive.CycleSeedStrategy(inst, doer)
@@ -368,7 +398,7 @@ function AOMDrive.CycleSeedStrategy(inst, doer)
 		inst._seedmode_net:set(inst._seed_strategy)
 	end
 	if doer ~= nil and doer.components.talker ~= nil then
-		doer.components.talker:Say("播种策略：" .. STRATEGY_NAME[inst._seed_strategy])
+		doer.components.talker:Say(L("播种策略：%s",AOMDrive.GetSeedStrategyName(inst)))
 	end
 	return true
 end

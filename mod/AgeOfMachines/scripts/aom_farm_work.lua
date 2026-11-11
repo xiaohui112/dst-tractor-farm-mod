@@ -18,11 +18,12 @@
 -- 返回值为 "ok" / nil, reason
 local AOMFarmWork = {}
 
--- 判定一个实体"是不是原版农作物（farm plant）"
--- 原版 farm_plants.lua 生成的作物带 farmplantstress 组件；杂草/残渣不带
+-- 原版杂草也带 farm_plant 标签；真正作物的组件/定义优先，兼容误加 weed 标签。
 local function IsFarmPlant(target)
-	return target.components.farmplantstress ~= nil
-		or target:HasTag("farm_plant")
+    if target.components.farmplantstress~=nil or target.plant_def~=nil then return true end
+    if target.weed_def~=nil or target:HasTag("weedplantstress") then return false end
+    return (type(target.prefab)=="string" and string.sub(target.prefab,1,11)=="farm_plant_")
+        or target:HasTag("farm_plant")
 end
 
 -- 该作物是否可收获
@@ -80,7 +81,7 @@ local function FindMaturePlants(x, y, z, r)
 	local ents = TheSim:FindEntities(x, y, z, r, nil, { "NOCLICK", "INLIMBO" })
 	local result = {}
 	for _, v in ipairs(ents) do
-		if SameTile(v,x,z) and CanHarvestPlant(v) then
+		if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) then
 			table.insert(result, v)
 		end
 	end
@@ -282,7 +283,7 @@ end
 -- 普通播种一次一颗；只搜索本格，不越界补种到相邻地皮。
 function AOMFarmWork.Seed(x,y,z,doer,seed)
     if not seed or not seed.components.farmplantable then return false,"NO_SEED" end
-    for _,soil in ipairs(FindEmptySoil(x,y,z,2.8)) do
+    for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
         if seed.components.farmplantable:Plant(soil,doer) then return true end
     end
     return false,"NO_SOIL"
@@ -356,21 +357,84 @@ function AOMFarmWork.Weed(x, y, z, doer)
 end
 
 ---------------------------------------------------------------------------
--- 6) 收割机：对应 HARVEST（不做巨大化作物锤开）
+-- 6) 收割机：原版采摘 + 巨大产物 HAMMER，产量与种子沿用原版回调。
 ---------------------------------------------------------------------------
 
--- 注意：原版 farm plant 的"收获"实际是 pickable:Pick（HARVEST 动作也走这条）
--- 巨大化作物由 Pick 内部判定并生成，不在这里处理
+-- 只接管真实作物定义的巨大产物，不触碰同为 HAMMER 的建筑和打蜡装饰。
+local OVERSIZED_PRODUCTS={}
+for crop,def in pairs(require("prefabs/farm_plant_defs").PLANT_DEFS) do
+    local product=def.product_oversized or crop.."_oversized"
+    OVERSIZED_PRODUCTS[product]=true
+    OVERSIZED_PRODUCTS[product.."_rotten"]=true
+end
+local function IsOversizedProduce(v)
+    return v:IsValid() and v:HasTag("oversized_veggie") and OVERSIZED_PRODUCTS[v.prefab]==true
+end
+local function FindOversizedProduce(x,y,z)
+    local out={}
+    for _,v in ipairs(TheSim:FindEntities(x,y,z,FIELD_RADIUS,{"oversized_veggie"},{"NOCLICK","INLIMBO"})) do
+        local item=v.components.inventoryitem
+        if IsOversizedProduce(v) and SameTile(v,x,z) and (item==nil or item.owner==nil) then out[#out+1]=v end
+    end
+    return out
+end
+local function BreakOversized(v,doer)
+    local w=v.components.workable
+    if w==nil or w:GetWorkAction()~=ACTIONS.HAMMER or not w:CanBeWorked() then return false,false end
+    local before=w:GetWorkLeft()
+    w:WorkedBy(doer,before)
+    local changed=not v:IsValid() or w:GetWorkLeft()<before
+    return changed,not v:IsValid() or not IsOversizedProduce(v)
+end
+
+-- 返回 changed, reason, ready；采摘与锤开在同一格内结算一次。
 function AOMFarmWork.Harvest(x, y, z, doer)
-	local targets = FindMaturePlants(x, y, z, 2.9)
-	local count = 0
-	for _, v in ipairs(targets) do
-		if v:IsValid() and v.components.pickable ~= nil and v.components.pickable:CanBePicked() then
-			v.components.pickable:Pick(doer)
-			count = count + 1
-		end
-	end
-	return count > 0, count == 0 and "NOTHING" or nil
+    local targets=FindMaturePlants(x,y,z,FIELD_RADIUS)
+    if #targets==0 and #FindOversizedProduce(x,y,z)==0 then return false,"NOTHING_TO_DO",true end
+    if doer==nil then return false,"NO_WORKER",false end
+    local changed=false
+    for _,v in ipairs(targets) do
+        if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) then
+            local px,py,pz=v.Transform:GetWorldPosition()
+            local p=v.components.pickable
+            local _,loot=p:Pick(doer)
+            local picked=not v:IsValid() or v.components.pickable~=p or not p:CanBePicked()
+            changed=changed or picked
+            if not picked then return changed,"HARVEST_INCOMPLETE",false end
+            -- 原版 Pick 返回本次产物。只把本次新生成的巨大物件从驾驶员身上落回原株位置。
+            for _,item in ipairs(type(loot)=="table" and loot or {}) do
+                if IsOversizedProduce(item) then
+                    local inventoryitem=item.components.inventoryitem
+                    local owner=inventoryitem and inventoryitem.owner
+                    if owner~=nil then
+                        local inventory=doer.components.inventory
+                        if owner~=doer or inventory==nil then return changed,"HARVEST_INCOMPLETE",false end
+                        inventory:DropItem(item,true,false,Vector3(px,py,pz))
+                        if not item:IsValid() or inventoryitem.owner~=nil then return changed,"HARVEST_INCOMPLETE",false end
+                    end
+                    item.Transform:SetPosition(px,py,pz)
+                    local worked,ready=BreakOversized(item,doer)
+                    changed=changed or worked
+                    if not ready then return changed,"HARVEST_INCOMPLETE",false end
+                end
+            end
+        end
+    end
+    -- 再扫描同格地面，包含采摘回调直接落地的产物和此前已采下的巨大产物。
+    for _,v in ipairs(FindOversizedProduce(x,y,z)) do
+        if IsOversizedProduce(v) and SameTile(v,x,z) then
+            local item=v.components.inventoryitem
+            if item==nil or item.owner==nil then
+                local worked,ready=BreakOversized(v,doer)
+                changed=changed or worked
+                if not ready then return changed,"HARVEST_INCOMPLETE",false end
+            end
+        end
+    end
+    if #FindMaturePlants(x,y,z,FIELD_RADIUS)>0 or #FindOversizedProduce(x,y,z)>0 then
+        return changed,"HARVEST_INCOMPLETE",false
+    end
+    return changed,nil,true
 end
 
 ---------------------------------------------------------------------------
@@ -379,7 +443,7 @@ end
 ---------------------------------------------------------------------------
 
 local function HasEmptySoilAt(x, y, z)
-	return #FindEmptySoil(x, y, z, 2.8) > 0
+	return #FindEmptySoil(x, y, z, FIELD_RADIUS) > 0
 end
 
 
@@ -399,7 +463,7 @@ function AOMFarmWork.CanWorkAt(att_type, x, y, z)
 	elseif att_type == AOM_ATTACHMENT_TYPE.WEEDER then
 		return #FindWeedsAndDebris(x, y, z, 2.9) > 0
 	elseif att_type == AOM_ATTACHMENT_TYPE.HARVESTER then
-		return #FindMaturePlants(x, y, z, 2.9) > 0
+		return #FindMaturePlants(x,y,z,FIELD_RADIUS)>0 or #FindOversizedProduce(x,y,z)>0
 	end
 	return false
 end

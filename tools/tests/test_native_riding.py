@@ -201,7 +201,7 @@ assert(not t._working)
         self.run_lua('''
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}
 local seeder
-for _,prefab in ipairs(prefabs)do if prefab.name=='aom_seeder' then seeder=prefab.fn()end end
+for _,prefab in ipairs(prefabs)do if prefab.name=='aom_fertilizer' then seeder=prefab.fn()end end
 t.components.container.GetItemInSlot=function()return seeder end;t:PushEvent('itemget')
 local flint={prefab='flint',components={},IsValid=function()return true end,
  Remove=function()error('must not consume flint')end,HasTag=function()return false end}
@@ -249,6 +249,28 @@ SCENE_HOOKS.inventoryitem(can,p,t,{},false)
 local wrong=CreateEntity();wrong.prefab='other';wrong.components.fillable={};wrong:AddComponent('finiteuses')
 actions={};SCENE_HOOKS.inventoryitem(wrong,p,t,actions,true);assert(#actions==0)
 assert(not ACTION_DEFS.AOM_LOAD.fn({doer=p,target=t,invobject=wrong}))
+''')
+
+    def test_harvester_flint_repair_prompt_caps_at_forty_and_consumes_one(self):
+        self.run_lua('''
+local tool
+for _,prefab in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachments.lua')})do
+ if prefab.name=='aom_harvester' then tool=prefab.fn()end
+end
+t.components.container.GetItemInSlot=function()return tool end;t:PushEvent('itemget')
+tool.components.finiteuses:SetUses(0)
+assert(tool:IsValid())
+local remaining=3
+local flint={prefab='flint',components={},IsValid=function()return true end}
+flint.components.stackable={StackSize=function()return remaining end,
+ Get=function(_,n)remaining=remaining-n;return {Remove=function()end}end}
+local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
+assert(#actions==1 and actions[1].id=='AOM_REPAIR')
+assert(actions[1].fn({doer=p,target=t,invobject=flint}))
+assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
+tool.components.finiteuses:SetUses(39)
+assert(t:TryRepair(p,flint) and tool.components.finiteuses:GetUses()==40 and remaining==1)
+assert(not t:TryRepair(p,flint) and remaining==1)
 ''')
 
     def test_swap_same_type_tank_stops_and_detaches_old_water_listener(self):

@@ -93,11 +93,18 @@ function make_flow_inst(counts,season)
  inst._aom_terraformer=nil
  local tool=NATIVE_PREFABS.aom_landclearer.fn();tool.prefab='aom_landclearer'
  inst.components.container.slots[1]=tool
+ inst._test_tools={plow=tool}
  local worker=CreateEntity();worker:AddTag('player')
  worker.Transform=inst.Transform
  inst._rider=worker
  inst._seed_strategy='SEQUENTIAL'
  return inst
+end
+function set_flow_attachment(inst,kind)
+ inst._test_tools=inst._test_tools or {}
+ local tool=inst._test_tools[kind]
+ if not tool then tool=SpawnPrefab('aom_'..kind);inst._test_tools[kind]=tool end
+ inst.components.container.slots[1]=tool;inst._attachment_type=kind
 end
 function count_entities(name)
  local n=0;for _,v in ipairs(ENTITIES)do if v.valid and v.prefab==name then n=n+1 end end;return n

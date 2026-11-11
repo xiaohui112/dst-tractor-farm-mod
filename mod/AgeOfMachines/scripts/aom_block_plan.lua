@@ -1,5 +1,7 @@
 -- 固定坐标配比规划：每格养分独立平衡，逐株验证家族距离。
 local AOMBlock = {}
+local Locale=require("aom_locale")
+local L=Locale.Text
 local BLOCKS = require("aom_giant_layouts")
 local Farm = require("aom_farm_work")
 local BY_ID = {}
@@ -9,7 +11,7 @@ local MATCH_DIST_SQ = .04
 local function Key(x,z) return string.format("%.3f:%.3f",x,z) end
 local function ValidNumber(v) return type(v)=="number" and v==v and math.abs(v)<1000000 end
 local function Near(a,b) return (a.x-b.x)^2+(a.z-b.z)^2<=MATCH_DIST_SQ end
-function AOMBlock.GetCropName(crop) return CROP_CN[crop] or crop end
+function AOMBlock.GetCropName(crop) return L(CROP_CN[crop] or crop) end
 function AOMBlock.BuildName(ratio)
     local parts={}
     for crop,n in pairs(ratio) do parts[#parts+1]=AOMBlock.GetCropName(crop)..n end
@@ -271,13 +273,13 @@ function AOMBlock.OnLoad(inst,data)
 end
 function AOMBlock.DescribeProgress(inst)
     local b=inst._block
-    if not b then return "配比：待规划" end
+    if not b then return L("配比：待规划") end
     local combo=BY_ID[b.combo_id]
-    local text=string.format("%s %d/%d",combo.name,b.done,combo.total)
+    local text=string.format("%s %d/%d",AOMBlock.BuildName(combo.ratio),b.done,combo.total)
     if #combo.not_giant>0 then
         local names={}
         for _,crop in ipairs(combo.not_giant) do names[#names+1]=AOMBlock.GetCropName(crop) end
-        text=text.."（"..table.concat(names,"、").."不保证巨大化）"
+        text=text..L("（%s不保证巨大化）",table.concat(names,Locale.Separator()))
     end
     return text
 end

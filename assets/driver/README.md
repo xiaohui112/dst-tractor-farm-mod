@@ -11,4 +11,4 @@
 
 角色贴图和皮肤不在本目录。Windows 合成器从用户安装的游戏读取 `player_mount*.zip` 中 `wilsonbeefalo` bank 的动画及牛 build 的符号列表，移除牛的图形，保留人物元素并套入车辆图层。不会修改游戏原文件，也不把角色外观固定为某个人物。
 
-当前为源工程，需 Windows 生成 `aom_tractor_driver.zip` 后启用。人物定位、复杂帽子的边缘、联机显示仍待 DST 实机验收。
+当前源工程对应的Windows产物已导入并启用；构建记录见 `build/windows-2026-11-11/`。修改素材后仍需Windows重建。人物定位、复杂帽子的边缘、联机显示仍待DST实机验收。

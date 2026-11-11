@@ -64,7 +64,7 @@ assert(Farm.IsFieldReady(0,0,0))
                         self.assertTrue(result[0] if isinstance(result,tuple) else result)
                     self.assertEqual(w.lua.globals().count_entities('farm_soil_debris'),0)
                     self.assertEqual(w.lua.globals().count_entities('farm_soil'),combo.total)
-                    inst._attachment_type='seeder'
+                    w.lua.globals().set_flow_attachment(inst,'seeder')
                     for _,tile in tiles.items():
                         result=w.drive.WorkTile(inst,tile.x,tile.z)
                         self.assertTrue(result[0] if isinstance(result,tuple) else result)
@@ -244,9 +244,9 @@ assert(not changed and why=='NO_WORKER' and not ready and TILE_WRITES==0)
         inst=self.w.lua.globals().make_flow_inst(self.w.lua.table_from(as_dict(c.ratio)),'autumn')
         inst._seed_strategy='GIANT';self.w.bind(inst,c);self.w.lua.globals().inst=inst
         self.run_lua('''
-assert(Drive.WorkTile(inst,0,0));inst._attachment_type='seeder';assert(Drive.WorkHere(inst))
+assert(Drive.WorkTile(inst,0,0));set_flow_attachment(inst,'seeder');assert(Drive.WorkHere(inst))
 assert(inst._block.done==1 and crop_count()==1)
-inst._attachment_type='plow'
+set_flow_attachment(inst,'plow')
 local changed,reason,ready=Drive.WorkHere(inst)
 assert(not changed and ready and reason=='ALREADY_TILLED')
 assert(inst._block.done==1 and crop_count()==1 and count_entities('farm_soil')==7)
@@ -262,7 +262,7 @@ local old=SpawnPrefab('farm_soil_debris');old.Transform:SetPosition(1.99,0,1.99)
 assert(Drive.WorkTile(inst,0,0))
 assert(not old.valid and count_entities('farm_soil_debris')==0 and count_entities('farm_soil')==8)
 local leftover=SpawnPrefab('farm_soil_debris');leftover.Transform:SetPosition(1.5,0,1.5)
-inst._attachment_type='seeder'
+set_flow_attachment(inst,'seeder')
 local ok,reason=Drive.WorkHere(inst)
 assert(not ok and reason=='FOREIGN_CROP' and leftover.valid)
 ''')
@@ -273,10 +273,10 @@ assert(not ok and reason=='FOREIGN_CROP' and leftover.valid)
         inst=self.w.lua.globals().make_flow_inst(self.w.lua.table_from(counts),'autumn')
         inst._seed_strategy='GIANT';self.w.bind(inst,c);self.w.lua.globals().inst=inst
         self.run_lua('''
-assert(Drive.WorkTile(inst,0,0));inst._attachment_type='seeder';assert(Drive.WorkTile(inst,0,0))
+assert(Drive.WorkTile(inst,0,0));set_flow_attachment(inst,'seeder');assert(Drive.WorkTile(inst,0,0))
 for _,v in ipairs(ENTITIES)do if v:HasTag('farm_plant') then v:Remove()end end
 local leftover=SpawnPrefab('farm_soil_debris');leftover.Transform:SetPosition(.3,0,.3)
-inst._attachment_type='plow';assert(Drive.WorkTile(inst,0,0))
+set_flow_attachment(inst,'plow');assert(Drive.WorkTile(inst,0,0))
 assert(not leftover.valid and inst._block.done==0 and count_entities('farm_soil')==8)
 ''')
 

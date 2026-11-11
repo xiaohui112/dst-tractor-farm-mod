@@ -14,6 +14,7 @@
 local Widget = require "widgets/widget"
 local Text = require "widgets/text"
 local TextButton = require "widgets/textbutton"
+local L=require("aom_locale").Text
 
 local MAX_FUEL = 800
 
@@ -28,7 +29,7 @@ local AOMHud = Class(Widget, function(self, owner)
 	self.root:SetPosition(18, -60, 0)
 
 	self.lines = {}
-	for i = 1, 4 do
+	for i = 1, 6 do
 		local t = self.root:AddChild(Text(NUMBERFONT, 22, ""))
 		t:SetHAlign(ANCHOR_LEFT)
 		t:SetVAlign(ANCHOR_TOP)
@@ -39,8 +40,8 @@ local AOMHud = Class(Widget, function(self, owner)
 	self.seedbutton = self.root:AddChild(TextButton())
 	self.seedbutton:SetFont(NUMBERFONT)
 	self.seedbutton:SetTextSize(22)
-	self.seedbutton:SetPosition(100, -112, 0)
-	self.seedbutton:SetText("切换播种策略")
+	self.seedbutton:SetPosition(100, -168, 0)
+	self.seedbutton:SetText(L("切换播种策略"))
 	self.seedbutton:SetOnClick(function()
 		SendModRPCToServer(MOD_RPC.aom_rpc.AOM_SEED_MODE)
 	end)
@@ -55,7 +56,7 @@ function AOMHud:Refresh(tractor)
 	end
 
 	-- 挂件名（通过 netvar 拿到的物品 prefab 推断）
-	local att_text = "无挂件"
+	local att_text = L("无挂件")
 	local att = tractor._attachment ~= nil and tractor._attachment:value() or nil
 	if att ~= nil and att:IsValid() then
 		local name = STRINGS.NAMES[string.upper(att.prefab)] or att.prefab
@@ -64,30 +65,29 @@ function AOMHud:Refresh(tractor)
 
 	-- 燃料
 	local fuel = tractor._fuel ~= nil and tractor._fuel:value() or 0
-	local fuel_text = string.format("燃料 %d/%d", math.floor(fuel), MAX_FUEL)
+	local fuel_text = L("燃料 %d/%d", math.floor(fuel), MAX_FUEL)
 
 	-- 作业状态 + 停机原因
 	local working = tractor._workstatus ~= nil and tractor._workstatus:value() or false
 	local status
 	if not working then
-		status = "作业关闭（F 开启）"
+		status = L("作业关闭（F 开启）")
 	elseif fuel <= 0 then
-		status = "停机：没油了"
+		status = L("停机：没油了")
 	else
-		status = "作业中（F 关闭）"
+		status = L("作业中（F 关闭）")
 	end
 
     local reason=tractor._workreason_net and tractor._workreason_net:value() or ""
-    if reason~="" then status=reason end
+    if reason~="" then status=L(reason) end
 	-- 播种策略（仅播种机）
-	local mode_names = { SEQUENTIAL = "顺序", RANDOM = "随机", GIANT = "配比" }
+	local mode_names = { SEQUENTIAL = L("顺序"), RANDOM = L("随机"), GIANT = L("配比") }
 	local mode_key = tractor._seedmode_net ~= nil and tractor._seedmode_net:value() or ""
-	local mode_text = mode_names[mode_key] or "顺序"
+	local mode_text = mode_names[mode_key] or L("顺序")
 
 	self.lines[1]:SetString("==== " .. STRINGS.NAMES.AOM_TRACTOR_CHASSIS .. " ====")
-	self.lines[2]:SetString("挂件：" .. att_text .. "   " .. fuel_text)
 	if att_text == STRINGS.NAMES.AOM_SEEDER then
-		self.lines[3]:SetString(status .. "   [播种:" .. mode_text .. "]")
+		self.lines[3]:SetString(status .. L("   [播种:%s]",mode_text))
 	else
 		self.lines[3]:SetString(status)
 	end
@@ -96,14 +96,22 @@ function AOMHud:Refresh(tractor)
     if att and att.attachment_type=="irrigator" then
         local water=tractor._water_net and tractor._water_net:value() or 0
         local capacity=tractor._watermax_net and tractor._watermax_net:value() or 0
-        self.lines[4]:SetString(string.format("水箱 %d/%d 次水壶用量",water,capacity))
+        self.lines[4]:SetString(L("水箱 %d/%d 次水壶用量",water,capacity))
     elseif att and att.attachment_type=="fertilizer" then
         local uses=tractor._fertilizeruses_net and tractor._fertilizeruses_net:value() or 0
         local stock=tractor._fertilizerstock_net and tractor._fertilizerstock_net:value() or ""
-        self.lines[4]:SetString(string.format("肥料剩余 %d 次",uses)..(stock~="" and "："..stock or ""))
-    else self.lines[4]:SetString(mode_key=="GIANT" and progress or "") end
+        self.lines[4]:SetString(L("肥料剩余 %d 次",uses)..(stock~="" and ": "..stock or ""))
+    elseif att and att.attachment_type=="seeder" then
+        self.lines[4]:SetString(L("种子剩余 %d 颗",tractor._seedcount_net and tractor._seedcount_net:value() or 0))
+    else self.lines[4]:SetString("") end
+	local uses=tractor._uses_net and tractor._uses_net:value() or 0
+	local tooluses=tractor._tooluses_net and tractor._tooluses_net:value() or 0
+	local toolmax=tractor._toolmax_net and tractor._toolmax_net:value() or 0
+	self.lines[5]:SetString(L("底盘 %d/%d",uses,1000)..(toolmax>0 and "   "..L("挂件耐久 %d/%d",tooluses,toolmax) or ""))
+	self.lines[6]:SetString(mode_key=="GIANT" and progress or "")
 	local factor=tractor._speedfactor_net and tractor._speedfactor_net:value() or 1
-	self.lines[2]:SetString("挂件："..att_text.."   "..fuel_text..string.format("   车速 %.0f%%",factor*100))
+	self.lines[2]:SetString(L("挂件：%s   %s   车速 %.0f%%",att_text,fuel_text,factor*100))
+	self.seedbutton:SetText(L("切换播种策略"))
 	if att ~= nil and att:IsValid() and att.prefab == "aom_seeder" then
 		self.seedbutton:Show()
 	else

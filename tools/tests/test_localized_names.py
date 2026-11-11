@@ -15,6 +15,18 @@ EXPECTED = {
 
 
 class LocalizedNameTests(unittest.TestCase):
+    def test_required_module_does_not_need_mod_environment_global_alias(self):
+        lua=LuaRuntime()
+        lua.globals().SCRIPTS=str(MOD/'scripts')
+        lua.execute('''
+GLOBAL=nil;GetModConfigData=nil;STRINGS={NAMES={},RECIPE_DESC={}}
+package.path=SCRIPTS..'/?.lua;'..package.path
+local aom=require('aom_common')
+assert(GLOBAL==nil and AOM_ATTACHMENT_TYPE.SEEDER=='seeder')
+assert(STRINGS.NAMES.AOM_SEEDER=='播种机')
+aom.SetLanguage('en');assert(STRINGS.NAMES.AOM_SEEDER=='Seeder')
+''')
+
     def load(self, config, locale):
         lua = LuaRuntime()
         lua.globals().CONFIG = config
