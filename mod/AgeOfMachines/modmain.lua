@@ -5,9 +5,15 @@
 	所有农业行为最终落在 scripts/aom_farm_work.lua 里对原版函数的调用上。
 ]]
 
+-- modmain 运行在官方受限环境（scripts/mods.lua 的 CreateEnvironment）里，只暴露
+-- pairs/ipairs/print/math/table/type/string/tostring/require/Class/TUNING/GLOBAL 等。
+-- 这里显式从 GLOBAL 取常用函数，避免 "attempt to call global 'xxx' (a nil value)"。
 local Ingredient = GLOBAL.Ingredient
 local TECH = GLOBAL.TECH
 local TUNING = GLOBAL.TUNING
+local Vector3 = GLOBAL.Vector3
+local ActionHandler = GLOBAL.ActionHandler
+local pcall = GLOBAL.pcall
 
 PrefabFiles = {
 	"aom_tractor_chassis",
@@ -160,7 +166,7 @@ end)
 ---------------------------------------------------------------------------
 
 local function GetDrivenTractor(player)
-	if not TheWorld.ismastersim or player == nil or not player:IsValid()
+	if not GLOBAL.TheWorld.ismastersim or player == nil or not player:IsValid()
 		or (player.components.health ~= nil and player.components.health:IsDead())
 		or (player.sg ~= nil and player.sg:HasStateTag("busy")) then
 		return nil

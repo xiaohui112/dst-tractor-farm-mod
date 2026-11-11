@@ -238,6 +238,94 @@ def check_common_module():
 
 
 # ---------------------------------------------------------------------------
+# 4.5 modmain 的受限全局环境
+# ---------------------------------------------------------------------------
+
+# 与官方 scripts/mods.lua 的 CreateEnvironment + modutil.InsertPostInitFunctions 对应。
+# modmain.lua 不在全局环境里执行：没有 pcall / assert / Vector3 / TheWorld 等，
+# 必须写成 GLOBAL.pcall / GLOBAL.Vector3，否则加载即报
+# "attempt to call global 'x' (a nil value)" 并整只 Mod 被禁用。
+MOD_ENV_GLOBALS = set("""
+pairs ipairs print math table type string tostring require Class
+TUNING LEVELCATEGORY GROUND WORLD_TILES LOCKS KEYS LEVELTYPE GLOBAL modname MODROOT CHARACTERLIST
+self arg
+AddAction AddBrainPostInit AddCharacterRecipe AddClassPostConstruct AddClientModRPCHandler
+AddComponentAction AddComponentPostInit AddCookerRecipe AddCustomizeGroup AddCustomizeItem
+AddDeconstructRecipe AddFalloffTexture AddGameMode AddGamePostInit AddGlobalClassPostConstruct
+AddIngredientValues AddLevel AddLevelPreInit AddLevelPreInitAny AddLoadingTip AddLocation
+AddMinimapAtlas AddModCharacter AddModRPCHandler AddModShadersInit AddModShadersSortAndEnable
+AddPlayerPostInit AddPopup AddPrefabPostInit AddPrefabPostInitAny AddPrototyperDef AddRecipe
+AddRecipe2 AddRecipeFilter AddRecipePostInit AddRecipePostInitAny AddRecipeTab AddRecipeToFilter
+AddReplicableComponent AddRoom AddRoomPreInit AddShardModRPCHandler AddSimPostInit
+AddStartLocation AddStategraphActionHandler AddStategraphEvent AddStategraphPostInit
+AddStategraphState AddTask AddTaskPreInit AddTaskSet AddTaskSetPreInit AddTaskSetPreInitAny
+AddTile AddUserCommand AddVoteCommand Asset ExcludeClothingSymbolForModCharacter
+GetClientModRPC GetClientModRPCHandler GetCustomizeDescription GetModConfigData GetModRPC
+GetModRPCHandler GetShardModRPC GetShardModRPCHandler Ingredient LoadPOFile Prefab Recipe
+RegisterInventoryItemAtlas RegisterScrapbookIconAtlas RegisterSkilltreeBGForCharacter
+RegisterSkilltreeIconsAtlas RegisterTileRange ReleaseID ReloadFrontEndAssets ReloadPreloadAssets
+RemapSoundEvent RemoveCustomizeGroup RemoveCustomizeItem RemoveDefaultCharacter RemoveLoadingTip
+RemoveRecipeFromFilter RemoveRemapSoundEvent SendModRPCToClient SendModRPCToServer SendModRPCToShard
+SetFalloffProperty SetLoadingTipCategoryIcon SetLoadingTipCategoryWeights SetMiniMapTileProperty
+SetModHUDFocus SetTileProperty modassert moderror modimport CurrentRelease
+""".split())
+
+MOD_ENV_RESTRICTED = set("""
+pcall xpcall error assert setmetatable getmetatable rawget rawset next select unpack tonumber
+os io debug loadstring loadfile dofile collectgarbage coroutine
+Vector3 TheWorld TheSim TheNet TheInput TheFrontEnd ThePlayer ActionHandler State Time
+STRINGS ACTIONS RECIPES
+""".split())
+
+LUA_KEYWORDS = set("""
+and break do else elseif end false for function goto if in local nil not or repeat return then
+true until while
+""".split())
+
+
+def _strip_lua_literals(src):
+    src = re.sub(r"--\[(=*)\[.*?\]\1\]", "", src, flags=re.S)
+    src = re.sub(r"\[(=*)\[.*?\]\1\]", "", src, flags=re.S)
+    src = re.sub(r"--[^\n]*", "", src)
+    src = re.sub(r'"(?:\\.|[^"\\\n])*"', '""', src)
+    src = re.sub(r"'(?:\\.|[^'\\\n])*'", "''", src)
+    return src
+
+
+def check_mod_environment():
+    for name in ("modmain.lua", "modworldgenmain.lua"):
+        if not os.path.exists(os.path.join(MOD, name)):
+            continue
+        text = _strip_lua_literals(read(name))
+        defined = set(MOD_ENV_GLOBALS) | LUA_KEYWORDS
+        defined.update(re.findall(r"\blocal\s+([A-Za-z_]\w*)", text))
+        defined.update(re.findall(r"\blocal\s+function\s+([A-Za-z_]\w*)", text))
+        for m in re.finditer(r"\blocal\s+([A-Za-z_][\w\s,]*?)\s*=", text):
+            defined.update(n.strip() for n in m.group(1).split(",") if re.match(r"^\w+$", n.strip()))
+        for m in re.finditer(r"function[^(]*\(([^)]*)\)", text):
+            defined.update(n.strip() for n in m.group(1).split(",") if re.match(r"^\w+$", n.strip()))
+        for m in re.finditer(r"\bfor\s+([\w\s,]+?)\s+(?:in|=)", text):
+            defined.update(n.strip() for n in m.group(1).split(",") if re.match(r"^\w+$", n.strip()))
+        # 顶层赋值会在 env 里创建字段（Assets / PrefabFiles 等）
+        defined.update(re.findall(r"(?m)^\s*([A-Za-z_]\w*)\s*=[^=]", text))
+
+        missing = {}
+        for lineno, line in enumerate(text.split("\n"), 1):
+            for m in re.finditer(r"(?<![\w.:])([A-Za-z_]\w*)\s*[.(\[:]", line):
+                identifier = m.group(1)
+                if identifier not in defined:
+                    missing.setdefault(identifier, []).append(lineno)
+            for identifier in MOD_ENV_RESTRICTED - defined:
+                if re.search(r"(?<![\w.:])%s\b" % identifier, line):
+                    missing.setdefault(identifier, []).append(lineno)
+        if missing:
+            detail = ", ".join("%s:%s" % (n, ",".join(str(v) for v in sorted(set(lines))))
+                               for n, lines in sorted(missing.items()))
+            fail("%s 用了 Mod 受限环境里没有的全局：%s（改用 GLOBAL.xxx 或 local 别名）"
+                 % (name, detail))
+
+
+# ---------------------------------------------------------------------------
 # 5. 交叉引用
 # ---------------------------------------------------------------------------
 
@@ -394,6 +482,7 @@ def main():
     check_driver_assets()
     check_music_assets()
     check_common_module()
+    check_mod_environment()
     check_cross_refs()
     check_local_functions_defined()
     check_bad_patterns()
