@@ -64,12 +64,19 @@ function AOMHud:Refresh(tractor)
 		return
 	end
 
-	-- 挂件名（通过 netvar 拿到的物品 prefab 推断）
+	-- 挂件类型走 net_string：容器里的实体引用在客户端拿不到，不能靠 _attachment:value()。
+	local ATT_PREFAB = {
+		plow = "AOM_LANDCLEARER",
+		seeder = "AOM_SEEDER",
+		irrigator = "AOM_IRRIGATOR",
+		fertilizer = "AOM_FERTILIZER",
+		weeder = "AOM_WEEDER",
+		harvester = "AOM_HARVESTER",
+	}
+	local att_type = tractor._atttype_net ~= nil and tractor._atttype_net:value() or ""
 	local att_text = "无挂件"
-	local att = tractor._attachment ~= nil and tractor._attachment:value() or nil
-	if att ~= nil and att:IsValid() then
-		local name = STRINGS.NAMES[string.upper(att.prefab)] or att.prefab
-		att_text = name
+	if ATT_PREFAB[att_type] ~= nil then
+		att_text = STRINGS.NAMES[ATT_PREFAB[att_type]] or att_type
 	end
 
 	-- 燃料
@@ -96,30 +103,30 @@ function AOMHud:Refresh(tractor)
 
 	self.lines[1]:SetString("==== " .. STRINGS.NAMES.AOM_TRACTOR_CHASSIS .. " ====")
 	self.lines[2]:SetString("挂件：" .. att_text .. "   " .. fuel_text)
-	if att_text == STRINGS.NAMES.AOM_SEEDER then
+	if att_type == "seeder" then
 		self.lines[3]:SetString(status .. "   [播种:" .. mode_text .. "]")
 	else
 		self.lines[3]:SetString(status)
 	end
 
     local progress=tractor._planprogress_net and tractor._planprogress_net:value() or ""
-    if att and att.attachment_type=="irrigator" then
+    if att_type == "irrigator" then
         local water=tractor._water_net and tractor._water_net:value() or 0
         local capacity=tractor._watermax_net and tractor._watermax_net:value() or 0
         self.lines[4]:SetString(string.format("水箱 %d/%d 次水壶用量",water,capacity))
-    elseif att and att.attachment_type=="fertilizer" then
+    elseif att_type == "fertilizer" then
         local uses=tractor._fertilizeruses_net and tractor._fertilizeruses_net:value() or 0
         local stock=tractor._fertilizerstock_net and tractor._fertilizerstock_net:value() or ""
         self.lines[4]:SetString(string.format("肥料剩余 %d 次",uses)..(stock~="" and "："..stock or ""))
     else self.lines[4]:SetString(mode_key=="GIANT" and progress or "") end
 	local factor=tractor._speedfactor_net and tractor._speedfactor_net:value() or 1
 	self.lines[2]:SetString("挂件："..att_text.."   "..fuel_text..string.format("   车速 %.0f%%",factor*100))
-	if att ~= nil and att:IsValid() and att.prefab == "aom_seeder" then
+	if att_type == "seeder" then
 		self.seedbutton:Show()
 	else
 		self.seedbutton:Hide()
 	end
-	if att ~= nil and att:IsValid() then
+	if att_type ~= "" then
 		self.detachbutton:Show()
 	else
 		self.detachbutton:Hide()

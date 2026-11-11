@@ -82,6 +82,9 @@ local function OnAttachmentChanged(inst)
 		-- 没有挂件就不能继续作业
 		AOMDrive.SetWorking(inst, false)
 	end
+	if inst._atttype_net ~= nil then
+		inst._atttype_net:set(inst._attachment_type or "")
+	end
 	if previous~=item then
         if previous then inst:RemoveEventCallback("percentusedchange",Irrigator.Sync,previous) end
         inst._watched_attachment=item
@@ -113,23 +116,28 @@ local function AttachAttachment(inst, doer, item)
 		or not item:HasTag(AOM.TAG.ATTACHMENT) then
 		return false
 	end
-	local inventory = doer ~= nil and doer.components.inventory or nil
 	local container = inst.components.container
+	local inventory = doer ~= nil and doer.components.inventory or nil
 	local old = container:GetItemInSlot(1)
-	if old ~= nil and old ~= item then
-		container:RemoveItem(old, true)
-		if inventory == nil or not inventory:GiveItem(old) then
-			local x, y, z = inst.Transform:GetWorldPosition()
-			old.Transform:SetPosition(x, y, z)
-			if old.components.inventoryitem ~= nil then
-				old.components.inventoryitem:OnDropped()
-			end
-		end
+	if old == item then
+		return true
 	end
+	-- 先把新挂件从背包拿出，空出一格给换下来的旧挂件，避免背包满时旧挂件丢失。
 	if inventory ~= nil then
 		inventory:RemoveItem(item)
 	end
-	container:GiveItem(item, 1)
+	if old ~= nil then
+		container:RemoveItem(old, true)
+		if inventory == nil or not inventory:GiveItem(old) then
+			-- 背包放不下：走容器自己的掉落流程，保证掉在地上而不是凭空消失。
+			container:DropItemAt(old, inst.Transform:GetWorldPosition())
+		end
+	end
+	if not container:GiveItem(item, 1) then
+		-- 极端情况下装不进去，把新挂件还给玩家。
+		if inventory ~= nil then inventory:GiveItem(item) end
+		return false
+	end
 	return true
 end
 
@@ -138,18 +146,15 @@ local function DetachAttachment(inst, doer)
 	if inst.components.container == nil then
 		return false
 	end
-	local item = inst.components.container:GetItemInSlot(1)
+	local container = inst.components.container
+	local item = container:GetItemInSlot(1)
 	if item == nil then
 		return false
 	end
-	inst.components.container:RemoveItem(item, true)
+	container:RemoveItem(item, true)
 	local inventory = doer ~= nil and doer.components.inventory or nil
 	if inventory == nil or not inventory:GiveItem(item) then
-		local x, y, z = inst.Transform:GetWorldPosition()
-		item.Transform:SetPosition(x, y, z)
-		if item.components.inventoryitem ~= nil then
-			item.components.inventoryitem:OnDropped()
-		end
+		container:DropItemAt(item, inst.Transform:GetWorldPosition())
 	end
 	return true
 end
@@ -338,6 +343,8 @@ local function fn()
 	inst._watermax_net=net_float(inst.GUID,"aom_tractor_chassis.watermax","aomwaterdirty")
 	inst._fuel = net_float(inst.GUID, "aom_tractor_chassis.fuel", "aomfueldirty")
 	inst._attachment = net_entity(inst.GUID, "aom_tractor_chassis.attachment", "aomattachmentdirty")
+	-- 客户端拿不到容器里的实体引用，挂件类型单独用 net_string 同步给 HUD。
+	inst._atttype_net = net_string(inst.GUID, "aom_tractor_chassis.atttype", "aomatttypedirty")
 	-- 驾驶/作业状态同步给客户端（UI 与其它玩家可见）
 	inst._rider_net = net_entity(inst.GUID, "aom_tractor_chassis.rider", "aomriderdirty")
 	inst._workstatus = net_bool(inst.GUID, "aom_tractor_chassis.working", "aomworkdirty")

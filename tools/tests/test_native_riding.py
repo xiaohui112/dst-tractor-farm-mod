@@ -114,7 +114,7 @@ RPCS.AOM_TOGGLE_WORK(p);assert(not t._working)
     def test_f_controls_work_and_hud_keeps_seed_mode_button(self):
         self.run_lua('''
 ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
-CLIENT_PLAYER=p;t._attachment_type='seeder'
+CLIENT_PLAYER=p;t._attachment_type='seeder';t._atttype_net:set('seeder')
 local attachment={prefab='aom_seeder',IsValid=function()return true end}
 t._attachment:set(attachment)
 local hud=HUD(p);hud:Refresh(t)
@@ -123,7 +123,7 @@ assert(string.find(hud.lines[3].text,'F'))
 press_f(p);release_f(p);hud:Refresh(t)
 assert(t._working and not p.attacks)
 hud.seedbutton.onclick();assert(t._seed_strategy=='RANDOM')
-t._attachment:set(nil);hud:Refresh(t);assert(not hud.seedbutton.visible)
+t._attachment:set(nil);t._atttype_net:set('');hud:Refresh(t);assert(not hud.seedbutton.visible)
 hud:Refresh(nil);assert(not hud.visible)
 ''')
 
