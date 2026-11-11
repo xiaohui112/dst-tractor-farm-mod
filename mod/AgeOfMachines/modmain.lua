@@ -268,7 +268,7 @@ end
 -- 底盘：炼金引擎
 AddMachineRecipe("aom_tractor_chassis", {
 	Ingredient("gears", 4),
-	Ingredient("electric_bt", 3),
+	Ingredient("transistor", 3),
 	Ingredient("boards", 6),
 	Ingredient("flint", 8),
 }, TECH.SCIENCE_TWO, { "TOOLS" })
@@ -312,7 +312,7 @@ AddMachineRecipe("aom_harvester", {
 -- 拆解：把打包物品拆回材料（不可逆，只回收一半）
 AddDeconstructRecipe("aom_tractor_item", {
 	Ingredient("gears", 2),
-	Ingredient("electric_bt", 1),
+	Ingredient("transistor", 1),
 	Ingredient("boards", 3),
 	Ingredient("flint", 4),
 })

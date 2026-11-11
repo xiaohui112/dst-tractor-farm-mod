@@ -94,6 +94,35 @@ def check_modinfo():
 # 3. 资源引用
 # ---------------------------------------------------------------------------
 
+def check_recipe_ingredients():
+    """配方里的 Ingredient 必须是真实存在的 prefab：写错名字时制作菜单只显示红方块，
+    而且永远做不出来（v0.1.7 实机就是 electric_bt 不存在）。"""
+    game = find_game_folder()
+    if game is None:
+        warn("未找到《饥荒联机版》安装目录，跳过配方材料核对（可设 DST_GAME）")
+        return
+    bundle = os.path.join(game, "data", "databundles", "scripts.zip")
+    if not os.path.exists(bundle):
+        warn("找不到 data/databundles/scripts.zip，跳过配方材料核对")
+        return
+    known = set()
+    with ZipFile(bundle) as archive:
+        for name in archive.namelist():
+            if not name.endswith(".lua"):
+                continue
+            text = archive.read(name).decode("utf-8", "replace")
+            known.update(re.findall(r'Prefab\(\s*"([a-z0-9_]+)"', text))
+        known.update(re.findall(r'"([a-z0-9_]+)"',
+                               archive.read("scripts/prefablist.lua").decode("utf-8", "replace")))
+    for path in glob.glob(os.path.join(MOD, "scripts", "prefabs", "*.lua")):
+        text = open(path, encoding="utf-8").read()
+        known.update(re.findall(r'Prefab\(\s*"([a-z0-9_]+)"', text))
+        known.update(re.findall(r'MakeAttachment\(\s*"([a-z0-9_]+)"', text))
+    for name in sorted(set(re.findall(r'Ingredient\(\s*"([^"]+)"', read("modmain.lua")))):
+        if name not in known:
+            fail("配方材料 Ingredient(\"%s\") 在当前游戏版本里不存在" % name)
+
+
 def check_no_source_png():
     """Mod 目录里不能放 PNG：游戏启动会把 images/ 下的 PNG 自动编译成单元素图集，
     覆盖手工写的多图标 .xml（v0.1.5 实机就是因此丢了制作菜单图标）。"""
@@ -579,6 +608,7 @@ def main():
     check_mod_environment()
     check_script_modules()
     check_game_paths()
+    check_recipe_ingredients()
     check_cross_refs()
     check_local_functions_defined()
     check_bad_patterns()
