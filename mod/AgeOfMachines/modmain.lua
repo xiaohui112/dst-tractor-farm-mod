@@ -356,6 +356,7 @@ local SHORT_ACTION_ACTIONS = {
 	AOM_REFUEL,       -- 加油
 	AOM_REPAIR,       -- 修理
 	AOM_LOAD,         -- 装料
+	AOM_ATTACH,       -- 装挂件
 }
 
 -- 原版角色状态图同时负责步行和骑乘。

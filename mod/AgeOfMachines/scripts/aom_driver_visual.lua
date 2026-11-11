@@ -3,6 +3,11 @@
 local Bank=require("aom_driver_visual_bank")
 local M={ASSET="anim/aom_tractor_driver.zip",ready=false}
 
+-- 骑乘时原版会隐藏车体，只画角色 AnimState 里的驾驶室；这里按底盘同一比例放大，
+-- 否则坐进驾驶室后整个模型会比停在地上时小一圈。
+local AOM_CONFIG=rawget(_G,"AOM_CONFIG")
+M.SCALE=type(AOM_CONFIG)=="table" and tonumber(AOM_CONFIG.MODEL_SCALE) or 3
+
 function M.Configure(root,exists)
     M.ready=false
     if Bank.available and root and type(exists)=="function" then
@@ -26,6 +31,7 @@ function M.Apply(inst,animstate)
     -- 不调用 SetBuild：角色、皮肤、帽子、衣服等覆盖符号继续由原版维护。
     animstate:AddOverrideBuild(Bank.build)
     animstate:SetBank(Bank.bank)
+    animstate:SetScale(M.SCALE,M.SCALE,M.SCALE)
     inst._aom_driver_animstate=animstate
     M.UpdateAttachment(inst,animstate)
 end
@@ -35,6 +41,7 @@ function M.Clear(inst,animstate)
     animstate:ClearOverrideBuild(Bank.build)
     animstate:ClearOverrideSymbol("aom_driver_attachment_rear")
     animstate:ClearOverrideSymbol("aom_driver_attachment_front")
+    animstate:SetScale(1,1,1)
     inst._aom_driver_animstate=nil
     -- 原版 ActualDismount 已恢复 wilson bank，不改角色自己的 build 或皮肤。
 end
