@@ -44,6 +44,9 @@ if (Test-Path -LiteralPath $target) {
     Remove-Item -LiteralPath $target -Recurse -Force
 }
 Copy-Item -LiteralPath $Source -Destination $target -Recurse -Force
+# 游戏启动时会把 Mod 里的 PNG 自动编译成单元素图集并覆盖同名 .xml，
+# 多图标图集必须只发 .tex/.xml，所以安装时清掉任何源 PNG。
+Get-ChildItem -LiteralPath $target -Recurse -File -Filter '*.png' | Remove-Item -Force
 
 $bad = 0
 $files = Get-ChildItem -LiteralPath $Source -Recurse -File

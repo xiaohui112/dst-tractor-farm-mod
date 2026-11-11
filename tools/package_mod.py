@@ -9,6 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MOD = ROOT / 'mod' / 'AgeOfMachines'
 ARCHIVE = ROOT / 'AgeOfMachines.zip'
 SKIP_PARTS = {'__pycache__', '.DS_Store'}
+# 源 PNG 不进安装包：游戏会把 images/ 下的 PNG 自动编译成单元素图集并覆盖多图标 .xml。
+SKIP_SUFFIXES = {'.png'}
 REQUIRED = ('modinfo.lua', 'modmain.lua', 'modicon.tex', 'scripts/aom_driver_visual_bank.lua',
             'anim/aom_tractor_chassis.zip', 'anim/aom_attachment_shared.zip',
             'anim/aom_attachment_symbols.zip', 'sound/aom_irrigator_music.fsb')
@@ -16,7 +18,8 @@ REQUIRED = ('modinfo.lua', 'modmain.lua', 'modicon.tex', 'scripts/aom_driver_vis
 
 def main():
     files = sorted(p for p in MOD.rglob('*')
-                   if p.is_file() and not (set(p.relative_to(MOD).parts) & SKIP_PARTS))
+                   if p.is_file() and not (set(p.relative_to(MOD).parts) & SKIP_PARTS)
+                   and p.suffix.lower() not in SKIP_SUFFIXES)
     for name in REQUIRED:
         if not (MOD / name).is_file():
             raise SystemExit('ERROR: 缺少 ' + name)

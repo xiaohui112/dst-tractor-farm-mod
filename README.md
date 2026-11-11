@@ -35,7 +35,9 @@ Windows 动画编译：完整解压编译包，在 Steam 安装 `Don't Starve Mo
 powershell -ExecutionPolicy Bypass -File tools/install_to_game.ps1
 ```
 
-也可以解压 `AgeOfMachines.zip` 到 `mods/`。进游戏后在 `Mods` 勾选「拖拉机（Tractor）」，已有存档需要重启世界；联机时所有客户端使用同一版本。安装脚本已在 Windows 上实测：52 个文件、SHA-256 校验 0 差异，驾驶室动画 23.1 MiB 随包启用。
+也可以解压 `AgeOfMachines.zip` 到 `mods/`。进游戏后在 `Mods` 勾选「拖拉机（Tractor）」，已有存档需要重启世界；联机时所有客户端使用同一版本。安装脚本已在 Windows 上实测：40 个文件、SHA-256 校验 0 差异，驾驶室动画 23.1 MiB 随包启用。
+
+> Mod 目录里只放编译好的 `.tex`/`.xml`，**不要把源 PNG 放进 `mod/AgeOfMachines/images/`**：游戏启动时会把 `images/` 下的 PNG 自动编译成单元素图集并覆盖同名 `.xml`，多图标图集会因此失效（源 PNG 放在 `assets/images/`）。
 
 ## 当前功能
 

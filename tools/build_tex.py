@@ -24,23 +24,27 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOD = os.path.join(ROOT, "mod", "AgeOfMachines")
 IMG = os.path.join(MOD, "images")
+SRC = os.path.join(ROOT, "assets", "images")      # 源 PNG，不进 Mod 目录
+BUILD = os.path.join(ROOT, "outputs", "tex-build")  # 拼好的图集 PNG，不进 Mod 目录
 KTC = os.path.expanduser("~/.local/bin/ktech")
 
-# 图集定义：(输出名, 图集PNG, [(元素名, 源PNG相对 MOD 的路径)])
+# 图集定义：(输出名, [(元素名, 源 PNG 文件名)])
+# 注意：Mod 的 images/ 里只放 .tex + .xml。游戏会在启动时把 images/ 下的 PNG
+# 自动编译成单元素图集并覆盖同名 .xml，多图标图集因此必须只发 .tex/.xml。
 ATLASES = [
     (
         "aom_chassis_inventory",
-        [("aom_tractor_item.tex", "images/aom_tractor_item.png")],
+        [("aom_tractor_item.tex", "aom_tractor_item.png")],
     ),
     (
         "aom_attachment_inventory",
         [
-            ("aom_landclearer.tex", "images/aom_landclearer.png"),
-            ("aom_seeder.tex", "images/aom_seeder.png"),
-            ("aom_irrigator.tex", "images/aom_irrigator.png"),
-            ("aom_fertilizer.tex", "images/aom_fertilizer.png"),
-            ("aom_weeder.tex", "images/aom_weeder.png"),
-            ("aom_harvester.tex", "images/aom_harvester.png"),
+            ("aom_landclearer.tex", "aom_landclearer.png"),
+            ("aom_seeder.tex", "aom_seeder.png"),
+            ("aom_irrigator.tex", "aom_irrigator.png"),
+            ("aom_fertilizer.tex", "aom_fertilizer.png"),
+            ("aom_weeder.tex", "aom_weeder.png"),
+            ("aom_harvester.tex", "aom_harvester.png"),
         ],
     ),
 ]
@@ -48,7 +52,7 @@ ATLASES = [
 
 def build_atlas(name, elements):
     """横排拼图集，返回元素 UV 表。"""
-    ims = [Image.open(os.path.join(MOD, p)).convert("RGBA") for _, p in elements]
+    ims = [Image.open(os.path.join(SRC, p)).convert("RGBA") for _, p in elements]
     h = max(i.height for i in ims)
     w = sum(i.width for i in ims)
     sheet = Image.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -58,7 +62,8 @@ def build_atlas(name, elements):
         sheet.paste(im, (x, 0), im)
         uv.append((elem, x / w, (x + im.width) / w, im.width, im.height))
         x += im.width
-    png_path = os.path.join(IMG, name + ".png")
+    os.makedirs(BUILD, exist_ok=True)
+    png_path = os.path.join(BUILD, name + ".png")
     sheet.save(png_path)
 
     # 写 XML：DST 用 <Texture filename> + <Element name u1 v1 u2 v2>
@@ -92,7 +97,7 @@ def main():
 
     for name, elements in ATLASES:
         size, uv = build_atlas(name, elements)
-        tex_size = to_tex(os.path.join(IMG, name + ".png"),
+        tex_size = to_tex(os.path.join(BUILD, name + ".png"),
                           os.path.join(IMG, name + ".tex"))
         report["atlases"].append({
             "name": name,
@@ -105,16 +110,16 @@ def main():
 
     # 制作菜单图标图集：美术包给了 PNG，但需要按代码顺序拼
     craft = [
-        ("aom_tractor_chassis.tex", "images/aom_tractor_chassis.png"),
-        ("aom_landclearer.tex", "images/aom_landclearer.png"),
-        ("aom_seeder.tex", "images/aom_seeder.png"),
-        ("aom_irrigator.tex", "images/aom_irrigator.png"),
-        ("aom_fertilizer.tex", "images/aom_fertilizer.png"),
-        ("aom_weeder.tex", "images/aom_weeder.png"),
-        ("aom_harvester.tex", "images/aom_harvester.png"),
+        ("aom_tractor_chassis.tex", "aom_tractor_chassis.png"),
+        ("aom_landclearer.tex", "aom_landclearer.png"),
+        ("aom_seeder.tex", "aom_seeder.png"),
+        ("aom_irrigator.tex", "aom_irrigator.png"),
+        ("aom_fertilizer.tex", "aom_fertilizer.png"),
+        ("aom_weeder.tex", "aom_weeder.png"),
+        ("aom_harvester.tex", "aom_harvester.png"),
     ]
     size, uv = build_atlas("aom_tractor_icons", craft)
-    tex_size = to_tex(os.path.join(IMG, "aom_tractor_icons.png"),
+    tex_size = to_tex(os.path.join(BUILD, "aom_tractor_icons.png"),
                       os.path.join(IMG, "aom_tractor_icons.tex"))
     report["atlases"].append({
         "name": "aom_tractor_icons",
@@ -126,7 +131,7 @@ def main():
           % ("aom_tractor_icons", size[0], size[1], len(craft), tex_size))
 
     # modicon
-    mod_png = os.path.join(MOD, "modicon.png")
+    mod_png = os.path.join(SRC, "modicon.png")
     mod_tex = os.path.join(MOD, "modicon.tex")
     report["modicon"] = to_tex(mod_png, mod_tex)
     with open(os.path.join(MOD, "modicon.xml"), "w", encoding="utf-8") as f:

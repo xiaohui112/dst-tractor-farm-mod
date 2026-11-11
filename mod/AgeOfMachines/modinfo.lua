@@ -33,7 +33,7 @@ Mount original farming tools on a tractor.
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.1.6"
+version = "0.1.7"
 api_version = 10
 priority = 0
 

@@ -94,6 +94,14 @@ def check_modinfo():
 # 3. 资源引用
 # ---------------------------------------------------------------------------
 
+def check_no_source_png():
+    """Mod 目录里不能放 PNG：游戏启动会把 images/ 下的 PNG 自动编译成单元素图集，
+    覆盖手工写的多图标 .xml（v0.1.5 实机就是因此丢了制作菜单图标）。"""
+    for path in glob.glob(os.path.join(MOD, "images", "*.png")) + glob.glob(os.path.join(MOD, "*.png")):
+        fail("%s 会让游戏自动重编译图集并覆盖同名 .xml；源 PNG 请放 assets/images/"
+             % os.path.relpath(path, MOD).replace(os.sep, "/"))
+
+
 def check_assets():
     main = read("modmain.lua")
     # Assets 里声明的文件
@@ -562,6 +570,7 @@ def check_giant_farming():
 def main():
     check_syntax()
     check_modinfo()
+    check_no_source_png()
     check_assets()
     check_animation_assets()
     check_driver_assets()
