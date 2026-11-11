@@ -12,6 +12,7 @@ local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
 local Irrigator = require("aom_irrigator")
+local Fertilizer = require("aom_fertilizer")
 
 local assets =
 {
@@ -94,6 +95,7 @@ local function OnAttachmentChanged(inst)
         AOMDrive.SetWorking(inst,false)
     end
     Irrigator.Sync(inst)
+    Fertilizer.Watch(inst)
 	-- 收割台用车头时间轴，其余配件沿用车尾；前层在车身前面绘制。
 	if inst._attachment_type==AOM.TYPE.HARVESTER then
 		inst.AnimState:OverrideSymbol("attachment", "aom_attachment_symbols", "empty")
@@ -288,6 +290,8 @@ local function fn()
 	-- 原版 rideable 场景动作靠此标签显示 MOUNT；本体必须可点击。
 	inst:AddTag("rideable")
 
+	inst._fertilizeruses_net=net_float(inst.GUID,"aom_tractor_chassis.fertilizeruses","aomfertilizerdirty")
+	inst._fertilizerstock_net=net_string(inst.GUID,"aom_tractor_chassis.fertilizerstock","aomfertilizerdirty")
 	inst._water_net=net_float(inst.GUID,"aom_tractor_chassis.water","aomwaterdirty")
 	inst._watermax_net=net_float(inst.GUID,"aom_tractor_chassis.watermax","aomwaterdirty")
 	inst._fuel = net_float(inst.GUID, "aom_tractor_chassis.fuel", "aomfueldirty")
@@ -395,6 +399,8 @@ local function fn()
 	inst:AddComponent("aom_attachment_store")
 	inst.components.aom_attachment_store:SetMaterialContainer(inst.components.container)
 	inst:ListenForEvent("aom_water_changed",Irrigator.Sync)
+    inst:ListenForEvent("aom_load_changed",Fertilizer.Watch)
+    inst:ListenForEvent("stacksizechange",Fertilizer.Sync)
 
 	inst._rider = nil
 	inst._working = false

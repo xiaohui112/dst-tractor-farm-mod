@@ -322,40 +322,9 @@ function AOMFarmWork.IsFarmTileAt(x, y, z)
 	return fm:GetTileNutrients(tx, ty) ~= nil and map:GetTileAtPoint(x, y, z) == WORLD_TILES.FARMING_SOIL
 end
 
--- fertilizer：调用方的肥料物品（带 fertilizer 组件）
-function AOMFarmWork.Fertilize(x, y, z, doer, fertilizer)
-	if fertilizer == nil or fertilizer.components.fertilizer == nil then
-		return false, "NOT_FERTILIZER"
-	end
-
-	-- 优先施到该格"正在生长"的作物上（走原版 crop / pickable 的 Fertilize）
-	local ents = TheSim:FindEntities(x, y, z, 1.6, nil, { "NOCLICK", "INLIMBO" })
-	for _, v in ipairs(ents) do
-		if v.components.crop ~= nil and not v.components.crop:IsReadyForHarvest() then
-			if v.components.crop:Fertilize(fertilizer, doer) then
-				fertilizer.components.fertilizer:OnApplied(doer, v)
-				return true
-			end
-		elseif v.components.pickable ~= nil and v.components.pickable:CanBeFertilized()
-			and v.components.pickable:Fertilize(fertilizer, doer) then
-			fertilizer.components.fertilizer:OnApplied(doer, v)
-			return true
-		end
-	end
-
-	-- 没有可施肥作物：按肥料自己的 nutrients 表给这一格补养分（数值全部来自原版 TUNING）
-	if not AOMFarmWork.IsFarmTileAt(x, y, z) then
-		return false, "NOT_SOIL"
-	end
-	local fm = TheWorld.components.farming_manager
-	local nuts = fertilizer.components.fertilizer.nutrients
-	if fm == nil or nuts == nil then
-		return false, "NO_NUTRIENTS"
-	end
-	local tx, ty = TheWorld.Map:GetTileCoordsAtPoint(x, y, z)
-	fm:AddTileNutrients(tx, ty, nuts[1] or 0, nuts[2] or 0, nuts[3] or 0)
-	fertilizer.components.fertilizer:OnApplied(doer, nil)
-	return true
+-- 单份肥料使用的兼容入口；整格补齐与结算由 aom_fertilizer / 驾驶层负责。
+function AOMFarmWork.Fertilize(x,y,z,doer,fertilizer)
+    return require("aom_fertilizer").Apply(x,z,doer,fertilizer)
 end
 
 ---------------------------------------------------------------------------
@@ -403,16 +372,6 @@ local function HasEmptySoilAt(x, y, z)
 	return #FindEmptySoil(x, y, z, 2.8) > 0
 end
 
-local function HasFertilizableAt(x, y, z)
-	for _, v in ipairs(TheSim:FindEntities(x, y, z, 1.6, nil, { "NOCLICK", "INLIMBO" })) do
-		if v.components.crop ~= nil and not v.components.crop:IsReadyForHarvest() then
-			return true
-		elseif v.components.pickable ~= nil and v.components.pickable:CanBeFertilized() then
-			return true
-		end
-	end
-	return AOMFarmWork.IsFarmTileAt(x, y, z)
-end
 
 -- 返回 true 表示"值得尝试作业"
 function AOMFarmWork.CanWorkAt(att_type, x, y, z)
@@ -424,7 +383,9 @@ function AOMFarmWork.CanWorkAt(att_type, x, y, z)
 	elseif att_type == AOM_ATTACHMENT_TYPE.IRRIGATOR then
 		return AOMFarmWork.IsFarmTileAt(x, y, z)
 	elseif att_type == AOM_ATTACHMENT_TYPE.FERTILIZER then
-		return HasFertilizableAt(x, y, z)
+		local Fertilizer=require("aom_fertilizer")
+        local n=Fertilizer.Read(x,z)
+        return n~=nil and not Fertilizer.Full(n)
 	elseif att_type == AOM_ATTACHMENT_TYPE.WEEDER then
 		return #FindWeedsAndDebris(x, y, z, 2.9) > 0
 	elseif att_type == AOM_ATTACHMENT_TYPE.HARVESTER then

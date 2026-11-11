@@ -8,7 +8,7 @@
 	2. F 开关作业；驶入地块时整格作业，停车不重复消耗。
 	3. 挂件必须手动装上；速度随作业类型变化，关闭作业恢复空驶速度。
 
-	所有农业行为仍然只调 aom_farm_work 里的原版动作，这里不加任何数值。
+	农业行为最终调用原版组件；洒水与施肥由独立模块按地块管理批次和消耗。
 ]]
 
 local AOMFarmWork = require("aom_farm_work")
@@ -20,6 +20,7 @@ local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
 local Irrigator = require("aom_irrigator")
+local Fertilizer = require("aom_fertilizer")
 
 ---------------------------------------------------------------------------
 -- 基础：取/存状态
@@ -105,9 +106,6 @@ local function TakePayload(inst)
 		end
 
 		return { seed = item }, item ~= nil
-	elseif att == AOM.TYPE.FERTILIZER then
-		local item = store:TakeFertilizer()
-		return { fertilizer = item }, item ~= nil
 	end
 	return {}, true
 end
@@ -117,8 +115,6 @@ local function ReturnPayload(inst, att, payload)
 	local store = inst.components.aom_attachment_store
 	if att == AOM.TYPE.SEEDER and payload.seed ~= nil and payload.seed:IsValid() then
 		store:ReturnSeed(payload.seed)
-	elseif att == AOM.TYPE.FERTILIZER and payload.fertilizer ~= nil and payload.fertilizer:IsValid() then
-		store:ReturnFertilizer(payload.fertilizer)
 	end
 end
 
@@ -198,6 +194,8 @@ function AOMDrive.WorkHere(inst, workx, workz)
         else worked,work_reason,ready=AOMFarmWork.Plough(cx,y,cz,driver,AOMFarmWork.GetTerraformer(inst)) end
     elseif att==AOM.TYPE.IRRIGATOR then
         worked,work_reason,ready=Irrigator.WaterTile(inst,cx,cz)
+    elseif att==AOM.TYPE.FERTILIZER then
+        worked,work_reason,ready=Fertilizer.WorkTile(inst,cx,cz)
     elseif coordinate_mode then
         local reason
         worked,reason=GiantWorkHere(inst,cx,y,cz)
@@ -218,12 +216,12 @@ function AOMDrive.WorkHere(inst, workx, workz)
 			inst.AnimState:PushAnimation("idle", true)
 		end
 	end
-	if att==AOM.TYPE.PLOW or att==AOM.TYPE.IRRIGATOR then return worked,work_reason,ready end
+	if att==AOM.TYPE.PLOW or att==AOM.TYPE.IRRIGATOR or att==AOM.TYPE.FERTILIZER then return worked,work_reason,ready end
 	return worked
 end
 
 ---------------------------------------------------------------------------
--- 行驶经过一格就完成本格工序。洒水按整格结算，播种按逐颗动作结算。
+-- 行驶经过一格就完成本格工序。洒水、施肥按整格结算，播种按逐颗动作结算。
 ---------------------------------------------------------------------------
 
 local WORK_MESSAGES={
@@ -238,6 +236,8 @@ local WORK_MESSAGES={
     CANNOT_PLOW="这块地无法铺成农田，请换可开垦地块",
     NO_WORKER="需要驾驶员执行杂物铲除",
     MOISTURE_UNAVAILABLE="无法读取原版土壤水分，已暂停洒水，请检查版本兼容",
+    NUTRIENTS_UNAVAILABLE="无法读取原版农田养分，已暂停施肥",
+    FERTILIZER_FAILED="本格施肥未完成，已保留实际进度，请检查后按 F 重试",
     WATER_FAILED="本格补水未能完成，已保留实际浇水进度，请检查后按 F 重试",
 }
 local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
@@ -245,7 +245,8 @@ local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
     fertilizer="肥料不足，请补充后按 F 继续作业"}
 local function StopForReason(inst,reason)
     if inst._workreason_net then
-        inst._workreason_net:set(reason=="EMPTY" and EMPTY_MESSAGES[inst._attachment_type]
+        inst._workreason_net:set(reason=="FERTILIZER_MISSING" and inst._fertilizer_missing_text
+            or reason=="EMPTY" and EMPTY_MESSAGES[inst._attachment_type]
             or WORK_MESSAGES[reason] or PLAN_MESSAGES[reason] or "本格作业暂停，请检查面板提示")
     end
     AOMDrive.SetWorking(inst,false)
@@ -255,7 +256,7 @@ function AOMDrive.WorkTile(inst,cx,cz)
     local worked_any=false
     local limit=inst._attachment_type==AOM.TYPE.SEEDER and 10 or 1
     for _=1,limit do
-        if inst._attachment_type~=AOM.TYPE.IRRIGATOR and GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
+        if inst._attachment_type~=AOM.TYPE.IRRIGATOR and inst._attachment_type~=AOM.TYPE.FERTILIZER and GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
         local worked,reason,ready=AOMDrive.WorkHere(inst,cx,cz)
         if not worked then
             if ready==false or reason=="EMPTY" or reason=="FAILED" or reason=="NO_ATTACHMENT" then StopForReason(inst,reason) end

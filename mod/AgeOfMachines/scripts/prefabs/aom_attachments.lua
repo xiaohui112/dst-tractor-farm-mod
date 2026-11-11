@@ -47,9 +47,12 @@ local function MakeAttachment(name, att_type, postinit)
 		inst.components.inventoryitem.atlasname = "images/aom_attachment_inventory.xml"
 		if name=="aom_plow" then inst.components.inventoryitem.imagename="aom_landclearer" end
 
-		inst:AddComponent("finiteuses")
-		inst.components.finiteuses:SetMaxUses(postinit and postinit.uses or 60)
-		inst.components.finiteuses:SetUses(postinit and postinit.uses or 60)
+        -- 施肥机只消耗真实肥料和底盘耐久，不设置不起作用的挂件耐久。
+        if not (postinit and postinit.no_uses) then
+            inst:AddComponent("finiteuses")
+            inst.components.finiteuses:SetMaxUses(postinit and postinit.uses or 60)
+            inst.components.finiteuses:SetUses(postinit and postinit.uses or 60)
+        end
 
 		if postinit and postinit.setup then
 			postinit.setup(inst)
@@ -82,7 +85,7 @@ return
 	}),
 
 	MakeAttachment("aom_fertilizer", AOM.TYPE.FERTILIZER, {
-		uses = 100,
+        no_uses = true,
 	}),
 
 	MakeAttachment("aom_weeder", AOM.TYPE.WEEDER, {

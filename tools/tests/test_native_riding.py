@@ -242,6 +242,26 @@ tank.components.finiteuses:SetUses(7);assert(t._water_net:value()==3)
 current=nil;t:PushEvent('itemlose');assert(t._water_net:value()==0 and t._watermax_net:value()==0)
 ''')
 
+    def test_fertilizer_hud_real_doses_prompt_and_material_listener(self):
+        self.run_lua('''
+local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')};local attachment
+for _,prefab in ipairs(prefabs)do if prefab.name=='aom_fertilizer' then attachment=prefab.fn();attachment.prefab=prefab.name end end
+assert(attachment.components.finiteuses==nil)
+local item=CreateEntity();item.prefab='fertilizer';item:AddTag('fertilizer');item:AddComponent('finiteuses')
+item.components.finiteuses:SetMaxUses(5);item.components.finiteuses:SetUses(5)
+item.components.fertilizer={nutrients={0,0,16}}
+local current=item
+t.components.container.numslots=9
+t.components.container.GetItemInSlot=function(_,slot)if slot==1 then return attachment elseif slot==2 then return current end end
+t:PushEvent('itemget');assert(t._fertilizeruses_net:value()==5)
+local actions={};SCENE_HOOKS.inventoryitem(item,p,t,actions,true)
+assert(#actions==1 and actions[1].id=='AOM_LOAD')
+local hud=HUD(p);hud:Refresh(t);assert(string.find(hud.lines[4].text,'肥料剩余 5 次'))
+item.components.finiteuses:Use(1);assert(t._fertilizeruses_net:value()==4)
+current=nil;t:PushEvent('itemlose');assert(t._fertilizeruses_net:value()==0)
+item.components.finiteuses:Use(1);assert(t._fertilizeruses_net:value()==0)
+''')
+
     def test_removing_ridden_tractor_releases_player(self):
         self.run_lua('''
 ACTIONS.MOUNT.fn({doer=p,target=t});t:Remove()

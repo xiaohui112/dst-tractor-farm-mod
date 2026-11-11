@@ -94,7 +94,7 @@ local function MakeStrings(lang)
 				AOM_LANDCLEARER = "拖拉机开垦机",
 				AOM_SEEDER = "拖拉机播种机",
 				AOM_IRRIGATOR = "拖拉机洒水机",
-				AOM_FERTILIZER = "拖拉机施肥挂件",
+				AOM_FERTILIZER = "拖拉机施肥机",
 				AOM_WEEDER = "拖拉机打草挂件",
 				AOM_HARVESTER = "拖拉机收割台",
 			},

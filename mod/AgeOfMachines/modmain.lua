@@ -103,8 +103,9 @@ local AOM_LOAD = AddAction("AOM_LOAD", "装料", function(act)
 		msg = "种袋已满！"
 	elseif att == AOM_ATTACHMENT_TYPE.FERTILIZER and invobject.components.fertilizer ~= nil then
 		if store:LoadItem(invobject, doer) then
-			msg = "已装肥料（共 " .. store:GetFertilizerCount() .. "）"
-			return true
+			msg = "已装肥料（可施用 " .. store:GetFertilizerCount() .. " 次）"
+            if doer and doer.components.talker then doer.components.talker:Say(msg) end
+            return true
 		end
 		msg = "肥料仓已满！"
 	elseif att == AOM_ATTACHMENT_TYPE.IRRIGATOR then

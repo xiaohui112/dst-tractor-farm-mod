@@ -100,25 +100,20 @@ inst.x=0;Drive.TrackMovement(inst)
 assert(water_count()==2 and inst._fuel:value()==798)
 ''')
 
-    def test_fertilizer_is_one_item_per_pass(self):
-        self.make()
+    def test_fertilizer_fills_tile_once_per_pass_and_parking_does_not_drain(self):
+        from pathlib import Path
+        root=Path(__file__).resolve().parents[2]
+        self.w.lua.globals().REF=str(root/'tools/api-ref')
+        self.w.lua.globals().TESTS=str(root/'tools/tests')
+        self.w.lua.execute((root/'tools/tests/fertilizer_engine.lua').read_text())
         self.run_lua('''
-local c=inst.components.aom_attachment_store.container
-local n=0
-TheWorld.components.farming_manager.AddTileNutrients=function()n=n+1 end
-local function fertilizer()
- local item={valid=true,components={}}
- function item:IsValid()return self.valid end
- function item:Remove()self.valid=false end
- item.components.fertilizer={nutrients={0,8,0},OnApplied=function()item:Remove()end}
- return item
-end
-c.slots[2]=fertilizer();c.slots[3]=fertilizer()
-inst._attachment_type='fertilizer';start_driver(inst);Drive.TrackMovement(inst)
+set_nutrients(0,0,0);set_nutrients(0,0,0,4,0)
+add_stock(material('all',{100,100,100},3),2)
+start_fertilizer();Drive.TrackMovement(inst)
 for i=1,20 do Drive.TrackMovement(inst)end
-assert(n==1 and inst.components.aom_attachment_store:GetFertilizerCount()==1)
-inst.x=4;Drive.TrackMovement(inst)
-assert(n==2 and inst.components.aom_attachment_store:GetFertilizerCount()==0)
+assert(count_prefab(inst,'all')==2 and inst._fuel:value()==799)
+inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+assert(count_prefab(inst,'all')==1 and inst._fuel:value()==798)
 ''')
 
     def test_giant_plan_finishes_current_tile_and_keeps_reserved_space(self):

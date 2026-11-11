@@ -97,6 +97,10 @@ function AOMHud:Refresh(tractor)
         local water=tractor._water_net and tractor._water_net:value() or 0
         local capacity=tractor._watermax_net and tractor._watermax_net:value() or 0
         self.lines[4]:SetString(string.format("水箱 %d/%d 次水壶用量",water,capacity))
+    elseif att and att.attachment_type=="fertilizer" then
+        local uses=tractor._fertilizeruses_net and tractor._fertilizeruses_net:value() or 0
+        local stock=tractor._fertilizerstock_net and tractor._fertilizerstock_net:value() or ""
+        self.lines[4]:SetString(string.format("肥料剩余 %d 次",uses)..(stock~="" and "："..stock or ""))
     else self.lines[4]:SetString(mode_key=="GIANT" and progress or "") end
 	local factor=tractor._speedfactor_net and tractor._speedfactor_net:value() or 1
 	self.lines[2]:SetString("挂件："..att_text.."   "..fuel_text..string.format("   车速 %.0f%%",factor*100))

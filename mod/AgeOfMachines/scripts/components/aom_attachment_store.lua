@@ -157,37 +157,24 @@ end
 -- 肥料
 ---------------------------------------------------------------------------
 
+function AttachmentStore:ListFertilizers()
+    local out={}
+    local c=self.container
+    if c then
+        for i=2,c.numslots or 0 do
+            local item=c:GetItemInSlot(i)
+            if item and item:IsValid() and item.components.fertilizer then out[#out+1]=item end
+        end
+    end
+    return out
+end
+
+-- 统计真实可施用次数，包含多次用量和堆叠；不把一桶肥料算作一次。
 function AttachmentStore:GetFertilizerCount()
-	local c = self.container
-	if c == nil then return 0 end
-	local n = 0
-	for i = 1, c.numslots or 0 do
-		local item = c:GetItemInSlot(i)
-		if item ~= nil and item.components.fertilizer ~= nil then
-			n = n + (item.components.stackable ~= nil and item.components.stackable:StackSize() or 1)
-		end
-	end
-	return n
-end
-
-function AttachmentStore:TakeFertilizer()
-	local c = self.container
-	if c == nil then return nil end
-	for i = 1, c.numslots or 0 do
-		local item = c:GetItemInSlot(i)
-		if item ~= nil and item.components.fertilizer ~= nil then
-			return self:_SplitOne(c, item)
-		end
-	end
-	return nil
-end
-
-function AttachmentStore:ReturnFertilizer(item)
-	local c = self.container
-	if c == nil or item == nil or not item:IsValid() then
-		return
-	end
-	c:GiveItem(item, nil, true)
+    local n=0
+    local Fertilizer=require("aom_fertilizer")
+    for _,item in ipairs(self:ListFertilizers()) do n=n+Fertilizer.Doses(item) end
+    return n
 end
 
 ---------------------------------------------------------------------------
@@ -205,16 +192,43 @@ function AttachmentStore:_SplitOne(container, item)
 end
 
 -- 把玩家手里的物品放进物料容器（用于"装料"动作）
-function AttachmentStore:LoadItem(item, doer)
-	local c = self.container
-	if c == nil or item == nil then
-		return false
-	end
-	local ok = c:GiveItem(item)
-	if ok and doer ~= nil and doer.components.inventory ~= nil then
-		-- GiveItem 在物品还属于玩家时会自动转移
-	end
-	return ok
+function AttachmentStore:LoadItem(item,doer)
+    local c=self.container
+    if not c or not item or not item:IsValid() or not item.components.inventoryitem then return false end
+    local ii=item.components.inventoryitem
+    local owner=ii.owner
+    if owner==self.inst then return false end
+    local stack=item.components.stackable
+    local size=stack and stack:StackSize() or 1
+    local accepted=math.min(size,c:CanAcceptCount(item))
+    if accepted<1 then return false end -- 不先拿走满仓时无法接纳的物品
+    local source=owner and (owner.components.inventory or owner.components.container)
+    local slot=ii.GetSlotNum and ii:GetSlotNum() or nil
+    local origin=owner or doer or self.inst
+    local pos=Vector3(origin.Transform:GetWorldPosition())
+    local moved
+    if accepted<size then
+        moved=stack:Get(accepted)
+        -- 原版 Stackable:Get 会继承原 owner，但拆出物不在原容器槽位中。
+        if moved and moved.components.inventoryitem.owner then moved.components.inventoryitem:OnRemoved() end
+    elseif owner then moved=ii:RemoveFromOwner(true)
+    else moved=item end
+    if not moved then return false end
+    local before=moved.components.stackable and moved.components.stackable:StackSize() or 1
+    local ok,result=pcall(c.GiveItem,c,moved,nil,pos,false)
+    local left=0
+    if moved:IsValid() and not (ok and result) and moved.components.inventoryitem.owner~=self.inst then
+        left=moved.components.stackable and moved.components.stackable:StackSize() or 1
+        if source then source:GiveItem(moved,slot,pos) end
+        -- 来源已无法接回时，保留实体并放回来源位置，不能遗留无归属的隐藏物品。
+        if moved:IsValid() and not moved.components.inventoryitem.owner then
+            moved.Transform:SetPosition(pos:Get())
+            moved.components.inventoryitem:OnDropped(true)
+        end
+    end
+    local loaded=before-left
+    if loaded>0 then self.inst:PushEvent("aom_load_changed") end
+    return loaded>0,loaded
 end
 
 function AttachmentStore:OnSave()

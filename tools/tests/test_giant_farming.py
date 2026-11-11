@@ -81,7 +81,7 @@ function TheWorld.Map:CanTillSoilAtPoint(x,y,z)
 end
 function TheWorld.Map:CollapseSoilAtPoint()end
 function make_seed(crop,n)
- local item={prefab=crop..'_seeds',valid=true,components={}}
+ local item={prefab=crop..'_seeds',valid=true,components={inventoryitem={}}}
  function item:IsValid()return self.valid end
  function item:Remove()self.valid=false end
  item.components.farmplantable={plant='farm_plant_'..crop}
@@ -106,6 +106,7 @@ function make_inst(counts,season)
  inst._workstatus=net(false);inst._workreason_net=net('');inst._planprogress_net=net('');inst._fuel=net(800)
  local c={slots={},numslots=9}
  function c:GetItemInSlot(i)return self.slots[i]end
+ function c:CanAcceptCount(item)for i=2,9 do if not self.slots[i]then return item.components.stackable and item.components.stackable:StackSize() or 1 end end;return 0 end
  function c:RemoveItem(item)for k,v in pairs(self.slots)do if v==item then self.slots[k]=nil end end end
  function c:GiveItem(item)for i=2,9 do if not self.slots[i]then self.slots[i]=item;return true end end;error('container full')end
  local uses=60
