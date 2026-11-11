@@ -493,14 +493,15 @@ local placer = MakePlacer(
 	"aom_tractor_chassis",
 	"aom_tractor_chassis",
 	"idle",
-	true,    -- onground
-	false,   -- snap
-	false,   -- metersnap
-	MODEL_SCALE, -- scale	nil,     -- fixedcameraoffset
-	nil,     -- facing
-	nil,     -- postinit
-	Vector3(0, 0, 0),
-	can_place_tractor
+	true,             -- onground
+	false,            -- snap
+	false,            -- metersnap
+	MODEL_SCALE,      -- scale
+	nil,              -- fixedcameraoffset
+	nil,              -- facing
+	nil,              -- postinit_fn
+	Vector3(0, 0, 0), -- offset
+	nil               -- onfailedplacement
 )
 
 -- 打包物品：可放背包，放置后生成本体
