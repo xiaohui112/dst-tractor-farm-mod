@@ -24,7 +24,11 @@ def main():
         path=OUT/'aom_cabin_back'/('back-%d.svg'%index);path.write_text(svg)
         subprocess.run(['magick','-background','none',str(path),str(path.with_suffix('.png'))],check=True)
     for part in ('aom_driver_attachment_rear','aom_driver_attachment_front'):
-        subprocess.run(['magick','-size','256x256','xc:none',str(OUT/part/'empty.png')],check=True)
+        # PNG32 forces an 8-bit RGBA file; plain PNG output can collapse the fully
+        # transparent placeholder to 1-bit grey and drop alpha, which makes the
+        # Mod Tools atlasing step fail with "'int' object is not subscriptable".
+        subprocess.run(['magick','-size','256x256','xc:none',
+                        'PNG32:'+str(OUT/part/'empty.png')],check=True)
     root=ET.Element('spriter_data',{'scml_version':'1.0','generator':'AgeOfMachines Driver Export','generator_version':'1'})
     parts=['aom_cabin_back','aom_cabin_front','aom_driver_attachment_rear','aom_driver_attachment_front']
     for folder_id,part in enumerate(parts):

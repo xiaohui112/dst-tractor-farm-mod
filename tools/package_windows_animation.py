@@ -10,6 +10,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 ROOT = Path(__file__).resolve().parents[1]
 NAMES = ('aom_tractor_chassis', 'aom_attachment_shared', 'aom_attachment_symbols')
+COMPILED = NAMES + ('aom_tractor_driver',)
 ART = ROOT / '美术交付/2026-11-11-v1'
 DEST = ROOT / 'outputs/windows-animation-kit'
 ARCHIVE = ROOT / 'AgeOfMachines-Windows-Animation-Kit.zip'
@@ -21,7 +22,8 @@ def main():
         shutil.rmtree(DEST)
     mod = DEST / 'AgeOfMachines'
     shutil.copytree(ROOT / 'mod/AgeOfMachines', mod, ignore=shutil.ignore_patterns('.*', '__pycache__'))
-    for name in NAMES:
+    for name in COMPILED:
+        # 编译产物不随工程包分发：本包的目的就是在 Windows 上重新编译这些动画。
         (mod / 'anim' / (name + '.zip')).unlink(missing_ok=True)
     report = {'source_root': 'AgeOfMachines/exported', 'projects': [], 'files': []}
     for name in NAMES:

@@ -107,7 +107,8 @@ class DriverAnimationBuildTests(unittest.TestCase):
             if isinstance(value,list):return [f32(v) for v in value]
             if isinstance(value,tuple):return tuple(f32(v) for v in value)
             return value
-        self.assertEqual(parse_anim(write_anim(result)),f32(result))
+        self.assertEqual(parse_anim(write_anim(result)),
+                         {'animations':f32(result['animations']),'strings':f32(result['strings'])})
         self.assertEqual({a['name'] for a in result['animations']},{a['name'] for a in self.native['animations']})
         for name in ['idle_loop','mount','dismount','run_loop']:
             variants=[a for a in result['animations'] if a['name']==name]
@@ -172,8 +173,39 @@ class DriverAnimationBuildTests(unittest.TestCase):
             buf=io.BytesIO()
             with ZipFile(buf,'w') as archive:archive.writestr('anim.bin',write_anim(self.native))
             with ZipFile(root/'data/databundles/anim.zip','w') as archive:archive.writestr('anim/player_mount_basic.zip',buf.getvalue())
-            native,sources=native_riding_bank(str(root))
+            native,sources,conflicts=native_riding_bank(str(root))
             self.assertEqual(len(native['animations']),6)
             self.assertEqual(sources,['anim/player_mount_basic.zip'])
+            self.assertEqual(conflicts,[])
+
+    def test_riderless_native_frames_are_reported_instead_of_aborting(self):
+        native=copy.deepcopy(self.native)
+        frames=[{'bbox':(0.,-100.,200.,250.),'events':[],
+                 'elements':[self.element('body',0,0,1)]} for _ in range(2)]
+        native['animations'].append({'name':'sink','bank':name_hash('wilsonbeefalo'),'facing':255,'rate':30.,'frames':frames})
+        result=merge_rider(native,self.cabin,{name_hash('body')},self.config)
+        self.assertEqual(result['frames_without_driver'],
+                         ['sink/192','sink/2','sink/48','sink/5','sink/8'])
+        sink=[a for a in result['animations'] if a['name']=='sink']
+        self.assertEqual({a['facing'] for a in sink},{5,48,192,2,8})
+        for a in sink:
+            for f in a['frames']:
+                # 没有人物层时仍保留驾驶室四层，避免整条时间线崩掉。
+                self.assertEqual({e['symbol'] for e in f['elements']},
+                                 {name_hash('aom_cabin_back'),name_hash('aom_cabin_front'),
+                                  name_hash('aom_driver_attachment_rear'),name_hash('aom_driver_attachment_front')})
+
+    def test_duplicate_native_sentinel_animations_keep_first_copy_and_are_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'data/anim').mkdir(parents=True)
+            with ZipFile(root/'data/anim/player_mount.zip','w') as archive:archive.writestr('anim.bin',write_anim(self.native))
+            other={'strings':{},'animations':[copy.deepcopy(self.native['animations'][1])]}
+            other['animations'][0]['frames'][0]['events']=[]
+            with ZipFile(root/'data/anim/player_mount_extra.zip','w') as archive:archive.writestr('anim.bin',write_anim(other))
+            native,sources,conflicts=native_riding_bank(str(root))
+            self.assertEqual(sorted(sources),['player_mount.zip','player_mount_extra.zip'])
+            self.assertEqual(len(native['animations']),6)
+            self.assertEqual(conflicts,['mount/255'])
+            self.assertEqual(native['animations'][1]['frames'][0]['events'],[name_hash('footstep')])
 
 if __name__=='__main__':unittest.main()

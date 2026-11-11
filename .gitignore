@@ -5,8 +5,10 @@ __pycache__/
 *.log
 /undo-log.txt
 /outputs/
+/AgeOfMachines-Windows-Driver-Kit/
 .venv/
 venv/
+.pylua/
 
 # Local credentials and machine configuration
 .env
