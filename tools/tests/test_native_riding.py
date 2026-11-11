@@ -136,6 +136,17 @@ assert(not p.components.playercontroller:IsControlPressed(CONTROL_ATTACK))
 release_f(p);press_f(p);assert(not t._working and not p.attacks);release_f(p)
 ''')
 
+    def test_f_toggles_working_for_every_attachment_type(self):
+        """六种挂件都必须 F 开=F 关，不因挂件类型被区别对待。"""
+        self.run_lua('''
+ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
+for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester'}) do
+    t._attachment_type=kind;t._atttype_net:set(kind);t._working=false
+    press_f(p);release_f(p);assert(t._working,kind)
+    press_f(p);release_f(p);assert(not t._working,kind)
+end
+''')
+
     def test_f_keeps_vanilla_attack_on_foot_and_respects_input_focus(self):
         self.run_lua('''
 press_f(p);release_f(p);assert(p.attacks==1)
