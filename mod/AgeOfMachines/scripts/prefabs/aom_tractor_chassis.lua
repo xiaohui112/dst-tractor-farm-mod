@@ -517,6 +517,9 @@ local function item_fn()
 	MakeInventoryFloatable(inst, "med", 0.1, 1, true)
 
 	inst._custom_candeploy_fn = can_place_tractor
+	-- 部署预览用的 placer 名默认是 "<prefab>_placer"，也就是 aom_tractor_item_placer
+	-- （不存在，实机日志刷 "Can't find prefab"）；这里指向真正的 placer。
+	inst.overridedeployplacername = "aom_tractor_placer"
 
 	inst.entity:SetPristine()
 
