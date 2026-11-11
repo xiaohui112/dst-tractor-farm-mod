@@ -345,39 +345,45 @@ end
 
 -- 原版 HUD 通过 AddClassPostConstruct 往 playerhud 上挂子控件；
 -- 当前游戏版本的类是 screens/playerhud（旧版本才在 widgets/playerhud）。
+-- 注意：PlayerHud 构造时不接收玩家（PlayerHud()），随后 SetMainCharacter(inst) 才写入
+-- self.owner，所以控件要挂在 SetMainCharacter 之后，不能在构造后立刻读 self.owner。
 AddClassPostConstruct("screens/playerhud", function(self)
 	local AOMHud = require("widgets/aom_hud")
-	self.aom_hud = self:AddChild(AOMHud(self.owner))
-    if Music then
-        local ok,controller=pcall(Music.New,self.owner)
-        if ok then self.aom_music=controller end
-    end
+	local base_set_main_character = self.SetMainCharacter
 
-	-- 每 0.25 秒刷新一次：读 netvar，开销很低
-	self.aom_hud_task = self.owner:DoPeriodicTask(0.25, function()
-		local player = self.owner
-        if self.aom_music then self.aom_music:Update() end
-		if player == nil or not player:IsValid() then
+	self.SetMainCharacter = function(hud, owner)
+		base_set_main_character(hud, owner)
+		if owner == nil or hud.aom_hud ~= nil then
 			return
 		end
-		local rider = player.replica.rider
-		if rider == nil or not rider:IsRiding() then
-			self.aom_hud:Refresh(nil)
-			return
-		end
-		local mount = rider:GetMount()
-		if mount ~= nil and mount.prefab == "aom_tractor_chassis" then
-			self.aom_hud:Refresh(mount)
-		else
-			self.aom_hud:Refresh(nil)
-		end
-	end)
 
-	self.inst:ListenForEvent("onremove", function()
-        if self.aom_music then self.aom_music:Stop() end
-		if self.aom_hud_task ~= nil then
-			self.aom_hud_task:Cancel()
-			self.aom_hud_task = nil
+		hud.aom_hud = hud:AddChild(AOMHud(owner))
+		if Music then
+			local ok, controller = pcall(Music.New, owner)
+			if ok then hud.aom_music = controller end
 		end
-	end, self.owner)
+
+		-- 每 0.25 秒刷新一次：读 netvar，开销很低
+		hud.aom_hud_task = owner:DoPeriodicTask(0.25, function()
+			if hud.aom_music then hud.aom_music:Update() end
+			if owner == nil or not owner:IsValid() then
+				return
+			end
+			local rider = owner.replica.rider
+			if rider == nil or not rider:IsRiding() then
+				hud.aom_hud:Refresh(nil)
+				return
+			end
+			local mount = rider:GetMount()
+			hud.aom_hud:Refresh(mount ~= nil and mount.prefab == "aom_tractor_chassis" and mount or nil)
+		end)
+
+		hud.inst:ListenForEvent("onremove", function()
+			if hud.aom_music then hud.aom_music:Stop() end
+			if hud.aom_hud_task ~= nil then
+				hud.aom_hud_task:Cancel()
+				hud.aom_hud_task = nil
+			end
+		end, owner)
+	end
 end)
