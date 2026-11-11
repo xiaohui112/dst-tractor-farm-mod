@@ -1,0 +1,87 @@
+{
+  "source_artifact": "Animation-Results.zip",
+  "source_artifact_sha256": "6b4a63390d573ae9ad445bf861b2792006a8b5228415f6235ee7ac868e939c13",
+  "validated_with": "krane 4.5.1",
+  "validation": {
+    "zip_crc": true,
+    "binary_headers": true,
+    "source_manifest_matches": true,
+    "roundtrip_decode": true,
+    "game_validation": false,
+    "rider_visual_integration": false
+  },
+  "packages": [
+    {
+      "name": "aom_tractor_chassis",
+      "sha256": "c4a2286a518d08287419f10bc432a506fc2c1390b24c735767d5adf324277e8b",
+      "build_version": 6,
+      "anim_version": 4,
+      "animations": [
+        "death",
+        "idle",
+        "idle_packed",
+        "work"
+      ],
+      "symbols": [
+        "body",
+        "attachment",
+        "attachment_front"
+      ],
+      "atlases": [
+        "atlas-0.tex"
+      ]
+    },
+    {
+      "name": "aom_attachment_shared",
+      "sha256": "795f5b20f32ea87a3f573faa610e1fbef65990afed66c1e720d53452f7b7aca0",
+      "build_version": 6,
+      "anim_version": 4,
+      "animations": [
+        "fertilizer",
+        "harvester",
+        "irrigator",
+        "plow",
+        "seeder",
+        "weeder"
+      ],
+      "symbols": [
+        "harvester",
+        "seeder",
+        "plow",
+        "weeder",
+        "fertilizer",
+        "irrigator"
+      ],
+      "atlases": [
+        "atlas-0.tex"
+      ]
+    },
+    {
+      "name": "aom_attachment_symbols",
+      "sha256": "c17d04cf5a7d6402d82d2fee93ba7d21ed2cbcda80acc5940f9ec5ab28b68dd4",
+      "build_version": 6,
+      "anim_version": 4,
+      "animations": [
+        "empty",
+        "fertilizer",
+        "harvester",
+        "irrigator",
+        "plow",
+        "seeder",
+        "weeder"
+      ],
+      "symbols": [
+        "harvester",
+        "seeder",
+        "plow",
+        "weeder",
+        "fertilizer",
+        "empty",
+        "irrigator"
+      ],
+      "atlases": [
+        "atlas-0.tex"
+      ]
+    }
+  ]
+}

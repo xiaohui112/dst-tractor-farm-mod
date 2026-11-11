@@ -17,6 +17,8 @@ import glob
 import os
 import re
 import sys
+import struct
+from zipfile import ZipFile, BadZipFile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOD = os.path.join(ROOT, "mod", "AgeOfMachines")
@@ -123,6 +125,45 @@ def check_assets():
             z = os.path.join(MOD, "anim", m.group(2) + ".zip")
             if not os.path.exists(z):
                 fail("%s 引用了不存在的动画包 anim/%s.zip" % (os.path.basename(p), m.group(2)))
+
+
+def check_animation_assets():
+    expected = {
+        "aom_tractor_chassis": ({"idle", "work", "death", "idle_packed"},
+                                {"body", "attachment", "attachment_front"}),
+        "aom_attachment_shared": ({"plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"},
+                                   {"plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"}),
+        "aom_attachment_symbols": ({"empty", "plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"},
+                                    {"empty", "plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"}),
+    }
+    for name, (animations, symbols) in expected.items():
+        try:
+            with ZipFile(os.path.join(MOD, "anim", name + ".zip")) as archive:
+                if archive.testzip() is not None:
+                    raise ValueError("ZIP CRC 校验失败")
+                build, anim = archive.read("build.bin"), archive.read("anim.bin")
+                for data, signature, version in ((build, b"BILD", 6), (anim, b"ANIM", 4)):
+                    if len(data) < 24 or data[:8] != signature + struct.pack("<I", version):
+                        raise ValueError("缺少真实 " + signature.decode() + " 数据或版本不匹配")
+                if name.encode() not in build:
+                    raise ValueError("build 名称与 prefab 不匹配")
+                for value in symbols:
+                    encoded = value.encode()
+                    if struct.pack("<I", len(encoded)) + encoded not in build:
+                        raise ValueError("缺少挂件/车体符号：" + value)
+                for value in animations:
+                    encoded = value.encode()
+                    if struct.pack("<I", len(encoded)) + encoded not in anim:
+                        raise ValueError("缺少动画：" + value)
+                atlases = [entry for entry in archive.namelist() if entry.endswith(".tex")]
+                if not atlases:
+                    raise ValueError("缺少贴图图集")
+                for atlas in atlases:
+                    data = archive.read(atlas)
+                    if len(data) < 16 or data[:4] != b"KTEX":
+                        raise ValueError("贴图图集无效：" + atlas)
+        except (OSError, KeyError, BadZipFile, ValueError) as exc:
+            fail(name + " 动画包校验失败：" + str(exc))
 
 
 def check_music_assets():
@@ -325,6 +366,7 @@ def main():
     check_syntax()
     check_modinfo()
     check_assets()
+    check_animation_assets()
     check_music_assets()
     check_common_module()
     check_cross_refs()

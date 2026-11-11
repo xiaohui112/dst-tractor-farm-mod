@@ -23,7 +23,7 @@
       aom_tractor_chassis\    .scml + body/attachment/attachment_front 图片
       aom_attachment_shared\ .scml + 六种挂件图片
       aom_attachment_symbols\.scml + 七组符号图片
-    anim\                    编译结果目录，开始时没有三个占位 ZIP
+    anim\                    编译结果目录，开始时不预放三个动画 ZIP
 
 所有 PNG 都在各自工程内，目录不要拆散，也不要只复制 SCML。
 
@@ -119,6 +119,8 @@ ZIP 存在但检查不通过：
 人物坐姿、骑乘中的车体显示、完整方向动画仍需后续接入和游戏验证。
 你只需发回编译结果；后续覆盖项目、检查挂件符号和骑乘显示由我继续处理。
 
+项目已接入本次 Windows 生成的三个真实世界动画。该包仍是供后续重新编译使用的工程包，
+所以 anim 目录不预放这三个产物，避免旧文件被误认成新的编译结果。
 当前 Mod 包已包含《兰花草》真实音频资源，不需要你再次编译音乐。
 本包没有附带第三方工具二进制，需要从 Steam 安装官方 Mod Tools。
 素材引用和包内容已在本机核对；批处理脚本尚未在真实 Windows 上执行。
