@@ -1,0 +1,15 @@
+{
+  "source_commit": "233790723d90dadef903df41d77bda5085f29dee",
+  "source_archive_sha256": "a5549aeaf549e22d303b9841652d597bba18e87cd0784a715a83ca57b49036e2",
+  "runtime_archive_sha256": "a5d78e3876e142647bd0c6216dba7c3673a5043d277c481817a2ea2d3fd1c840",
+  "animation_count": 1217,
+  "frame_count": 38004,
+  "source_matches": 7,
+  "source_differences": [
+    "aom_driver_attachment_rear/empty.png",
+    "aom_driver_attachment_front/empty.png"
+  ],
+  "source_difference_validation": "Both compiled placeholder symbols were decompiled with krane; dimensions 256x256, alpha minimum=maximum=0, matching the local fully transparent placeholders. Other seven SCML/PNG source hashes match.",
+  "binary_validation": "ANIM v4, BILD v6, two KTEX atlases; owned symbols, bank names, unique animation/facing keys, required six-facing mount/dismount/idle/run and finite matrices verified.",
+  "in_game_verified": false
+}

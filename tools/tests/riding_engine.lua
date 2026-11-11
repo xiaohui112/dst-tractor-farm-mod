@@ -6,7 +6,7 @@ function Class(base, ctor, props)
         local values={}
         local o=setmetatable({}, {
             __index=function(t,k) local v=values[k];if v~=nil then return v end;return cls[k] end,
-            __newindex=function(t,k,v) values[k]=v;if props and props[k] then props[k](t,v) end end,
+            __newindex=function(t,k,v)local old=values[k];values[k]=v;if props and props[k] then props[k](t,v,old) end end,
         })
         ctor(o,...);return o
     end})
@@ -69,7 +69,8 @@ function CreateEntity()
     e.entity={AddTransform=noop,AddAnimState=noop,AddSoundEmitter=noop,AddNetwork=noop,SetPristine=noop}
     e.Transform={SetPosition=function(_,x,y,z)e.x=x;e.y=y;e.z=z end,
         GetWorldPosition=function()return e.x,e.y,e.z end,SetRotation=noop,
-        GetRotation=function()return 0 end,SetSixFaced=noop,SetFourFaced=noop}
+        GetRotation=function()return 0 end,SetSixFaced=noop,SetFourFaced=noop,
+        SetScale=noop,GetScale=function()return 1 end}
     e.visual_builds={};e.visual_symbols={}
     e.AnimState={SetBank=function(_,name)e.bank=name end,SetBuild=function(_,name)e.build=name end,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,SetScale=noop,GetScale=function()return 1 end,
         PlayAnimation=function(_,name)e.animation=name end,IsCurrentAnimation=function()return false end,
@@ -133,7 +134,7 @@ end
 -- 装配层与面板 RPC，客户端不提供可伪造的目标参数。
 RPCS={};ACTION_HANDLERS={};SCENE_HOOKS={}
 ACTION_DEFS={}
-function AddAction(id,label,fn)local a={id=id,fn=fn};ACTION_DEFS[id]=a;return a end
+function AddAction(id,label,fn)local a={id=id,label=label,fn=fn};ACTION_DEFS[id]=a;return a end
 function AddComponentAction(kind,name,fn)SCENE_HOOKS[name]=fn end
 function AddModRPCHandler(ns,name,fn)RPCS[name]=fn end
 function GetModRPC(ns,name)return name end
@@ -141,8 +142,9 @@ function ActionHandler(action,state)return {action=action,state=state}end
 function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,handler)end
 function AddClassPostConstruct(path,fn)POST_FNS[path]=fn end
 AddRecipe2=noop;AddDeconstructRecipe=noop;Ingredient=noop
-containers={params={}}
-package.preload['containers']=function()return containers end
+-- 原版是 require 模块，不能用虚构的 GLOBAL.containers 掩盖加载错误。
+containers=nil
+package.preload.containers=function()return {params={}}end
 dofile(MOD..'/modmain.lua')
 MOD_RPC={aom_rpc={AOM_TOGGLE_WORK='AOM_TOGGLE_WORK',AOM_SEED_MODE='AOM_SEED_MODE'}}
 function SendModRPCToServer(id)RPCS[id](CLIENT_PLAYER)end

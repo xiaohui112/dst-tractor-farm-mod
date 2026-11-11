@@ -174,7 +174,7 @@ local nextplant=SpawnPrefab('farm_plant_tomato');nextplant.Transform:SetPosition
 for _,v in ipairs({plant,nextplant})do
  v.components.pickable={CanBePicked=function()return true end,Pick=function()v:Remove()end}
 end
-assert(Farm.Harvest(0,0,0,nil));assert(not plant.valid and nextplant.valid)
+assert(Farm.Harvest(0,0,0,inst._rider));assert(not plant.valid and nextplant.valid)
 ''')
 
     def test_exhaust_requires_moving_plough_load_and_stops_when_parked(self):

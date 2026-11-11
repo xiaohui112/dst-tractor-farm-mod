@@ -7,7 +7,8 @@
 	- 字符串
 ]]
 
-local MOD_PREFIX = "aom"
+-- require 模块运行在Lua全局环境；GLOBAL别名通常只存在于Mod入口环境。
+local GLOBAL=rawget(_G,"GLOBAL") or _G
 
 -- 本文件由 modmain 用 require 加载，运行在游戏主环境，而不是 modmain 的受限环境：
 -- 主环境里没有 GLOBAL 这个名字（scripts/strict.lua 会直接报 "variable 'GLOBAL' is not declared"），
@@ -74,7 +75,7 @@ local function MakeStrings(lang)
 				AOM_IRRIGATOR = "Waters the soil ahead, like a watering can.",
 				AOM_FERTILIZER = "Applies fertilizer to the soil ahead.",
 				AOM_WEEDER = "Digs up weeds and garden detritus.",
-				AOM_HARVESTER = "Harvests ripe crops. Does not smash giant crops.",
+				AOM_HARVESTER = "Harvests ripe crops and breaks giant produce into its original drops.",
 			},
 			ACTION = {
 				DRIVE = "Drive",
@@ -110,7 +111,7 @@ local function MakeStrings(lang)
 				AOM_IRRIGATOR = "给车前的地补水，和洒水壶一样。",
 				AOM_FERTILIZER = "给车前的地施肥，和原版肥料一样。",
 				AOM_WEEDER = "铲掉杂草和园艺残渣，和铲子一样。",
-				AOM_HARVESTER = "收割成熟作物，不会自动砸开巨大化作物。",
+				AOM_HARVESTER = "收割成熟作物，并按原版掉落锤开巨大作物。",
 			},
 			ACTION = {
 				DRIVE = "驾驶",
@@ -133,6 +134,7 @@ end
 
 -- 语言选项由 modmain 通过 GLOBAL.AOM_CONFIG 传进来：本文件跑在游戏主环境，
 -- 这里的 GetModConfigData 没有绑定 modname，直接调用会触发断言。
+-- modmain 装载后再调用 M.SetLanguage 应用真实配置（远端分支提供的接口）。
 local AOM_CONFIG = rawget(_G, "AOM_CONFIG")
 local lang = type(AOM_CONFIG) == "table" and AOM_CONFIG.LANGUAGE or nil
 if type(lang) ~= "string" then
@@ -167,6 +169,7 @@ local M = {
 	RECIPE_DESC = strings.RECIPE_DESC,
 	ACTION = strings.ACTION,
 	STATUS = strings.STATUS,
+	LANGUAGE = lang,
 }
 
 -- 把名字塞进 STRINGS.NAMES 和 STRINGS.RECIPE_DESC（仅在 modmain 环境里 STRINGS 可用时）
@@ -177,6 +180,27 @@ if STRINGS ~= nil then
 	for k, v in pairs(strings.RECIPE_DESC) do
 		STRINGS.RECIPE_DESC[k] = v
 	end
+end
+
+-- modmain 中的配置读取器属于 Mod 环境，显式传值，避免 require 模块读不到手动语言设置。
+function M.SetLanguage(value)
+    if value~="zh" and value~="en" then
+        local loc=GLOBAL.LOC
+        local code=loc and loc.GetLocaleCode and loc.GetLocaleCode() or nil
+        value=(code==nil or code=="zh" or code=="zhr" or code=="zht") and "zh" or "en"
+    end
+    local s=MakeStrings(value)
+    s.NAMES.AOM_TRACTOR_CHASSIS=s.NAMES.TRACTOR_CHASSIS
+    s.NAMES.AOM_TRACTOR_ITEM=s.NAMES.TRACTOR_CHASSIS
+    s.NAMES.AOM_PLOW=s.NAMES.AOM_LANDCLEARER
+    s.RECIPE_DESC.AOM_TRACTOR_CHASSIS=s.RECIPE_DESC.TRACTOR_CHASSIS
+    s.RECIPE_DESC.AOM_TRACTOR_ITEM=s.RECIPE_DESC.TRACTOR_CHASSIS
+    M.LANGUAGE=value;M.NAMES=s.NAMES;M.RECIPE_DESC=s.RECIPE_DESC;M.ACTION=s.ACTION;M.STATUS=s.STATUS
+    GLOBAL.AOM_STRINGS=s
+    if STRINGS then
+        for k,v in pairs(s.NAMES)do STRINGS.NAMES[k]=v end
+        for k,v in pairs(s.RECIPE_DESC)do STRINGS.RECIPE_DESC[k]=v end
+    end
 end
 
 return M

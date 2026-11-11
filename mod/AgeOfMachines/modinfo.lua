@@ -16,9 +16,9 @@ description = chinese and [[
 	- 洒水机：按原版水壶用量按需浇满，出厂空罐
 	- 施肥机：按原版肥料用量，按需补齐三类农田养分
 	- 除草机：对应铲子（DIG 杂草与残渣）
-	- 收割机：对应收获（HARVEST）
+	- 收割机：采摘成熟作物，并按原版锤击掉落拆开巨大作物
 
-	不加速、不改数值、不自动锤巨大化作物。
+	不加速、不改农业数值。
 	产量与原版完全一致，只把重复操作交给机器。
 ]] or [[
 Mount original farming tools on a tractor.
@@ -28,12 +28,12 @@ Mount original farming tools on a tractor.
 - Irrigator: starts empty and waters soil as needed using watering-can quantities.
 - Fertilizer Spreader: replenishes all three soil nutrients using original fertilizer quantities.
 - Weeder: digs up weeds and garden detritus, preserving their original drops.
-- Harvester: harvests ripe crops without smashing giant crops.
+- Harvester: harvests ripe crops and breaks giant produce using original hammering drops.
 
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.1.18"
+version = "0.2.1"
 api_version = 10
 priority = 0
 

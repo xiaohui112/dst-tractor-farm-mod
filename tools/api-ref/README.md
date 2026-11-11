@@ -40,3 +40,11 @@
 新增 `fertilizer.lua`、`stackable.lua`、`container.lua`、`inventoryitem.lua`，分别来自原版镜像对应 components 文件；`soil_amender.lua` 为 prefab 原文，`fertilizer_bottle_return.lua` 为其返空瓶回调原文摘录。`fertilizer_deploy.lua` 为 `standardcomponents.lua` 中 MakeDeployableFertilizer 的部署回调原文摘录，用于单份效果对照。来源：[原版组件](https://github.com/vietnd69/dst-scripts/tree/main/components)、[soil_amender](https://github.com/vietnd69/dst-scripts/blob/main/prefabs/soil_amender.lua)、[standardcomponents](https://github.com/vietnd69/dst-scripts/blob/main/standardcomponents.lua)。
 
 测试实际执行相关方法；地图、实体、湿度/温度、库存/网络底层使用桩。这些参考文件不随 Mod 打包。
+
+## 收割与巨大作物拆分参考（2026-11-11）
+
+`pickable.lua` 来自 [原版组件镜像](https://github.com/vietnd69/dst-scripts/blob/main/components/pickable.lua)，保留完整组件。`oversized_harvest.lua` 为 [prefabs/veggies.lua](https://github.com/vietnd69/dst-scripts/blob/main/prefabs/veggies.lua) 中 `oversized_onfinishwork` 与 `oversized_makeloots` 的原文摘录，仅增加测试导出。测试执行原版采摘、工作组件、巨大产物掉落函数；地图、植物实体、库存与掉落实体创建使用桩，不替代实机验证，不随Mod打包。
+
+## 放置与完整生命周期参考（2026-11-11）
+
+`deployable.lua`、`fuel.lua` 取自同一原版镜像的对应components文件，`prefabutil.lua` 为原版工具模块完整代码。完整流程执行真实MakePlacer/Deployable、自定义校验、容器/库存归属、有限次数和实体持久化方法；测试桩不再提供GLOBAL.containers，使用require模块接口。源地址：[Deployable](https://github.com/vietnd69/dst-scripts/blob/main/components/deployable.lua)、[Fuel](https://github.com/vietnd69/dst-scripts/blob/main/components/fuel.lua)、[PrefabUtil](https://github.com/vietnd69/dst-scripts/blob/main/prefabutil.lua)。仅作测试依据，不进入Mod安装包。

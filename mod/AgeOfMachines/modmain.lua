@@ -52,7 +52,9 @@ GLOBAL.AOM_CONFIG = {
 	LANGUAGE = GetModConfigData("LANGUAGE"),
 	MODEL_SCALE = GetModConfigData("MODEL_SCALE"),
 }
-require("aom_common")
+local AOM=require("aom_common")
+if AOM.SetLanguage then AOM.SetLanguage(GetModConfigData("LANGUAGE")) end
+local L=require("aom_locale").Text
 
 local DriverVisual=require("aom_driver_visual")
 if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then
@@ -69,7 +71,7 @@ local AOM_ATTACHMENT_TYPE = GLOBAL.AOM_ATTACHMENT_TYPE
 -- 上下车直接使用原版 ACTIONS.MOUNT / DISMOUNT。
 -- rideable / rider 负责提示，SGwilson / SGwilson_client 负责动作与动画。
 
-local AOM_REFUEL = AddAction("AOM_REFUEL", "加油", function(act)
+local AOM_REFUEL = AddAction("AOM_REFUEL", L("加油"), function(act)
 	local target, invobject = act.target, act.invobject
 	if target == nil or invobject == nil or target.TryRefuel == nil then
 		return false
@@ -83,7 +85,7 @@ AOM_REFUEL.distance = 3
 AOM_REFUEL.priority = 1
 AOM_REFUEL.mount_valid = false
 
-local AOM_REPAIR = AddAction("AOM_REPAIR", "修理", function(act)
+local AOM_REPAIR = AddAction("AOM_REPAIR", L("修理"), function(act)
 	local target, invobject = act.target, act.invobject
 	if target == nil or invobject == nil or target.TryRepair == nil then
 		return false
@@ -99,7 +101,7 @@ AOM_REPAIR.mount_valid = false
 
 local Irrigator = require("aom_irrigator")
 
-local AOM_LOAD = AddAction("AOM_LOAD", "装料", function(act)
+local AOM_LOAD = AddAction("AOM_LOAD", L("装料"), function(act)
 	local doer, target, invobject = act.doer, act.target, act.invobject
 	if target == nil or invobject == nil then
 		return false
@@ -113,18 +115,19 @@ local AOM_LOAD = AddAction("AOM_LOAD", "装料", function(act)
 
 	if att == AOM_ATTACHMENT_TYPE.SEEDER and invobject.components.farmplantable ~= nil then
 		if store:LoadItem(invobject, doer) then
-			msg = "已装种子（共 " .. store:GetSeedCount() .. "）"
+			msg = L("已装种子（共 %d）",store:GetSeedCount())
 			target:PushEvent("aom_load_changed")
+			if doer and doer.components.talker then doer.components.talker:Say(msg) end
 			return true
 		end
-		msg = "种袋已满！"
+		msg = L("种袋已满！")
 	elseif att == AOM_ATTACHMENT_TYPE.FERTILIZER and invobject.components.fertilizer ~= nil then
 		if store:LoadItem(invobject, doer) then
-			msg = "已装肥料（可施用 " .. store:GetFertilizerCount() .. " 次）"
+			msg = L("已装肥料（可施用 %d 次）",store:GetFertilizerCount())
             if doer and doer.components.talker then doer.components.talker:Say(msg) end
             return true
 		end
-		msg = "肥料仓已满！"
+		msg = L("肥料仓已满！")
 	elseif att == AOM_ATTACHMENT_TYPE.IRRIGATOR then
         local ok
         ok,msg=Irrigator.Load(store,invobject)
@@ -175,12 +178,14 @@ AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,r
     local kind=GetClientAttachmentType(target)
     if item.HasTag ~= nil and item:HasTag(AOM_TAG.ATTACHMENT) then
         table.insert(actions,AOM_ATTACH)
-    elseif item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.WEEDER) then
+    elseif item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.SEEDER or kind==AOM_ATTACHMENT_TYPE.WEEDER or kind==AOM_ATTACHMENT_TYPE.HARVESTER) then
         table.insert(actions,AOM_REPAIR)
     elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
         or kind==AOM_ATTACHMENT_TYPE.SEEDER and IsSeedItem(item)
         or kind==AOM_ATTACHMENT_TYPE.FERTILIZER and item:HasTag("fertilizer") then
         table.insert(actions,AOM_LOAD)
+    elseif item:HasTag("BURNABLE_fuel") then
+        table.insert(actions,AOM_REFUEL)
     end
 end)
 

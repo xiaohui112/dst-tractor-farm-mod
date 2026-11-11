@@ -1,49 +1,89 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""把 mod/AgeOfMachines 打成可直接解压进 mods 目录的 AgeOfMachines.zip。"""
+"""先运行全部自检，再原子生成安装包；清单和源码逐文件 SHA-256 校验。"""
+import argparse
 import hashlib
+import json
+import os
 from pathlib import Path
-from zipfile import ZIP_DEFLATED, ZipFile
+import subprocess
+import sys
+import tempfile
+from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
-ROOT = Path(__file__).resolve().parents[1]
-MOD = ROOT / 'mod' / 'AgeOfMachines'
-ARCHIVE = ROOT / 'AgeOfMachines.zip'
-SKIP_PARTS = {'__pycache__', '.DS_Store'}
-# 源 PNG 不进安装包：游戏会把 images/ 下的 PNG 自动编译成单元素图集并覆盖多图标 .xml。
-SKIP_SUFFIXES = {'.png'}
-REQUIRED = ('modinfo.lua', 'modmain.lua', 'modicon.tex', 'scripts/aom_driver_visual_bank.lua',
-            'anim/aom_tractor_chassis.zip', 'anim/aom_attachment_shared.zip',
-            'anim/aom_attachment_symbols.zip', 'sound/aom_irrigator_music.fsb')
+ROOT=Path(__file__).resolve().parents[1]
+MOD=ROOT/'mod/AgeOfMachines'
+ARCHIVE=ROOT/'AgeOfMachines.zip'
+MANIFEST='AgeOfMachines/INSTALL-MANIFEST.json'
+
+
+def source_files(source):
+    # 源 PNG 不进安装包：游戏会把 images/ 下的 PNG 自动编译成单元素图集，
+    # 覆盖手工写的多图标 .xml（v0.1.5 实机就是因为这个丢了全部图标）。
+    return {p.relative_to(source).as_posix():p for p in sorted(source.rglob('*'))
+            if p.is_file() and not any(part.startswith('.') or part=='__pycache__'
+                                      for part in p.relative_to(source).parts)
+            and p.suffix not in ('.pyc','.log','.png')}
+
+
+def verify_archive(source,archive):
+    files=source_files(source)
+    with ZipFile(archive) as z:
+        names=z.namelist()
+        if len(names)!=len(set(names)) or z.testzip() is not None:
+            raise ValueError('Duplicate archive entries or invalid ZIP CRC')
+        expected={'AgeOfMachines/'+name for name in files}|{MANIFEST}
+        if set(names)!=expected:
+            raise ValueError('Archive file list differs from source')
+        manifest=json.loads(z.read(MANIFEST))
+        if set(manifest['files'])!=set(files):
+            raise ValueError('Manifest file list differs from source')
+        for name,p in files.items():
+            raw=z.read('AgeOfMachines/'+name)
+            digest=hashlib.sha256(raw).hexdigest()
+            if raw!=p.read_bytes() or manifest['files'][name]!={'sha256':digest,'bytes':len(raw)}:
+                raise ValueError('Archive/source/manifest mismatch: '+name)
+    return manifest
+
+
+def build_archive(source,archive):
+    files=source_files(source)
+    manifest={'schema':1,'files':{}}
+    archive.parent.mkdir(parents=True,exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=archive.parent,suffix='.zip',delete=False) as f:
+        temp=Path(f.name)
+    try:
+        with ZipFile(temp,'w',ZIP_DEFLATED,compresslevel=9) as z:
+            def write(name,raw):
+                info=ZipInfo(name,date_time=(1980,1,1,0,0,0))
+                info.compress_type=ZIP_DEFLATED;info.external_attr=0o100644<<16
+                z.writestr(info,raw)
+            for name,p in files.items():
+                raw=p.read_bytes()
+                manifest['files'][name]={'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}
+                write('AgeOfMachines/'+name,raw)
+            write(MANIFEST,(json.dumps(manifest,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode())
+        verify_archive(source,temp)
+        os.replace(temp,archive)
+    finally:
+        temp.unlink(missing_ok=True)
+    return manifest
 
 
 def main():
-    files = sorted(p for p in MOD.rglob('*')
-                   if p.is_file() and not (set(p.relative_to(MOD).parts) & SKIP_PARTS)
-                   and p.suffix.lower() not in SKIP_SUFFIXES)
-    for name in REQUIRED:
-        if not (MOD / name).is_file():
-            raise SystemExit('ERROR: 缺少 ' + name)
-    with ZipFile(ARCHIVE, 'w', ZIP_DEFLATED) as archive:
-        for file in files:
-            archive.write(file, 'AgeOfMachines/' + file.relative_to(MOD).as_posix())
-    with ZipFile(ARCHIVE) as archive:
-        if archive.testzip() is not None:
-            raise SystemExit('ERROR: 压缩包 CRC 校验失败')
-        names = archive.namelist()
-        if len(names) != len(files):
-            raise SystemExit('ERROR: 压缩包文件数与目录不一致')
-        for file in files:
-            entry = 'AgeOfMachines/' + file.relative_to(MOD).as_posix()
-            if archive.read(entry) != file.read_bytes():
-                raise SystemExit('ERROR: 内容不一致 ' + entry)
-        if not any(n.endswith('anim/aom_tractor_driver.zip') for n in names):
-            # 驾驶动画未接入时仍应可打包；这里只提醒，不阻断。
-            print('提示：本包未包含驾驶动画，安装后驾驶室坐姿保持原版。')
-    digest = hashlib.sha256(ARCHIVE.read_bytes()).hexdigest()
-    print('已生成 %s：%d 个文件，%.1f MiB'
-          % (ARCHIVE.name, len(files), ARCHIVE.stat().st_size / 1024.0 / 1024.0))
-    print('SHA-256 ' + digest)
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--verify-only',action='store_true')
+    args=parser.parse_args()
+    if args.verify_only:
+        manifest=verify_archive(MOD,ARCHIVE)
+    else:
+        subprocess.run([sys.executable,str(ROOT/'tools/selfcheck.py')],cwd=ROOT,check=True)
+        manifest=build_archive(MOD,ARCHIVE)
+    report=ROOT/'outputs/install-validation.json'
+    report.parent.mkdir(parents=True,exist_ok=True)
+    report.write_text(json.dumps({'archive':ARCHIVE.name,'source_files':len(manifest['files']),
+        'sha256':hashlib.sha256(ARCHIVE.read_bytes()).hexdigest(),'zip_crc':True,
+        'all_source_bytes_match':True},indent=2)+'\n')
+    print('安装包校验通过：%d个源文件逐字节一致；%s'%(len(manifest['files']),ARCHIVE))
 
 
-if __name__ == '__main__':
-    main()
+if __name__=='__main__':main()

@@ -1,0 +1,42 @@
+{
+  "project": "aom_tractor_cabin",
+  "native_game_assets_included": false,
+  "files": [
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_tractor_cabin.scml",
+      "sha256": "abe3704a71c0b86a55d41f6b7b474943f903f728f4a243640b85bf01e1b01a6a"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_back/back-0.png",
+      "sha256": "c6a4c6abb7cf7cf5efd2a19ae06f506ac6a25c87e51854ef2c20c66433c159cd"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_back/back-1.png",
+      "sha256": "1f5521965c937b4544b0d81b3014a070a51199f06b9b83a835f5e68f7295dbea"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_back/back-2.png",
+      "sha256": "607ea07251ee34a2bb28c9827e34459b2dc9b4138a4af08566a75e4c765ed209"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_front/front-0.png",
+      "sha256": "11e2a531bbe5e18c286435a965279af4f2edc60f8bce073c13a8538b843c37d7"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_front/front-1.png",
+      "sha256": "7d44d81899598a4b1600e28f36e49993edb63e55ec7bcd7ad4ae062af9f8ef91"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_cabin_front/front-2.png",
+      "sha256": "5770bc3143fce271d5288db6d8297187a01cf231357cb706d45cb336f3f2d4c5"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_driver_attachment_rear/empty.png",
+      "sha256": "70a213096a8a3aa52d8b05ee5ff5f8d14305a01d51f9305d2555880a4a2b458c"
+    },
+    {
+      "path": "AgeOfMachines/exported/aom_tractor_cabin/aom_driver_attachment_front/empty.png",
+      "sha256": "70a213096a8a3aa52d8b05ee5ff5f8d14305a01d51f9305d2555880a4a2b458c"
+    }
+  ]
+}

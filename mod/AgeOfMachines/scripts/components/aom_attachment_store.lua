@@ -150,7 +150,7 @@ function AttachmentStore:ReturnSeed(item)
 	if c == nil or item == nil or not item:IsValid() then
 		return
 	end
-	c:GiveItem(item, nil, true)
+	c:GiveItem(item,nil,Vector3(self.inst.Transform:GetWorldPosition()))
 end
 
 ---------------------------------------------------------------------------

@@ -20,6 +20,9 @@ inst._working=true
 function inst:DoPeriodicTask()return {Cancel=function()end}end
 function weed(name,x,z)
  local v=CreateEntity();v.prefab=name or 'weed_tillweed'
+ if string.sub(v.prefab,1,5)=='weed_' then
+  v.tags.farm_plant=true;v.tags.weed=true;v.tags.weedplantstress=true;v.weed_def={}
+ end
  v.Transform:SetPosition(x or 0,0,z or 0)
  v:AddComponent('workable')
  v.components.workable:SetWorkAction(ACTIONS.DIG)
@@ -109,6 +112,13 @@ end)
 assert(Drive.WorkTile(inst,0,0))
 assert(crop.valid and moved.valid and crop.components.workable:GetWorkLeft()==2)
 assert(moved.components.workable:GetWorkLeft()==2);assert_cost(1)
+''')
+
+    def test_ambiguous_mod_crop_is_protected_without_native_weed_identity(self):
+        self.run_lua('''
+local v=weed('modded_crop');v.tags.farm_plant=true;v.tags.weed=true
+assert(not Farm.IsClearableDebris(v))
+assert(not Drive.WorkTile(inst,0,0) and v.valid);assert_cost(0)
 ''')
 
     def test_action_changed_by_callback_stops_with_actual_partial_cost(self):
