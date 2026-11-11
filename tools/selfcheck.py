@@ -359,6 +359,57 @@ def check_script_modules():
                      % (rel, module, module))
 
 
+def find_game_folder():
+    """开发机装了游戏时，直接用游戏脚本核对 require / 类路径；找不到就跳过。"""
+    candidates = [os.environ.get("DST_GAME")]
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as key:
+            steam = winreg.QueryValueEx(key, "SteamPath")[0]
+        libraries = [steam]
+        vdf = os.path.join(steam, "steamapps", "libraryfolders.vdf")
+        if os.path.exists(vdf):
+            with open(vdf, encoding="utf-8", errors="replace") as source:
+                libraries += re.findall(r'"path"\s+"([^"]+)"', source.read())
+        for library in libraries:
+            candidates.append(os.path.join(library.replace("\\\\", "\\"), "steamapps", "common",
+                                           "Don't Starve Together"))
+    except Exception:
+        pass
+    for path in candidates:
+        if path and os.path.isdir(os.path.join(path, "data", "databundles")):
+            return path
+    return None
+
+
+def check_game_paths():
+    """require 与 AddClassPostConstruct 的路径必须真实存在（跨版本改名会直接崩加载）。"""
+    game = find_game_folder()
+    if game is None:
+        warn("未找到《饥荒联机版》安装目录，跳过 require/类路径核对（可设 DST_GAME）")
+        return
+    bundle = os.path.join(game, "data", "databundles", "scripts.zip")
+    if not os.path.exists(bundle):
+        warn("找不到 data/databundles/scripts.zip，跳过 require/类路径核对")
+        return
+    with ZipFile(bundle) as archive:
+        entries = {name[len("scripts/"):-4] for name in archive.namelist()
+                   if name.startswith("scripts/") and name.endswith(".lua")}
+    local = {os.path.relpath(path, os.path.join(MOD, "scripts")).replace(os.sep, "/")[:-4]
+             for path in glob.glob(os.path.join(MOD, "scripts", "**", "*.lua"), recursive=True)}
+    for path in sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True)):
+        rel = os.path.relpath(path, MOD).replace(os.sep, "/")
+        text = _strip_lua_literals(open(path, encoding="utf-8").read())
+        for match in re.finditer(r'require\s*\(?\s*"([^"]+)"', text):
+            name = match.group(1)
+            if name not in local and name not in entries:
+                fail("%s 引用的 require(\"%s\") 在 Mod 与游戏脚本里都找不到" % (rel, name))
+        for match in re.finditer(r'Add(?:Global)?ClassPostConstruct\s*\(\s*"([^"]+)"', text):
+            name = match.group(1)
+            if name not in entries:
+                fail("%s 的 AddClassPostConstruct(\"%s\") 在当前游戏版本里不存在" % (rel, name))
+
+
 # ---------------------------------------------------------------------------
 # 5. 交叉引用
 # ---------------------------------------------------------------------------
@@ -518,6 +569,7 @@ def main():
     check_common_module()
     check_mod_environment()
     check_script_modules()
+    check_game_paths()
     check_cross_refs()
     check_local_functions_defined()
     check_bad_patterns()

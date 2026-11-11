@@ -343,8 +343,9 @@ end
 -- 7) 驾驶状态面板（客户端）
 ---------------------------------------------------------------------------
 
--- 原版 HUD 通过 AddClassPostConstruct 往 playerhud 上挂子控件
-AddClassPostConstruct("widgets/playerhud", function(self)
+-- 原版 HUD 通过 AddClassPostConstruct 往 playerhud 上挂子控件；
+-- 当前游戏版本的类是 screens/playerhud（旧版本才在 widgets/playerhud）。
+AddClassPostConstruct("screens/playerhud", function(self)
 	local AOMHud = require("widgets/aom_hud")
 	self.aom_hud = self:AddChild(AOMHud(self.owner))
     if Music then
