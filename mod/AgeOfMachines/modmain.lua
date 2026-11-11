@@ -141,12 +141,29 @@ AOM_LOAD.distance = 3
 AOM_LOAD.priority = 2
 AOM_LOAD.mount_valid = false
 
+-- 手持挂件右键拖拉机：装进第 1 格（换下来的挂件退回背包）。
+local AOM_ATTACH = AddAction("AOM_ATTACH", "装挂件", function(act)
+	local target, invobject = act.target, act.invobject
+	if target == nil or invobject == nil or target.AttachAttachment == nil then
+		return false
+	end
+	if target.prefab ~= "aom_tractor_chassis" then
+		return false
+	end
+	return target:AttachAttachment(act.doer, invobject)
+end)
+AOM_ATTACH.distance = 3
+AOM_ATTACH.priority = 2
+AOM_ATTACH.mount_valid = false
+
 -- 客户端只用 prefab/tag 和已同步挂件判断提示，执行时仍由服务端校验组件和余量。
 AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,right)
     if not right or target==nil or not target:HasTag(AOM_TAG.TRACTOR) then return end
     local att=target._attachment and target._attachment:value()
     local kind=att and att.attachment_type
-    if item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.WEEDER) then
+    if item.HasTag ~= nil and item:HasTag(AOM_TAG.ATTACHMENT) then
+        table.insert(actions,AOM_ATTACH)
+    elseif item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.WEEDER) then
         table.insert(actions,AOM_REPAIR)
     elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
         or kind==AOM_ATTACHMENT_TYPE.SEEDER and item:HasTag("farmplantable")
@@ -195,11 +212,19 @@ AddModRPCHandler("aom_rpc", "AOM_SEED_MODE", function(player)
 	if tractor ~= nil then tractor:CycleSeedStrategy(player) end
 end)
 
+AddModRPCHandler("aom_rpc", "AOM_DETACH", function(player)
+	local tractor = GetDrivenTractor(player)
+	if tractor ~= nil and tractor.DetachAttachment ~= nil then
+		tractor:DetachAttachment(player)
+	end
+end)
+
 -- 模块（HUD、按键包装）跑在游戏主环境，拿不到 modmain 的 MOD_RPC；
 -- 这里把需要发送的 RPC 句柄挂到主环境，模块只读这一份。
 GLOBAL.AOM_RPC = {
 	TOGGLE_WORK = GetModRPC("aom_rpc", "AOM_TOGGLE_WORK"),
 	SEED_MODE = GetModRPC("aom_rpc", "AOM_SEED_MODE"),
+	DETACH = GetModRPC("aom_rpc", "AOM_DETACH"),
 }
 
 -- F 只接管拖拉机驾驶员的作业开关；原版骑牛上下车操作保持原样。

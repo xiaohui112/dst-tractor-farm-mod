@@ -107,6 +107,53 @@ local function OnAttachmentChanged(inst)
 	end
 end
 
+-- 手持挂件右键拖拉机：装到第 1 格，原有挂件退回背包（放不下就掉在车旁）。
+local function AttachAttachment(inst, doer, item)
+	if inst.components.container == nil or item == nil
+		or not item:HasTag(AOM.TAG.ATTACHMENT) then
+		return false
+	end
+	local inventory = doer ~= nil and doer.components.inventory or nil
+	local container = inst.components.container
+	local old = container:GetItemInSlot(1)
+	if old ~= nil and old ~= item then
+		container:RemoveItem(old, true)
+		if inventory == nil or not inventory:GiveItem(old) then
+			local x, y, z = inst.Transform:GetWorldPosition()
+			old.Transform:SetPosition(x, y, z)
+			if old.components.inventoryitem ~= nil then
+				old.components.inventoryitem:OnDropped()
+			end
+		end
+	end
+	if inventory ~= nil then
+		inventory:RemoveItem(item)
+	end
+	container:GiveItem(item, 1)
+	return true
+end
+
+-- 拆下第 1 格挂件，退回背包；放不下就掉在车旁。
+local function DetachAttachment(inst, doer)
+	if inst.components.container == nil then
+		return false
+	end
+	local item = inst.components.container:GetItemInSlot(1)
+	if item == nil then
+		return false
+	end
+	inst.components.container:RemoveItem(item, true)
+	local inventory = doer ~= nil and doer.components.inventory or nil
+	if inventory == nil or not inventory:GiveItem(item) then
+		local x, y, z = inst.Transform:GetWorldPosition()
+		item.Transform:SetPosition(x, y, z)
+		if item.components.inventoryitem ~= nil then
+			item.components.inventoryitem:OnDropped()
+		end
+	end
+	return true
+end
+
 
 ---------------------------------------------------------------------------
 -- 燃料 / 修理
@@ -201,8 +248,7 @@ local function OnLoadPostPass(inst)
 	OnAttachmentChanged(inst)
 end
 
-local function OnHealthDead(inst)
-	if inst._rider ~= nil and inst._rider.components.rider ~= nil then
+local function OnHealthDead(inst)	if inst._rider ~= nil and inst._rider.components.rider ~= nil then
 		AOMDrive.Dismount(inst, inst._rider)
 	end
 	AOMDrive.SetWorking(inst, false)
@@ -407,6 +453,8 @@ local function fn()
 
 	inst.TryRefuel = TryRefuel
 	inst.TryRepair = TryRepair
+	inst.AttachAttachment = AttachAttachment
+	inst.DetachAttachment = DetachAttachment
 	inst.SetFuel = SetFuel
 	inst.ToggleWorking = AOMDrive.ToggleWorking
 	inst.SetWorking = AOMDrive.SetWorking

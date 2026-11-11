@@ -45,6 +45,16 @@ local AOMHud = Class(Widget, function(self, owner)
 		SendModRPCToServer(AOM_RPC.SEED_MODE)
 	end)
 
+	self.detachbutton = self.root:AddChild(TextButton())
+	self.detachbutton:SetFont(NUMBERFONT)
+	self.detachbutton:SetTextSize(22)
+	self.detachbutton:SetPosition(100, -140, 0)
+	self.detachbutton:SetText("拆下挂件")
+	self.detachbutton:SetOnClick(function()
+		SendModRPCToServer(AOM_RPC.DETACH)
+	end)
+	self.detachbutton:Hide()
+
 	self:Hide()
 end)
 
@@ -108,6 +118,11 @@ function AOMHud:Refresh(tractor)
 		self.seedbutton:Show()
 	else
 		self.seedbutton:Hide()
+	end
+	if att ~= nil and att:IsValid() then
+		self.detachbutton:Show()
+	else
+		self.detachbutton:Hide()
 	end
 	self:Show()
 end
