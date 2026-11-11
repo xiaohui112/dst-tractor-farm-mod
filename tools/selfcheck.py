@@ -178,14 +178,24 @@ def check_driver_assets():
             build,symbols=build_symbols(archive.read("build.bin"))
             if build!="aom_tractor_cabin":
                 raise ValueError("驾驶室 build 名称不匹配")
+            owned={"aom_cabin_back","aom_cabin_front","aom_driver_attachment_rear","aom_driver_attachment_front"}
+            if not {name_hash(name) for name in owned}.issubset(symbols):
+                raise ValueError("驾驶室或前后挂件符号缺失")
             bank=parse_anim(archive.read("anim.bin"))
             if not bank["animations"] or any(a["bank"]!=name_hash("aom_tractor_driver") for a in bank["animations"]):
                 raise ValueError("驾驶动画 bank 名称不匹配")
             required={"mount","dismount","idle_loop","run_pre","run_loop","run_pst"}
             if not required.issubset({a["name"] for a in bank["animations"]}):
                 raise ValueError("缺少原版骑乘所需动画")
-            if not any(n.endswith(".tex") and archive.read(n)[:4]==b"KTEX" for n in archive.namelist()):
-                raise ValueError("驾驶室图集缺失")
+            keys=[(a["name"],a["facing"]) for a in bank["animations"]]
+            if len(set(keys))!=len(keys):
+                raise ValueError("驾驶动画包含重复动作/朝向")
+            for name in required:
+                if not {5,48,192}.issubset({a["facing"] for a in bank["animations"] if a["name"]==name}):
+                    raise ValueError("驾驶动作六向不完整："+name)
+            atlases=[n for n in archive.namelist() if n.endswith(".tex")]
+            if not atlases or any(len(archive.read(n))<16 or archive.read(n)[:4]!=b"KTEX" for n in atlases):
+                raise ValueError("驾驶室图集缺失或无效")
     except (OSError,KeyError,BadZipFile,ValueError) as exc:
         fail("已启用驾驶坐姿但资源未准备好："+str(exc))
 
