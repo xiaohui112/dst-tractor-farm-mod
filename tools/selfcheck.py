@@ -277,6 +277,9 @@ Vector3 TheWorld TheSim TheNet TheInput TheFrontEnd ThePlayer ActionHandler Stat
 STRINGS ACTIONS RECIPES
 """.split())
 
+# 这些名字是模块（require 才能拿到），_G 里没有，写成 GLOBAL.xxx 会被 strict.lua 拦下。
+GLOBAL_MODULE_NAMES = {"containers"}
+
 LUA_KEYWORDS = set("""
 and break do else elseif end false for function goto if in local nil not or repeat return then
 true until while
@@ -323,6 +326,11 @@ def check_mod_environment():
                                for n, lines in sorted(missing.items()))
             fail("%s 用了 Mod 受限环境里没有的全局：%s（改用 GLOBAL.xxx 或 local 别名）"
                  % (name, detail))
+        for lineno, line in enumerate(text.split("\n"), 1):
+            for m in re.finditer(r"GLOBAL\.([A-Za-z_]\w*)", line):
+                if m.group(1) in GLOBAL_MODULE_NAMES:
+                    fail("%s:%d 写了 GLOBAL.%s：它是模块不是全局，改成 require(\"%s\")"
+                         % (name, lineno, m.group(1), m.group(1)))
 
 
 def check_script_modules():
@@ -345,6 +353,10 @@ def check_script_modules():
             if re.search(r"\blocal\s+%s\s*=" % name, text):
                 continue
             fail("%s 在游戏主环境里引用了 %s：%s" % (rel, name, reason))
+        for module in GLOBAL_MODULE_NAMES:
+            if re.search(r"GLOBAL\.%s\b" % module, text):
+                fail("%s 写了 GLOBAL.%s：它是模块不是全局，改成 require(\"%s\")"
+                     % (rel, module, module))
 
 
 # ---------------------------------------------------------------------------

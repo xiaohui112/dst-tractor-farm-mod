@@ -210,7 +210,8 @@ AddClassPostConstruct("components/playercontroller",WorkInput.WrapController)
 -- 3) 容器定义：拖拉机 1 格挂件槽
 ---------------------------------------------------------------------------
 
-local params = GLOBAL.containers.params
+-- containers 是模块不是全局：主环境里没有这个名字，strict.lua 会报变量未声明。
+local params = require("containers").params
 
 params.aom_tractor_chassis =
 {

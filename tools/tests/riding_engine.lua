@@ -142,6 +142,7 @@ function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,hand
 function AddClassPostConstruct(path,fn)POST_FNS[path]=fn end
 AddRecipe2=noop;AddDeconstructRecipe=noop;Ingredient=noop
 containers={params={}}
+package.preload['containers']=function()return containers end
 dofile(MOD..'/modmain.lua')
 MOD_RPC={aom_rpc={AOM_TOGGLE_WORK='AOM_TOGGLE_WORK',AOM_SEED_MODE='AOM_SEED_MODE'}}
 function SendModRPCToServer(id)RPCS[id](CLIENT_PLAYER)end
