@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Age of Machines —— 占位动画包生成器
+Tractor —— 占位动画包生成器
 
 【重要】图标与封面已改用正式美术（见 tools/build_tex.py），本脚本不再生成它们。
 本脚本现在只负责一件事：生成**占位 anim.zip**，让 Mod 在没有 ktech/ModTools
 的情况下也能加载不报错。正式动画编译好之后，直接用正式文件覆盖 anim/ 即可。
 
 原说明（历史）：
-Age of Machines —— 占位美术资源生成器
+Tractor —— 占位美术资源生成器
 
 DST 的 tex/zip 需要专用工具（ktech/TEXTool），本脚本生成的是**可被游戏识别的最小合法包**：
 - images/*.xml + *.tex：TEXTool 2.5 图集格式（PNG 压缩块 + 逐图映射）

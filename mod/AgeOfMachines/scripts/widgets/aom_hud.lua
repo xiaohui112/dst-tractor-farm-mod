@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 驾驶状态面板
+	Tractor —— 驾驶状态面板
 
 	纯文本面板（不依赖任何美术图集），骑上拖拉机时显示在屏幕左上角。
 	显示：当前挂件 / 燃料 / 作业状态 / 停机原因。
@@ -84,7 +84,7 @@ function AOMHud:Refresh(tractor)
 	local mode_key = tractor._seedmode_net ~= nil and tractor._seedmode_net:value() or ""
 	local mode_text = mode_names[mode_key] or "顺序"
 
-	self.lines[1]:SetString("==== 农机时代 ====")
+	self.lines[1]:SetString("==== " .. STRINGS.NAMES.AOM_TRACTOR_CHASSIS .. " ====")
 	self.lines[2]:SetString("挂件：" .. att_text .. "   " .. fuel_text)
 	if att_text == STRINGS.NAMES.AOM_SEEDER then
 		self.lines[3]:SetString(status .. "   [播种:" .. mode_text .. "]")

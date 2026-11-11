@@ -15,11 +15,14 @@
     "all PNGs passed decoding/integrity inspection",
     "front harvester: dedicated attachment_front timeline, mirrored forward-facing header, stable (80,-9) offset through animation keys",
     "front harvester: front layer above body, other attachments retain rear mount",
-    "assembly previews rendered from editable SCML transforms without modifying source bitmaps"
+    "assembly previews rendered from editable SCML transforms without modifying source bitmaps",
+    "current display names: Tractor and six localized attachment names; cover title visually inspected",
+    "renamed PNG assets: manifest paths and dimensions checked; all PNGs decoded"
   ],
   "png_count": 57,
   "scml_count": 3,
   "engine_compilation": "not performed",
   "game_validation": "not performed",
-  "revision": "2026-11-11-front-harvester"
+  "revision": "2026-11-11-front-harvester",
+  "naming_revision": "2026-11-11-tractor-names"
 }

@@ -165,9 +165,10 @@ local neighbor=SpawnPrefab('weed_tillweed');neighbor.Transform:SetPosition(2.1,0
 for _,v in ipairs({weed,neighbor})do
  local left=2
  v.components.workable={GetWorkLeft=function()return left end,
+ GetWorkAction=function()return ACTIONS.DIG end,CanBeWorked=function()return left>0 end,
  WorkedBy=function(_,doer,n)left=left-n;if left==0 then v:Remove()end end}
 end
-assert(Farm.Weed(0,0,0,nil));assert(not weed.valid and neighbor.valid)
+assert(Farm.Weed(0,0,0,inst._rider));assert(not weed.valid and neighbor.valid)
 local plant=SpawnPrefab('farm_plant_tomato');plant.Transform:SetPosition(1.8,0,1.8)
 local nextplant=SpawnPrefab('farm_plant_tomato');nextplant.Transform:SetPosition(2.1,0,0)
 for _,v in ipairs({plant,nextplant})do

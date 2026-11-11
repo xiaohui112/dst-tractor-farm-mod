@@ -292,7 +292,7 @@
       "alpha": true
     },
     {
-      "path": "previews/收割台车头装配.png",
+      "path": "previews/收割机车头装配.png",
       "width": 640,
       "height": 400,
       "alpha": true
@@ -324,5 +324,36 @@
       "scale_x": -1,
       "z_index": 2
     }
-  }
+  },
+  "display_names": {
+    "mod": {
+      "zh": "拖拉机",
+      "en": "Tractor"
+    },
+    "plow": {
+      "zh": "开垦机",
+      "en": "Land Clearer"
+    },
+    "seeder": {
+      "zh": "播种机",
+      "en": "Seeder"
+    },
+    "irrigator": {
+      "zh": "洒水机",
+      "en": "Irrigator"
+    },
+    "fertilizer": {
+      "zh": "施肥机",
+      "en": "Fertilizer Spreader"
+    },
+    "weeder": {
+      "zh": "除草机",
+      "en": "Weeder"
+    },
+    "harvester": {
+      "zh": "收割机",
+      "en": "Harvester"
+    }
+  },
+  "naming_revision": "2026-11-11-tractor-names"
 }

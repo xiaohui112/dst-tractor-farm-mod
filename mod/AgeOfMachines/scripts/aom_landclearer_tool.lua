@@ -1,4 +1,4 @@
--- 开垦机耐久独立于底盘及洒水挂件的储水次数。
+-- 开垦机耐久独立于底盘及洒水机的储水次数。
 local M={MAX_USES=60,REPAIR_USES=10}
 function M.Get(inst)
     local c=inst.components.container

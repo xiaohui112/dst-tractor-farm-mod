@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 播种策略
+	Tractor —— 播种策略
 
 	三种策略：
 	  1. SEQUENTIAL 按种子顺序播种：手里/仓里有什么种什么，一种一坑

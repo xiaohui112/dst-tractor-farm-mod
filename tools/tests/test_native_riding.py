@@ -209,6 +209,28 @@ local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==0 and not t:TryRepair(p,flint))
 ''')
 
+    def test_weeder_flint_repair_prompt_and_action_preserve_item_at_zero(self):
+        self.run_lua('''
+local tool
+for _,prefab in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachments.lua')})do
+ if prefab.name=='aom_weeder' then tool=prefab.fn()end
+end
+t.components.container.GetItemInSlot=function()return tool end;t:PushEvent('itemget')
+tool.components.finiteuses:SetUses(0)
+assert(tool:IsValid())
+local remaining=3
+local flint={prefab='flint',components={},IsValid=function()return true end}
+flint.components.stackable={StackSize=function()return remaining end,
+ Get=function(_,n)remaining=remaining-n;return {Remove=function()end}end}
+local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
+assert(#actions==1 and actions[1].id=='AOM_REPAIR')
+assert(actions[1].fn({doer=p,target=t,invobject=flint}))
+assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
+tool.components.finiteuses:SetUses(49)
+assert(t:TryRepair(p,flint) and tool.components.finiteuses:GetUses()==50 and remaining==1)
+assert(not t:TryRepair(p,flint) and remaining==1)
+''')
+
     def test_water_load_prompt_action_sync_and_hud(self):
         self.run_lua('''
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}

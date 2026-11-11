@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 拖拉机驾驶与作业
+	Tractor —— 拖拉机驾驶与作业
 
 	设计（按需求）：
 	1. 上下车沿用原版 MOUNT / DISMOUNT；底盘带 rideable 组件，
@@ -19,6 +19,7 @@ local AOMSeed = require("aom_seed_strategy")
 local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
+local Weeder = require("aom_weeder_tool")
 local Irrigator = require("aom_irrigator")
 local Fertilizer = require("aom_fertilizer")
 
@@ -172,7 +173,7 @@ local function GiantWorkHere(inst,cx,y,cz)
     return true
 end
 
--- 在当前所在地皮上作业一次。开垦机另返回 reason / ready，区分改动与完整完成。
+-- 在当前所在地皮上作业一次。整格工序返回 reason / ready，区分改动与完整完成。
 function AOMDrive.WorkHere(inst, workx, workz)
 	local att = inst._attachment_type
 	if att == nil then
@@ -192,6 +193,10 @@ function AOMDrive.WorkHere(inst, workx, workz)
         if not usable then return false,reason,false end
         if coordinate_mode then worked,work_reason,ready=GiantWorkHere(inst,cx,y,cz)
         else worked,work_reason,ready=AOMFarmWork.Plough(cx,y,cz,driver,AOMFarmWork.GetTerraformer(inst)) end
+    elseif att==AOM.TYPE.WEEDER then
+        local usable,reason=Weeder.CanWork(inst)
+        if not usable then return false,reason,false end
+        worked,work_reason,ready=AOMFarmWork.Weed(cx,y,cz,driver)
     elseif att==AOM.TYPE.IRRIGATOR then
         worked,work_reason,ready=Irrigator.WaterTile(inst,cx,cz)
     elseif att==AOM.TYPE.FERTILIZER then
@@ -211,12 +216,13 @@ function AOMDrive.WorkHere(inst, workx, workz)
 	if worked then
 		inst.components.finiteuses:Use(1)
 		if att==AOM.TYPE.PLOW then LandClearer.Use(inst) end
+		if att==AOM.TYPE.WEEDER then Weeder.Use(inst) end
 		if inst.AnimState:IsCurrentAnimation("idle") then
 			inst.AnimState:PlayAnimation("work")
 			inst.AnimState:PushAnimation("idle", true)
 		end
 	end
-	if att==AOM.TYPE.PLOW or att==AOM.TYPE.IRRIGATOR or att==AOM.TYPE.FERTILIZER then return worked,work_reason,ready end
+	if att==AOM.TYPE.PLOW or att==AOM.TYPE.WEEDER or att==AOM.TYPE.IRRIGATOR or att==AOM.TYPE.FERTILIZER then return worked,work_reason,ready end
 	return worked
 end
 
@@ -229,6 +235,9 @@ local WORK_MESSAGES={
     FAILED="本格作业未完成，请检查地块后按 F 重试",
     NO_ATTACHMENT="请先安装挂件",
     BROKEN_ATTACHMENT="开垦机耐久已耗尽，请下车用燧石修理后按 F 继续",
+    BROKEN_WEEDER="除草机耐久已耗尽，请下车用燧石修理后按 F 继续",
+    UNCLEARABLE_WEED="本格有无法用铲子清理的杂草或残渣，已暂停除草",
+    WEEDING_INCOMPLETE="本格除草尚未完成，已保留实际进度，请检查后按 F 重试",
     PROTECTED_CROP="本格有作物，已保留原状；收获后再开垦",
     BLOCKED_MOUND="地块或坑位被占用，本格未完成，请清理后按 F 重试",
     UNCLEARABLE_DEBRIS="本格有无法用铲子清理的杂物，已停止开垦",
@@ -270,6 +279,9 @@ function AOMDrive.WorkTile(inst,cx,cz)
         end
         if inst._attachment_type==AOM.TYPE.PLOW and not LandClearer.CanWork(inst) then
             StopForReason(inst,"BROKEN_ATTACHMENT");return true,"BROKEN_ATTACHMENT"
+        end
+        if inst._attachment_type==AOM.TYPE.WEEDER and not Weeder.CanWork(inst) then
+            StopForReason(inst,"BROKEN_WEEDER");return true,"BROKEN_WEEDER"
         end
         if GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
     end

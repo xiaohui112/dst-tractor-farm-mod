@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Age of Machines —— 美术接入流水线
+Tractor —— 美术接入流水线
 
 把"美术交付包"里的 PNG 编译成 DST 能直接加载的 .tex + .xml：
 

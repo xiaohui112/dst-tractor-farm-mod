@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Age of Machines —— 静态自检
+Tractor —— 静态自检
 
 在没有 DST 客户端的机器上，尽可能提前发现会让 Mod 加载失败的问题：
 1. 全部 Lua 文件语法可编译

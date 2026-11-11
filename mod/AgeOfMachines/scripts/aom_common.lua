@@ -1,5 +1,5 @@
 --[[
-	Age of Machines · 农机时代 —— 客户端公共定义
+	拖拉机（Tractor） —— 客户端公共定义
 
 	这里只放"客户端也要认识"的东西：
 	- 挂件类型常量
@@ -55,12 +55,12 @@ local function MakeStrings(lang)
 		return {
 			NAMES = {
 				TRACTOR_CHASSIS = "Tractor",
-				AOM_LANDCLEARER = "Tractor Land Clearer",
-				AOM_SEEDER = "Tractor Seeder",
-				AOM_IRRIGATOR = "Tractor Irrigator",
-				AOM_FERTILIZER = "Tractor Fertilizer Spreader",
-				AOM_WEEDER = "Tractor Weeder",
-				AOM_HARVESTER = "Tractor Harvester",
+				AOM_LANDCLEARER = "Land Clearer",
+				AOM_SEEDER = "Seeder",
+				AOM_IRRIGATOR = "Irrigator",
+				AOM_FERTILIZER = "Fertilizer Spreader",
+				AOM_WEEDER = "Weeder",
+				AOM_HARVESTER = "Harvester",
 			},
 			RECIPE_DESC = {
 				TRACTOR_CHASSIS = "Six attachments, six tools. Drive the work.",
@@ -91,12 +91,12 @@ local function MakeStrings(lang)
 		return {
 			NAMES = {
 				TRACTOR_CHASSIS = "拖拉机",
-				AOM_LANDCLEARER = "拖拉机开垦机",
-				AOM_SEEDER = "拖拉机播种机",
-				AOM_IRRIGATOR = "拖拉机洒水机",
-				AOM_FERTILIZER = "拖拉机施肥机",
-				AOM_WEEDER = "拖拉机打草挂件",
-				AOM_HARVESTER = "拖拉机收割台",
+				AOM_LANDCLEARER = "开垦机",
+				AOM_SEEDER = "播种机",
+				AOM_IRRIGATOR = "洒水机",
+				AOM_FERTILIZER = "施肥机",
+				AOM_WEEDER = "除草机",
+				AOM_HARVESTER = "收割机",
 			},
 			RECIPE_DESC = {
 				TRACTOR_CHASSIS = "六种挂件，六件农具。开车干活。",
@@ -126,7 +126,7 @@ local function MakeStrings(lang)
 	end
 end
 
-local lang = "zh"
+local lang = "auto"
 if GetModConfigData ~= nil then
 	local v = GetModConfigData("LANGUAGE")
 	if type(v) == "string" then
@@ -134,7 +134,18 @@ if GetModConfigData ~= nil then
 	end
 end
 
+if lang ~= "zh" and lang ~= "en" then
+	local loc = GLOBAL.LOC
+	local code = loc ~= nil and loc.GetLocaleCode ~= nil and loc.GetLocaleCode() or nil
+	lang = (code == nil or code == "zh" or code == "zhr" or code == "zht") and "zh" or "en"
+end
+
 local strings = MakeStrings(lang)
+-- 制作配方、世界实体和打包物品都按实际 prefab 名称注册。
+strings.NAMES.AOM_TRACTOR_CHASSIS = strings.NAMES.TRACTOR_CHASSIS
+strings.NAMES.AOM_TRACTOR_ITEM = strings.NAMES.TRACTOR_CHASSIS
+strings.RECIPE_DESC.AOM_TRACTOR_CHASSIS = strings.RECIPE_DESC.TRACTOR_CHASSIS
+strings.RECIPE_DESC.AOM_TRACTOR_ITEM = strings.RECIPE_DESC.TRACTOR_CHASSIS
 -- 旧存档 aom_plow 的展示名兼容新开垦机。
 strings.NAMES.AOM_PLOW=strings.NAMES.AOM_LANDCLEARER
 GLOBAL.AOM_STRINGS = strings

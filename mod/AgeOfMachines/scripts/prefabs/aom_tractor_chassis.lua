@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 拖拉机底盘
+	Tractor —— 拖拉机底盘
 
 	形态：可骑乘的机械。上下车沿用原版骑牛的 MOUNT / DISMOUNT，
 	方向键驾驶，F 开关作业，驶过地块完成工序，作业类型决定速度。
@@ -11,6 +11,7 @@ local AOMDrive = require("aom_drive")
 local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
+local Weeder = require("aom_weeder_tool")
 local Irrigator = require("aom_irrigator")
 local DriverVisual = require("aom_driver_visual")
 local Fertilizer = require("aom_fertilizer")
@@ -98,7 +99,7 @@ local function OnAttachmentChanged(inst)
     Irrigator.Sync(inst)
     DriverVisual.UpdateAttachment(inst,inst._aom_driver_animstate)
     Fertilizer.Watch(inst)
-	-- 收割台用车头时间轴，其余配件沿用车尾；前层在车身前面绘制。
+	-- 收割机用车头时间轴，其余配件沿用车尾；前层在车身前面绘制。
 	if inst._attachment_type==AOM.TYPE.HARVESTER then
 		inst.AnimState:OverrideSymbol("attachment", "aom_attachment_symbols", "empty")
 		inst.AnimState:OverrideSymbol("attachment_front", "aom_attachment_symbols", "harvester")
@@ -153,9 +154,9 @@ local function TryRefuel(inst, doer, item)
 end
 
 local function TryRepair(inst, doer, item)
-	-- 开垦机保留耗尽物品；1份燧石恢复10次，满耐久不扣材料。
+	-- 开垦机/除草机保留耗尽物品；1份燧石恢复10次，满耐久不扣材料。
 	if item~=nil and item.prefab=="flint" then
-		if not LandClearer.Repair(inst) then return false end
+		if not (LandClearer.Repair(inst) or Weeder.Repair(inst)) then return false end
 		ConsumeOne(item)
 		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
 		return true

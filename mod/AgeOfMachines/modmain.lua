@@ -1,5 +1,5 @@
 --[[
-	Age of Machines · 农机时代 —— 装配层
+	拖拉机（Tractor） —— 装配层
 
 	原则：这里只"接线"，不"发明"。
 	所有农业行为最终落在 scripts/aom_farm_work.lua 里对原版函数的调用上。
@@ -134,7 +134,7 @@ AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,r
     if not right or target==nil or not target:HasTag(AOM_TAG.TRACTOR) then return end
     local att=target._attachment and target._attachment:value()
     local kind=att and att.attachment_type
-    if item.prefab=="gears" or item.prefab=="flint" and kind==AOM_ATTACHMENT_TYPE.PLOW then
+    if item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.WEEDER) then
         table.insert(actions,AOM_REPAIR)
     elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
         or kind==AOM_ATTACHMENT_TYPE.SEEDER and item:HasTag("farmplantable")

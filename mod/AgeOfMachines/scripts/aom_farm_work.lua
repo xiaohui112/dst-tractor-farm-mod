@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 原版农场动作封装层
+	Tractor —— 原版农场动作封装层
 
 	本文件是整个 Mod 的"唯一真相来源"：
 	拖拉机的六种挂件，每一个最终都落到这里的一行原版调用上。
@@ -10,7 +10,7 @@
 	- 犁地：terraformer:Terraform(pt, doer)（园艺耕地机）+ farmtiller Till（园艺锄）
 	- 播种：farmplantable:Plant(soil, planter)（种子用的就是它）
 	- 收获：走 HARVEST 的 crops/pickable/... 分发逻辑
-	- 铲草：farm_soil_debris / weed_* 的 workable:WorkedBy(doer, 1)
+	- 铲草：确认 DIG 可作业后调用 workable:WorkedBy(doer, 剩余工作量)
 
 	任何一条原版 API 改名，只需要改这一个文件。
 ]]
@@ -87,6 +87,13 @@ local function FindMaturePlants(x, y, z, r)
 	return result
 end
 
+-- 作物保护优先于杂草名/标签，避免其他 Mod 给作物添加 weed 标签后被误铲。
+local function IsDebris(v)
+    return not IsFarmPlant(v) and (v.prefab == "farm_soil_debris"
+        or (type(v.prefab)=="string" and string.sub(v.prefab,1,5)=="weed_")
+        or v:HasTag("weed"))
+end
+
 -- 找某点附近半径 r 内的杂草与园艺残渣
 local function FindWeedsAndDebris(x, y, z, r)
 	local ents = TheSim:FindEntities(x, y, z, r, nil, { "NOCLICK", "INLIMBO", "player", "INV_MISC" })
@@ -94,9 +101,7 @@ local function FindWeedsAndDebris(x, y, z, r)
 	for _, v in ipairs(ents) do
 		-- 原版杂草 prefab：weed_forgetmelots / weed_firenettle / weed_tillweed / weed_ivy
 		-- 原版残渣 prefab：farm_soil_debris（两者 workable 动作都是 DIG）
-		if SameTile(v,x,z) and (v.prefab == "farm_soil_debris"
-			or (type(v.prefab)=="string" and string.sub(v.prefab, 1, 5) == "weed_")
-			or v:HasTag("weed")) then
+		if v:IsValid() and SameTile(v,x,z) and IsDebris(v) then
 			table.insert(result, v)
 		end
 	end
@@ -110,16 +115,11 @@ end
 -- 一格4×4，半对角约2.828；先覆盖边角，再按所属地块过滤。
 local FIELD_RADIUS = 2.9
 local SOIL_MATCH_SQ = .0001
-local function IsDebris(v)
-    return v.prefab == "farm_soil_debris"
-        or (type(v.prefab)=="string" and string.sub(v.prefab,1,5)=="weed_")
-        or v:HasTag("weed")
-end
-
 -- 规划器也用同一判定：只自动铲除原版 DIG 路径可处理的杂物。
 function AOMFarmWork.IsClearableDebris(v)
+    if not v:IsValid() or not IsDebris(v) then return false end
     local w=v.components.workable
-    return v:IsValid() and IsDebris(v) and w~=nil and w:GetWorkAction()==ACTIONS.DIG and w:CanBeWorked()
+    return w~=nil and w:GetWorkAction()==ACTIONS.DIG and w:CanBeWorked()
 end
 
 -- 原版 farm_plow.OnTerraform 的杂物规则；不调用其 Finished，避免拆掉载体。
@@ -309,7 +309,7 @@ function AOMFarmWork.Water(x,y,z,doer)
 end
 
 ---------------------------------------------------------------------------
--- 4) 施肥挂件：对应肥料 FERTILIZE
+-- 4) 施肥机：对应肥料 FERTILIZE
 ---------------------------------------------------------------------------
 
 -- 判断该格是否是可施肥的农田（原版 farming_manager 只对农田格维护养分格）
@@ -328,25 +328,35 @@ function AOMFarmWork.Fertilize(x,y,z,doer,fertilizer)
 end
 
 ---------------------------------------------------------------------------
--- 5) 打草挂件：对应铲子 DIG（只铲杂草与残渣）
+-- 5) 除草机：对应铲子 DIG（只铲杂草与残渣）
 ---------------------------------------------------------------------------
 
 function AOMFarmWork.Weed(x, y, z, doer)
-	local targets = FindWeedsAndDebris(x, y, z, 2.9)
-	local count = 0
-	for _, v in ipairs(targets) do
-		if v:IsValid() and v.components.workable ~= nil then
-			-- 一趟完成本株剩余的原版铲除工作量。
-			local workable=v.components.workable
-			workable:WorkedBy(doer,workable:GetWorkLeft())
-			count = count + 1
-		end
-	end
-	return count > 0, count == 0 and "NOTHING" or nil
+    local targets=FindWeedsAndDebris(x,y,z,FIELD_RADIUS)
+    if #targets==0 then return false,"NOTHING_TO_DO",true end
+    if doer==nil then return false,"NO_WORKER",false end
+    -- 整批预检，遇到非 DIG 或不可工作的杂草时不先清理一部分。
+    for _,v in ipairs(targets) do
+        if not AOMFarmWork.IsClearableDebris(v) then return false,"UNCLEARABLE_WEED",false end
+    end
+    local changed=false
+    for _,v in ipairs(targets) do
+        -- 前一株的原版/Mod回调可能改变后续实体，逐株重新保护作物及邻格。
+        if v:IsValid() and SameTile(v,x,z) and IsDebris(v) then
+            if not AOMFarmWork.IsClearableDebris(v) then return changed,"UNCLEARABLE_WEED",false end
+            local w=v.components.workable
+            local before=w:GetWorkLeft()
+            w:WorkedBy(doer,before)
+            if not v:IsValid() or w:GetWorkLeft()<before then changed=true end
+        end
+    end
+    -- 调用不等于成功：工作量未减少不收费，部分完成/回调新生杂草均需暂停。
+    if #FindWeedsAndDebris(x,y,z,FIELD_RADIUS)>0 then return changed,"WEEDING_INCOMPLETE",false end
+    return changed,nil,true
 end
 
 ---------------------------------------------------------------------------
--- 6) 收割台：对应 HARVEST（不做巨大化作物锤开）
+-- 6) 收割机：对应 HARVEST（不做巨大化作物锤开）
 ---------------------------------------------------------------------------
 
 -- 注意：原版 farm plant 的"收获"实际是 pickable:Pick（HARVEST 动作也走这条）

@@ -1,5 +1,5 @@
 --[[
-	Age of Machines —— 六种拖拉机挂件
+	Tractor —— 六种拖拉机挂件
 
 	挂件都是物品，带 tag "aom_attachment" 与字段 attachment_type。
 	装上底盘后，底盘按 attachment_type 调用对应的原版农场动作。
@@ -8,6 +8,7 @@
 local AOMFarmWork = require("aom_farm_work")
 local AOM = require("aom_common")
 local LandClearer = require("aom_landclearer_tool")
+local Weeder = require("aom_weeder_tool")
 local Irrigator = require("aom_irrigator")
 
 local assets =
@@ -89,7 +90,7 @@ return
 	}),
 
 	MakeAttachment("aom_weeder", AOM.TYPE.WEEDER, {
-		uses = 50,
+		uses = Weeder.MAX_USES,
 	}),
 
 	MakeAttachment("aom_harvester", AOM.TYPE.HARVESTER, {

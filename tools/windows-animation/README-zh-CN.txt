@@ -1,4 +1,4 @@
-农机时代 · Windows 动画编译包
+拖拉机 · Windows 动画编译包
 生成日期：2026-11-11
 适用：Windows 10 / 11，Steam 版 Don't Starve Mod Tools
 
@@ -113,7 +113,7 @@ ZIP 存在但检查不通过：
 
 本包用于把现有三套世界物体/挂件美术编译成真实游戏资源。
 这些素材当前包含 idle、work、death、idle_packed 以及六种挂件符号，
-收割台保留独立车头图层 attachment_front。
+收割机保留独立车头图层 attachment_front。
 
 编译成功不等于人物驾驶姿势已经接好：原版骑牛会隐藏底盘，
 人物坐姿、骑乘中的车体显示、完整方向动画仍需后续接入和游戏验证。
