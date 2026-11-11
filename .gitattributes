@@ -2,5 +2,8 @@
 *.cmd text eol=crlf
 *.bat text eol=crlf
 
+# FMOD build records hash the project bytes; keep them stable on Windows.
+*.fdp text eol=lf
+
 # Preserve whitespace in original upstream reference sources.
 tools/api-ref/** -whitespace
