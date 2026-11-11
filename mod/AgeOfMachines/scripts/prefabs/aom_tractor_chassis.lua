@@ -16,6 +16,10 @@ local Irrigator = require("aom_irrigator")
 local DriverVisual = require("aom_driver_visual")
 local Fertilizer = require("aom_fertilizer")
 
+-- 美术画布比 DST 原生比例小一半左右，世界模型统一放大；可在 Mod 配置里调。
+local AOM_CONFIG = rawget(_G, "AOM_CONFIG")
+local MODEL_SCALE = type(AOM_CONFIG) == "table" and tonumber(AOM_CONFIG.MODEL_SCALE) or 2
+
 local assets =
 {
 	Asset("ANIM", "anim/aom_tractor_chassis.zip"),
@@ -271,6 +275,7 @@ local function fn()
 
 	inst.AnimState:SetBank("aom_tractor_chassis")
 	inst.AnimState:SetBuild("aom_tractor_chassis")
+	inst.AnimState:SetScale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE)
 	inst.AnimState:PlayAnimation("idle")
 
 	MakeObstaclePhysics(inst, 1.0)
@@ -436,8 +441,7 @@ local placer = MakePlacer(
 	true,    -- onground
 	false,   -- snap
 	false,   -- metersnap
-	1,       -- scale
-	nil,     -- fixedcameraoffset
+	MODEL_SCALE, -- scale	nil,     -- fixedcameraoffset
 	nil,     -- facing
 	nil,     -- postinit
 	Vector3(0, 0, 0),
@@ -456,6 +460,7 @@ local function item_fn()
 
 	inst.AnimState:SetBank("aom_tractor_chassis")
 	inst.AnimState:SetBuild("aom_tractor_chassis")
+	inst.AnimState:SetScale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE)
 	-- 打包物品用木箱形态（美术包 idle_packed 帧）
 	inst.AnimState:PlayAnimation("idle_packed")
 

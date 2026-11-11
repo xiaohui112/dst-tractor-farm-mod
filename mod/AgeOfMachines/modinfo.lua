@@ -33,7 +33,7 @@ Mount original farming tools on a tractor.
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.1.9"
+version = "0.1.10"
 api_version = 10
 priority = 0
 
@@ -62,6 +62,17 @@ configuration_options =
         },
         default = true,
     },
+	{
+		name = "MODEL_SCALE",
+		label = chinese and "模型大小（拖拉机与挂件）" or "Model scale (tractor and attachments)",
+		options = {
+			{ description = "1.5x", data = "1.5" },
+			{ description = "2x", data = "2" },
+			{ description = "2.5x", data = "2.5" },
+			{ description = "3x", data = "3" },
+		},
+		default = "2",
+	},
 	{
 		name = "LANGUAGE",
 		label = "语言 / Language",

@@ -20,7 +20,7 @@ function HandleDugGround()TURF_DROPS=TURF_DROPS+1 end
 function CreateEntity()
  local e=base_spawn('__engine_entity')
  e.entity={AddTransform=function()end,AddAnimState=function()end,AddNetwork=function()end,SetPristine=function()end}
- e.AnimState={SetBank=function()end,SetBuild=function()end,PlayAnimation=function()end,
+ e.AnimState={SetBank=function()end,SetBuild=function()end,SetScale=function()end,PlayAnimation=function()end,
  OverrideSymbol=function()end,PushAnimation=function()end}
  function e:AddTag(t)self.tags[t]=true end
  function e:RemoveTag(t)self.tags[t]=nil end

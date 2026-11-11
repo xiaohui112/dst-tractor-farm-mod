@@ -71,7 +71,7 @@ function CreateEntity()
         GetWorldPosition=function()return e.x,e.y,e.z end,SetRotation=noop,
         GetRotation=function()return 0 end,SetSixFaced=noop,SetFourFaced=noop}
     e.visual_builds={};e.visual_symbols={}
-    e.AnimState={SetBank=function(_,name)e.bank=name end,SetBuild=function(_,name)e.build=name end,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,
+    e.AnimState={SetBank=function(_,name)e.bank=name end,SetBuild=function(_,name)e.build=name end,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,SetScale=noop,GetScale=function()return 1 end,
         PlayAnimation=function(_,name)e.animation=name end,IsCurrentAnimation=function()return false end,
         AddOverrideBuild=function(_,name)e.visual_builds[name]=true end,
         ClearOverrideBuild=function(_,name)e.visual_builds[name]=nil end}

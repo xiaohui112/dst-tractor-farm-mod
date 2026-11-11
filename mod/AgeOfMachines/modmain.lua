@@ -50,6 +50,7 @@ end
 -- 所以选项在这里一次性传给模块。
 GLOBAL.AOM_CONFIG = {
 	LANGUAGE = GetModConfigData("LANGUAGE"),
+	MODEL_SCALE = GetModConfigData("MODEL_SCALE"),
 }
 require("aom_common")
 

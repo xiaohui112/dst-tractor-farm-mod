@@ -11,6 +11,10 @@ local LandClearer = require("aom_landclearer_tool")
 local Weeder = require("aom_weeder_tool")
 local Irrigator = require("aom_irrigator")
 
+-- 与底盘同一套世界模型缩放（见 modmain 的 GLOBAL.AOM_CONFIG）。
+local AOM_CONFIG = rawget(_G, "AOM_CONFIG")
+local MODEL_SCALE = type(AOM_CONFIG) == "table" and tonumber(AOM_CONFIG.MODEL_SCALE) or 2
+
 local assets =
 {
 	Asset("ANIM", "anim/aom_attachment_shared.zip"),
@@ -30,6 +34,7 @@ local function MakeAttachment(name, att_type, postinit)
 
 		inst.AnimState:SetBank("aom_attachment_shared")
 		inst.AnimState:SetBuild("aom_attachment_shared")
+		inst.AnimState:SetScale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE)
 		inst.AnimState:PlayAnimation(att_type)
 
 		inst:AddTag(AOM.TAG.ATTACHMENT)
