@@ -42,7 +42,7 @@ local AOMHud = Class(Widget, function(self, owner)
 	self.seedbutton:SetPosition(100, -112, 0)
 	self.seedbutton:SetText("切换播种策略")
 	self.seedbutton:SetOnClick(function()
-		SendModRPCToServer(MOD_RPC.aom_rpc.AOM_SEED_MODE)
+		SendModRPCToServer(AOM_RPC.SEED_MODE)
 	end)
 
 	self:Hide()

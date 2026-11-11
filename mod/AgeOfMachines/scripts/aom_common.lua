@@ -9,6 +9,11 @@
 
 local MOD_PREFIX = "aom"
 
+-- 本文件由 modmain 用 require 加载，运行在游戏主环境，而不是 modmain 的受限环境：
+-- 主环境里没有 GLOBAL 这个名字（scripts/strict.lua 会直接报 "variable 'GLOBAL' is not declared"），
+-- 所以这里显式取主表。测试桩会预先放一个 GLOBAL，仍然优先用它。
+local GLOBAL = rawget(_G, "GLOBAL") or _G
+
 local ATTACHMENT_TYPE = {
 	PLOW = "plow",
 	SEEDER = "seeder",
@@ -126,12 +131,12 @@ local function MakeStrings(lang)
 	end
 end
 
-local lang = "auto"
-if GetModConfigData ~= nil then
-	local v = GetModConfigData("LANGUAGE")
-	if type(v) == "string" then
-		lang = v
-	end
+-- 语言选项由 modmain 通过 GLOBAL.AOM_CONFIG 传进来：本文件跑在游戏主环境，
+-- 这里的 GetModConfigData 没有绑定 modname，直接调用会触发断言。
+local AOM_CONFIG = rawget(_G, "AOM_CONFIG")
+local lang = type(AOM_CONFIG) == "table" and AOM_CONFIG.LANGUAGE or nil
+if type(lang) ~= "string" then
+	lang = "auto"
 end
 
 if lang ~= "zh" and lang ~= "en" then

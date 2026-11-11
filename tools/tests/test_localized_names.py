@@ -17,12 +17,12 @@ EXPECTED = {
 class LocalizedNameTests(unittest.TestCase):
     def load(self, config, locale):
         lua = LuaRuntime()
-        lua.globals().CONFIG = config
         lua.globals().LOCALE = locale
+        # modmain 把 GetModConfigData 的结果放进 GLOBAL.AOM_CONFIG 后再 require aom_common。
+        lua.globals().AOM_CONFIG = lua.table(LANGUAGE=config) if config is not None else lua.table()
         lua.execute('''
 GLOBAL={LOC={GetLocaleCode=function() return LOCALE end}}
 STRINGS={NAMES={},RECIPE_DESC={}}
-function GetModConfigData() return CONFIG end
 ''')
         lua.execute((MOD / 'scripts/aom_common.lua').read_text())
         return lua

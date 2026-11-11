@@ -18,7 +18,7 @@ function M.Install()
     TheInput:AddKeyDownHandler(KEY_F,function()
         if held or not AcceptInput(ThePlayer) then return end
         held=true
-        SendModRPCToServer(MOD_RPC.aom_rpc.AOM_TOGGLE_WORK)
+        SendModRPCToServer(AOM_RPC.TOGGLE_WORK)
     end)
     TheInput:AddKeyUpHandler(KEY_F,function()held=false end)
 end

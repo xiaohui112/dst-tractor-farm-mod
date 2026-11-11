@@ -136,6 +136,7 @@ ACTION_DEFS={}
 function AddAction(id,label,fn)local a={id=id,fn=fn};ACTION_DEFS[id]=a;return a end
 function AddComponentAction(kind,name,fn)SCENE_HOOKS[name]=fn end
 function AddModRPCHandler(ns,name,fn)RPCS[name]=fn end
+function GetModRPC(ns,name)return name end
 function ActionHandler(action,state)return {action=action,state=state}end
 function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,handler)end
 function AddClassPostConstruct(path,fn)POST_FNS[path]=fn end

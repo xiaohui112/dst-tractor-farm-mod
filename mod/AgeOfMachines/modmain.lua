@@ -46,6 +46,11 @@ if music_ok then
     end
 end
 
+-- 模块在游戏主环境执行，读不到本环境的 GetModConfigData（那个函数要求显式传 modname），
+-- 所以选项在这里一次性传给模块。
+GLOBAL.AOM_CONFIG = {
+	LANGUAGE = GetModConfigData("LANGUAGE"),
+}
 require("aom_common")
 
 local DriverVisual=require("aom_driver_visual")
@@ -188,6 +193,13 @@ AddModRPCHandler("aom_rpc", "AOM_SEED_MODE", function(player)
 	local tractor = GetDrivenTractor(player)
 	if tractor ~= nil then tractor:CycleSeedStrategy(player) end
 end)
+
+-- 模块（HUD、按键包装）跑在游戏主环境，拿不到 modmain 的 MOD_RPC；
+-- 这里把需要发送的 RPC 句柄挂到主环境，模块只读这一份。
+GLOBAL.AOM_RPC = {
+	TOGGLE_WORK = GetModRPC("aom_rpc", "AOM_TOGGLE_WORK"),
+	SEED_MODE = GetModRPC("aom_rpc", "AOM_SEED_MODE"),
+}
 
 -- F 只接管拖拉机驾驶员的作业开关；原版骑牛上下车操作保持原样。
 local WorkInput=require("aom_work_input")

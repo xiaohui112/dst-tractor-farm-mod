@@ -218,7 +218,7 @@ def check_common_module():
     for lang in ("zh", "en"):
         L = LuaRuntime()
         L.execute("GLOBAL = {}; STRINGS = {NAMES={}, RECIPE_DESC={}, ACTIONS={}}")
-        L.execute('LANG = "%s"; function GetModConfigData(k) return LANG end' % lang)
+        L.execute('AOM_CONFIG = { LANGUAGE = "%s" }' % lang)
         try:
             L.execute(read("scripts/aom_common.lua"))
         except Exception as e:
@@ -323,6 +323,28 @@ def check_mod_environment():
                                for n, lines in sorted(missing.items()))
             fail("%s 用了 Mod 受限环境里没有的全局：%s（改用 GLOBAL.xxx 或 local 别名）"
                  % (name, detail))
+
+
+def check_script_modules():
+    """scripts/ 下的模块由 require 加载进游戏主环境，不能引用只有 modmain 环境才有的名字。"""
+    blocked = {
+        "GLOBAL": "主环境没有 GLOBAL，scripts/strict.lua 会报 variable 'GLOBAL' is not declared",
+        "MODROOT": "主环境没有 MODROOT，strict.lua 会报变量未声明",
+        "modimport": "主环境没有 modimport，strict.lua 会报变量未声明",
+        "modname": "主环境没有 modname，strict.lua 会报变量未声明",
+        "GetModConfigData": "主环境的 GetModConfigData 必须显式传 modname，模块里没有绑定，"
+                            "改由 modmain 放进 GLOBAL.AOM_CONFIG",
+        "MOD_RPC": "主环境没有 MOD_RPC（只在 modmain 环境里），RPC 句柄改由 modmain 放进 GLOBAL.AOM_RPC",
+    }
+    for path in sorted(glob.glob(os.path.join(MOD, "scripts", "**", "*.lua"), recursive=True)):
+        rel = os.path.relpath(path, MOD).replace(os.sep, "/")
+        text = _strip_lua_literals(open(path, encoding="utf-8").read())
+        for name, reason in blocked.items():
+            if not re.search(r"(?<![\w.:])%s\b" % name, text):
+                continue
+            if re.search(r"\blocal\s+%s\s*=" % name, text):
+                continue
+            fail("%s 在游戏主环境里引用了 %s：%s" % (rel, name, reason))
 
 
 # ---------------------------------------------------------------------------
@@ -483,6 +505,7 @@ def main():
     check_music_assets()
     check_common_module()
     check_mod_environment()
+    check_script_modules()
     check_cross_refs()
     check_local_functions_defined()
     check_bad_patterns()
