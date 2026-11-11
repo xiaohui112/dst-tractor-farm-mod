@@ -42,6 +42,11 @@ end
 
 require("aom_common")
 
+local DriverVisual=require("aom_driver_visual")
+if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then
+    table.insert(Assets,Asset("ANIM",DriverVisual.ASSET))
+end
+
 local AOM_TAG = GLOBAL.AOM_TAG
 local AOM_ATTACHMENT_TYPE = GLOBAL.AOM_ATTACHMENT_TYPE
 

@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='utf-8'?>
+<spriter_data scml_version="1.0" generator="AgeOfMachines Driver Export" generator_version="1">
+  <folder id="0" name="aom_cabin_back">
+    <file id="0" name="aom_cabin_back/back-0.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+    <file id="1" name="aom_cabin_back/back-1.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+    <file id="2" name="aom_cabin_back/back-2.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+  </folder>
+  <folder id="1" name="aom_cabin_front">
+    <file id="0" name="aom_cabin_front/front-0.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+    <file id="1" name="aom_cabin_front/front-1.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+    <file id="2" name="aom_cabin_front/front-2.png" width="512" height="1024" pivot_x="0.5" pivot_y="0.21875" />
+  </folder>
+  <folder id="2" name="aom_driver_attachment_rear">
+    <file id="0" name="aom_driver_attachment_rear/empty.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+  </folder>
+  <folder id="3" name="aom_driver_attachment_front">
+    <file id="0" name="aom_driver_attachment_front/empty.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+  </folder>
+  <entity id="0" name="aom_tractor_cabin">
+    <animation id="0" name="idle_downside" length="100" looping="true">
+      <mainline>
+        <key id="0" time="0">
+          <object_ref id="0" timeline="0" key="0" z_index="1" />
+          <object_ref id="1" timeline="1" key="0" z_index="3" />
+          <object_ref id="2" timeline="2" key="0" z_index="0" />
+          <object_ref id="3" timeline="3" key="0" z_index="4" />
+        </key>
+      </mainline>
+      <timeline id="0" name="aom_cabin_back" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="0" file="0" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="1" name="aom_cabin_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="1" file="0" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="2" name="aom_driver_attachment_rear" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="2" file="0" x="-125" y="25" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+      <timeline id="3" name="aom_driver_attachment_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="3" file="0" x="130" y="8" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+    </animation>
+    <animation id="1" name="idle_side" length="100" looping="true">
+      <mainline>
+        <key id="0" time="0">
+          <object_ref id="0" timeline="0" key="0" z_index="1" />
+          <object_ref id="1" timeline="1" key="0" z_index="3" />
+          <object_ref id="2" timeline="2" key="0" z_index="0" />
+          <object_ref id="3" timeline="3" key="0" z_index="4" />
+        </key>
+      </mainline>
+      <timeline id="0" name="aom_cabin_back" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="0" file="1" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="1" name="aom_cabin_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="1" file="1" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="2" name="aom_driver_attachment_rear" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="2" file="0" x="-125" y="25" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+      <timeline id="3" name="aom_driver_attachment_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="3" file="0" x="130" y="8" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+    </animation>
+    <animation id="2" name="idle_upside" length="100" looping="true">
+      <mainline>
+        <key id="0" time="0">
+          <object_ref id="0" timeline="0" key="0" z_index="1" />
+          <object_ref id="1" timeline="1" key="0" z_index="3" />
+          <object_ref id="2" timeline="2" key="0" z_index="0" />
+          <object_ref id="3" timeline="3" key="0" z_index="4" />
+        </key>
+      </mainline>
+      <timeline id="0" name="aom_cabin_back" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="0" file="2" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="1" name="aom_cabin_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="1" file="2" x="0" y="0" angle="0" scale_x="0.5" scale_y="0.5" a="1" />
+        </key>
+      </timeline>
+      <timeline id="2" name="aom_driver_attachment_rear" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="2" file="0" x="-70" y="15" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+      <timeline id="3" name="aom_driver_attachment_front" object_type="sprite">
+        <key id="0" time="0" spin="0" curve_type="instant">
+          <object folder="3" file="0" x="85" y="45" angle="0" scale_x="0.7" scale_y="0.7" a="1" />
+        </key>
+      </timeline>
+    </animation>
+  </entity>
+</spriter_data>

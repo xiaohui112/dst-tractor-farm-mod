@@ -12,6 +12,7 @@ local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
 local LandClearer = require("aom_landclearer_tool")
 local Irrigator = require("aom_irrigator")
+local DriverVisual = require("aom_driver_visual")
 local Fertilizer = require("aom_fertilizer")
 
 local assets =
@@ -95,6 +96,7 @@ local function OnAttachmentChanged(inst)
         AOMDrive.SetWorking(inst,false)
     end
     Irrigator.Sync(inst)
+    DriverVisual.UpdateAttachment(inst,inst._aom_driver_animstate)
     Fertilizer.Watch(inst)
 	-- 收割台用车头时间轴，其余配件沿用车尾；前层在车身前面绘制。
 	if inst._attachment_type==AOM.TYPE.HARVESTER then
@@ -287,6 +289,7 @@ local function fn()
 
 	inst:AddTag("structure")
 	inst:AddTag(AOM.TAG.TRACTOR)
+	DriverVisual.Attach(inst)
 	-- 原版 rideable 场景动作靠此标签显示 MOUNT；本体必须可点击。
 	inst:AddTag("rideable")
 

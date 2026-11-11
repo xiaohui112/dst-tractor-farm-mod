@@ -2,11 +2,12 @@
 
 《饥荒联机版》拖拉机与农场挂件 Mod。包含开垦、播种、洒水、施肥、除草和收割六类挂件，农业操作沿用原版组件与数值。
 
-**当前为开发版本，世界物体与挂件动画已完成 Windows 编译并接入，人物驾驶姿势与骑乘显示尚需接入。没有完成 DST 实机与联机验收。** 已完成的行为回归不能代替游戏内验证。
+**当前为开发版本，世界物体与挂件动画已完成 Windows 编译并接入，驾驶室坐姿代码与源工程已准备，需在 Windows 生成驾驶动画后启用。没有完成 DST 实机与联机验收。** 已完成的行为回归不能代替游戏内验证。
 
 ## 下载
 
 - [当前 Mod 安装包](AgeOfMachines.zip)
+- [Windows 驾驶室坐姿编译包](AgeOfMachines-Windows-Driver-Kit.zip)：复用游戏自带骑牛动作，生成六向驾驶室显示；运行 `Build-Driver.cmd`，发回 `Driver-Results.zip`。详见[驾驶室接入](docs/14-驾驶室坐姿接入.md)。
 - [Windows 动画编译包](AgeOfMachines-Windows-Animation-Kit.zip)：包含当前 Mod、三个 SCML 工程、全部引用图片、批处理脚本和中文说明。
 
 Windows 动画编译：完整解压编译包，在 Steam 安装 `Don't Starve Mod Tools`，双击 `Build-Animations.cmd`。需要时把完整工具目录中的 `scml.exe` 拖入提示窗口，编译成功后取得 `Animation-Results.zip`。详见[动画编译步骤](docs/13-动画文件制作.md)。
@@ -44,7 +45,7 @@ python -m pip install -r requirements-dev.txt
 python tools/selfcheck.py
 ```
 
-当前基线为 **143 项 Lua 5.1 行为回归通过**，另检查三个真实动画包的 BILD/ANIM/KTEX 结构、动画名及符号。测试执行真实 Lua 模块及部分原版组件，地图、实体、网络和声音底层使用测试桩。
+当前基线为 **153 项回归通过（含 Lua 5.1 行为与驾驶动画构建测试）**，另检查三个真实动画包的 BILD/ANIM/KTEX 结构、动画名及符号。测试执行真实 Lua 模块及部分原版组件，地图、实体、网络和声音底层使用测试桩。
 
 重新生成 Windows 动画交付包：
 

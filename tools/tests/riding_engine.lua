@@ -70,8 +70,13 @@ function CreateEntity()
     e.Transform={SetPosition=function(_,x,y,z)e.x=x;e.y=y;e.z=z end,
         GetWorldPosition=function()return e.x,e.y,e.z end,SetRotation=noop,
         GetRotation=function()return 0 end,SetSixFaced=noop,SetFourFaced=noop}
-    e.AnimState={SetBank=noop,SetBuild=noop,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,
-        PlayAnimation=function(_,name)e.animation=name end,IsCurrentAnimation=function()return false end}
+    e.visual_builds={};e.visual_symbols={}
+    e.AnimState={SetBank=function(_,name)e.bank=name end,SetBuild=function(_,name)e.build=name end,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,
+        PlayAnimation=function(_,name)e.animation=name end,IsCurrentAnimation=function()return false end,
+        AddOverrideBuild=function(_,name)e.visual_builds[name]=true end,
+        ClearOverrideBuild=function(_,name)e.visual_builds[name]=nil end}
+    e.AnimState.OverrideSymbol=function(_,name,build,symbol)e.visual_symbols[name]={build=build,symbol=symbol}end
+    e.AnimState.ClearOverrideSymbol=function(_,name)e.visual_symbols[name]=nil end
     e.SoundEmitter={KillAllSounds=noop,PlaySound=noop};e.DynamicShadow={SetSize=noop}
     e.Physics={Teleport=function(_,x,y,z)e.Transform:SetPosition(x,y,z)end}
     function e:FacePoint()end

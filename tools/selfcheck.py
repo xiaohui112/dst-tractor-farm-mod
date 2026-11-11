@@ -166,6 +166,30 @@ def check_animation_assets():
             fail(name + " 动画包校验失败：" + str(exc))
 
 
+def check_driver_assets():
+    manifest=read("scripts/aom_driver_visual_bank.lua")
+    if not re.search(r"(?m)^\s*return\s*\{\s*available\s*=\s*true\b",manifest):
+        return
+    from driver_animation import parse_anim,build_symbols,name_hash
+    try:
+        with ZipFile(os.path.join(MOD,"anim","aom_tractor_driver.zip")) as archive:
+            if archive.testzip() is not None:
+                raise ValueError("驾驶动画 ZIP CRC 失败")
+            build,symbols=build_symbols(archive.read("build.bin"))
+            if build!="aom_tractor_cabin":
+                raise ValueError("驾驶室 build 名称不匹配")
+            bank=parse_anim(archive.read("anim.bin"))
+            if not bank["animations"] or any(a["bank"]!=name_hash("aom_tractor_driver") for a in bank["animations"]):
+                raise ValueError("驾驶动画 bank 名称不匹配")
+            required={"mount","dismount","idle_loop","run_pre","run_loop","run_pst"}
+            if not required.issubset({a["name"] for a in bank["animations"]}):
+                raise ValueError("缺少原版骑乘所需动画")
+            if not any(n.endswith(".tex") and archive.read(n)[:4]==b"KTEX" for n in archive.namelist()):
+                raise ValueError("驾驶室图集缺失")
+    except (OSError,KeyError,BadZipFile,ValueError) as exc:
+        fail("已启用驾驶坐姿但资源未准备好："+str(exc))
+
+
 def check_music_assets():
     # 可选音频通过清单动态注册，静态 Asset 正则看不到；启用时必须检查实际导出文件。
     manifest = read("scripts/aom_irrigator_music_bank.lua")
@@ -367,6 +391,7 @@ def main():
     check_modinfo()
     check_assets()
     check_animation_assets()
+    check_driver_assets()
     check_music_assets()
     check_common_module()
     check_cross_refs()
