@@ -22,24 +22,26 @@ local AOMHud = Class(Widget, function(self, owner)
 
 	self.owner = owner
 
+	-- 面板放在屏幕中下方、物品栏上方（底部居中锚点），不再占用左上角。
 	self.root = self:AddChild(Widget("root"))
-	self.root:SetVAnchor(ANCHOR_TOP)
-	self.root:SetHAnchor(ANCHOR_LEFT)
-	self.root:SetPosition(18, -60, 0)
+	self.root:SetVAnchor(ANCHOR_BOTTOM)
+	self.root:SetHAnchor(ANCHOR_MIDDLE)
+	self.root:SetPosition(0, 150, 0)
 
 	self.lines = {}
 	for i = 1, 4 do
 		local t = self.root:AddChild(Text(NUMBERFONT, 22, ""))
 		t:SetHAlign(ANCHOR_LEFT)
-		t:SetVAlign(ANCHOR_TOP)
-		t:SetPosition(0, -(i - 1) * 26, 0)
+		t:SetVAlign(ANCHOR_MIDDLE)
+		-- 第 1 行在最上面，后面几行往下排
+		t:SetPosition(-170, (4 - i) * 26, 0)
 		table.insert(self.lines, t)
 	end
 
 	self.seedbutton = self.root:AddChild(TextButton())
 	self.seedbutton:SetFont(NUMBERFONT)
 	self.seedbutton:SetTextSize(22)
-	self.seedbutton:SetPosition(100, -112, 0)
+	self.seedbutton:SetPosition(185, 26, 0)
 	self.seedbutton:SetText("切换播种策略")
 	self.seedbutton:SetOnClick(function()
 		SendModRPCToServer(AOM_RPC.SEED_MODE)
@@ -48,7 +50,7 @@ local AOMHud = Class(Widget, function(self, owner)
 	self.detachbutton = self.root:AddChild(TextButton())
 	self.detachbutton:SetFont(NUMBERFONT)
 	self.detachbutton:SetTextSize(22)
-	self.detachbutton:SetPosition(100, -140, 0)
+	self.detachbutton:SetPosition(185, -6, 0)
 	self.detachbutton:SetText("拆下挂件")
 	self.detachbutton:SetOnClick(function()
 		SendModRPCToServer(AOM_RPC.DETACH)
