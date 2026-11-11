@@ -152,7 +152,7 @@ local function GiantWorkHere(inst,cx,y,cz)
     local targets,reason=AOMBlock.GetTargets(inst,TheWorld.state.season,counts,cx,cz,preparing)
     if not targets then SetPlanMessage(inst,reason);return false,reason,false end
     if preparing then
-        local changed,why,ready=AOMFarmWork.Plough(cx,y,cz,inst._rider,AOMFarmWork.GetTerraformer(inst),targets)
+        local changed,why,ready=AOMFarmWork.Plough(cx,y,cz,inst._rider,AOMFarmWork.GetTerraformer(inst),targets,inst)
         if not ready then SetPlanMessage(inst,why)
         elseif changed then SetPlanMessage(inst,nil)
         else SetPlanMessage(inst,"NEXT_TILE") end
@@ -192,7 +192,7 @@ function AOMDrive.WorkHere(inst, workx, workz)
         local usable,reason=LandClearer.CanWork(inst)
         if not usable then return false,reason,false end
         if coordinate_mode then worked,work_reason,ready=GiantWorkHere(inst,cx,y,cz)
-        else worked,work_reason,ready=AOMFarmWork.Plough(cx,y,cz,driver,AOMFarmWork.GetTerraformer(inst)) end
+        else worked,work_reason,ready=AOMFarmWork.Plough(cx,y,cz,driver,AOMFarmWork.GetTerraformer(inst),nil,inst) end
     elseif att==AOM.TYPE.WEEDER then
         local usable,reason=Weeder.CanWork(inst)
         if not usable then return false,reason,false end

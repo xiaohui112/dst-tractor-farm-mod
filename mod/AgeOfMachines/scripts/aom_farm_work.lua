@@ -162,6 +162,12 @@ function AOMFarmWork.GetTerraformer(inst)
     return inst._aom_terraformer
 end
 
+-- 与 map.lua 的 TILLSOIL_IGNORE_TAGS 保持同步（拖拉机临时带 NOBLOCK 以绕过占用判定）
+local function CanDigPitAt(map, x, z)
+    return map:GetTileAtPoint(x,0,z) == WORLD_TILES.FARMING_SOIL
+        and map:CanTillSoilAtPoint(x, 0, z, false)
+end
+
 local function GetMoundTargets(x,z,targets)
     if targets then return targets end
     local out={}
@@ -215,7 +221,7 @@ function AOMFarmWork.IsFieldReady(x,y,z,targets)
 end
 
 -- 返回 changed, reason, ready。部分改动也记录消耗，但必须暂停而不是宣告完成。
-function AOMFarmWork.Plough(x,y,z,doer,tf,targets)
+function AOMFarmWork.Plough(x,y,z,doer,tf,targets,vehicle)
     local safe,reason=CheckProtected(x,z,doer,targets)
     if not safe then return false,reason,false end
     if AOMFarmWork.IsFieldReady(x,y,z,targets) then return false,"ALREADY_TILLED",true end
@@ -250,6 +256,12 @@ function AOMFarmWork.Plough(x,y,z,doer,tf,targets)
     if not still_safe then return changed,blocked,false end
 
     local wanted=GetMoundTargets(x,z,targets)
+    -- 挖坑期间让占用检查忽略拖拉机本身（NOBLOCK 在 TILLSOIL_IGNORE_TAGS 里）。
+    local vehicle_had_noblock = type(vehicle) == "table" and type(vehicle.HasTag) == "function"
+        and vehicle:HasTag("NOBLOCK")
+    if type(vehicle) == "table" and type(vehicle.AddTag) == "function" and not vehicle_had_noblock then
+        vehicle:AddTag("NOBLOCK")
+    end
     local kept={}
     for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
         local keep=false
@@ -263,11 +275,17 @@ function AOMFarmWork.Plough(x,y,z,doer,tf,targets)
         for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
             if Matches(soil,p) then found=true;break end
         end
-        if not found and map:CanTillSoilAtPoint(p.x,0,p.z,false) then
+        -- Map:CanTillSoilAtPoint 会检查“部署点是否被占用”，而拖拉机正停在待挖的这格上，
+        -- 会让 3x3 坑位全部被判占用（土皮铺好却不挖坑）。挖坑这一瞬间给车加 NOBLOCK
+        -- 让占用检查忽略它，之后立刻去掉，作物/建筑仍由 CheckProtected 提前挡掉。
+        if not found and CanDigPitAt(map,p.x,p.z) then
             map:CollapseSoilAtPoint(p.x,0,p.z)
             local soil=SpawnPrefab("farm_soil")
             if soil then soil.Transform:SetPosition(p.x,0,p.z);changed=true end
         end
+    end
+    if type(vehicle) == "table" and type(vehicle.RemoveTag) == "function" and not vehicle_had_noblock then
+        vehicle:RemoveTag("NOBLOCK")
     end
     local ready=AOMFarmWork.IsFieldReady(x,y,z,targets)
     if changed and doer then doer:PushEvent("tilling") end
