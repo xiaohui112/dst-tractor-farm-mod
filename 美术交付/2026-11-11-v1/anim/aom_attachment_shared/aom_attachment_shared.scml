@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="AgeOfMachines Art Export" generator_version="1">
+ <folder id="0" name="plow">
+  <file id="0" name="plow/plow-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <folder id="1" name="seeder">
+  <file id="0" name="seeder/seeder-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <folder id="2" name="irrigator">
+  <file id="0" name="irrigator/irrigator-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <folder id="3" name="fertilizer">
+  <file id="0" name="fertilizer/fertilizer-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <folder id="4" name="weeder">
+  <file id="0" name="weeder/weeder-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <folder id="5" name="harvester">
+  <file id="0" name="harvester/harvester-0.png" width="128" height="128" pivot_x="0.5" pivot_y="0"/>
+ </folder>
+ <entity id="0" name="aom_attachment_shared">
+  <animation id="0" name="plow" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="plow" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="0" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+  <animation id="1" name="seeder" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="seeder" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="1" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+  <animation id="2" name="irrigator" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="irrigator" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="2" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+  <animation id="3" name="fertilizer" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="fertilizer" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="3" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+  <animation id="4" name="weeder" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="weeder" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="4" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+  <animation id="5" name="harvester" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0"/>
+    </key>
+   </mainline>
+   <timeline id="0" name="harvester" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant"><object folder="5" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1"/></key>
+   </timeline>
+  </animation>
+ </entity>
+</spriter_data>

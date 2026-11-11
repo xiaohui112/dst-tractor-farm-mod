@@ -1,0 +1,12 @@
+<Atlas>
+ <Texture filename="aom_tractor_icons.tex"/>
+ <Elements>
+  <Element name="aom_tractor_chassis.tex" u1="0.00000000" u2="0.12500000" v1="0" v2="1"/>
+  <Element name="aom_plow.tex" u1="0.12500000" u2="0.25000000" v1="0" v2="1"/>
+  <Element name="aom_seeder.tex" u1="0.25000000" u2="0.37500000" v1="0" v2="1"/>
+  <Element name="aom_irrigator.tex" u1="0.37500000" u2="0.50000000" v1="0" v2="1"/>
+  <Element name="aom_fertilizer.tex" u1="0.50000000" u2="0.62500000" v1="0" v2="1"/>
+  <Element name="aom_weeder.tex" u1="0.62500000" u2="0.75000000" v1="0" v2="1"/>
+  <Element name="aom_harvester.tex" u1="0.75000000" u2="0.87500000" v1="0" v2="1"/>
+ </Elements>
+</Atlas>

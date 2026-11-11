@@ -1,0 +1,49 @@
+{
+  "atlases": [
+    {
+      "name": "aom_chassis_inventory",
+      "size": [
+        64,
+        64
+      ],
+      "elements": [
+        "aom_tractor_item.tex"
+      ],
+      "tex_bytes": 5566
+    },
+    {
+      "name": "aom_attachment_inventory",
+      "size": [
+        384,
+        64
+      ],
+      "elements": [
+        "aom_landclearer.tex",
+        "aom_seeder.tex",
+        "aom_irrigator.tex",
+        "aom_fertilizer.tex",
+        "aom_weeder.tex",
+        "aom_harvester.tex"
+      ],
+      "tex_bytes": 32946
+    },
+    {
+      "name": "aom_tractor_icons",
+      "size": [
+        448,
+        64
+      ],
+      "elements": [
+        "aom_tractor_chassis.tex",
+        "aom_landclearer.tex",
+        "aom_seeder.tex",
+        "aom_irrigator.tex",
+        "aom_fertilizer.tex",
+        "aom_weeder.tex",
+        "aom_harvester.tex"
+      ],
+      "tex_bytes": 38418
+    }
+  ],
+  "modicon": 349660
+}

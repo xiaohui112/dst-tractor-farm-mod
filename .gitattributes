@@ -1,0 +1,6 @@
+# Windows batch files must use CRLF after checkout.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Preserve whitespace in original upstream reference sources.
+tools/api-ref/** -whitespace

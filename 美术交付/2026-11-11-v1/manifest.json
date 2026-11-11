@@ -1,0 +1,328 @@
+{
+  "version": 1,
+  "generated_with": "built-in image_gen",
+  "canvas_origin": "top-left",
+  "scml_pivot": [
+    0.5,
+    0
+  ],
+  "world_canvas": [
+    256,
+    256
+  ],
+  "attachment_hitch": [
+    98,
+    201
+  ],
+  "assets": [
+    {
+      "path": "icons/inventory/aom_plow.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_plow.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/plow/plow-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_seeder.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_seeder.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/seeder/seeder-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_irrigator.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_irrigator.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/irrigator/irrigator-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_fertilizer.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_fertilizer.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/fertilizer/fertilizer-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_weeder.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_weeder.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/weeder/weeder-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_harvester.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_harvester.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_shared/harvester/harvester-0.png",
+      "width": 128,
+      "height": 128,
+      "alpha": true
+    },
+    {
+      "path": "icons/inventory/aom_tractor_item.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/craft/aom_tractor_chassis.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "icons/modicon.png",
+      "width": 512,
+      "height": 512,
+      "alpha": false
+    },
+    {
+      "path": "anim/aom_tractor_chassis/body/body-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/body/body-1.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/body/body-2.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/attachment/attachment-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/empty/empty-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/plow/plow-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/seeder/seeder-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/irrigator/irrigator-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/fertilizer/fertilizer-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/weeder/weeder-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_attachment_symbols/harvester/harvester-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/idle-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/death-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/idle_packed-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/work-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/work-1.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/work-2.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/frames/work-3.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "atlases/aom_chassis_inventory.png",
+      "width": 64,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "atlases/aom_attachment_inventory.png",
+      "width": 512,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "atlases/aom_tractor_icons.png",
+      "width": 512,
+      "height": 64,
+      "alpha": true
+    },
+    {
+      "path": "previews/素材总览.png",
+      "width": 1120,
+      "height": 660,
+      "alpha": true
+    },
+    {
+      "path": "previews/挂件装配预览.png",
+      "width": 1120,
+      "height": 660,
+      "alpha": true
+    },
+    {
+      "path": "previews/图标64px及两倍预览.png",
+      "width": 1020,
+      "height": 350,
+      "alpha": true
+    },
+    {
+      "path": "anim/aom_tractor_chassis/attachment_front/attachment_front-0.png",
+      "width": 256,
+      "height": 256,
+      "alpha": true
+    },
+    {
+      "path": "previews/收割台车头装配.png",
+      "width": 640,
+      "height": 400,
+      "alpha": true
+    }
+  ],
+  "status": "source art; not compiled or game-tested",
+  "revision": "2026-11-11-front-harvester",
+  "attachment_mounts": {
+    "default": {
+      "side": "rear",
+      "hitch": [
+        98,
+        201
+      ],
+      "timeline": "attachment",
+      "z_index": 0
+    },
+    "harvester": {
+      "side": "front",
+      "hitch": [
+        238,
+        210
+      ],
+      "timeline": "attachment_front",
+      "offset_scml": [
+        80,
+        -9
+      ],
+      "scale_x": -1,
+      "z_index": 2
+    }
+  }
+}

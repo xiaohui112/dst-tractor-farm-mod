@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='utf-8'?>
+<spriter_data scml_version="1.0" generator="AgeOfMachines Art Export" generator_version="1">
+ <folder id="0" name="body">
+  <file id="0" name="body/body-0.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+  <file id="1" name="body/body-1.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+  <file id="2" name="body/body-2.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+ </folder>
+ <folder id="1" name="attachment">
+  <file id="0" name="attachment/attachment-0.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+ </folder>
+ <entity id="0" name="aom_tractor_chassis">
+  <animation id="0" name="idle" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0" />
+     <object_ref id="1" timeline="1" key="0" z_index="1" />
+     <object_ref id="2" timeline="2" key="0" z_index="2" />
+    </key>
+   </mainline>
+   <timeline id="0" name="attachment" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="1" name="body" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="0" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="2" name="attachment_front" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-9.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+  </animation>
+  <animation id="1" name="work" length="400" looping="false">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0" />
+     <object_ref id="1" timeline="1" key="0" z_index="1" />
+     <object_ref id="2" timeline="2" key="0" z_index="2" />
+    </key>
+    <key id="1" time="100">
+     <object_ref id="0" timeline="0" key="1" z_index="0" />
+     <object_ref id="1" timeline="1" key="1" z_index="1" />
+     <object_ref id="2" timeline="2" key="1" z_index="2" />
+    </key>
+    <key id="2" time="200">
+     <object_ref id="0" timeline="0" key="2" z_index="0" />
+     <object_ref id="1" timeline="1" key="2" z_index="1" />
+     <object_ref id="2" timeline="2" key="2" z_index="2" />
+    </key>
+    <key id="3" time="300">
+     <object_ref id="0" timeline="0" key="3" z_index="0" />
+     <object_ref id="1" timeline="1" key="3" z_index="1" />
+     <object_ref id="2" timeline="2" key="3" z_index="2" />
+    </key>
+   </mainline>
+   <timeline id="0" name="attachment" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="1" time="100" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="1" angle="0.8" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="2" time="200" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="3" time="300" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="-1" angle="-0.8" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="1" name="body" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="0" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="1" time="100" spin="0" curve_type="instant">
+     <object folder="0" file="0" x="0" y="1" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="2" time="200" spin="0" curve_type="instant">
+     <object folder="0" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+    <key id="3" time="300" spin="0" curve_type="instant">
+     <object folder="0" file="0" x="0" y="-1" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="2" name="attachment_front" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-9.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+    <key id="1" time="100" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-8.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+    <key id="2" time="200" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-9.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+    <key id="3" time="300" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-10.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+  </animation>
+  <animation id="2" name="death" length="600" looping="false">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0" />
+     <object_ref id="1" timeline="1" key="0" z_index="1" />
+     <object_ref id="2" timeline="2" key="0" z_index="2" />
+    </key>
+   </mainline>
+   <timeline id="0" name="attachment" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="1" file="0" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="1" name="body" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="0" file="1" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+   <timeline id="2" name="attachment_front" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="2" file="0" x="80" y="-9.0" angle="0" scale_x="-1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+  </animation>
+  <animation id="3" name="idle_packed" length="100" looping="true">
+   <mainline>
+    <key id="0" time="0">
+     <object_ref id="0" timeline="0" key="0" z_index="0" />
+    </key>
+   </mainline>
+   <timeline id="0" name="body" object_type="sprite">
+    <key id="0" time="0" spin="0" curve_type="instant">
+     <object folder="0" file="2" x="0" y="0" angle="0" scale_x="1" scale_y="1" a="1" />
+    </key>
+   </timeline>
+  </animation>
+ </entity>
+ <folder id="2" name="attachment_front">
+  <file id="0" name="attachment_front/attachment_front-0.png" width="256" height="256" pivot_x="0.5" pivot_y="0" />
+ </folder>
+</spriter_data>

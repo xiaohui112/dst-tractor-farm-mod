@@ -1,0 +1,349 @@
+#!/usr/bin/env python3
+"""
+Age of Machines —— 静态自检
+
+在没有 DST 客户端的机器上，尽可能提前发现会让 Mod 加载失败的问题：
+1. 全部 Lua 文件语法可编译
+2. modinfo.lua 字段齐全、configuration_options 结构正确
+3. modmain / prefab 里引用的自定义 prefab、图集、动画文件真实存在
+4. aom_common 能在桩环境下加载并导出常量（防止 nil 索引类崩溃）
+5. 交叉引用：底盘用到的常量、动作、组件名都存在
+
+用法：
+    python3 tools/selfcheck.py
+"""
+
+import glob
+import os
+import re
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MOD = os.path.join(ROOT, "mod", "AgeOfMachines")
+
+FAILS = []
+WARNS = []
+
+
+def fail(msg):
+    FAILS.append(msg)
+
+
+def warn(msg):
+    WARNS.append(msg)
+
+
+def read(rel):
+    with open(os.path.join(MOD, rel), encoding="utf-8") as f:
+        return f.read()
+
+
+# ---------------------------------------------------------------------------
+# 1. 语法检查
+# ---------------------------------------------------------------------------
+
+def check_syntax():
+    try:
+        from lupa.lua51 import LuaRuntime
+    except ImportError:
+        warn("未安装 lupa，跳过 Lua 语法检查（pip install --target /tmp/pylua lupa）")
+        return
+    L = LuaRuntime()
+    chk = L.eval("function(src,name) local f,e=loadstring(src,name) return f~=nil, e end")
+    files = sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True))
+    for p in files:
+        ok, err = chk(open(p, encoding="utf-8").read(), os.path.relpath(p, MOD))
+        if not ok:
+            fail("语法错误 %s: %s" % (os.path.relpath(p, MOD), err))
+
+
+# ---------------------------------------------------------------------------
+# 2. modinfo
+# ---------------------------------------------------------------------------
+
+REQUIRED_MODINFO = [
+    "name", "description", "author", "version", "api_version", "priority",
+    "dst_compatible", "all_clients_require_mod", "server_filter_tags",
+]
+
+
+def check_modinfo():
+    src = read("modinfo.lua")
+    for key in REQUIRED_MODINFO:
+        if not re.search(r"^\s*%s\s*=" % re.escape(key), src, re.M):
+            fail("modinfo.lua 缺少字段: %s" % key)
+
+    # icon 引用的文件必须存在
+    for m in re.finditer(r'^\s*(icon|icon_atlas)\s*=\s*"([^"]+)"', src, re.M):
+        if not os.path.exists(os.path.join(MOD, m.group(2))):
+            fail("modinfo 引用的文件不存在: %s" % m.group(2))
+
+    # 每个配置项必须 name/label/options/default
+    blocks = re.findall(r"\t\{\s*name\s*=\s*\"(\w+)\".*?\n\t\},", src, re.S)
+    for name in blocks:
+        seg = src[src.index('name = "%s"' % name):]
+        seg = seg[:seg.index("\n\t},") + 4]
+        for field in ("label", "options", "default"):
+            if field + " = " not in seg:
+                fail("配置项 %s 缺少 %s" % (name, field))
+
+
+# ---------------------------------------------------------------------------
+# 3. 资源引用
+# ---------------------------------------------------------------------------
+
+def check_assets():
+    main = read("modmain.lua")
+    # Assets 里声明的文件
+    for m in re.finditer(r'Asset\("(\w+)",\s*"([^"]+)"\)', main):
+        kind, path = m.group(1), m.group(2)
+        if not os.path.exists(os.path.join(MOD, path)):
+            fail("Assets 声明但文件缺失: %s %s" % (kind, path))
+
+    # PrefabFiles 里的文件
+    m = re.search(r"PrefabFiles\s*=\s*\{(.*?)\}", main, re.S)
+    if m:
+        for name in re.findall(r'"([^"]+)"', m.group(1)):
+            p = os.path.join(MOD, "scripts", "prefabs", name + ".lua")
+            if not os.path.exists(p):
+                fail("PrefabFiles 声明的文件不存在: scripts/prefabs/%s.lua" % name)
+
+    # prefab 内设置 bank/build 的动画必须存在
+    prefab_files = glob.glob(os.path.join(MOD, "scripts", "prefabs", "*.lua"))
+    prefab_files += glob.glob(os.path.join(MOD, "modmain.lua"))
+    for p in prefab_files:
+        src = open(p, encoding="utf-8").read()
+        for m in re.finditer(r'AnimState:Set(Build|Bank)\("([^"]+)"\)', src):
+            # 原版 dirt_puff 的 bank/build 共享 smoke_puff_small.zip。
+            native = {"small_puff": "smoke_puff_small", "smoke_puff_small": "smoke_puff_small"}
+            if m.group(2) in native and re.search(
+                r'Asset\("ANIM",\s*"anim/%s.zip"\)' % native[m.group(2)], src
+            ):
+                continue
+            z = os.path.join(MOD, "anim", m.group(2) + ".zip")
+            if not os.path.exists(z):
+                fail("%s 引用了不存在的动画包 anim/%s.zip" % (os.path.basename(p), m.group(2)))
+
+
+def check_music_assets():
+    # 可选音频通过清单动态注册，静态 Asset 正则看不到；启用时必须检查实际导出文件。
+    manifest = read("scripts/aom_irrigator_music_bank.lua")
+    if not re.search(r"available\s*=\s*true", manifest):
+        return
+    from music_bank import inspect_pair
+    try:
+        with open(os.path.join(MOD, "sound", "aom_irrigator_music.fev"), "rb") as source:
+            fev = source.read()
+        with open(os.path.join(MOD, "sound", "aom_irrigator_music.fsb"), "rb") as source:
+            fsb = source.read()
+        inspect_pair(fev, fsb)
+    except (OSError, ValueError) as exc:
+        fail("已启用音乐但音频包校验失败: " + str(exc))
+
+
+# ---------------------------------------------------------------------------
+# 4. aom_common 桩加载
+# ---------------------------------------------------------------------------
+
+def check_common_module():
+    try:
+        from lupa.lua51 import LuaRuntime
+    except ImportError:
+        return
+    for lang in ("zh", "en"):
+        L = LuaRuntime()
+        L.execute("GLOBAL = {}; STRINGS = {NAMES={}, RECIPE_DESC={}, ACTIONS={}}")
+        L.execute('LANG = "%s"; function GetModConfigData(k) return LANG end' % lang)
+        try:
+            L.execute(read("scripts/aom_common.lua"))
+        except Exception as e:
+            fail("aom_common.lua 在 %s 下加载失败: %s" % (lang, e))
+            continue
+        for const in ("PLOW", "SEEDER", "IRRIGATOR", "FERTILIZER", "WEEDER", "HARVESTER"):
+            val = L.eval("GLOBAL.AOM_ATTACHMENT_TYPE.%s" % const)
+            if val is None:
+                fail("aom_common 未导出 AOM_ATTACHMENT_TYPE.%s" % const)
+        for tag in ("TRACTOR", "ATTACHMENT"):
+            if L.eval("GLOBAL.AOM_TAG.%s" % tag) is None:
+                fail("aom_common 未导出 AOM_TAG.%s" % tag)
+        if L.eval("GLOBAL.AOM_WORK_STEP") is None:
+            fail("aom_common 未导出 AOM_WORK_STEP")
+        if not L.eval("STRINGS.NAMES.AOM_LANDCLEARER"):
+            fail("aom_common 未写入 STRINGS.NAMES（%s）" % lang)
+
+
+# ---------------------------------------------------------------------------
+# 5. 交叉引用
+# ---------------------------------------------------------------------------
+
+def check_cross_refs():
+    chassis = read("scripts/prefabs/aom_tractor_chassis.lua")
+    work = read("scripts/aom_farm_work.lua")
+    main = read("modmain.lua")
+
+    # 底盘调用的 farm work 方法必须真实存在
+    for m in re.finditer(r"AOMFarmWork\.(\w+)", chassis):
+        fn = m.group(1)
+        if not re.search(r"function AOMFarmWork\.%s\(" % fn, work):
+            fail("底盘调用了不存在的 AOMFarmWork.%s" % fn)
+
+    # 底盘使用的自定义组件必须存在于 scripts/components
+    for comp in re.findall(r'AddComponent\("(aom_\w+)"\)', chassis + main):
+        p = os.path.join(MOD, "scripts", "components", comp + ".lua")
+        if not os.path.exists(p):
+            fail("使用了不存在的中自定义组件: %s" % comp)
+        else:
+            # 必须 return Class
+            if "return" not in open(p, encoding="utf-8").read().splitlines()[-1]:
+                warn("组件文件 %s 最后一行不是 return，可能无法注册" % comp)
+
+    # 配方产物必须有对应 prefab
+    for m in re.finditer(r'AddMachineRecipe\("(\w+)"', main):
+        name = m.group(1)
+        found = any(
+            'MakeAttachment("%s"' % name in open(p, encoding="utf-8").read()
+            or 'Prefab("%s"' % name in open(p, encoding="utf-8").read()
+            for p in glob.glob(os.path.join(MOD, "scripts", "prefabs", "*.lua"))
+        )
+        if not found:
+            fail("配方产物没有对应 prefab: %s" % name)
+
+    # 配方图标
+    for m in re.finditer(r'AddMachineRecipe\("(\w+)"', main):
+        name = m.group(1)
+        icon = os.path.join(MOD, "images", "aom_tractor_icons.xml")
+        if not os.path.exists(icon):
+            fail("配方图标图集缺失 images/aom_tractor_icons.xml")
+        else:
+            xml = open(icon, encoding="utf-8").read()
+            if name + ".tex" not in xml:
+                fail("配方图集里没有 %s.tex 这个元素" % name)
+
+    # 挂件图标
+    att_xml = os.path.join(MOD, "images", "aom_attachment_icons.xml")
+    if os.path.exists(att_xml):
+        xml = open(att_xml, encoding="utf-8").read()
+        for name in ("aom_plow", "aom_seeder", "aom_irrigator",
+                     "aom_fertilizer", "aom_weeder", "aom_harvester"):
+            if name + ".tex" not in xml:
+                fail("挂件图集里没有 %s.tex" % name)
+
+
+# ---------------------------------------------------------------------------
+# 6. 反模式：常见会导致运行时报错的写法
+# ---------------------------------------------------------------------------
+
+BAD_PATTERNS = [
+    (r"\bGetAimAngle\s*\(", "GetAimAngle 不是 DST 的 API（EntityScript 无此方法）"),
+    (r"SetMaxFuel\s*\(", "原版 fuel 组件没有 SetMaxFuel"),
+    (r"loadstring\s*\(", "DST 运行环境禁止 loadstring"),
+    (r"SGwilson_attacked", "SGwilson_attacked 不是真实函数名"),
+    (r"AddRecipe2\([^)]*\bTECH\.ALCHEMY_TWO", "TECH.ALCHEMY_TWO 不存在，应为 TECH.SCIENCE_TWO"),
+]
+
+
+def check_bad_patterns():
+    for p in sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True)):
+        src = open(p, encoding="utf-8").read()
+        for pat, why in BAD_PATTERNS:
+            if re.search(pat, src):
+                fail("%s 中存在无效写法：%s" % (os.path.relpath(p, MOD), why))
+
+
+def check_local_functions_defined():
+    """
+    抓"调用了但没定义"的局部函数。
+    只检查形如 `local function Foo(` 定义的、且在文件内以 `Foo(` 调用的名字。
+    """
+    import re
+    for path in sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True)):
+        src = open(path, encoding="utf-8").read()
+        defined = set(re.findall(r"^\s*local function (\w+)\s*\(", src, re.M))
+        defined |= set(re.findall(r"^\s*local (\w+)\s*=\s*function", src, re.M))
+        # `local x = ...` 的任何赋值也算定义（闭包捕获的变量合法）
+        defined |= set(re.findall(r"^\s*local (\w+)\s*=", src, re.M))
+        # 函数参数名（local function foo(a, b) / function T:m(a, b)）
+        for params in re.findall(r"function[^(]*\(([^)]*)\)", src):
+            for pname in params.split(","):
+                pname = pname.strip()
+                if pname and re.match(r"^\w+$", pname):
+                    defined.add(pname)
+        defined |= set(re.findall(r"for\s+([\w\s,]+)\s+in\s", src))
+        # 所有 `名字(` 调用（排除方法调用 x:name()
+        called = set(re.findall(r"(?<![:\w.])(\w+)\s*\(", src))
+        # 已知的合法全局
+        ok = defined | {
+            "if","while","for","return","print","type","pairs","ipairs","tostring",
+            "tonumber","require","assert","error","math","table","string","Vector3",
+            "pcall","xpcall","select","next","rawget","rawset","setmetatable","getmetatable",
+            "CreateEntity","Prefab","MakePlacer","SpawnPrefab","GetModConfigData",
+            "net_float","net_entity","net_bool","net_string","net_vector3",
+            "AddComponentAction","AddAction","AddRecipe2","AddDeconstructRecipe",
+            "AddModRPCHandler","AddPrefabPostInit","MakeInventoryPhysics",
+            "MakeObstaclePhysics","MakeInventoryFloatable","SetPhysicsAttacker",
+            "MakeHauntableLaunch","MakeMediumBurnable","MakeSmallBurnable",
+            "MakeSmallPropagator","MakeLargePropagator","IsFuel","TUNING","TheWorld",
+            "TheSim","TheInput","STRINGS","ACTIONS","TECH","Ingredient","Class",
+            "function","elseif","and","or","not","local","end","do","then",
+        }
+        suspended = set(re.findall(r"^local (\w+)\s*$", src, re.M))
+        # 只报"看起来像自己定义却没定义"的名字：小写开头、且不在任何 required 模块里
+        missing = {n for n in called - ok
+                   if re.match(r"^[a-z]\w*$", n)
+                   and n not in suspended
+                   and not n.startswith(("self", "inst", "The"))}
+        # 白名单：Lua 标准库和常见 DST 全局
+        missing -= {
+            "clamp","floor","ceil","abs","max","min","sqrt","cos","sin","random",
+            "atan","hypot","pi","huge","insert","remove","concat","find","sub",
+            "format","rep","gmatch","sort","unpack","fmod","pow","exp","log",
+        }
+        if missing:
+            fail("%s 可能调用了未定义的函数: %s"
+                 % (os.path.relpath(path, MOD), sorted(missing)))
+
+
+def check_giant_farming():
+    """语法和文件存在性不能代替播种行为检查。"""
+    try:
+        from lupa.lua51 import LuaRuntime
+    except ImportError:
+        warn("缺少 lupa.lua51，跳过巨大化行为回归检查")
+        return
+    import io
+    import unittest
+    suite = unittest.defaultTestLoader.discover(os.path.join(ROOT, "tools", "tests"))
+    stream = io.StringIO()
+    result = unittest.TextTestRunner(stream=stream).run(suite)
+    if not result.wasSuccessful() or result.testsRun == 0:
+        fail("行为回归失败：\n" + stream.getvalue())
+    else:
+        print("行为回归：%d 项通过（Lua 5.1）" % result.testsRun)
+
+
+def main():
+    check_syntax()
+    check_modinfo()
+    check_assets()
+    check_music_assets()
+    check_common_module()
+    check_cross_refs()
+    check_local_functions_defined()
+    check_bad_patterns()
+    check_giant_farming()
+
+    print("=" * 60)
+    for w in WARNS:
+        print("[警告]", w)
+    for f in FAILS:
+        print("[失败]", f)
+    print("=" * 60)
+    if FAILS:
+        print("自检未通过：%d 个失败，%d 个警告" % (len(FAILS), len(WARNS)))
+        return 1
+    print("自检通过：0 个失败，%d 个警告" % len(WARNS))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

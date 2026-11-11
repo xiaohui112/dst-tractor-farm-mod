@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "checks": [
+    "inventory: 7 transparent 64x64 PNGs",
+    "craft: 7 transparent 64x64 PNGs",
+    "cover: opaque 512x512 RGB PNG",
+    "aom_tractor_chassis: animation names, image paths, dimensions and key references valid",
+    "aom_attachment_shared: animation names, image paths, dimensions and key references valid",
+    "aom_attachment_symbols: animation names, image paths, dimensions and key references valid",
+    "aom_chassis_inventory: atlas XML element count and normalized UVs valid",
+    "aom_attachment_inventory: atlas XML element count and normalized UVs valid",
+    "aom_tractor_icons: atlas XML element count and normalized UVs valid",
+    "modicon: atlas XML element count and normalized UVs valid",
+    "work preview: 4-frame GIF",
+    "all PNGs passed decoding/integrity inspection",
+    "front harvester: dedicated attachment_front timeline, mirrored forward-facing header, stable (80,-9) offset through animation keys",
+    "front harvester: front layer above body, other attachments retain rear mount",
+    "assembly previews rendered from editable SCML transforms without modifying source bitmaps"
+  ],
+  "png_count": 57,
+  "scml_count": 3,
+  "engine_compilation": "not performed",
+  "game_validation": "not performed",
+  "revision": "2026-11-11-front-harvester"
+}

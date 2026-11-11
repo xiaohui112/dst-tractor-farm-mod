@@ -1,0 +1,6 @@
+<Atlas>
+ <Texture filename="aom_chassis_inventory.tex"/>
+ <Elements>
+  <Element name="aom_tractor_item.tex" u1="0.00000000" u2="1.00000000" v1="0" v2="1"/>
+ </Elements>
+</Atlas>

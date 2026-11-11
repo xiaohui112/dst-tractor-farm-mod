@@ -1,0 +1,20 @@
+# Local caches and temporary files
+.DS_Store
+__pycache__/
+*.py[cod]
+*.log
+/undo-log.txt
+/outputs/
+.venv/
+venv/
+
+# Local credentials and machine configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Superseded archives; original sources and current deliverables are tracked
+/anim-src-for-windows.zip
+/农机时代美术包-车头收割台修订.zip

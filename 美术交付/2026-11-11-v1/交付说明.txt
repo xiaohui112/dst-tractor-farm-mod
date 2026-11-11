@@ -1,0 +1,84 @@
+农机时代 · 美术素材交付 v1
+制作日期：2026-11-11
+
+一、这批交付包含什么
+
+以用户提供的红色拖拉机照片为造型参考，使用内置 image_gen 生成。
+采用粗墨线、暗红车漆、灰黑轮胎、旧钢铁和少量交叉排线的手绘风格。
+所有生成提示词保存在 prompts.json。originals/ 保留10张高清生成原图。
+
+icons/inventory/：7张64×64透明PNG，含打包拖拉机与六种挂件。
+icons/craft/：7张64×64透明PNG，含完整拖拉机与六种挂件。
+挂件图标按清单允许的复用方案，背包与制作菜单采用同一套底图。
+icons/modicon.png：512×512不透明封面，标题“农机时代”。
+atlases/：3张PNG图集与配套XML。
+  aom_chassis_inventory.png：64×64，1个元素。
+  aom_attachment_inventory.png：512×64，前6格有效，后2格透明留白。
+  aom_tractor_icons.png：512×64，前7格有效，最后1格透明留白。
+图集使用2的整数次幂尺寸；XML Texture 指向未来编译出的同名.tex。
+尚未生成.tex，不要直接把PNG改扩展名作为游戏贴图。
+
+anim/aom_tractor_chassis/：256×256车体源图与SCML工程。
+  idle：1帧静止。
+  work：4个关键帧，轻微上下颠簸，attachment图层轻微摆动；非轮胎逐帧旋转动画。
+  death：1帧损坏定格，破裂玻璃、瘪胎、弯排气管及一缕烟。
+  idle_packed：1帧木箱打包形态。
+  body/ 是实际车体符号，attachment/ 是可覆盖的挂件图层。
+  frames/ 是独立导出的车体PNG帧；SCML包含挂件图层的时间轴。
+
+anim/aom_attachment_shared/：六种128×128透明挂件、同名静态动画及SCML。
+anim/aom_attachment_symbols/：七种256×256符号图与SCML。
+  名称严格保留 empty、plow、seeder、irrigator、fertilizer、weeder、harvester。
+  empty为从主车体原图提取的小挂钩；不是缺失文件。
+  各符号均使用车体相同的整画布坐标，避免导入时自动重新居中。
+
+previews/：素材总览、挂件装配预览、64px图标检查和动画预览。
+manifest.json：导出PNG的尺寸、路径及透明通道记录。
+validation.json：文件与引用检查记录；不代表游戏运行验证。
+
+二、坐标与接入约定
+
+车头向右；收割台前置且割齿朝前，其余挂件在车尾，单一正面偏侧视角。
+世界画布256×256，SCML图像pivot为(0.5,0)，对应整画布底部中央。
+PNG坐标从左上角计，预留车尾接点约为(98,201)。
+车尾挂件层先画，车体层次之，车头收割台层最后画。
+装配预览为本地合成检查图，不是游戏截图。
+
+三、当前完成状态与限制
+
+本次是美术源文件交付：PNG、XML及SCML。
+没有覆盖现有mod资源，没有修改游戏Lua代码，也没有运行游戏或游戏编译器。
+本机未发现ktech/krane，因此没有声称完成可加载的anim.zip或.tex。
+SCML已经检查XML结构、时间轴引用、PNG路径与符号命名，仍需在Spriter/Mod Tools中打开并编译验收。
+实际游戏中的尺寸、镜像、碰撞中心、遮挡与挂点仍需进游戏观察并微调。
+
+当前 aom_tractor_chassis.lua 的 item_fn 中，打包物品播放的是 idle。
+若希望在地面显示木箱打包形态，请把 item_fn 内该处改为 idle_packed；
+本体fn和placer仍然使用idle。此改动本次未执行。
+
+清单中的5张创意工坊展示图明确约定为游戏内截图，因此本次未用插画冒充实机截图。
+封面插画只作为Mod封面；工坊截图待游戏运行后另行截取。
+
+四、编译工具说明
+
+原清单中的“ktech anim”不是本次采用的动画编译命令。
+ktech负责PNG与KTEX贴图转换；krane负责把游戏动画反编译为Spriter工程。
+动画源工程请通过适用的Don't Starve Mod Tools动画编译流程转换成游戏anim包。
+参考工具仓库：https://github.com/nsimplex/ktools
+SCML格式参考：https://www.brashmonkey.com/ScmlDocs/ScmlReference.html
+
+图集转贴图时，可使用已安装的ktech，例如：
+  ktech atlases/aom_tractor_icons.png atlases/aom_tractor_icons.tex
+其余两张图集同理；封面PNG转成modicon.tex后还需配套modicon.xml。
+交付包附带 atlases/modicon.xml 供该步骤使用。
+请先备份现有mod，再接入编译结果；本交付包本身不是可直接放入mods目录运行的成品Mod。
+
+五、车头收割台修订（2026-11-11）
+
+收割台使用独立 attachment_front 图层，车尾 attachment 图层保留给其余配件。
+车头挂点约(238,210)，SCML偏移(80,-9)、scale_x=-1，割齿朝向车头。
+idle/work/death 均增加车头图层，作业各帧相对车体的连接位置保持一致；打包形态不画收割台。
+未重绘原始位图；新增 attachment_front 图像是原收割台符号图的原样副本，位置与朝向由SCML变换控制。
+previews/挂件装配预览.png 已更新，并新增收割台车头装配.svg/png；tools/preview_mounts.py 可从SCML重建可编辑SVG预览。
+Lua已增加车头/车尾符号选择与显隐；现有Mod世界动画包仍为占位，正式显示需重新编译SCML。
+本修订没有进行游戏运行或动画引擎编译，不将预览当成实机截图。
