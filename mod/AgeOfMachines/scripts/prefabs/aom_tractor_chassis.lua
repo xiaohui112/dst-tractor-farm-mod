@@ -274,7 +274,6 @@ local function fn()
 	inst.AnimState:PlayAnimation("idle")
 
 	MakeObstaclePhysics(inst, 1.0)
-	SetPhysicsAttacker(inst, 20)
 
 	inst:AddTag("structure")
 	inst:AddTag(AOM.TAG.TRACTOR)

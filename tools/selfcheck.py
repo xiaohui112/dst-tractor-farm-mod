@@ -419,6 +419,63 @@ def find_game_folder():
     return None
 
 
+BASE_LIBRARY = set("""
+pairs ipairs print math table type string tostring tonumber next select unpack require Class
+pcall xpcall error assert rawget rawset setmetatable getmetatable coroutine os io debug loadstring
+""".split())
+
+ENGINE_GLOBALS = set("""
+Vector3 TheSim TheNet TheWorld ThePlayer TheFrontEnd TheInput TheCamera AllPlayers CWD
+net_float net_bool net_string net_entity net_vector3 kleifileexists
+""".split())
+
+
+def check_game_globals():
+    """Mod 里调用的全局函数必须在当前游戏版本里存在：写错就是运行时
+    "variable 'x' is not declared"（v0.1.8 实机的 SetPhysicsAttacker 就是这样）。"""
+    game = find_game_folder()
+    if game is None:
+        warn("未找到《饥荒联机版》安装目录，跳过全局函数核对（可设 DST_GAME）")
+        return
+    bundle = os.path.join(game, "data", "databundles", "scripts.zip")
+    if not os.path.exists(bundle):
+        warn("找不到 data/databundles/scripts.zip，跳过全局函数核对")
+        return
+    known = set(BASE_LIBRARY) | set(ENGINE_GLOBALS)
+    with ZipFile(bundle) as archive:
+        for name in archive.namelist():
+            if not name.endswith(".lua"):
+                continue
+            text = archive.read(name).decode("utf-8", "replace")
+            known.update(re.findall(r"(?m)^\s*function\s+([A-Za-z_]\w*)", text))
+            known.update(re.findall(r"(?m)^\s*([A-Za-z_]\w*)\s*=", text))
+            known.update(re.findall(r"global\(\s*\"([A-Za-z_]\w*)\"", text))
+    mod_files = sorted(glob.glob(os.path.join(MOD, "**", "*.lua"), recursive=True))
+    # 模块写到 GLOBAL 上的常量（AOM_TAG 等）也算已知名字。
+    for path in mod_files:
+        known.update(re.findall(r"GLOBAL\.([A-Za-z_]\w*)\s*=", open(path, encoding="utf-8").read()))
+    for path in mod_files:
+        rel = os.path.relpath(path, MOD).replace(os.sep, "/")
+        text = _strip_lua_literals(open(path, encoding="utf-8").read())
+        defined = set(known) | LUA_KEYWORDS
+        if rel == "modmain.lua":
+            defined |= MOD_ENV_GLOBALS
+        defined.update(re.findall(r"\blocal\s+([A-Za-z_]\w*)", text))
+        defined.update(re.findall(r"\blocal\s+function\s+([A-Za-z_]\w*)", text))
+        for m in re.finditer(r"\blocal\s+([A-Za-z_][\w\s,]*?)\s*=", text):
+            defined.update(x.strip() for x in m.group(1).split(",") if re.match(r"^\w+$", x.strip()))
+        for m in re.finditer(r"function[^(]*\(([^)]*)\)", text):
+            defined.update(x.strip() for x in m.group(1).split(",") if re.match(r"^\w+$", x.strip()))
+        for m in re.finditer(r"\bfor\s+([\w\s,]+?)\s+(?:in|=)", text):
+            defined.update(x.strip() for x in m.group(1).split(",") if re.match(r"^\w+$", x.strip()))
+        defined.update(re.findall(r"(?m)^\s*([A-Za-z_]\w*)\s*=[^=]", text))
+        for lineno, line in enumerate(text.split("\n"), 1):
+            for m in re.finditer(r"(?<![\w.:])([A-Za-z_]\w*)\s*\(", line):
+                name = m.group(1)
+                if name not in defined:
+                    fail("%s:%d 调用的 %s() 在当前游戏版本里不存在" % (rel, lineno, name))
+
+
 def check_game_paths():
     """require 与 AddClassPostConstruct 的路径必须真实存在（跨版本改名会直接崩加载）。"""
     game = find_game_folder()
@@ -608,6 +665,7 @@ def main():
     check_mod_environment()
     check_script_modules()
     check_game_paths()
+    check_game_globals()
     check_recipe_ingredients()
     check_cross_refs()
     check_local_functions_defined()
