@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "facing_masks": [
+    192,
+    5,
+    48,
+    8,
+    2
+  ],
+  "work_phases": 24,
+  "equipment": [
+    "plow",
+    "seeder",
+    "irrigator",
+    "fertilizer",
+    "weeder",
+    "harvester"
+  ],
+  "harvester": "single_row_left_to_right_wrapping_belt",
+  "native_water": {
+    "native_build": "player_actions_farming",
+    "native_symbol": "water",
+    "native_build_sha256": "de83359ad4cf83fedae7e949a26dd45df8520e396a31656dc34d7351892c5a3f",
+    "native_frames": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "textures_copied": false
+  },
+  "native_soil": {
+    "bank": "mole_fx",
+    "build": "mole_move_fx",
+    "animation": "move"
+  },
+  "sha256": {
+    "aom_attachment_shared": "cc727de6a133a840b2f8cd5d719737b75a2d94c5c5d1dbeb052523c532fca220",
+    "aom_attachment_fx": "90f98d9040dd69e87a83672df82bcde6986ef9b07392c2a51643c89cce3a720f",
+    "aom_attachment_water": "d63bc74c5eabf9969ad5ddf658c18cf5b51b4f6e25749ffc7980c2cb4f21d465"
+  },
+  "dst_client_verified": false,
+  "multiplayer_verified": false,
+  "atlas_sizes": {
+    "aom_attachment_shared": [
+      2048,
+      4096
+    ],
+    "aom_attachment_fx": [
+      2048,
+      32
+    ]
+  }
+}

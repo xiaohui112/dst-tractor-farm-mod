@@ -92,12 +92,12 @@ assert(moisture(0,0)==100 and water_count()==38 and inst._fuel:value()==799 and 
 soil(4,0,99);assert(Drive.WorkTile(inst,4,0));assert(water_count()==37 and moisture(4,0)==100)
 ''')
 
-    def test_full_and_nonfarmland_do_not_spend_even_with_empty_tank_no_fuel(self):
+    def test_full_and_nonfarmland_stop_when_empty_without_spending(self):
         self.run_lua('''
 soil(0,0,100);inst._fuel:set(0);start_water()
 assert(not Drive.WorkTile(inst,0,0));TILES[tkey(4,0)]=-1
 assert(not Drive.WorkTile(inst,4,0))
-assert(water_count()==0 and inst._fuel:value()==0 and inst.components.finiteuses.used==0 and inst._working)
+assert(water_count()==0 and inst._fuel:value()==0 and inst.components.finiteuses.used==0 and not inst._working)
 ''')
 
     def test_parking_and_return_to_full_tile_do_not_drain(self):
@@ -125,7 +125,7 @@ assert(Drive.WorkTile(inst,8,0));assert(water_count()==32 and moisture(8,0)==100
 fill(2);start_water();Drive.TrackMovement(inst)
 assert(moisture(0,0)==50 and water_count()==0 and not inst._working)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
-assert(string.find(inst._workreason_net:value(),'水箱已空'))
+assert(string.find(require('aom_work_status').Describe(inst),'水箱已空'))
 assert(Irrigator.Load(store,watercan(5)));start_water();Drive.TrackMovement(inst)
 assert(moisture(0,0)==100 and water_count()==3 and inst._fuel:value()==798 and inst.components.finiteuses.used==2)
 ''')
@@ -188,13 +188,19 @@ assert(water_count()==24 and inst._fuel:value()==796 and inst.components.finiteu
 
     def test_last_dose_completes_tile_then_stops(self):
         self.run_lua('''
+local messages={}
+inst._rider.components.talker={Say=function(_,text)messages[#messages+1]=text end}
 fill(4);start_water();Drive.TrackMovement(inst)
 assert(moisture(0,0)==100 and water_count()==0 and not inst._working)
+assert(not tank._aom_working:value() and tank._aom_work_effects==nil)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
+assert(#messages==1 and messages[1]==require('aom_work_status').Describe(inst) and string.find(messages[1],'水箱已空'))
+for i=1,10 do Drive.TrackMovement(inst)end
+assert(#messages==1)
 ''')
 
     def test_full_lifecycle_load_save_swap_start_shortage_resume_dismount(self):
-        text=(ROOT/'mod/AgeOfMachines/modmain.lua').read_text()
+        text=(ROOT/'mod/Tractor/modmain.lua').read_text()
         start=text.index('local AOM_LOAD = AddAction(')
         end=text.index('AOM_LOAD.distance',start)
         self.run_lua('function AddAction(id,label,fn)LoadAction=fn;return {}end')

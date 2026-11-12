@@ -39,7 +39,7 @@ Drive.TrackMovement(inst)
 assert(crop_count()==9 and inst.components.aom_attachment_store:GetSeedCount()==0)
 assert(inst._fuel:value()==790) -- 一次整格犁地 + 九次原版播种。
 for i=1,20 do Drive.TrackMovement(inst)end
-assert(crop_count()==9 and inst._fuel:value()==790 and inst._working)
+assert(crop_count()==9 and inst._fuel:value()==790 and not inst._working)
 ''')
 
     def test_crossed_tiles_are_not_skipped_between_samples(self):
@@ -62,6 +62,44 @@ assert(inst.components.aom_attachment_store:GetSeedCount()==0 and inst._fuel:val
 inst.components.aom_attachment_store.container:GiveItem(make_seed('tomato',6))
 start_driver(inst);Drive.TrackMovement(inst)
 assert(crop_count()==9 and inst._fuel:value()==790)
+''')
+
+    def test_last_seed_stops_with_overhead_message_and_refill_can_resume(self):
+        self.make({'tomato':9})
+        self.run_lua('''
+inst._seed_strategy='SEQUENTIAL'
+Drive.WorkTile(inst,0,0);Drive.WorkTile(inst,4,0)
+inst._attachment_type='seeder';start_driver(inst)
+local messages={}
+local driver=inst._rider
+driver.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+driver.components.rider={IsRiding=function()return true end,GetMount=function()return inst end}
+Drive.TrackMovement(inst)
+assert(crop_count()==9 and not inst._working and inst.task.cancelled)
+assert(#messages==1 and messages[1]==require('aom_work_status').Describe(inst) and string.find(messages[1],'种子不足'))
+for i=1,10 do Drive.TrackMovement(inst)end
+assert(#messages==1)
+inst.x=4;inst.components.aom_attachment_store.container:GiveItem(make_seed('tomato',10))
+assert(Drive.ToggleWorking(inst,driver));inst.task.fn(inst)
+assert(crop_count()==18 and inst._working and #messages==1)
+assert(Drive.ToggleWorking(inst,driver));assert(not inst._working)
+''')
+
+    def test_empty_seeder_stops_on_nonfarmland_and_when_stock_removed_while_parked(self):
+        self.make({'tomato':10})
+        self.run_lua('''
+inst._seed_strategy='SEQUENTIAL';Drive.WorkTile(inst,0,0)
+inst._attachment_type='seeder';start_driver(inst)
+local messages={}
+inst._rider.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+Drive.TrackMovement(inst);assert(inst._working and crop_count()==9)
+inst.components.aom_attachment_store.container.slots[2]=nil
+Drive.TrackMovement(inst)
+assert(not inst._working and #messages==1 and string.find(messages[1],'种子不足'))
+inst.x=4;TILES[tkey(4,0)]=-1;start_driver(inst)
+inst._rider.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+Drive.TrackMovement(inst)
+assert(not inst._working and #messages==2 and inst._fuel:value()==790)
 ''')
 
     def test_failed_seed_is_returned_and_movement_work_stops(self):

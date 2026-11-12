@@ -1,0 +1,17 @@
+{
+  "project": "aom_tractor_sfx",
+  "source": "Procedural original synthesis; no sampled third-party audio",
+  "events": [
+    "tractor/idle",
+    "tractor/drive",
+    "tractor/work"
+  ],
+  "loop_seconds": 4,
+  "sample_rate": 44100,
+  "channels": 1,
+  "sha256": {
+    "fev": "37bab59de4b5e2f4f7f2e6e2e24966a37f54e8a1069cd9a7a76cbe360036faca",
+    "fsb": "15afcca3d80b7d38af55a82559c745644d63c4911619851048810b01af12b2c6"
+  },
+  "compiler_sha256": "0b3c375365bb89b442f15c3c944997f16a32f6eb1728f5b106dc9db19a87288e"
+}

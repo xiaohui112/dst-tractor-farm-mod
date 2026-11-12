@@ -13,6 +13,7 @@ function GetGameModeProperty()return false end
 function IsTableEmpty(t)return next(t)==nil end
 function FunctionOrValue(v,...)return type(v)=='function' and v(...) or v end
 function Vector3(x,y,z)return {x=x,y=y,z=z,Get=function()return x,y,z end}end
+WORLD_TILES={FARMING_SOIL=1}
 DEPLOYMODE={DEFAULT=1,CUSTOM=2,NONE=0}
 DEPLOYSPACING={DEFAULT=1};DEPLOYSPACING_RADIUS={[1]=1}
 FUELTYPE={BURNABLE='BURNABLE',NIGHTMARE='NIGHTMARE'}
@@ -31,6 +32,7 @@ ENTITIES={};TILES={};BLOCKS={};RECIPE_RECORDS={};REGISTRY={};GUID_COUNT=0
 function center(x)return math.floor((x+2)/4)*4 end
 function key(x,z)return center(x)..':'..center(z)end
 TheWorld.Map={
+ IsPassableAtPoint=function(_,x,y,z)return BLOCKS[key(x,z)]~=true end,
  GetTileCenterPoint=function(_,x,y,z)return center(x),0,center(z)end,
  CanPlantAtPoint=function(_,x,y,z)return BLOCKS[key(x,z)]~=true end,
  GetEntitiesOnTileAtPoint=function(_,x,y,z)
@@ -54,7 +56,11 @@ local function replica()return setmetatable({},{__index=function()return noop en
 function CreateEntity()
  local e=original_create();GUID_COUNT=GUID_COUNT+1;e.GUID=GUID_COUNT;e.persists=true
  ENTITIES[#ENTITIES+1]=e
- e.entity.SetCanSleep=noop;e.AnimState.SetLightOverride=noop;e.AnimState.SetOrientation=noop
+ e.StartUpdatingComponent=noop;e.StopUpdatingComponent=noop
+ function e:GetDistanceSqToInst(other)return (self.x-other.x)^2+(self.z-other.z)^2 end
+ function e:GetPhysicsRadius(default)return self.physics_radius or default or 0 end
+ e.entity.SetCanSleep=noop;e.AnimState.SetLightOverride=noop
+ e.AnimState.SetOrientation=function(_,orientation)e.orientation=orientation end
  e.Physics.SetVel=noop
  function e:GetPosition()return Vector3(self.Transform:GetWorldPosition())end
  function e:RemoveFromScene()self.hidden=true;self.tags.INLIMBO=true end
@@ -64,8 +70,9 @@ function CreateEntity()
   local c
   if name=='container' then
    self.replica.container=replica();c=Container(self)
+   self.replica.container.IsOpenedBy=function(_,player)return c:IsOpenedBy(player)end
   elseif name=='inventoryitem' then
-   c=setmetatable({inst=self,cangoincontainer=true,nobounce=true},{__index=InventoryItem})
+   c=setmetatable({inst=self,cangoincontainer=true,canbepickedup=true,nobounce=true},{__index=InventoryItem})
    c.SetLanded=noop;c.InheritMoisture=noop;c.SetTemperature=noop
    c.DiluteMoisture=noop;c.DiluteTemperature=noop
    c.GetMoisture=function()return 0 end;c.IsWet=function()return false end;c.GetTemperature=function()return nil end
@@ -84,7 +91,7 @@ function CreateEntity()
    c.maxhealth=100;c.currenthealth=100
    function c:SetMaxHealth(n)self.maxhealth=n end
    function c:SetVal(n)
-    local before=self.currenthealth;self.currenthealth=n
+    local before=self.currenthealth;self.currenthealth=n;e.dead=n<=0
     if before>0 and n<=0 then e.dead=true;e:PushEvent('death')end
    end
    function c:IsDead()return self.currenthealth<=0 end
@@ -124,7 +131,7 @@ function SpawnPrefab(name)
    if string.sub(name,-6)=='_seeds' then
     e:AddComponent('farmplantable');e.components.farmplantable.plant='farm_plant_'..string.sub(name,1,-7);e:AddTag('farmplantable')
    elseif name=='poop' then e.components.fertilizer={nutrients={0,0,8}};e:AddTag('fertilizer')end
-   if name=='charcoal' or name=='flint' or name=='gears' or name=='poop' or string.sub(name,-6)=='_seeds' then e:AddComponent('stackable')end
+   if name=='charcoal' or name=='flint' or name=='rocks' or name=='twigs' or name=='gears' or name=='poop' or string.sub(name,-6)=='_seeds' then e:AddComponent('stackable')end
   end
  end
  return e
@@ -135,7 +142,9 @@ function SpawnSaveRecord(record,newents)
  Persistence.LoadPostPass(e,newents or {},record.data)
  return e
 end
-function AddRecipe2(name,ingredients,tech,data)RECIPE_RECORDS[name]=data end
+RECIPE_TECH={};RECIPE_INGREDIENTS={};RECIPE_FILTERS={}
+function Ingredient(name,count,atlas,deconstruct)return {type=name,amount=count,deconstruct=deconstruct} end
+function AddRecipe2(name,ingredients,tech,data,filters)RECIPE_RECORDS[name]=data;RECIPE_TECH[name]=tech;RECIPE_INGREDIENTS[name]=ingredients;RECIPE_FILTERS[name]=filters end
 dofile(MOD..'/modmain.lua')
 function deploy_kit(kit,x,z,player)
  local ok=kit.components.deployable:Deploy(Vector3(x,0,z),player)
@@ -150,4 +159,17 @@ end
 function clone(t)
  if type(t)~='table' then return t end
  local out={};for k,v in pairs(t)do out[k]=clone(v)end;return out
+end
+
+-- 鼠标入口执行实际原版动作选择器及 BufferedAction；只补实体与库存表面。
+function make_mouse_picker(player)
+ dofile(REF..'/bufferedaction.lua')
+ local Picker=dofile(REF..'/playeractionpicker.lua')
+ EntityScript=EntityScript or {};EQUIPSLOTS=EQUIPSLOTS or {};EQUIPSLOTS.HANDS='hands'
+ function player:is_a(kind)return kind==EntityScript end
+ player.replica.inventory={GetActiveItem=function()return player.active_item end,GetEquippedItem=function()return nil end}
+ player.components.inventory=player.components.inventory or {opencontainers={}}
+ local picker=Picker(player)
+ POST_FNS['components/playeractionpicker'](picker)
+ return picker
 end

@@ -11,15 +11,25 @@ TUNING.FARM_SOIL_DEBRIS_LOOT_CHANCE=.25
 ACTIONS.CHOP={id='CHOP'};ACTIONS.MINE={id='MINE'};ACTIONS.HAMMER={id='HAMMER'}
 function GetTime()return 0 end
 function Asset()end
+local function equipment_net(value)return {value=function()return value end,set=function(_,n)value=n end}end
+net_entity=function()return equipment_net(nil)end
+net_float=function()return equipment_net(0)end
+net_bool=function()return equipment_net(false)end
 function Prefab(name,fn)return {name=name,fn=fn}end
 MakeInventoryPhysics=function()end
+MakeObstaclePhysics=function()end
+function MakePlacer(name)return {name=name,fn=function()return CreateEntity()end}end
 GLOBAL=_G
 local base_spawn=SpawnPrefab
 NATIVE_PREFABS={};TRACE={};TILE_WRITES=0;TURF_DROPS=0;LUCK=true;LOOT_CHOICE='flint'
 function HandleDugGround()TURF_DROPS=TURF_DROPS+1 end
 function CreateEntity()
  local e=base_spawn('__engine_entity')
- e.entity={AddTransform=function()end,AddAnimState=function()end,AddNetwork=function()end,SetPristine=function()end}
+ e.Transform.SetEightFaced=function()end
+ e.Transform.GetRotation=function()return 0 end
+ e.Transform.SetRotation=function()end
+ e.entity={AddTransform=function()end,AddAnimState=function()end,AddNetwork=function()end,SetPristine=function()end,
+  owner=e,SetParent=function(_,parent)e.parent=parent and parent.owner end}
  e.AnimState={SetBank=function()end,SetBuild=function()end,SetScale=function()end,PlayAnimation=function()end,
  OverrideSymbol=function()end,PushAnimation=function()end}
  function e:AddTag(t)self.tags[t]=true end
@@ -30,6 +40,7 @@ function CreateEntity()
   if name=='onterraform' then TRACE[#TRACE+1]='terraform_event' end
  end
  function e:DoTaskInTime()return {Cancel=function()end}end
+ function e:DoPeriodicTask(_,fn)return {fn=fn,Cancel=function()end}end
  function e:ListenForEvent()end
  function e:GetPosition()local x,y,z=self.Transform:GetWorldPosition();return Vector3(x,y,z)end
  function e:AddComponent(name)
@@ -52,6 +63,7 @@ end
 require('aom_common').TAG={ATTACHMENT='aom_attachment',TRACTOR='aom_tractor'}
 local prefab=dofile(REF..'/farm_soil_debris.lua');NATIVE_PREFABS[prefab.name]=prefab
 for _,p in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachments.lua')})do NATIVE_PREFABS[p.name]=p end
+for _,p in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachment_work_fx.lua')})do NATIVE_PREFABS[p.name]=p end
 local native_spawn=function(name)
  local p=NATIVE_PREFABS[name]
  local e=p and p.fn() or base_spawn(name)
@@ -92,6 +104,7 @@ function make_flow_inst(counts,season)
  inst.ListenForEvent=function()end
  inst._aom_terraformer=nil
  local tool=NATIVE_PREFABS.aom_landclearer.fn();tool.prefab='aom_landclearer'
+ tool:AddTag('NOBLOCK') -- 模拟已经挂在测试载体上的设备，不再是库存物品。
  inst.components.container.slots[1]=tool
  inst._test_tools={plow=tool}
  local worker=CreateEntity();worker:AddTag('player')
@@ -104,6 +117,7 @@ function set_flow_attachment(inst,kind)
  inst._test_tools=inst._test_tools or {}
  local tool=inst._test_tools[kind]
  if not tool then tool=SpawnPrefab('aom_'..kind);inst._test_tools[kind]=tool end
+ tool:AddTag('NOBLOCK')
  inst.components.container.slots[1]=tool;inst._attachment_type=kind
 end
 function count_entities(name)

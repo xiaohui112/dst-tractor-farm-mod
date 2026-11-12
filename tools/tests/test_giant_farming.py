@@ -34,7 +34,8 @@ class World:
   for crop,c in CONSUME.items():
    defs[crop]=L.table_from({'nutrient_consumption':L.table_from(c),'nutrient_restoration':L.table_from({i+1:True for i,n in enumerate(c) if n==0}),'good_seasons':L.table_from({s:True for s in SEASONS[crop].split()}),'family_min_count':4,'family_check_dist':4})
   L.globals().DEFS=L.table_from(defs)
-  L.globals().SCRIPTS=str(ROOT/'mod/AgeOfMachines/scripts')
+  L.globals().SCRIPTS=str(ROOT/'mod/Tractor/scripts')
+  L.globals().REF=str(ROOT/'tools/api-ref')
   L.execute('''
 package.path=SCRIPTS.."/?.lua;"..package.path
 package.preload["prefabs/farm_plant_defs"]=function()return {PLANT_DEFS=DEFS}end
@@ -54,6 +55,15 @@ function SpawnPrefab(name)
  function v:IsValid()return self.valid end
  function v:HasTag(t)return self.tags[t]end
  function v:Remove()self.valid=false end
+ function v:AddTag(t)self.tags[t]=true end
+ function v:RemoveTag(t)self.tags[t]=nil end
+ function v:GetDistanceSqToPoint(x,y,z)return (self.x-x)^2+(self.z-z)^2 end
+ function v:PushEvent(event)
+  if self.prefab=='farm_soil' then
+   if event=='breaksoil' then self:AddTag('NOBLOCK');self:AddTag('NOCLICK')
+   elseif event=='collapsesoil' then self:RemoveTag('soil') end
+  end
+ end
  v.Transform={GetWorldPosition=function()return v.x,0,v.z end,SetPosition=function(self,x,y,z)v.x=x;v.z=z end}
  ENTITIES[#ENTITIES+1]=v;return v
 end
@@ -78,10 +88,11 @@ function TheWorld.Map:GetEntitiesOnTileAtPoint(x,y,z)
 end
 function TheWorld.Map:CanTillSoilAtPoint(x,y,z)
  if self:GetTileAtPoint(x,y,z)~=1 then return false end
- for _,v in ipairs(ENTITIES)do if v.valid and (v.x-x)^2+(v.z-z)^2<.999 then return false end end
+ for _,v in ipairs(ENTITIES)do if v.valid and not (v:HasTag("soil") or v:HasTag("NOBLOCK") or v:HasTag("player") or v:HasTag("FX")) and (v.x-x)^2+(v.z-z)^2<.999 then return false end end
  return true
 end
-function TheWorld.Map:CollapseSoilAtPoint()end
+function GetFarmTillSpacing()return TUNING.FARM_TILL_SPACING or 1.25 end
+TheWorld.Map.CollapseSoilAtPoint=dofile(REF..'/till_map.lua').CollapseSoilAtPoint
 function make_seed(crop,n)
  local item={prefab=crop..'_seeds',valid=true,components={inventoryitem={}}}
  function item:IsValid()return self.valid end
@@ -106,7 +117,7 @@ function make_inst(counts,season)
  GetUses=function(self)return math.max(0,1000-self.used)end,SetUses=function(self,n)self.used=1000-n end}
  inst.AnimState={IsCurrentAnimation=function()return false end}
  local function net(v)return {value=function()return v end,set=function(self,n)v=n end}end
- inst._workstatus=net(false);inst._workreason_net=net('');inst._planprogress_net=net('');inst._fuel=net(800)
+ inst._workstatus=net(false);inst._workstate_net=net('');inst._planprogress_net=net('');inst._fuel=net(800)
  local c={slots={},numslots=9}
  function c:GetItemInSlot(i)return self.slots[i]end
  function c:CanAcceptCount(item)for i=2,9 do if not self.slots[i]then return item.components.stackable and item.components.stackable:StackSize() or 1 end end;return 0 end
@@ -139,7 +150,7 @@ function crop_count()local n=0;for _,v in ipairs(ENTITIES)do if v.valid and v:Ha
   season=ident.split('-')[0]
   return next(c for _,c in self.block.BLOCKS[season].items() if c.id==ident)
  def bind(self,inst,c):
-  self.block.OnLoad(inst,self.lua.table_from({'version':2,'combo_id':c.id,'season':c.id.split('-')[0],'x':0,'z':0,'rotation':0,'completed':self.lua.table()}))
+  self.block.OnLoad(inst,self.lua.table_from({'version':3,'combo_id':c.id,'season':c.id.split('-')[0],'x':0,'z':0,'rotation':0,'confirmed':True,'completed':self.lua.table()}))
  def prepare(self,inst):
   _,tiles=self.block.WorldSlots(inst._block)
   inst._attachment_type='plow'
@@ -161,7 +172,7 @@ class GiantFarmingTests(unittest.TestCase):
  def setUp(self):self.w=World()
  def test_load_action_uses_the_real_material_store_interface(self):
   w=self.w
-  text=(ROOT/'mod/AgeOfMachines/modmain.lua').read_text()
+  text=(ROOT/'mod/Tractor/modmain.lua').read_text()
   start=text.index('local AOM_LOAD = AddAction(')
   end=text.index('AOM_LOAD.distance',start)
   w.lua.execute('AddAction=function(id,label,fn)LoadAction=fn;return {} end')
@@ -243,28 +254,29 @@ end
   for _,item in store.ListSeeds(store).items():
    if item.prefab=='potato_seeds':store.container.RemoveItem(store.container,item)
   inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'MISSING_SEEDS'))
+  self.assertEqual(w.drive.WorkHere(inst),(False,'MISSING_SEEDS',False))
   self.assertEqual(w.lua.globals().crop_count(),0)
  def test_incomplete_stock_does_not_start_plan(self):
   w=self.w;inst=w.make({'tomato':3,'potato':4,'carrot':40});inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'MISSING_SEEDS'));self.assertIsNone(inst._block)
+  self.assertEqual(w.block.Preview(inst),(False,'MISSING_SEEDS'))
+  self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False));self.assertIsNone(inst._block)
  def test_saved_plan_resumes_at_exact_coordinates(self):
   w=self.w;c=w.combo('winter-01-01');inst=w.make(as_dict(c.ratio),'winter');w.bind(inst,c);w.prepare(inst)
   inst._attachment_type='seeder';self.assertTrue(w.drive.WorkHere(inst));self.assertEqual(inst._block.done,1)
   saved=w.block.OnSave(inst);other=w.make({},'winter');other.components.aom_attachment_store=inst.components.aom_attachment_store
   w.block.OnLoad(other,saved);self.assertEqual(other._block.done,1)
   other._attachment_type='seeder';other.x=100;other.z=100
-  self.assertEqual(w.drive.WorkHere(other),(False,'NEXT_TILE'));self.assertEqual(other._block.done,1)
+  self.assertEqual(w.drive.WorkHere(other),(False,'NEXT_TILE',True));self.assertEqual(other._block.done,1)
   self.assertEqual(w.sow_all(other,c),c.total)
  def test_season_change_pauses_instead_of_replacing_plan(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst)
   w.lua.globals().TheWorld.state.season='winter';inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'SEASON_CHANGED'));self.assertEqual(inst._block.combo_id,c.id)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'SEASON_CHANGED',False));self.assertEqual(inst._block.combo_id,c.id)
  def test_foreign_crop_in_reserved_space_blocks_sowing(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst)
   blank=next(p for _,p in w.block.WorldSlots(inst._block)[0].items() if not p.crop)
   weed=w.lua.globals().SpawnPrefab('weed_firenettle');weed.Transform.SetPosition(weed.Transform,blank.x,0,blank.z)
-  inst._attachment_type='seeder';self.assertEqual(w.drive.WorkHere(inst),(False,'FOREIGN_CROP'))
+  inst._attachment_type='seeder';self.assertEqual(w.drive.WorkHere(inst),(False,'FOREIGN_CROP',False))
  def test_full_multi_tile_and_hexagonal_workflows(self):
   w=self.w
   for ident in ['autumn-10-02','winter-01-02','summer-05-01','spring-16-01']:
@@ -280,26 +292,31 @@ end
   w=self.w;inst=w.make({});w.block.OnLoad(inst,w.lua.table_from({'combo_name':'old','done':8}));self.assertIsNone(inst._block)
  def test_missing_mound_does_not_consume_a_seed(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'NEED_PLOW'));self.assertEqual(inst._block.done,0)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'NEED_PLOW',False));self.assertEqual(inst._block.done,0)
  def test_initial_nutrients_are_checked_before_first_seed(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst)
   w.lua.execute('TheWorld.components.farming_manager.GetTileNutrients=function()return 0,0,0 end')
   inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'LOW_NUTRIENTS'));self.assertEqual(inst._block.done,0)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'LOW_NUTRIENTS',False));self.assertEqual(inst._block.done,0)
  def test_occupied_mound_reports_blockage_instead_of_skipping(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c)
   w.lua.execute('TheWorld.Map.CanTillSoilAtPoint=function()return false end')
   self.assertEqual(w.drive.WorkHere(inst),(False,'BLOCKED_MOUND',False));self.assertEqual(inst._block.done,0)
- def test_harvested_completed_field_can_be_prepared_for_next_batch(self):
+ def test_harvested_completed_field_requires_explicit_next_batch_confirmation(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make({'tomato':8,'potato':8});w.bind(inst,c);w.prepare(inst);w.sow_all(inst,c)
   w.lua.execute('for _,v in ipairs(ENTITIES)do if v:HasTag("farm_plant")then v:Remove()end end')
   inst._attachment_type='plow';inst.x=0;inst.z=0
-  self.assertTrue(w.drive.WorkHere(inst));self.assertEqual(inst._block.done,0)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'COMPLETE',False));self.assertEqual(inst._block.done,c.total)
+  self.assertTrue(w.block.Preview(inst));self.assertFalse(inst._block.confirmed)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False))
+  self.assertTrue(w.block.Confirm(inst))
+  self.assertTrue(w.drive.WorkHere(inst)[0]);self.assertEqual(inst._block.done,0)
+  self.assertEqual(w.sow_all(inst,c),c.total)
  def test_missing_planted_crop_pauses_without_sowing_replacement(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst);inst._attachment_type='seeder'
   w.drive.WorkHere(inst)
   w.lua.execute('for _,v in ipairs(ENTITIES)do if v:HasTag("farm_plant")then v:Remove()end end')
-  self.assertEqual(w.drive.WorkHere(inst),(False,'PLANT_MISSING'));self.assertEqual(inst._block.done,1)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'PLANT_MISSING',False));self.assertEqual(inst._block.done,1)
  def test_actual_mound_positions_are_checked_for_family_distance(self):
   w=self.w;c=w.combo('winter-01-01');inst=w.make(as_dict(c.ratio),'winter');w.bind(inst,c);w.prepare(inst)
   slots=[p for _,p in w.block.WorldSlots(inst._block)[0].items() if p.crop]
@@ -313,6 +330,6 @@ end
   p,dx,dz=shifted
   soil=w.block.FindSoilAt(p.x,p.z);soil.Transform.SetPosition(soil.Transform,p.x+dx,0,p.z+dz)
   inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'NO_FAMILY'));self.assertEqual(inst._block.done,0)
+  self.assertEqual(w.drive.WorkHere(inst),(False,'NO_FAMILY',False));self.assertEqual(inst._block.done,0)
 
 if __name__=='__main__':unittest.main()

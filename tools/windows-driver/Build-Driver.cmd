@@ -1,7 +1,7 @@
 @echo off
 setlocal DisableDelayedExpansion
 cd /d "%~dp0"
-set "AOM_MOD=%~dp0AgeOfMachines"
+set "AOM_MOD=%~dp0Tractor"
 set "AOM_TOOL=%~1"
 set "AOM_GAME=%~2"
 if not defined AOM_TOOL if exist "%ProgramFiles(x86)%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" set "AOM_TOOL=%ProgramFiles(x86)%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe"

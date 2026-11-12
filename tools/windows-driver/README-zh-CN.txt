@@ -1,3 +1,7 @@
+【历史工具说明，2026-11-12整理】
+本目录保留早期三视图/旧交付包流程，不代表0.5.1现行资源构建。以下步骤仅用于对应旧工具包，不能将产物直接覆盖当前五视图、四档共享驾驶包。
+现行构建及验收见仓库 docs/04-资源与开发工具链.md；原说明另存 docs/history/2026-11-12-文档重整前/auxiliary/。
+
 拖拉机 · 驾驶室坐姿 Windows 编译包
 
 本次只需生成新的驾驶动画，不需要再次编译之前的三个世界动画包。
@@ -13,8 +17,8 @@
 7. 成功显示 SUCCESS: ...\Driver-Results.zip 后，把 Driver-Results.zip 发回来。
 
 本包内容：
-  AgeOfMachines\                    修改后的当前 Mod，已保留之前的三个已编译世界动画
-  AgeOfMachines\exported\aom_tractor_cabin\  新的 SCML 与图层 PNG
+  Tractor\                    修改后的当前 Mod，已保留之前的三个已编译世界动画
+  Tractor\exported\aom_tractor_cabin\  新的 SCML 与图层 PNG
   Build-Driver.cmd                  一键编译与合成
   Collect-Driver-Results.cmd        再次检查并收集结果
   driver_animation.py              原版骑乘动画合成器，Python 2.7 / 3 标准库
@@ -30,9 +34,9 @@
   上下车仍由原版 MOUNT、DISMOUNT 和 SGwilson 状态机执行，动作帧数、帧率和事件保持。
 
 本次生成的新资源：
-  AgeOfMachines\anim\aom_tractor_driver.zip
-  AgeOfMachines\scripts\aom_driver_visual_bank.lua
-  AgeOfMachines\Driver-Build-Report.json
+  Tractor\anim\aom_tractor_driver.zip
+  Tractor\scripts\aom_driver_visual_bank.lua
+  Tractor\Driver-Build-Report.json
 
 Driver-Results.zip 会包含上述文件、日志和来源清单。
 必须连同 aom_driver_visual_bank.lua 一起替换，不能只拿一个 ZIP；它在成功时才启用新驾驶画面。
@@ -49,7 +53,7 @@ Driver-Results.zip 会包含上述文件、日志和来源清单。
   日志会列出缺失的动画或原版版本不支持之处，把日志发回来，不要随意改名伪造资源。
 
 如果自行测试：
-  先备份旧 Mod，再用构建完成后的完整 AgeOfMachines 文件夹替换游戏里的同名 Mod。
+  先备份旧 Mod，再用构建完成后的完整 Tractor 文件夹替换游戏里的同名 Mod。
   重启客户端和服务器，让所有客户端使用同一版本。
   检查上下车、六个朝向、头部/帽子与窗框的遮挡、换挂件、死亡/移除清理。
   实际窗口内的位置和不同帽子的边缘仍需在游戏内验证，不能只以脚本成功代替视觉验收。

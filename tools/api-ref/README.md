@@ -1,50 +1,24 @@
-# 原版源码参考片段
+# 原版源码参考与测试输入
 
-这些文件从公开镜像 `https://github.com/zhuyifei1999/dst-scripts` 复制而来，
-仅用于让开发者对照原版实现，**不参与 Mod 运行**，不要打包进创意工坊。
+本目录用于`tools/tests`执行原版组件及选取的源码片段，**不参与Mod运行，不进入Tractor.zip**。运行实现位于`mod/Tractor`，当前验证结论见[版本测试报告](../../docs/03-版本测试报告与Bug修复.md)。
 
-| 文件 | 用途 |
-|---|---|
-| `farmtiller.lua` | 园艺锄挖土坑的完整逻辑（我们逐行对齐） |
-| `terraformer.lua` | 园艺耕地机铺农田地皮的核心（`Terraform(pt, doer)`） |
-| `farmplantable.lua` | 种子如何种进土坑（`Plant(target, planter)`） |
-| `farm_soil.lua` | 土坑 prefab 的 tag 语义（`soil` / `NOCLICK` / `NOBLOCK`） |
+## 内容与用途
 
-## 骑牛流程参考（2026-11-11）
-
-以下文件取自原版脚本公开镜像 [vietnd69/dst-scripts](https://github.com/vietnd69/dst-scripts)，仅供本地行为测试，不随 Mod 打包：
-
-| 本地文件 | 原版来源 | 用途 |
+| 参考范围 | 代表文件 | 回归用途 |
 |---|---|---|
-| `rider.lua` | [components/rider.lua](https://github.com/vietnd69/dst-scripts/blob/main/components/rider.lua) | 完整组件；验证上车、下车事件、实际下车与骑乘中存档 |
-| `rideable.lua` | [components/rideable.lua](https://github.com/vietnd69/dst-scripts/blob/main/components/rideable.lua) | 完整组件；验证可骑标签、座位占用及 riderchanged 事件 |
-| `riding_actions.lua` | [componentactions.lua](https://github.com/vietnd69/dst-scripts/blob/main/componentactions.lua) 的 `rideable / rider` 与 [actions.lua](https://github.com/vietnd69/dst-scripts/blob/main/actions.lua) 的 `MOUNT.fn / DISMOUNT.fn` 原文摘录 | 保留原版动作的提示规则与执行检查；外加测试模块包装 |
+| 农田与坑位 | terraformer、farmtiller、farm_soil、till_map | 铺地、原版邻坑破坏、土坑标签 |
+| 原版农业 | farming_manager、farmplantable、fertilizer、workable、pickable | 实时水肥、种植、DIG、采摘及真实掉落 |
+| 库存与保存 | container、inventoryitem、stackable、finiteuses、entity_persistence | 归属、叠堆、用量及组件加载顺序 |
+| 骑乘与承伤 | rider、rideable、riding_actions、health、combat | 上下车、骑乘状态、伤害例外与残骸 |
+| 原版控件 | widget_badge/button/imagebutton/uianim/nineslice | 仪表及按钮真实方法契约 |
+| 照料与交互 | farmplanttendable、farm_plant_tending、playeractionpicker、watersource | 植物安抚、鼠标动作与池塘取水 |
 
-动画状态参考 [SGwilson.lua](https://github.com/vietnd69/dst-scripts/blob/main/stategraphs/SGwilson.lua) 的 `mount / dismount`。测试只模拟引擎表面，不验证动画表现或真实网络同步。
+既有文件来源包含公开游戏脚本镜像及本机Steam的scripts.zip摘录，不应声称全部来自同一来源。准确来源、导出包装和版本依据查看各文件头及`native_ui_contract.json`；控件契约记录对应SHA。原逐轮来源说明见[历史记录](../../docs/history/2026-11-12-文档重整前/auxiliary/tools/api-ref/README.md)。
 
+## 使用和更新规则
 
-## 开垦完整流程参考（2026-11-11）
+测试应尽量调用实际原版方法，以可观察引擎桩补齐Entity/Map/Network等底层；不能为了让布局测试通过而把CollapseSoilAtPoint替换为空实现。完整布局回归当前执行`till_map.lua`的原版邻坑破坏，并验证全部109套×4方向。
 
-`farm_plow_debris.lua` 是原版 `prefabs/farm_plow.lua` 的杂物生成回调原文摘录（外部 Finished 仅在测试中提供空桩，用作生成规则对照）。`farm_soil_debris.lua`、`workable.lua`、`finiteuses.lua` 为原版完整模块，来源为 [原版脚本公开镜像](https://github.com/vietnd69/dst-scripts)。原有 `terraformer.lua` 一并用于流程测试。
+更新参考源码时同时检查文件头、契约hash及测试接口；若从实际游戏提取，保留来源说明。缺少Lua依赖、游戏路径或发布检查跳过必须作为失败处理，不能据此写“兼容通过”。
 
-这些文件只供本地测试，不进入 Mod 安装包。流程测试执行真实组件和原版杂物 prefab，但地图、实体底层、运气和掉落选择仍使用测试桩。
-
-
-## 洒水完整流程参考（2026-11-11）
-
-`farming_manager.lua` 为原版土壤管理器完整镜像，`entity_persistence.lua` 为 `EntityScript:GetPersistData`、`LoadPostPass`、`SetPersistData` 原文摘录，来源参考 [土壤管理器](https://github.com/vietnd69/dst-scripts/blob/main/components/farming_manager.lua) 与 [实体存读档](https://github.com/vietnd69/dst-scripts/blob/main/entityscript.lua)。结合原有 `finiteuses.lua` 执行真实空/满罐保存、组件先加载再迁移的生命周期，以及原版实时土壤加水钳制规则。仅测试用，不随 Mod 打包。
-
-
-## 施肥完整流程参考（2026-11-11）
-
-新增 `fertilizer.lua`、`stackable.lua`、`container.lua`、`inventoryitem.lua`，分别来自原版镜像对应 components 文件；`soil_amender.lua` 为 prefab 原文，`fertilizer_bottle_return.lua` 为其返空瓶回调原文摘录。`fertilizer_deploy.lua` 为 `standardcomponents.lua` 中 MakeDeployableFertilizer 的部署回调原文摘录，用于单份效果对照。来源：[原版组件](https://github.com/vietnd69/dst-scripts/tree/main/components)、[soil_amender](https://github.com/vietnd69/dst-scripts/blob/main/prefabs/soil_amender.lua)、[standardcomponents](https://github.com/vietnd69/dst-scripts/blob/main/standardcomponents.lua)。
-
-测试实际执行相关方法；地图、实体、湿度/温度、库存/网络底层使用桩。这些参考文件不随 Mod 打包。
-
-## 收割与巨大作物拆分参考（2026-11-11）
-
-`pickable.lua` 来自 [原版组件镜像](https://github.com/vietnd69/dst-scripts/blob/main/components/pickable.lua)，保留完整组件。`oversized_harvest.lua` 为 [prefabs/veggies.lua](https://github.com/vietnd69/dst-scripts/blob/main/prefabs/veggies.lua) 中 `oversized_onfinishwork` 与 `oversized_makeloots` 的原文摘录，仅增加测试导出。测试执行原版采摘、工作组件、巨大产物掉落函数；地图、植物实体、库存与掉落实体创建使用桩，不替代实机验证，不随Mod打包。
-
-## 放置与完整生命周期参考（2026-11-11）
-
-`deployable.lua`、`fuel.lua` 取自同一原版镜像的对应components文件，`prefabutil.lua` 为原版工具模块完整代码。完整流程执行真实MakePlacer/Deployable、自定义校验、容器/库存归属、有限次数和实体持久化方法；测试桩不再提供GLOBAL.containers，使用require模块接口。源地址：[Deployable](https://github.com/vietnd69/dst-scripts/blob/main/components/deployable.lua)、[Fuel](https://github.com/vietnd69/dst-scripts/blob/main/components/fuel.lua)、[PrefabUtil](https://github.com/vietnd69/dst-scripts/blob/main/prefabutil.lua)。仅作测试依据，不进入Mod安装包。
+执行真实组件仍不等于真实引擎：动画画面、输入分发、网络复制、听感和其他Mod组合，需要另做实机验收。目录中的旧源码也不是“未来游戏版本一定兼容”的保证。

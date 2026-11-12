@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[2]
 class IrrigatorMusicTests(unittest.TestCase):
     def setUp(self):
         self.lua=LuaRuntime(unpack_returned_tuples=True)
-        self.lua.globals().SCRIPTS=str(ROOT/'mod/AgeOfMachines/scripts')
+        self.lua.globals().SCRIPTS=str(ROOT/'mod/Tractor/scripts')
         self.lua.execute('''
 package.path=SCRIPTS..'/?.lua;'..package.path
 function net(v)return {value=function()return v end,set=function(self,n)v=n end}end
@@ -29,6 +29,7 @@ function tractor()
  local t={prefab='aom_tractor_chassis',valid=true}
  function t:IsValid()return self.valid end
  t._workstatus=net(true);t._water_net=net(10)
+ t._atttype_net=net('irrigator');t._fuel=net(800)
  t._attachment=net({attachment_type='irrigator',IsValid=function()return true end})
  return t
 end
@@ -53,7 +54,7 @@ end
 
     def test_packaged_bank_registers_real_resources_and_starts_player(self):
         self.lua.globals().bank_file_exists=lambda name: Path(name).is_file()
-        self.lua.globals().MOD_ROOT=str(ROOT/'mod/AgeOfMachines')+'/'
+        self.lua.globals().MOD_ROOT=str(ROOT/'mod/Tractor')+'/'
         self.run_lua('''
 assert(Bank.available)
 local assets=Music.Configure(true,MOD_ROOT,function(path)return bank_file_exists(path)end,
@@ -87,6 +88,12 @@ AllPlayers={owner,driver};driver.x=10;controller:Update();assert(volumes[#volume
 driver.x=21;controller:Update();assert(not active and kills==1)
 ''')
 
+    def test_client_plays_from_synced_attachment_type_without_inventory_entity(self):
+        self.run_lua('''
+t._attachment:set(nil);ready();controller:Update();assert(plays==1 and active)
+t._fuel:set(0);controller:Update();assert(not active)
+''')
+
     def test_work_off_empty_dismount_swap_remove_and_death_stop_music(self):
         self.run_lua('''
 ready();controller:Update();t._workstatus:set(false);controller:Update();assert(not active)
@@ -94,8 +101,8 @@ t._workstatus:set(true);controller:Update();t._water_net:set(0);controller:Updat
 t._water_net:set(10);controller:Update();driver.replica.rider.GetMount=function()return nil end
 controller:Update();assert(not active)
 driver.replica.rider.GetMount=function()return t end;controller:Update()
-t._attachment:set({attachment_type='plow',IsValid=function()return true end});controller:Update();assert(not active)
-t._attachment:set({attachment_type='irrigator',IsValid=function()return true end});controller:Update()
+t._atttype_net:set('plow');controller:Update();assert(not active)
+t._atttype_net:set('irrigator');controller:Update()
 t.valid=false;controller:Update();assert(not active)
 t.valid=true;controller:Update();owner.tags.playerghost=true;controller:Update();assert(not active)
 owner.tags.playerghost=nil;controller:Update();controller:Stop();assert(not active)
@@ -135,8 +142,8 @@ class MusicBankArtifactTests(unittest.TestCase):
         sys.path.insert(0,str(ROOT/'tools'))
         from music_bank import inspect_pair
         self.inspect=inspect_pair
-        self.fev=(ROOT/'mod/AgeOfMachines/sound/aom_irrigator_music.fev').read_bytes()
-        self.fsb=(ROOT/'mod/AgeOfMachines/sound/aom_irrigator_music.fsb').read_bytes()
+        self.fev=(ROOT/'mod/Tractor/sound/aom_irrigator_music.fev').read_bytes()
+        self.fsb=(ROOT/'mod/Tractor/sound/aom_irrigator_music.fsb').read_bytes()
 
     def test_real_native_banks_and_source_pcm_match_exactly(self):
         info=self.inspect(self.fev,self.fsb)

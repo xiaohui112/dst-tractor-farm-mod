@@ -1,0 +1,50 @@
+{
+  "native_atlases": {
+    "images/ui.xml": [
+      "blank.tex",
+      "button_small.tex",
+      "radiobutton_on.tex",
+      "radiobutton_off.tex",
+      "spin_arrow.tex",
+      "spin_arrow_over.tex",
+      "spin_arrow_down.tex"
+    ],
+    "images/global_redux.xml": [
+      "progressbar_wxplarge_frame.tex",
+      "progressbar_wxplarge_fill.tex"
+    ],
+    "images/dialogrect_9slice.xml": [
+      "topleft.tex",
+      "top.tex",
+      "topright.tex",
+      "left.tex",
+      "center.tex",
+      "right.tex",
+      "bottomleft.tex",
+      "bottom.tex",
+      "bottomright.tex"
+    ],
+    "images/inventoryimages1.xml": [
+      "charcoal.tex"
+    ],
+    "images/inventoryimages2.xml": [
+      "gears.tex",
+      "onemanband.tex"
+    ],
+    "images/inventoryimages3.xml": [
+      "treasurechest.tex"
+    ]
+  },
+  "widget_sources": {
+    "badge": "8a3b84a4e5796630c06c59990f1e0aed5f2726ead6fcc5f2e83e536f6499e4ea",
+    "button": "723b1ab3b21edef123d09decb266c378d0c23af40cc46de6039d99f7f5a028be",
+    "imagebutton": "f44ec4a4be978910a10f241b58c7ebb6cb144ca9a54b8f005278f386babcd062",
+    "uianim": "85afc552fdcd6af3f69b654f6d34c382b978a4a9f6c17ea293a6846e4cef877f",
+    "nineslice": "eaec744409a139a82a2fd61b4a3ebb7a22e23dc97b82fb25c55239b2f8784fa5"
+  },
+  "native_animations": [
+    "status_meter.zip",
+    "status_health.zip",
+    "hunger_health_pulse.zip"
+  ]
+}

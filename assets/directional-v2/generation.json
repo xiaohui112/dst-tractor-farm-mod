@@ -1,0 +1,19 @@
+{
+  "generator": "image_gen",
+  "views": [
+    "downside",
+    "side",
+    "upside",
+    "down",
+    "up"
+  ],
+  "sources": {
+    "tractor": "exec-1c16d5ea-be8d-4ceb-86b2-617cb7d8a82a.png",
+    "plow": "exec-c6a3a2b5-bfc6-498e-afcf-381590f1588e.png",
+    "seeder": "exec-e83ccd1e-abbf-4388-8b1d-c1552ebb1714.png",
+    "irrigator": "exec-e20c19c2-56ad-4a7a-8df0-032b952b9552.png",
+    "fertilizer": "exec-c30fd964-0165-45de-8b3b-66eaf94c6ba2.png",
+    "weeder": "exec-32f65163-d043-405a-a80b-b9d78088ee44.png",
+    "harvester": "exec-3e2f3d44-ec4d-4f02-98b2-a2949ca2e697.png"
+  }
+}

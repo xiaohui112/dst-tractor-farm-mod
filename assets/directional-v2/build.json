@@ -1,0 +1,45 @@
+{
+  "schema": 2,
+  "views": [
+    "downside",
+    "side",
+    "upside",
+    "down",
+    "up"
+  ],
+  "facing_masks": [
+    192,
+    5,
+    48,
+    8,
+    2
+  ],
+  "native_source": "Driver-Results.zip",
+  "driver_scale": 0.4,
+  "driver_animations": 1229,
+  "driving_phases": 12,
+  "world_scale": 2.5,
+  "driver_world_scale": 1,
+  "vehicle_scales": {
+    "aom_tractor_driver": 2.5,
+    "aom_tractor_driver_075": 1.875,
+    "aom_tractor_driver_125": 3.125,
+    "aom_tractor_driver_150": 3.75
+  },
+  "driver_motion": "fixed_seated_pose_with_vehicle_suspension",
+  "sha256": {
+    "aom_attachment_shared": "cc727de6a133a840b2f8cd5d719737b75a2d94c5c5d1dbeb052523c532fca220",
+    "aom_attachment_symbols": "c75a7078e1e0aee98407ae1924e25c8abe9e6f86594e44fc8341558d1da3c7cd",
+    "aom_tractor_chassis": "cb77394d3f30e8ba2d3f6f5ef50d9536eac2885a527ea4ea1d7b2bcba754fea9",
+    "aom_tractor_cabin": "ca5f67428c8c33e38900079ba09e8af477472724bb495dfa751b275c092d4051",
+    "aom_tractor_driver": "55e9195bb114486e5dff4423265cecb21bd8858f9331f4666a1f4b4196f246d7",
+    "aom_tractor_driver_075": "185b75d2022a26c5f7461dc529b7540c60b9814299521e903829d06f61abe61b",
+    "aom_tractor_driver_125": "f7b5fa6e2d680dfadcb3dd668fa682262b1223dd1a67090b407d1810e6ee43a9",
+    "aom_tractor_driver_150": "9304822d5580606d670604b6a595a3a5d6b26b805a918e7ec9e9729e931ee8eb",
+    "aom_attachment_fx": "90f98d9040dd69e87a83672df82bcde6986ef9b07392c2a51643c89cce3a720f",
+    "aom_attachment_water": "d63bc74c5eabf9969ad5ddf658c18cf5b51b4f6e25749ffc7980c2cb4f21d465"
+  },
+  "game_validation": false,
+  "attachment_report": "Attachment-Build-Report.json",
+  "shared_driver_build": "aom_tractor_cabin"
+}

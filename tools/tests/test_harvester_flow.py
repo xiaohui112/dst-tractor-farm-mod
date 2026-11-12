@@ -31,6 +31,19 @@ assert(inst._fuel:value()==799 and count_entities('tomato')+count_entities('toma
 assert(tool.components.finiteuses:GetUses()==39)
 ''')
 
+    def test_continuous_driving_passes_empty_tile_and_harvests_next_tile(self):
+        self.run_lua('''
+local first=crop('tomato',0,0,false);local next=crop('pumpkin',8,0,true)
+Drive.SetWorking(inst,true);Drive.TrackMovement(inst)
+assert(not first.valid and next.valid and inst._working)
+for i=1,10 do Drive.TrackMovement(inst)end
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==39)
+inst.x=8;Drive.TrackMovement(inst)
+assert(not next.valid and count_entities('pumpkin_oversized')==0 and inst._working)
+assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==38)
+Drive.SetWorking(inst,false);assert(not inst._working and not inst._worktask)
+''')
+
     def test_all_crop_definitions_support_normal_and_giant_harvest(self):
         self.run_lua('''
 for name in pairs(DEFS)do
@@ -86,13 +99,13 @@ assert(count_entities('carrot_oversized')==0)
 assert(count_entities('carrot')+count_entities('carrot_seeds')==5)
 ''')
 
-    def test_failed_inventory_drop_does_not_hammer_owned_product(self):
+    def test_new_giant_never_enters_driver_inventory_or_calls_drop(self):
         self.run_lua('''
-local inv=give_driver_inventory(true);inv.DropItem=function()return nil end
+local inv=give_driver_inventory(true);inv.DropItem=function()error('must stay on ground')end
 local v=crop('tomato',0,0,true)
 local changed,reason=Drive.WorkTile(inst,0,0)
-assert(changed and reason=='HARVEST_INCOMPLETE' and not v.valid and not inst._working)
-assert(count_entities('tomato_oversized')==1 and count_entities('tomato')==0)
+assert(changed and reason==nil and not v.valid)
+assert(count_entities('tomato_oversized')==0 and #inv.items==0)
 assert(inst._fuel:value()==799)
 ''')
 
@@ -189,7 +202,7 @@ assert(not worked and reason=='NO_FUEL' and plant.valid and v.valid)
 assert(inst.components.finiteuses.used==0)
 ''')
 
-    def test_last_use_finishes_whole_tile_then_stops_and_repair_resumes(self):
+    def test_last_use_finishes_whole_tile_then_breaks_and_replacement_resumes(self):
         self.run_lua('''
 tool.components.finiteuses:SetUses(1)
 local a=crop('tomato',-1,0);local b=crop('carrot',1,0,true)
@@ -198,15 +211,15 @@ local worked,reason=Drive.WorkTile(inst,0,0)
 assert(worked and reason=='BROKEN_HARVESTER' and not inst._working)
 assert(not a.valid and not b.valid and count_entities('carrot_oversized')==0)
 assert(tool:IsValid() and tool.components.finiteuses:GetUses()==0 and next.valid)
-assert(string.find(inst._workreason_net:value(),'收割机耐久已耗尽'))
+assert(string.find(require('aom_work_status').Describe(inst),'收割机已损坏'))
 worked,reason=Drive.WorkTile(inst,4,0)
-assert(not worked and reason=='BROKEN_HARVESTER' and next.valid)
+assert(not worked and reason=='NO_ATTACHMENT' and next.valid)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
-assert(require('aom_harvester_tool').Repair(inst))
-assert(tool.components.finiteuses:GetUses()==10)
+assert(not require('aom_harvester_tool').Repair(inst))
+tool=SpawnPrefab('aom_harvester');inst.components.container.slots[1]=tool;inst._attachment_type='harvester'
 Drive.SetWorking(inst,true)
 assert(Drive.WorkTile(inst,4,0) and not next.valid)
-assert(tool.components.finiteuses:GetUses()==9 and inst._fuel:value()==798)
+assert(tool.components.finiteuses:GetUses()==39 and inst._fuel:value()==798)
 ''')
 
     def test_empty_field_and_repeated_pass_do_not_consume_durability(self):
@@ -224,12 +237,12 @@ tool.components.finiteuses:SetUses(1)
 local first=crop('tomato');local next=crop('carrot',1,0)
 next.components.pickable.stuck=true
 local worked,reason=Drive.WorkTile(inst,0,0)
-assert(worked and reason=='HARVEST_INCOMPLETE' and not inst._working)
+assert(worked and reason=='BROKEN_HARVESTER' and not inst._working)
 assert(not first.valid and next.valid and tool.components.finiteuses:GetUses()==0)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
 next.components.pickable.stuck=false
 worked,reason=Drive.WorkTile(inst,0,0)
-assert(not worked and reason=='BROKEN_HARVESTER' and next.valid)
+assert(not worked and reason=='NO_ATTACHMENT' and next.valid)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
 ''')
 
@@ -246,7 +259,7 @@ for _,remaining in ipairs({40,17,0})do
  local plant=crop('tomato')
  local worked,reason=Drive.WorkTile(inst,0,0)
  if remaining==0 then
-  assert(not worked and reason=='BROKEN_HARVESTER' and plant.valid)
+  assert(not worked and reason=='BROKEN_HARVESTER' and plant.valid and restored:IsValid())
  else
   assert(worked and not plant.valid and restored.components.finiteuses:GetUses()==remaining-1)
  end

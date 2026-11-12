@@ -19,7 +19,7 @@ class InstallPackageTests(unittest.TestCase):
             archive=root/'mod.zip';build_archive(source,archive)
             self.assertEqual(len(verify_archive(source,archive)['files']),2)
             with ZipFile(archive) as z:
-                self.assertIn('AgeOfMachines/scripts/aom_harvester_tool.lua',z.namelist())
+                self.assertIn('Tractor/scripts/aom_harvester_tool.lua',z.namelist())
                 self.assertFalse(any('.DS_Store' in name for name in z.namelist()))
             tool.write_text('return {MAX_USES=99}')
             with self.assertRaises(ValueError):verify_archive(source,archive)
@@ -30,7 +30,7 @@ class InstallPackageTests(unittest.TestCase):
             (source/'modinfo.lua').write_text('version="test"')
             a=root/'a.zip';b=root/'b.zip';build_archive(source,a);build_archive(source,b)
             self.assertEqual(a.read_bytes(),b.read_bytes())
-            with ZipFile(a,'a') as z:z.writestr('AgeOfMachines/stale.lua','old')
+            with ZipFile(a,'a') as z:z.writestr('Tractor/stale.lua','old')
             with self.assertRaises(ValueError):verify_archive(source,a)
 
 

@@ -46,11 +46,11 @@ assert(not t.hidden and t._aom_driver_animstate==nil)
     def test_attachment_changes_update_only_driver_mount_symbols(self):
         self.lua.execute('''
 t._attachment_type='harvester';ACTIONS.MOUNT.fn({doer=p,target=t})
-assert(p.visual_symbols.aom_driver_attachment_front.symbol=='harvester')
+assert(p.visual_symbols.aom_driver_attachment_front.symbol=='empty')
 assert(p.visual_symbols.aom_driver_attachment_rear.symbol=='empty')
 t._attachment_type='irrigator';Visual.UpdateAttachment(t,p.AnimState)
 assert(p.visual_symbols.aom_driver_attachment_front.symbol=='empty')
-assert(p.visual_symbols.aom_driver_attachment_rear.symbol=='irrigator')
+assert(p.visual_symbols.aom_driver_attachment_rear.symbol=='empty')
 assert(p.visual_symbols.swap_hat.build=='hat_skin')
 ''')
 
@@ -66,7 +66,7 @@ VisualBank.available=true;assert(not Visual.Configure('test/',function()return f
 
 class DriverAnimationBuildTests(unittest.TestCase):
     def setUp(self):
-        with ZipFile(ROOT/'mod/AgeOfMachines/anim/aom_tractor_chassis.zip') as archive:
+        with ZipFile(ROOT/'mod/Tractor/anim/aom_tractor_chassis.zip') as archive:
             self.raw=archive.read('anim.bin');self.build=archive.read('build.bin');self.texture=archive.read('atlas-0.tex')
         self.config=json.loads((ROOT/'assets/driver/seat-layout.json').read_text())
         self.native={'strings':{},'animations':[]}

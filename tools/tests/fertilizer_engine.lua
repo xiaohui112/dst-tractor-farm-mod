@@ -66,7 +66,7 @@ function add_inventoryitem(e)
  return c
 end
 function new_container(owner,slots)
- return setmetatable({inst=owner,slots={},numslots=slots or 9,acceptsstacks=true,ignorespoverflow=true},{__index=Container})
+ return setmetatable({inst=owner,slots={},numslots=slots or 9,acceptsstacks=true,ignorespoverflow=true,openlist={},opencount=0},{__index=Container})
 end
 function material(name,nutrients,count,uses,bottle)
  MATERIALS[name]={nutrients=nutrients,count=1,uses=uses,bottle=bottle,stack=count~=nil}
@@ -100,7 +100,7 @@ end
 local original_inst=inst
 inst=engine_entity();inst.prefab='aom_tractor_chassis'
 inst._fuel=original_inst._fuel;inst._workstatus=original_inst._workstatus
-inst._workreason_net=original_inst._workreason_net;inst._rider_net=original_inst._rider_net
+inst._workstate_net=original_inst._workstate_net;inst._rider_net=original_inst._rider_net
 inst.components.finiteuses=original_inst.components.finiteuses
 inst.components.container=new_container(inst)
 inst.components.container.itemtestfn=function(_,item,slot)
@@ -108,6 +108,9 @@ inst.components.container.itemtestfn=function(_,item,slot)
  return item.attachment_type==nil and item.components.fertilizer~=nil
 end
 inst.components.container.slots[1]=SpawnPrefab('aom_fertilizer')
+-- 独立挂点不随货物容器重载而丢失，设备存档由生命周期测试覆盖。
+inst._fixture_attachment=inst.components.container.slots[1]
+inst.GetAttachment=function(self)return self._fixture_attachment end
 inst.components.aom_attachment_store=require('components/aom_attachment_store')(inst)
 store=inst.components.aom_attachment_store;store:SetMaterialContainer(inst.components.container)
 inst._attachment_type='fertilizer'

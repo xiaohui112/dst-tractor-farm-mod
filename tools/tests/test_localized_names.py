@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 from lupa.lua51 import LuaRuntime
 
-MOD = Path(__file__).resolve().parents[2] / 'mod/AgeOfMachines'
+MOD = Path(__file__).resolve().parents[2] / 'mod/Tractor'
 PREFABS = ('aom_tractor_chassis', 'aom_tractor_item', 'aom_landclearer',
            'aom_plow', 'aom_seeder', 'aom_irrigator', 'aom_fertilizer',
            'aom_weeder', 'aom_harvester')
@@ -66,9 +66,9 @@ STRINGS={NAMES={},RECIPE_DESC={}}
         self.assert_names(lua, 'zh')
 
     def test_mod_list_name_and_default_language(self):
-        for locale, expected in ((None, '拖拉机'), ('zh', '拖拉机'),
-                                 ('zhr', '拖拉机'), ('zht', '拖拉机'),
-                                 ('en', 'Tractor'), ('', 'Tractor')):
+        for locale, expected in ((None, 'tractor'), ('zh', 'tractor'),
+                                 ('zhr', 'tractor'), ('zht', 'tractor'),
+                                 ('en', 'tractor'), ('', 'tractor')):
             with self.subTest(locale=locale):
                 lua = LuaRuntime()
                 lua.globals().locale = locale

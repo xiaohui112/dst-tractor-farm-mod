@@ -1,0 +1,42 @@
+{
+  "driver_scale": 0.4,
+  "driver_world_scale": 1,
+  "vehicle_scales": {
+    "aom_tractor_driver": 2.5,
+    "aom_tractor_driver_075": 1.875,
+    "aom_tractor_driver_125": 3.125,
+    "aom_tractor_driver_150": 3.75
+  },
+  "views": {
+    "downside": {
+      "neck": [
+        -25,
+        -174
+      ]
+    },
+    "side": {
+      "neck": [
+        -35,
+        -174
+      ]
+    },
+    "upside": {
+      "neck": [
+        0,
+        -174
+      ]
+    },
+    "down": {
+      "neck": [
+        0,
+        -174
+      ]
+    },
+    "up": {
+      "neck": [
+        0,
+        -174
+      ]
+    }
+  }
+}

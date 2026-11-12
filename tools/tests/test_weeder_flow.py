@@ -59,6 +59,17 @@ assert_cost(1)
 assert(not Drive.WorkTile(inst,0,0));assert_cost(1)
 ''')
 
+    def test_continuous_driving_passes_empty_tile_and_weeds_next_tile(self):
+        self.run_lua('''
+local first=weed('weed_tillweed',0,0);local next=weed('weed_firenettle',8,0)
+Drive.SetWorking(inst,true);Drive.TrackMovement(inst)
+assert(not first.valid and next.valid and inst._working);assert_cost(1)
+for i=1,10 do Drive.TrackMovement(inst)end
+inst.x=8;Drive.TrackMovement(inst)
+assert(not next.valid and inst._working);assert_cost(2)
+Drive.SetWorking(inst,false);assert(not inst._working and not inst._worktask)
+''')
+
     def test_empty_field_is_free(self):
         self.run_lua("assert(not Drive.WorkTile(inst,0,0));assert_cost(0);assert(inst._working)")
 
@@ -138,7 +149,7 @@ local v=weed();v.components.workable:SetShouldRecoilFn(function()return true end
 local changed,reason=Drive.WorkTile(inst,0,0)
 assert(not changed and reason=='WEEDING_INCOMPLETE' and not inst._working)
 assert(v.valid and v.components.workable:GetWorkLeft()==2);assert_cost(0)
-assert(string.find(inst._workreason_net:value(),'除草'))
+assert(string.find(require('aom_work_status').Describe(inst),'除草'))
 ''')
 
     def test_partial_progress_stops_charges_once_and_can_resume(self):
@@ -183,17 +194,19 @@ assert(not changed and reason=='NO_FUEL' and not inst._working and v.valid)
 assert(tool.components.finiteuses:GetUses()==50 and inst.components.finiteuses.used==0)
 ''')
 
-    def test_last_use_stops_and_repair_caps_at_fifty(self):
+    def test_last_use_breaks_and_replacement_can_resume(self):
         self.run_lua('''
 local v=weed();tool.components.finiteuses:SetUses(1)
 local changed,reason=Drive.WorkTile(inst,0,0)
 assert(changed and reason=='BROKEN_WEEDER' and not inst._working)
 assert(not v.valid and tool:IsValid() and tool.components.finiteuses:GetUses()==0)
+assert(inst.components.container:GetItemInSlot(1)==nil and inst._attachment_type==nil)
 local next=weed('weed_tillweed',4,0)
 assert(not Drive.WorkTile(inst,4,0) and next.valid and inst._fuel:value()==799)
 local repair=require('aom_weeder_tool')
-assert(repair.Repair(inst) and tool.components.finiteuses:GetUses()==10)
-assert(Drive.WorkTile(inst,4,0) and not next.valid and tool.components.finiteuses:GetUses()==9)
+assert(not repair.Repair(inst))
+tool=SpawnPrefab('aom_weeder');inst.components.container.slots[1]=tool;inst._attachment_type='weeder'
+assert(Drive.WorkTile(inst,4,0) and not next.valid and tool.components.finiteuses:GetUses()==49)
 tool.components.finiteuses:SetUses(49)
 assert(repair.Repair(inst) and tool.components.finiteuses:GetUses()==50)
 assert(not repair.Repair(inst))

@@ -14,11 +14,11 @@ class FertilizerFlowTests(unittest.TestCase):
 
     def run_lua(self,s):self.w.lua.execute(s)
 
-    def test_full_tile_is_zero_cost_even_when_empty_and_no_fuel(self):
+    def test_empty_on_full_tile_stops_without_spending(self):
         self.run_lua('''
 set_nutrients(100,100,100);inst._fuel:set(0);start_fertilizer()
 assert(not Drive.WorkTile(inst,0,0))
-assert(inst._working and inst._fuel:value()==0 and inst.components.finiteuses.used==0)
+assert(not inst._working and inst._fuel:value()==0 and inst.components.finiteuses.used==0)
 ''')
 
     def test_dry_tile_fills_three_nutrients_and_bills_once(self):
@@ -104,19 +104,94 @@ set_nutrients(0,0,0);add_stock(material('poop',{0,0,8},2),2)
 start_fertilizer();Drive.TrackMovement(inst)
 local a,b,c=nutrients();assert(a==0 and b==0 and c==16 and not inst._working)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
-assert(string.find(inst._workreason_net:value(),'生长素') and string.find(inst._workreason_net:value(),'堆肥') and string.find(inst._workreason_net:value(),'粪肥'))
+assert(string.find(require('aom_work_status').Describe(inst),'生长素') and string.find(require('aom_work_status').Describe(inst),'堆肥') and string.find(require('aom_work_status').Describe(inst),'粪肥'))
 add_stock(material('all',{100,100,100},2),2);start_fertilizer();Drive.TrackMovement(inst)
 a,b,c=nutrients();assert(a==100 and b==100 and c==100 and inst._working)
 assert(inst._fuel:value()==798 and inst.components.finiteuses.used==2)
 ''')
 
-    def test_specific_shortage_names_only_missing_type(self):
+    def test_no_matching_fertilizer_skips_tile_without_stopping_or_spending(self):
         self.run_lua('''
+local messages={}
+farmer.components.talker={Say=function(_,text)messages[#messages+1]=text end}
 set_nutrients(100,100,0);add_stock(material('compost',{0,24,0},3),2)
 start_fertilizer();Drive.TrackMovement(inst)
-local reason=inst._workreason_net:value()
-assert(string.find(reason,'粪肥') and not string.find(reason,'生长素') and not string.find(reason,'堆肥'))
-assert(inst._fuel:value()==800 and store:GetFertilizerCount()==3 and not inst._working)
+assert(inst._fuel:value()==800 and store:GetFertilizerCount()==3 and inst._working)
+assert(#messages==0 and require('aom_work_status').Describe(inst)=='' and inst._fertilizer_missing_text==nil)
+set_nutrients(100,76,100,4,0);inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+local a,b,c=nutrients(4,0);assert(a==100 and b==100 and c==100)
+assert(inst._working and count_prefab(inst,'compost')==2 and inst._fuel:value()==799)
+''')
+
+    def test_screenshot_stock_fills_available_nutrient_and_continues_without_other_types(self):
+        self.run_lua('''
+set_nutrients(0,0,0);set_nutrients(0,0,0,4,0)
+local poop=add_stock(material('poop',{0,0,8},16),2)
+local bucket=add_stock(material('fertilizer',{0,0,16},nil,29),6)
+local guano=add_stock(material('guano',{0,0,16},20),8)
+local messages={};farmer.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+start_fertilizer();local task=inst._worktask;Drive.TrackMovement(inst)
+local a,b,c=nutrients();assert(a==0 and b==0 and c==100)
+assert(bucket.components.finiteuses:GetUses()==23 and poop.components.stackable:StackSize()==15)
+assert(guano.components.stackable:StackSize()==20 and inst._working and #messages==0)
+for i=1,10 do Drive.TrackMovement(inst)end
+assert(bucket.components.finiteuses:GetUses()==23 and inst._fuel:value()==799)
+inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+a,b,c=nutrients(4,0);assert(a==0 and b==0 and c==100)
+assert(inst._working and inst._worktask==task and #messages==0)
+assert(bucket.components.finiteuses:GetUses()==17 and poop.components.stackable:StackSize()==14)
+assert(inst._fuel:value()==798 and inst.components.finiteuses.used==2)
+''')
+
+    def test_exhausted_bucket_and_stack_switch_to_next_type_in_same_batch(self):
+        self.run_lua('''
+set_nutrients(0,0,60);set_nutrients(0,0,92,4,0)
+local bucket=add_stock(material('fertilizer',{0,0,16},nil,1),2)
+local guano=add_stock(material('guano',{0,0,16},1),3)
+local poop=add_stock(material('poop',{0,0,8},5),4)
+local applied={}
+for _,item in ipairs({bucket,guano,poop})do
+ item.components.fertilizer.onappliedfn=function(e)applied[#applied+1]=e.prefab end
+end
+local messages={};farmer.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+start_fertilizer();Drive.TrackMovement(inst)
+assert(table.concat(applied,',')=='fertilizer,guano,poop')
+assert(not bucket:IsValid() and not guano:IsValid() and poop.components.stackable:StackSize()==4)
+local a,b,c=nutrients();assert(a==0 and b==0 and c==100 and inst._working)
+assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1 and #messages==0)
+inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+assert(inst._working and poop.components.stackable:StackSize()==3 and inst._fuel:value()==798)
+''')
+
+    def test_missing_type_can_be_loaded_and_filled_on_next_pass_without_toggling_work(self):
+        self.run_lua('''
+set_nutrients(0,0,0);add_stock(material('poop',{0,0,8},20),2)
+start_fertilizer();local task=inst._worktask;Drive.TrackMovement(inst)
+assert(inst._working and count_prefab(inst,'poop')==7)
+set_nutrients(100,100,100,4,0);inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+add_stock(material('formula',{100,0,0},2),3)
+add_stock(material('compost',{0,100,0},2),4)
+inst.Transform:SetPosition(0,0,0);Drive.TrackMovement(inst)
+local a,b,c=nutrients();assert(a==100 and b==100 and c==100)
+assert(inst._working and inst._worktask==task and count_prefab(inst,'poop')==7)
+assert(count_prefab(inst,'formula')==1 and count_prefab(inst,'compost')==1)
+assert(inst._fuel:value()==798 and inst.components.finiteuses.used==2)
+''')
+
+    def test_last_fertilizer_stops_after_full_tile_with_overhead_message(self):
+        self.run_lua('''
+local messages={}
+farmer.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+set_nutrients(0,0,0);add_stock(material('all',{100,100,100},1),2)
+start_fertilizer();Drive.TrackMovement(inst)
+local a,b,c=nutrients()
+assert(a==100 and b==100 and c==100 and not inst._working)
+local tool=require('aom_attachment_mount').Get(inst)
+assert(not tool._aom_working:value() and tool._aom_work_effects==nil)
+assert(store:GetFertilizerCount()==0 and inst._fuel:value()==799)
+assert(#messages==1 and messages[1]==require('aom_work_status').Describe(inst) and string.find(messages[1],'肥料不足'))
+for i=1,10 do Drive.TrackMovement(inst)end
+assert(#messages==1)
 ''')
 
     def test_zero_negative_nan_and_exhausted_fertilizer_are_not_used(self):
@@ -333,7 +408,7 @@ assert(Drive.WorkTile(inst,0,0));assert(tool:IsValid() and inst.components.finit
 ''')
 
     def test_full_action_loading_start_shortage_refill_save_resume_and_dismount(self):
-        text=(ROOT/'mod/AgeOfMachines/modmain.lua').read_text()
+        text=(ROOT/'mod/Tractor/modmain.lua').read_text()
         start=text.index('local AOM_LOAD = AddAction(');end=text.index('AOM_LOAD.distance',start)
         self.run_lua('function AddAction(_,_,fn)LoadAction=fn;return {}end')
         self.run_lua(text[start:end])
