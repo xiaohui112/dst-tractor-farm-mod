@@ -152,8 +152,9 @@ assert(t.components.aom_attachment_store:GetWater()==12 and Durability.GetUses(t
         self.run_lua('''
 require('aom_driver_visual').Configure('test/',function()return true end)
 local tool=equipment('aom_harvester');ride();assert(act(tool))
-local before=tool.x;player.Transform:SetPosition(12,0,0);Mount.UpdateVisual(tool)
-assert(tool.x>before+10 and tool~=player and tool~=t)
+local before=tool.Transform:GetWorldPosition();player.Transform:SetPosition(12,0,0)
+local after=tool.Transform:GetWorldPosition()
+assert(after>before+10 and tool.parent==player and tool~=player and tool~=t)
 assert(player.visual_symbols.aom_driver_attachment_front.symbol=='empty')
 assert(t.visual_symbols.attachment.symbol=='empty')
 ''')

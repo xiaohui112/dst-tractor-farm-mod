@@ -1,6 +1,6 @@
 # 早期驾驶室源素材
 
-此目录保留三视图、座位锚点、SVG/SCML及Windows合成来源，供追溯原版人物时间线。它不是0.5.1当前五视图/八向/四档资源的独立构建规范。
+此目录保留三视图、座位锚点、SVG/SCML及Windows合成来源，供追溯原版人物时间线。它不是0.5.4当前五视图/八向/四档资源的独立构建规范。
 
 当前资源位于`assets/directional-v2`及`mod/Tractor/anim`：驾驶bank各自只有动画，驾驶室build与贴图共享；人物build和皮肤继续使用原版。构建入口及依赖见[资源与开发工具链](../../docs/04-资源与开发工具链.md)，人物显示逻辑见[aom_driver_visual](../../mod/Tractor/scripts/aom_driver_visual.lua)。
 

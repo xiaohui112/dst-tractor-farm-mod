@@ -9,7 +9,9 @@ class DrivePassTests(unittest.TestCase):
         self.w.lua.execute('''
 Profile=require('aom_work_profile')
 function start_driver(inst)
- inst._rider={Transform=inst.Transform,components={},PushEvent=function()end}
+ inst._rider={Transform=inst.Transform,components={},PushEvent=function()end,
+  IsValid=function()return true end,
+  AnimState={GetSymbolPosition=function()return inst.x+1,8,inst.z+2,true end}}
  inst.Transform.GetRotation=function()return 0 end
  function inst:DoPeriodicTask(period,fn)
   self.task={fn=fn,Cancel=function(self)self.cancelled=true end};return self.task
@@ -215,7 +217,7 @@ end
 assert(Farm.Harvest(0,0,0,inst._rider));assert(not plant.valid and nextplant.valid)
 ''')
 
-    def test_exhaust_requires_moving_plough_load_and_stops_when_parked(self):
+    def test_exhaust_requires_moving_work_and_stops_when_parked(self):
         self.make()
         self.run_lua('''
 inst._seed_strategy='SEQUENTIAL';start_driver(inst);Drive.TrackMovement(inst)
@@ -224,9 +226,9 @@ assert(smoke_count()==2)
 for i=1,20 do Drive.TrackMovement(inst)end
 assert(smoke_count()==2)
 Drive.SetWorking(inst,false);inst.x=1;Drive.TrackMovement(inst);assert(smoke_count()==2)
-start_driver(inst);Drive.TrackMovement(inst) -- 已完成的农田没有负载。
+start_driver(inst);Drive.TrackMovement(inst) -- 已完成本格仍在移动作业，发动机继续排气。
 for i=1,6 do inst.x=1+i*.1;Drive.TrackMovement(inst)end
-assert(smoke_count()==2)
+assert(smoke_count()==4)
 ''')
 
     def test_speed_order_matches_requested_work_groups(self):

@@ -16,6 +16,7 @@ from PIL import Image
 from build_directional_art import (ROOT, SOURCE, MOD, STAGE, VIEWS, KINDS, run,
     compile_build, element, frame, animation, bank, save)
 from driver_animation import Reader, name_hash, parse_anim, read_game_zip, write_anim
+from mount_geometry import mounted_bank
 
 RIG=SOURCE/'attachment-rig'
 PHASES=24
@@ -129,6 +130,14 @@ def rig_parts(sprites):
     return parts,sizes
 
 
+def orient_equipment_frame(kind,index,fr):
+    # side/downside源图齿口与车头反向；upside与正前后视保持原图。
+    if kind=='harvester' and index in (0,1):
+        for e in fr['elements']:
+            m=e['matrix'];m[0]=-m[0];m[2]=-m[2];m[4]=-m[4]
+    return fr
+
+
 def equipment_frame(kind,index,phase,engaged,sizes):
     w,h=sizes[kind][index];angle=phase/PHASES*math.tau
     wave=math.sin(angle*2)
@@ -198,7 +207,8 @@ def build_particles():
                 fs.append(frame(es))
             an.append(animation(name,kind,mask,fs))
     b,t=compile_build(name,symbols,compact=True)
-    return save(name,b,bank(name,an,symbols),t)
+    data=mounted_bank(bank(name,an,symbols),name,name+'_mounted',lambda n:'fertilizer' if n=='fertilizer' else None)
+    return save(name,b,data,t)
 
 
 def build_water(sizes):
@@ -230,7 +240,7 @@ def build_water(sizes):
                 es.append(e)
             fs.append(frame(es))
         an.append(animation(name,'spray',mask,fs))
-    rawanim=write_anim(bank(name,an,['water']))
+    rawanim=write_anim(mounted_bank(bank(name,an,['water']),name,name+'_mounted',lambda n:'irrigator'))
     with ZipFile(MOD/'anim'/(name+'.zip'),'w',ZIP_DEFLATED) as z:z.writestr('anim.bin',rawanim)
     return hashlib.sha256((MOD/'anim'/(name+'.zip')).read_bytes()).hexdigest(),{
         'native_build':'player_actions_farming','native_symbol':'water',
@@ -262,7 +272,7 @@ def build(sprites=None):
         for k,v in {**symbols,**particle_assets()}.items()},indent=2)+'\n')
     for kind in KINDS+['empty']:
         for index,(_,mask) in enumerate(VIEWS):
-            an.append(animation(name,kind,mask,[frame([element(kind,index)])]))
+            an.append(animation(name,kind,mask,[orient_equipment_frame(kind,index,frame([element(kind,index)]))]))
             if kind=='empty':continue
             for suffix,length in [('pre',6),('loop',PHASES),('pst',6)]:
                 fs=[]
@@ -271,10 +281,11 @@ def build(sprites=None):
                     phase=f if suffix=='loop' else 0
                     if suffix=='pst' and f==length-1:fr=frame([element(kind,index)])
                     else:fr=equipment_frame(kind,index,phase,engaged,sizes)
-                    fs.append(fr)
+                    fs.append(orient_equipment_frame(kind,index,fr))
                 an.append(animation(name,kind+'_work_'+suffix,mask,fs))
     b,t=compile_build(name,symbols,compact=True)
-    digest={name:save(name,b,bank(name,an,symbols),t),
+    data=mounted_bank(bank(name,an,symbols),name,'aom_attachment_mounted',lambda n:n.split('_work_')[0])
+    digest={name:save(name,b,data,t),
             'aom_attachment_fx':build_particles()}
     digest['aom_attachment_water'],native=build_water(sizes)
     report={'schema':1,'facing_masks':[m for _,m in VIEWS],'work_phases':PHASES,

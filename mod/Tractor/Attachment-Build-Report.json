@@ -35,9 +35,9 @@
     "animation": "move"
   },
   "sha256": {
-    "aom_attachment_shared": "cc727de6a133a840b2f8cd5d719737b75a2d94c5c5d1dbeb052523c532fca220",
-    "aom_attachment_fx": "90f98d9040dd69e87a83672df82bcde6986ef9b07392c2a51643c89cce3a720f",
-    "aom_attachment_water": "d63bc74c5eabf9969ad5ddf658c18cf5b51b4f6e25749ffc7980c2cb4f21d465"
+    "aom_attachment_shared": "8c05376b40d2f6532103f441155adc0b60209644dda384a765aac60fe7ea31a9",
+    "aom_attachment_fx": "7fa6271c77fe7c990a89916e30ee081b265ee793dba42388d999341e3f95d61b",
+    "aom_attachment_water": "4f3c596d9a9152eeba03fd480e129111650e89c148f48ce5631ba0f978699127"
   },
   "dst_client_verified": false,
   "multiplayer_verified": false,
@@ -50,5 +50,6 @@
       2048,
       32
     ]
-  }
+  },
+  "mount_geometry": "assets/directional-v2/mount-layout.json"
 }

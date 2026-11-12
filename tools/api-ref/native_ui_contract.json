@@ -33,6 +33,9 @@
     ],
     "images/inventoryimages3.xml": [
       "treasurechest.tex"
+    ],
+    "images/hud.xml": [
+      "craft_slot.tex"
     ]
   },
   "widget_sources": {
@@ -45,6 +48,14 @@
   "native_animations": [
     "status_meter.zip",
     "status_health.zip",
-    "hunger_health_pulse.zip"
-  ]
+    "hunger_health_pulse.zip",
+    "status_clear_bg.zip"
+  ],
+  "widget_methods": {
+    "GetLooseScale": {
+      "source": "scripts/widgets/widget.lua",
+      "reference": "widget_scale.lua",
+      "sha256": "31a8d00b94ce410dafe456c8ef4b9e97297f27b1260aa9a3f6ea24d38ba26123"
+    }
+  }
 }

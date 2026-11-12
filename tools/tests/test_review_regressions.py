@@ -154,7 +154,7 @@ assert(messages[2][1]=='FERTILIZER_MISSING' and messages[2][2]=='13')
 assert(messages[3][1]=='CARGO_FULL' and messages[3][2]=='')
 assert(messages[4][1]=='' and messages[4][2]=='' and messages[4][3]=='')
 Status.Set(t,'EMPTY','irrigator');AOM.SetLanguage('en')
-assert(string.find(Status.Describe(client),'Tank empty',1,true))
+assert(string.find(Status.Describe(client),'Water tank empty',1,true))
 AOM.SetLanguage('zh');assert(string.find(Status.Describe(client),'水箱已空',1,true))
 for _,payload in ipairs({'|irrigator','invalid|13'})do
  t._workstate_net:set(payload);assert(Status.Describe(client)=='')

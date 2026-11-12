@@ -235,7 +235,8 @@ local panel=hud.aom_hud
 assert(panel.storagebutton==nil and panel.dismountbutton==nil)
 assert(panel.detachbutton==nil)
 for _,button in ipairs({panel.seedbutton,panel.musicbutton})do
- assert(panel.root.position[2]+panel.strip.position[2]+button.position[2]>=90)
+ local position=button:GetLocalPosition()
+ assert(panel.root.position[2]+panel.seedcontrols.position[2]+position.y>=90)
 end
 for _,key in ipairs(panel.order)do assert(panel.badges[key].scale[1]==1.4)end
 ''')
@@ -346,7 +347,7 @@ local ice=SpawnPrefab('ice');refill=prompt(ice,player,t)[1]
 assert(refill and refill.strfn({target=t})=='REFILL' and refill.fn({doer=player,target=t,invobject=ice}))
 assert(not ice:IsValid() and t.components.aom_attachment_store:GetWater()==8)
 local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(string.find(hud.resource:GetTooltip(),'池塘边',1,true) and string.find(hud.resource:GetTooltip(),'右键池塘',1,true))
+assert(string.find(hud.badges.water:GetTooltip(),'车尾',1,true) and string.find(hud.badges.water:GetTooltip(),'5秒',1,true))
 local store=t.components.aom_attachment_store
 for i=1,8 do assert(store:TakeWater())end
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
@@ -363,7 +364,7 @@ assert(t:AttachAttachment(nil,SpawnPrefab('aom_irrigator')))
 local ice=SpawnPrefab('ice');local refill=prompt(ice,player,t)[1]
 assert(refill.strfn({target=t})=='REFILL' and STRINGS.ACTIONS.AOM_LOAD.REFILL=='Refill water')
 local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(string.find(hud.resource:GetTooltip(),'right-click it to fill the tank',1,true))
+assert(string.find(hud.badges.water:GetTooltip(),'refill over 5 seconds',1,true))
 ''')
 
     def test_all_seven_recipes_require_alchemy_engine_for_first_unlock(self):

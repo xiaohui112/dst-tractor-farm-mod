@@ -14,7 +14,7 @@ for _,crop in ipairs({'tomato','potato'})do
  local seed=SpawnPrefab(crop..'_seeds');seed.components.stackable:SetStackSize(4)
  t.components.container:GiveItem(seed)
 end
-hud:Refresh(t)
+hud:Refresh(t);click(hud.badges.tool)
 ''')
 
     def test_preview_rotation_and_confirm_never_modify_soil_or_consume_resources(self):

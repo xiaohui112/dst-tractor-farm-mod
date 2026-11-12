@@ -175,7 +175,9 @@ def wheel_layers(sprites):
 def vehicle_layers(index,mask,phase=None,cabin=False):
     view=VIEWS[index][0]
     rear={'side':(-115,-12),'downside':(-90,-28),'upside':(-35,-10),'down':(0,-70),'up':(0,20)}[view]
-    front={'side':(145,-6),'downside':(100,8),'upside':(85,-55),'down':(0,24),'up':(0,-80)}[view]
+    # 独立配件不使用空前挂点；此符号供排气位置读取。
+    from mount_geometry import exhaust
+    front=exhaust(index)
     moving=phase is not None
     bob=math.sin(phase/12*4*math.pi)*1.6 if moving else 0
     jiggle=math.sin(phase/12*6*math.pi)*2 if moving else 0
@@ -187,7 +189,7 @@ def vehicle_layers(index,mask,phase=None,cabin=False):
     fz=1.2 if mask in (48,2) else -.3
     es=[element(body,index,y=bob),element(tail,index,*rear,y_scale(index),rz),
         element(nose,index,*front,y_scale(index),fz)]
-    es[1]['matrix'][5]+=jiggle;es[2]['matrix'][5]-=jiggle
+    es[1]['matrix'][5]+=jiggle;es[2]['matrix'][5]+=bob
     if cabin:es.append(element('aom_cabin_back',0,z=1))
     if moving:es.append(element('aom_wheels',index*12+phase,y=bob,z=-.1))
     return es

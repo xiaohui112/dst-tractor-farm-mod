@@ -1,10 +1,11 @@
 -- 客户端音效每个听者最多一首；植物安抚独立在服务端执行原版 TendTo。
 local Bank=require("aom_irrigator_music_bank")
-local M={ready=false,RADIUS=20,HANDLE="aom_irrigator_music"}
+local M={ready=false,mode="on",RADIUS=20,HANDLE="aom_irrigator_music"}
 
 function M.Configure(enabled,root,exists,asset)
+    M.mode=(enabled==false or enabled=="off") and "off" or enabled=="mute" and "mute" or "on"
     M.ready=false
-    if not enabled or not Bank.available or not root or type(exists)~="function" then return {} end
+    if M.mode~="on" or not Bank.available or not root or type(exists)~="function" then return {} end
     for _,entry in ipairs(Bank.assets) do
         local ok,found=pcall(exists,root..entry[2])
         if not ok or not found then return {} end
@@ -21,26 +22,17 @@ end
 
 function M.IsActive(tractor)
     return tractor and tractor:IsValid() and tractor.prefab=="aom_tractor_chassis"
-        and (tractor._music_enabled_net==nil or Value(tractor,"_music_enabled_net"))
-        and (tractor._music_available_net==nil or Value(tractor,"_music_available_net"))
+        and M.Mode(tractor)~="off"
         and Value(tractor,"_workstatus") and (Value(tractor,"_water_net") or 0)>0
         and (Value(tractor,"_fuel") or 0)>0 and Value(tractor,"_atttype_net")=="irrigator"
 end
 
--- 只改音乐/安抚，不改 F 状态、水量、燃料或农业计划；开关随车辆保存。
-function M.SetEnabled(tractor,enabled)
-    if not TheWorld.ismastersim or type(enabled)~="boolean" or not M.ready
-        or not tractor or not tractor:IsValid() or tractor._attachment_type~="irrigator"
-        or not tractor._music_enabled_net or not Value(tractor,"_music_available_net") then return false end
-    if Value(tractor,"_music_enabled_net")~=enabled then
-        tractor._music_enabled_net:set(enabled)
-        tractor:PushEvent("aom_work_changed")
-    end
-    return true
+function M.Mode(tractor)
+    return tractor and tractor._music_mode_net and Value(tractor,"_music_mode_net") or M.mode
 end
 
 function M.TendPlants(tractor)
-    if not TheWorld.ismastersim or not M.ready or not M.IsActive(tractor) then return 0 end
+    if not TheWorld.ismastersim or not M.IsActive(tractor) then return 0 end
     local rider=tractor._rider
     if not rider or not rider:IsValid() or rider:HasTag("playerghost")
         or not rider.components.rider or rider.components.rider:GetMount()~=tractor then return 0 end
@@ -70,7 +62,7 @@ local function Nearest(owner)
     for _,player in ipairs(AllPlayers or {owner}) do
         local rider=player.replica and player.replica.rider
         local tractor=rider and rider:GetMount()
-        if player:IsValid() and M.IsActive(tractor) then
+        if player:IsValid() and M.IsActive(tractor) and M.Mode(tractor)=="on" then
                 -- 原版骑乘会隐藏车体，声源位置使用骑手，而不是隐藏底盘。
                 local px,_,pz=player.Transform:GetWorldPosition()
                 local d=(px-x)^2+(pz-z)^2

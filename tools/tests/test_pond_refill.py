@@ -21,7 +21,15 @@ refill=ACTION_DEFS.AOM_POND_REFILL
 function pond_actions(right)
  local actions={};SCENE_HOOKS.watersource(pond,player,actions,right~=false);return actions
 end
-function fill_pond()return refill.fn({doer=player,target=pond})end
+function begin_pond()return refill.fn({doer=player,target=pond})end
+function fill_pond() -- 本文件校验补水完成后的权限/资源；显式推进五秒，不假定瞬时加满。
+ local ok=begin_pond()
+ if ok then
+  local previous=GetTime;local finish=t._aom_pond_refill.started+5
+  GetTime=function()return finish end;require('aom_pond_refill').Update(t);GetTime=previous
+ end
+ return ok
+end
 ''')
 
     def run_lua(self,source):self.lua.execute(source)
@@ -39,10 +47,10 @@ local fuel=t._fuel:value();local durability=t.components.finiteuses:GetUses()
 for i,name in ipairs({'pond','pond_mos','pond_cave'})do
  pond.prefab=name;tank.components.finiteuses:SetUses(13)
  local actions=pond_actions();assert(#actions==1 and actions[1]==refill)
- assert(fill_pond() and store:GetWater()==40 and t._water_net:value()==40)
+ assert(fill_pond() and store:GetWater()==400 and t._water_net:value()==400)
  assert(player.components.rider:GetMount()==t and t._rider==player and water_uses==i)
  assert(t._fuel:value()==fuel and t.components.finiteuses:GetUses()==durability)
- assert(#messages==i and string.find(messages[i],'40/40',1,true))
+ assert(#messages==i and string.find(messages[i],'5秒',1,true))
 end
 ''')
 
@@ -50,7 +58,7 @@ end
         self.run_lua('''
 assert(fill_pond() and water_uses==1)
 assert(#pond_actions()==0 and not fill_pond())
-assert(store:GetWater()==40 and water_uses==1)
+assert(store:GetWater()==400 and water_uses==1)
 ''')
 
     def test_refill_distance_matches_action_range_and_collision_radii(self):
@@ -58,7 +66,7 @@ assert(store:GetWater()==40 and water_uses==1)
 pond.Transform:SetPosition(5.1,0,0)
 assert(not fill_pond() and store:GetWater()==0 and water_uses==0)
 pond.Transform:SetPosition(5,0,0)
-assert(fill_pond() and store:GetWater()==40 and water_uses==1)
+assert(fill_pond() and store:GetWater()==400 and water_uses==1)
 ''')
 
     def test_frozen_unavailable_pond_and_thaw_follow_native_watersource(self):
@@ -68,7 +76,7 @@ assert(not pond:HasTag('watersource') and #pond_actions()==0 and not fill_pond()
 assert(store:GetWater()==0 and water_uses==0)
 pond.components.watersource.available=true
 assert(pond:HasTag('watersource') and #pond_actions()==1 and fill_pond())
-assert(store:GetWater()==40 and water_uses==1)
+assert(store:GetWater()==400 and water_uses==1)
 ''')
 
     def test_nonpond_and_removed_or_forged_sources_are_rejected(self):
@@ -112,19 +120,14 @@ assert(store:GetWater()==0 and water_uses==0)
 TheWorld.ismastersim=false
 local tc,pc=t.components,pond.components;t.components={};pond.components={}
 assert(#pond_actions()==1)
-t._water_net:set(40);assert(#pond_actions()==0)
+t._water_net:set(400);assert(#pond_actions()==0)
 t.components=tc;pond.components=pc
 ''')
 
-    def test_filling_preserves_work_switch_and_empty_stop_requires_f_to_resume(self):
+    def test_filling_stops_work_and_requires_f_to_resume(self):
         self.run_lua('''
-assert(store:AddWater(1)==1)
-press_f(player);release_f(player);local task=t._worktask
-assert(t._working and fill_pond() and t._working and t._worktask==task)
-press_f(player);release_f(player);assert(not t._working)
-tank.components.finiteuses:SetUses(0)
-press_f(player);release_f(player);assert(not t._working)
-assert(fill_pond() and not t._working)
+store:AddWater(1);t:SetWorking(true);local task=t._worktask
+assert(fill_pond() and not t._working and task.cancelled)
 press_f(player);release_f(player);assert(t._working)
 ''')
 
@@ -133,8 +136,8 @@ press_f(player);release_f(player);assert(t._working)
 assert(fill_pond())
 local record=clone(t:GetSaveRecord());t:Remove()
 local restored=SpawnSaveRecord(record)
-assert(restored.components.aom_attachment_store:GetWater()==40)
-assert(restored.components.aom_attachment_store:GetWaterMax()==40)
+assert(restored.components.aom_attachment_store:GetWater()==400)
+assert(restored.components.aom_attachment_store:GetWaterMax()==400)
 assert(restored:GetAttachment().prefab=='aom_irrigator')
 ''')
 
@@ -144,7 +147,7 @@ GetModConfigData=function(name)if name=='LANGUAGE' then return 'en' end end
 dofile(MOD..'/modmain.lua');refill=ACTION_DEFS.AOM_POND_REFILL
 assert(refill.label=='Fill water tank')
 local text;player.components.talker={Say=function(_,msg)text=msg end}
-assert(fill_pond() and string.find(text,'Water tank:',1,true))
+assert(fill_pond() and string.find(text,'Refilling',1,true))
 ''')
 
 

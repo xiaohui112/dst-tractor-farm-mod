@@ -18,6 +18,7 @@ net_float=function()return net(0)end;net_bool=function()return net(false)end
 net_entity=function()return net(nil)end;net_string=function()return net('')end
 function Vector3(x,y,z)return {x=x,y=y,z=z,Get=function()return x,y,z end}end
 function GetTime()return 0 end
+FRAMES=1/30
 function GetModConfigData()return nil end
 function math.clamp(v,a,b)return math.min(b,math.max(a,v))end
 GLOBAL=_G;TheWorld={ismastersim=true,state={season='autumn'},Map={IsPassableAtPoint=function()return true end}};TheSim={FindEntities=function()return {} end}
@@ -69,7 +70,14 @@ function CreateEntity()
     e.entity={AddTransform=noop,AddAnimState=noop,AddSoundEmitter=noop,AddNetwork=noop,SetPristine=noop,
         owner=e,SetParent=function(_,parent)e.parent=parent and parent.owner end}
     e.Transform={SetPosition=function(_,x,y,z)e.x=x;e.y=y;e.z=z end,
-        GetWorldPosition=function()return e.x,e.y,e.z end,SetRotation=function(_,r)e.rotation=r end,
+        GetWorldPosition=function()
+            if not e.parent then return e.x,e.y,e.z end
+            local px,py,pz=e.parent.Transform:GetWorldPosition()
+            local angle=0;local node=e.parent
+            while node do angle=angle+(node.rotation or 0);node=node.parent end
+            angle=angle*math.pi/180
+            return px+e.x*math.cos(angle)+e.z*math.sin(angle),py+e.y,pz-e.x*math.sin(angle)+e.z*math.cos(angle)
+        end,SetRotation=function(_,r)e.rotation=r end,
         GetRotation=function()return e.rotation or 0 end,SetSixFaced=function()e.facing_count=6 end,SetFourFaced=function()e.facing_count=4 end,
         SetScale=function(_,x,y,z)e.transform_scale={x,y,z}end,
         GetScale=function()return unpack(e.transform_scale or {1,1,1})end,SetEightFaced=function()e.facing_count=8 end}
@@ -79,11 +87,12 @@ function CreateEntity()
         SetMultColour=function(_,r,g,b,a)e.tint={r,g,b,a}end,
         PlayAnimation=function(_,name,loop)e.animation=name;e.animation_loop=loop;e.animation_queue={} end,
         PushAnimation=function(_,name,loop)table.insert(e.animation_queue,{name=name,loop=loop})end,
-        IsCurrentAnimation=function()return false end,
+        IsCurrentAnimation=function(_,name)return e.animation==name end,
         AddOverrideBuild=function(_,name)e.visual_builds[name]=true end,
         ClearOverrideBuild=function(_,name)e.visual_builds[name]=nil end}
     e.AnimState.OverrideSymbol=function(_,name,build,symbol)e.visual_symbols[name]={build=build,symbol=symbol}end
     e.AnimState.ClearOverrideSymbol=function(_,name)e.visual_symbols[name]=nil end
+    e.AnimState.GetSymbolPosition=function()return 0,0,0,false end
     e.SoundEmitter={KillAllSounds=noop,KillSound=noop,PlaySound=noop};e.DynamicShadow={SetSize=noop}
     e.Physics={Teleport=function(_,x,y,z)e.Transform:SetPosition(x,y,z)end,
         SetActive=function(_,active)e.physics_active=active end}
@@ -154,6 +163,8 @@ function AddModRPCHandler(ns,name,fn)RPCS[name]=fn end
 function GetModRPC(ns,name)return name end
 function ActionHandler(action,state)return {action=action,state=state}end
 function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,handler)end
+SG_POST_FNS={}
+function AddStategraphPostInit(name,fn)SG_POST_FNS[name]=fn end
 function AddClassPostConstruct(path,fn)POST_FNS[path]=fn end
 AddRecipe2=noop;AddDeconstructRecipe=noop;Ingredient=noop
 -- 原版是 require 模块，不能用虚构的 GLOBAL.containers 掩盖加载错误。

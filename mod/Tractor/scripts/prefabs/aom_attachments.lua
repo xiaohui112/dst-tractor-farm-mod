@@ -20,13 +20,22 @@ local function MakeAttachment(name,kind)
         inst._aom_vehicle=net_entity(inst.GUID,"aom_equipment.vehicle","aomequipmentdirty")
         inst._durability_net=net_float(inst.GUID,"aom_equipment.durability","aomequipmentdirty")
         inst._aom_working=net_bool(inst.GUID,"aom_equipment.working","aomworkanimationdirty")
+        if kind=="irrigator" then
+            inst._aom_water_net=net_float(inst.GUID,"aom_equipment.water","aomequipmentwaterdirty")
+            -- 水量借用finiteuses存储，不应被通用信息Mod标成机械耐久。
+            inst:AddTag("hide_percentage")
+        end
         inst.entity:SetPristine()
         inst:DoPeriodicTask(.1,Mount.UpdateVisual)
         if not TheWorld.ismastersim then return inst end
         inst:ListenForEvent("onremove",function(item)require("aom_attachment_animation").ClearEffects(item)end)
         inst:AddComponent("inspectable")
         inst.components.inspectable.getspecialdescription=function(item)
-            return require("aom_locale").Text("机械耐久 %d/%d；损坏后用燧石维修",Durability.GetUses(item),Durability.TOOLS[kind])
+            local text=require("aom_locale").Text("机械耐久 %d/%d；损坏后用燧石维修",Durability.GetUses(item),Durability.TOOLS[kind])
+            if kind=="irrigator" then
+                text=text.."\n"..require("aom_locale").Text("水量 %d/%d",item.components.finiteuses:GetUses(),Irrigator.Capacity())
+            end
+            return text
         end
         if kind~="fertilizer" then
             inst:AddComponent("finiteuses")

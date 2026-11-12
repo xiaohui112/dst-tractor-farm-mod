@@ -28,18 +28,19 @@
   },
   "driver_motion": "fixed_seated_pose_with_vehicle_suspension",
   "sha256": {
-    "aom_attachment_shared": "cc727de6a133a840b2f8cd5d719737b75a2d94c5c5d1dbeb052523c532fca220",
+    "aom_attachment_shared": "8c05376b40d2f6532103f441155adc0b60209644dda384a765aac60fe7ea31a9",
     "aom_attachment_symbols": "c75a7078e1e0aee98407ae1924e25c8abe9e6f86594e44fc8341558d1da3c7cd",
-    "aom_tractor_chassis": "cb77394d3f30e8ba2d3f6f5ef50d9536eac2885a527ea4ea1d7b2bcba754fea9",
+    "aom_tractor_chassis": "0e1bb626b4720755f2e377bb7de585ef314eefc0d99f72e971bf96a45081e353",
     "aom_tractor_cabin": "ca5f67428c8c33e38900079ba09e8af477472724bb495dfa751b275c092d4051",
-    "aom_tractor_driver": "55e9195bb114486e5dff4423265cecb21bd8858f9331f4666a1f4b4196f246d7",
-    "aom_tractor_driver_075": "185b75d2022a26c5f7461dc529b7540c60b9814299521e903829d06f61abe61b",
-    "aom_tractor_driver_125": "f7b5fa6e2d680dfadcb3dd668fa682262b1223dd1a67090b407d1810e6ee43a9",
-    "aom_tractor_driver_150": "9304822d5580606d670604b6a595a3a5d6b26b805a918e7ec9e9729e931ee8eb",
-    "aom_attachment_fx": "90f98d9040dd69e87a83672df82bcde6986ef9b07392c2a51643c89cce3a720f",
-    "aom_attachment_water": "d63bc74c5eabf9969ad5ddf658c18cf5b51b4f6e25749ffc7980c2cb4f21d465"
+    "aom_tractor_driver": "906e4985b22722b215f7c6b7961e501a45baa191fb2e7e74dffb612d81e355f5",
+    "aom_tractor_driver_075": "41548b8acc083dc5932112ce90a1057eb81a18f4a977064d28a5a29062c6e569",
+    "aom_tractor_driver_125": "1f1a9ee1fbd740d22fd1c18b20f2d4c2dbb4a36d7bf8f2b774015fe2a66f0506",
+    "aom_tractor_driver_150": "cf012bd05b07f77782696b32e259a4e13b6a27e93c13e07fe693bc0c464e309f",
+    "aom_attachment_fx": "7fa6271c77fe7c990a89916e30ee081b265ee793dba42388d999341e3f95d61b",
+    "aom_attachment_water": "4f3c596d9a9152eeba03fd480e129111650e89c148f48ce5631ba0f978699127"
   },
   "game_validation": false,
   "attachment_report": "Attachment-Build-Report.json",
-  "shared_driver_build": "aom_tractor_cabin"
+  "shared_driver_build": "aom_tractor_cabin",
+  "mount_geometry": "assets/directional-v2/mount-layout.json"
 }

@@ -20,6 +20,7 @@ PrefabFiles = {
 	"aom_attachments",
 	"aom_exhaust_puff",
 	"aom_attachment_work_fx",
+    "aom_refill_hose",
 }
 
 Assets = {
@@ -28,6 +29,8 @@ Assets = {
 	Asset("ANIM", "anim/aom_tractor_chassis.zip"),
 	Asset("ANIM", "anim/aom_attachment_shared.zip"),
 	Asset("ANIM", "anim/aom_attachment_symbols.zip"),
+    Asset("ATLAS","images/aom_water.xml"),
+    Asset("IMAGE","images/aom_water.tex"),
 	Asset("ATLAS", "images/aom_chassis_inventory.xml"),
 	Asset("IMAGE", "images/aom_chassis_inventory.tex"),
 	Asset("ATLAS", "images/aom_attachment_inventory.xml"),
@@ -41,7 +44,7 @@ Assets = {
 local Music
 local music_ok,music_module=pcall(require,"aom_irrigator_music")
 if music_ok then
-    local ok,assets=pcall(music_module.Configure,GetModConfigData("IRRIGATOR_MUSIC")~=false,
+    local ok,assets=pcall(music_module.Configure,GetModConfigData("IRRIGATOR_MUSIC"),
         MODROOT,GLOBAL.kleifileexists,Asset)
     if ok then
         Music=music_module
@@ -225,6 +228,7 @@ AddComponentAction("SCENE","watersource",function(pond,doer,actions,right)
     if vehicle and vehicle:HasTag(AOM_TAG.TRACTOR)
         and GetClientAttachmentType(vehicle)==AOM_ATTACHMENT_TYPE.IRRIGATOR
         and vehicle._water_net and vehicle._watermax_net
+        and not (vehicle._refilling_net and vehicle._refilling_net:value())
         and vehicle._water_net:value()<vehicle._watermax_net:value() then
         table.insert(actions,AOM_POND_REFILL)
     end
@@ -248,7 +252,7 @@ AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,r
     local kind=GetClientAttachmentType(target)
     if item.HasTag ~= nil and item:HasTag(AOM_TAG.ATTACHMENT) then
         table.insert(actions,AOM_ATTACH)
-    elseif item.prefab=="gears" or item.prefab=="flint" and (kind==AOM_ATTACHMENT_TYPE.PLOW or kind==AOM_ATTACHMENT_TYPE.SEEDER or kind==AOM_ATTACHMENT_TYPE.WEEDER or kind==AOM_ATTACHMENT_TYPE.HARVESTER) then
+    elseif item.prefab=="gears" then
         table.insert(actions,AOM_REPAIR)
     elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
         or kind==AOM_ATTACHMENT_TYPE.SEEDER and IsSeedItem(item)
@@ -309,11 +313,6 @@ local function PlanAction(player,rotate)
 end
 AddModRPCHandler("aom_rpc","AOM_PLAN",function(player)PlanAction(player,false)end)
 AddModRPCHandler("aom_rpc","AOM_PLAN_ROTATE",function(player)PlanAction(player,true)end)
-
-AddModRPCHandler("aom_rpc", "AOM_MUSIC", function(player,enabled)
-    local tractor=GetDrivenTractor(player)
-    if tractor and Music then Music.SetEnabled(tractor,enabled) end
-end)
 
 AddModRPCHandler("aom_rpc", "AOM_DETACH", function(player,target)
 	local tractor = GetDrivenTractor(player)
@@ -384,7 +383,6 @@ GLOBAL.AOM_RPC = {
     PLAN_ROTATE=GetModRPC("aom_rpc","AOM_PLAN_ROTATE"),
 	TOGGLE_WORK = GetModRPC("aom_rpc", "AOM_TOGGLE_WORK"),
 	SEED_MODE = GetModRPC("aom_rpc", "AOM_SEED_MODE"),
-	MUSIC = GetModRPC("aom_rpc", "AOM_MUSIC"),
 	DETACH = GetModRPC("aom_rpc", "AOM_DETACH"),
 	STORAGE = GetModRPC("aom_rpc", "AOM_STORAGE"),
 	CLOSE_STORAGE = GetModRPC("aom_rpc", "AOM_CLOSE_STORAGE"),
@@ -395,6 +393,8 @@ GLOBAL.AOM_RPC = {
 local WorkInput=require("aom_work_input")
 if not GLOBAL.TheNet:IsDedicated() then WorkInput.Install() end
 AddClassPostConstruct("components/playercontroller",WorkInput.WrapController)
+AddStategraphPostInit("wilson",require("aom_vehicle_motion").ConfigureMountSounds)
+AddClassPostConstruct("widgets/hoverer",require("aom_machine_info").Install)
 
 ---------------------------------------------------------------------------
 -- 3) 容器定义：拖拉机独立挂点与九格货物/物料仓

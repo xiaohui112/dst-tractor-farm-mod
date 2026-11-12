@@ -1,0 +1,261 @@
+{
+  "files": {
+    "Attachment-Build-Report.json": {
+      "bytes": 1169,
+      "sha256": "5d5b87c69c4b1d984380c324bae9eb924c0a91f2c1d0c8c8de238c4f9ccf34c9"
+    },
+    "Driver-Build-Report.json": {
+      "bytes": 1665,
+      "sha256": "438affe2e8102e80a9009ae523b84251ddbf4facd48bd6018e55a2acfbf6aa5b"
+    },
+    "anim/aom_attachment_fx.zip": {
+      "bytes": 23904,
+      "sha256": "90f98d9040dd69e87a83672df82bcde6986ef9b07392c2a51643c89cce3a720f"
+    },
+    "anim/aom_attachment_shared.zip": {
+      "bytes": 1020812,
+      "sha256": "cc727de6a133a840b2f8cd5d719737b75a2d94c5c5d1dbeb052523c532fca220"
+    },
+    "anim/aom_attachment_symbols.zip": {
+      "bytes": 501313,
+      "sha256": "c75a7078e1e0aee98407ae1924e25c8abe9e6f86594e44fc8341558d1da3c7cd"
+    },
+    "anim/aom_attachment_water.zip": {
+      "bytes": 763,
+      "sha256": "d63bc74c5eabf9969ad5ddf658c18cf5b51b4f6e25749ffc7980c2cb4f21d465"
+    },
+    "anim/aom_tractor_cabin.zip": {
+      "bytes": 412405,
+      "sha256": "ca5f67428c8c33e38900079ba09e8af477472724bb495dfa751b275c092d4051"
+    },
+    "anim/aom_tractor_chassis.zip": {
+      "bytes": 413481,
+      "sha256": "cb77394d3f30e8ba2d3f6f5ef50d9536eac2885a527ea4ea1d7b2bcba754fea9"
+    },
+    "anim/aom_tractor_driver.zip": {
+      "bytes": 22995967,
+      "sha256": "55e9195bb114486e5dff4423265cecb21bd8858f9331f4666a1f4b4196f246d7"
+    },
+    "anim/aom_tractor_driver_075.zip": {
+      "bytes": 23268766,
+      "sha256": "185b75d2022a26c5f7461dc529b7540c60b9814299521e903829d06f61abe61b"
+    },
+    "anim/aom_tractor_driver_125.zip": {
+      "bytes": 23035140,
+      "sha256": "f7b5fa6e2d680dfadcb3dd668fa682262b1223dd1a67090b407d1810e6ee43a9"
+    },
+    "anim/aom_tractor_driver_150.zip": {
+      "bytes": 23040945,
+      "sha256": "9304822d5580606d670604b6a595a3a5d6b26b805a918e7ec9e9729e931ee8eb"
+    },
+    "images/aom_attachment_inventory.tex": {
+      "bytes": 32946,
+      "sha256": "cb8bce15bfe57c27703a17b145114fe0e349b63fbcb3244184d6dfaf74b734dd"
+    },
+    "images/aom_attachment_inventory.xml": {
+      "bytes": 595,
+      "sha256": "8e32fefea3380916480d521b5cd867cb3cd6656959ed62982868b174a6a2b816"
+    },
+    "images/aom_chassis_inventory.tex": {
+      "bytes": 5566,
+      "sha256": "78cc1be5c73289c74169671cd061fd19ba1d6ce9a3d9d018f9590bc9ccbf1496"
+    },
+    "images/aom_chassis_inventory.xml": {
+      "bytes": 178,
+      "sha256": "3f73d3a8d5da3a2ab6b1320bda0ada16df0193e3247c449fd57e9cb52f20f547"
+    },
+    "images/aom_tractor_icons.tex": {
+      "bytes": 38418,
+      "sha256": "cc269d91478bf6480f0107040416876441ad03cf53549d19bfe770fc9aedae56"
+    },
+    "images/aom_tractor_icons.xml": {
+      "bytes": 678,
+      "sha256": "41f835f7e1e1c4bb6575ec7483311656445ad315f25f29155b1f5f91da9eb339"
+    },
+    "modicon.tex": {
+      "bytes": 349660,
+      "sha256": "f51d27e378ff4a96e7ec00f2df5bb5a5ead8c17b9c15c63d8964c1b77561f886"
+    },
+    "modicon.xml": {
+      "bytes": 137,
+      "sha256": "c2803f4217136bd0154125e10b7861b1e9f0e0d6d768285c0661c7f145eec106"
+    },
+    "modinfo.lua": {
+      "bytes": 3165,
+      "sha256": "48e6180a0a9839d7b633ca02322eb236e4a54123c61a7ca8fd80b0c23be70b24"
+    },
+    "modmain.lua": {
+      "bytes": 24156,
+      "sha256": "3fc3e95597e3a2b3d48c69b934f36e85492cfabbac59d60ea977e79c6b226797"
+    },
+    "scripts/aom_attachment_animation.lua": {
+      "bytes": 4517,
+      "sha256": "04ff84a098a357ad9c892c2b6476b081c28f1705602378e69b9254b597c5fa1a"
+    },
+    "scripts/aom_attachment_mount.lua": {
+      "bytes": 5151,
+      "sha256": "db9e810b1eeee6ca669d00496507c6116bfd8de48ab85bbd17d8cf6c53120058"
+    },
+    "scripts/aom_block_plan.lua": {
+      "bytes": 19148,
+      "sha256": "8191697b36b58c713bc99409a6ae02db0754c1cb5485b30fd1b2afe1c3b02a4a"
+    },
+    "scripts/aom_common.lua": {
+      "bytes": 6977,
+      "sha256": "4960bc54be1d3bab48c408bd9e0aa31d2328b6e4c975f4f9b8cd4250402bd1f1"
+    },
+    "scripts/aom_drive.lua": {
+      "bytes": 19585,
+      "sha256": "34f26cec817deef6221cfcdc3b114a84651d8be0878ae70498d92632e21e2f8e"
+    },
+    "scripts/aom_driver_visual.lua": {
+      "bytes": 2512,
+      "sha256": "ccf6d00d27651b3a0a684b3328e2173b9f8c0a57749cb6e3b25bf2fb883c5a85"
+    },
+    "scripts/aom_driver_visual_bank.lua": {
+      "bytes": 272,
+      "sha256": "e36fc15290b75fec9d8e827d7ef4c51a827b8b78f67ba491ecfc852cce28fdd8"
+    },
+    "scripts/aom_durability.lua": {
+      "bytes": 4722,
+      "sha256": "76475903748ff58644a596cf80ead5baea8b16466be8ffa0514cb196d5439193"
+    },
+    "scripts/aom_equipment_defs.lua": {
+      "bytes": 708,
+      "sha256": "846ae21f76d13c3a217d62bb28e4839552813ecc57a5a54bea43917f53e79ac7"
+    },
+    "scripts/aom_farm_work.lua": {
+      "bytes": 31083,
+      "sha256": "8146a7fd1f3756e48caf973c9ee662daf820283b02d66d1e73680a61d9a935fc"
+    },
+    "scripts/aom_fertilizer.lua": {
+      "bytes": 7458,
+      "sha256": "368056911290239bc1b1e816a187296a4758dbb35479d151ec08aa52880bd8e1"
+    },
+    "scripts/aom_giant_layouts.lua": {
+      "bytes": 224432,
+      "sha256": "2d2c014bb804a7eb13b18bd8b2c42154be9775cf7a5ff93317803aa5d25be6c2"
+    },
+    "scripts/aom_harvester_tool.lua": {
+      "bytes": 869,
+      "sha256": "12341102fb05df93b3c1e07d663f97e7088bfe84379f9f4cc1e2493840c475f8"
+    },
+    "scripts/aom_irrigator.lua": {
+      "bytes": 5921,
+      "sha256": "26e13b4183710665ac274ad97e4347e360178397b0ed8a4100ab33db75de3dfd"
+    },
+    "scripts/aom_irrigator_music.lua": {
+      "bytes": 4844,
+      "sha256": "ae218af3fd52a8889aec872340a51639d7525d9c84d77373f3087318b0a418b6"
+    },
+    "scripts/aom_irrigator_music_bank.lua": {
+      "bytes": 380,
+      "sha256": "da61bbc1888eac45f470994aca67de548babb6cf5b254f7f322f3082800c2b86"
+    },
+    "scripts/aom_landclearer_tool.lua": {
+      "bytes": 824,
+      "sha256": "31822bd5427f69bd6ca93969dc05244b44f35d32d6753e1a24e08c9ca8327895"
+    },
+    "scripts/aom_locale.lua": {
+      "bytes": 13315,
+      "sha256": "4e90200b5b7241d4cf4ef8687a4e8a7210f9690ea0a5ad2aab622745a7afe2b4"
+    },
+    "scripts/aom_model_scale.lua": {
+      "bytes": 495,
+      "sha256": "86bf5312e9bfe1acf82b65dfd2183e9da2a64bcd9af47452684eb6b98a2a9a46"
+    },
+    "scripts/aom_mouse_input.lua": {
+      "bytes": 1230,
+      "sha256": "6ef7e2cbd594fac6d785f73514522433d96f19a2baa712f2e15a047f08a588c2"
+    },
+    "scripts/aom_plan_preview.lua": {
+      "bytes": 1894,
+      "sha256": "f932bcdae088a27e29cef7e0f193afb37f6f180c58eb2a76ddb26ba523d9eb35"
+    },
+    "scripts/aom_seed_strategy.lua": {
+      "bytes": 2565,
+      "sha256": "ba7c9b08a1ddc3386ce1e4e01acfa460c1453059844c6dfdb7ce1aacbbcad736"
+    },
+    "scripts/aom_seeder_tool.lua": {
+      "bytes": 818,
+      "sha256": "e29825987823c7d6561324e1a118c525d03de7909c058b40de3ee8ef73fe79b2"
+    },
+    "scripts/aom_soil_moisture.lua": {
+      "bytes": 2348,
+      "sha256": "93c52ca6501241b7d0abe6917d2ee8d5cfbbac1c43db53db677d7d7ec4361239"
+    },
+    "scripts/aom_vehicle_motion.lua": {
+      "bytes": 2523,
+      "sha256": "91ccae745393cd00fb12f80f9b0cc51002af9cf5d6301f4de6d9ecacaafbcceb"
+    },
+    "scripts/aom_weeder_tool.lua": {
+      "bytes": 837,
+      "sha256": "a15847e169059cc4dea73638308791ea858e6a0e9113fce9a699df9afc5ff178"
+    },
+    "scripts/aom_work_input.lua": {
+      "bytes": 1769,
+      "sha256": "4603ce0fb68b1996c25d7d071abc69952fff6f226d641f41d2b2d4949ad61e8a"
+    },
+    "scripts/aom_work_profile.lua": {
+      "bytes": 1697,
+      "sha256": "775dc9bf176325c6eb87fadee1f625b5b178f41ba5c9c3fa3632591c81ba1f8c"
+    },
+    "scripts/aom_work_result.lua": {
+      "bytes": 1350,
+      "sha256": "efd9acfdc283f314fda5dc2db92dfbcbcd4390407bced7109b0cc6c4c34bf85c"
+    },
+    "scripts/aom_work_status.lua": {
+      "bytes": 5382,
+      "sha256": "20dea08874ee3fd24a2f900bf900e810b9762d285f6367094b5016a0c67f3e8c"
+    },
+    "scripts/components/aom_attachment_store.lua": {
+      "bytes": 8374,
+      "sha256": "304fc9c5ef9d5b7c3c85938ccf04eb690f245a23b88cc7e4b7ac52bb50f73b35"
+    },
+    "scripts/prefabs/aom_attachment_work_fx.lua": {
+      "bytes": 1791,
+      "sha256": "c24d92cabae25c2bbb334f8febfc4ad6c55fdedeb798c51f6db24a18628b6928"
+    },
+    "scripts/prefabs/aom_attachments.lua": {
+      "bytes": 3837,
+      "sha256": "a924d131f58b4cd10acb15b13951bee6c2012e3c356e1dfd652db16168fc7ce1"
+    },
+    "scripts/prefabs/aom_exhaust_puff.lua": {
+      "bytes": 951,
+      "sha256": "20c9ff31f3afd3f4d01ff25c08cc778ee86452dbd0d99b88f9dfda452f111c28"
+    },
+    "scripts/prefabs/aom_tractor_chassis.lua": {
+      "bytes": 27434,
+      "sha256": "fe706f0041c7619f00d74d4ab14f7a45779f323602aab870262f1c12c73761b4"
+    },
+    "scripts/stategraphs/SGaom_tractor.lua": {
+      "bytes": 379,
+      "sha256": "581abe52c71ae62bbd2f18398994b54e59d88f8931ac31e12b101b029e6e6fdc"
+    },
+    "scripts/widgets/aom_badge.lua": {
+      "bytes": 2287,
+      "sha256": "b78393a6a52fe58d479c8da6d72c60fb2c311dee8764f532aff26e7cffed7854"
+    },
+    "scripts/widgets/aom_hud.lua": {
+      "bytes": 12399,
+      "sha256": "b06f56e5745288ce235e6c8a1cee1d71a99fd08c805fb521f642bc11389317e4"
+    },
+    "sound/aom_irrigator_music.fev": {
+      "bytes": 1052,
+      "sha256": "b816934ff61fef9609eb612cbb5d2522a827322b7aa7c280a6dbd845b7554c76"
+    },
+    "sound/aom_irrigator_music.fsb": {
+      "bytes": 3202848,
+      "sha256": "651031dfb40acf3d17b0f5ae7f0e85a5135aa5dde35a03d72ed58d1e9daea490"
+    },
+    "sound/aom_tractor_sfx.fev": {
+      "bytes": 1666,
+      "sha256": "37bab59de4b5e2f4f7f2e6e2e24966a37f54e8a1069cd9a7a76cbe360036faca"
+    },
+    "sound/aom_tractor_sfx.fsb": {
+      "bytes": 1058656,
+      "sha256": "15afcca3d80b7d38af55a82559c745644d63c4911619851048810b01af12b2c6"
+    }
+  },
+  "schema": 1
+}

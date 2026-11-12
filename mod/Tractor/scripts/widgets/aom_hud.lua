@@ -2,8 +2,6 @@
 local Widget=require("widgets/widget")
 local Image=require("widgets/image")
 local ImageButton=require("widgets/imagebutton")
-local Text=require("widgets/text")
-local NineSlice=require("widgets/nineslice")
 local Dial=require("widgets/aom_badge")
 local L=require("aom_locale").Text
 local ATT={}
@@ -17,11 +15,6 @@ local function Value(inst,key,default)
     return default
 end
 local function ItemImage(name)return GetInventoryItemAtlas(name..".tex"),name..".tex" end
-local function SetLamp(image,on,blocked)
-    image:SetTexture("images/ui.xml",(on or blocked) and "radiobutton_on.tex" or "radiobutton_off.tex")
-    image:ScaleToSize(18,18)
-    image:SetTint(blocked and 1 or on and .45 or .5,blocked and .15 or on and 1 or .5,blocked and .05 or on and .15 or .5,1)
-end
 local function Visible(widget,on)
     if widget._aom_visible~=on then
         widget._aom_visible=on
@@ -32,72 +25,71 @@ local AOMHud=Class(Widget,function(self,owner)
     Widget._ctor(self,"AOMHud")
     self.owner=owner
     self.root=self:AddChild(Widget("tractor_dashboard"))
-    self.root:SetPosition(0,150,0)
+    -- 数字牌加高后整体上移，底部控件仍留在物品栏上方。
+    self.root:SetPosition(0,166,0)
     self.badges={}
-    local colors={health={174/255,21/255,21/255,1},chassis={.8,.55,.12,1},fuel={.8,.37,.08,1},tool={.12,.48,.46,1},cargo={.4,.4,.2,1}}
-    self.order={"health","chassis","fuel","tool","cargo"}
+    local colors={health={174/255,21/255,21/255,1},chassis={.8,.55,.12,1},fuel={.8,.37,.08,1},tool={.12,.48,.46,1},cargo={.4,.4,.2,1},water={.12,.52,.72,1}}
+    self.order={"health","chassis","fuel","cargo","tool"}
     for _,key in ipairs(self.order)do self.badges[key]=self.root:AddChild(Dial(owner,colors[key],key=="health"))end
+    self.badges.water=self.root:AddChild(Dial(owner,colors.water,false))
+    self.badges.water:SetIcon("images/aom_water.xml","water_drop.tex")
+    self.badges.water:Hide()
     self.badges.chassis:SetIcon(ItemImage("gears"))
     self.badges.fuel:SetIcon(ItemImage("charcoal"))
     self.badges.cargo:SetIcon(ItemImage("treasurechest"))
     self.badges.cargo.warn_low=false
     self.badges.cargo:SetOnClick(function()self:Send(AOM_RPC.STORAGE)end)
-    self.strip=self.root:AddChild(Widget("equipment_controls"))
-    self.strip:SetPosition(0,-42,0)
-    self.background=self.strip:AddChild(NineSlice("images/dialogrect_9slice.xml"))
-    self.background:SetSize(488,22)
-    self.background:SetScale(.14,.14)
-    self.background:SetClickable(false)
-    self.attachment_icon=self.strip:AddChild(Image())
-    self.attachment_icon:SetPosition(-226,0,0)
-    self.resource=self.strip:AddChild(Widget("resource"))
-    self.resource:SetPosition(-70,0,0)
-    self.resource_num=self.resource:AddChild(Text(NUMBERFONT,24,""))
-    self.resource_num:SetPosition(-42,0,0)
-    self.resource_frame=self.resource:AddChild(Image("images/global_redux.xml","progressbar_wxplarge_frame.tex"))
-    self.resource_frame:ScaleToSize(100,18)
-    self.resource_frame:SetPosition(58,0,0)
-    self.resource_fill=self.resource:AddChild(Image("images/global_redux.xml","progressbar_wxplarge_fill.tex"))
-    self.resource_fill:SetTint(.2,.65,1,1)
-    self.resource_frame:MoveToFront()
-    self.seedbutton=self.strip:AddChild(ImageButton("images/ui.xml","spin_arrow.tex","spin_arrow_over.tex",nil,"spin_arrow_down.tex"))
-    self.seedbutton:ForceImageSize(28,28)
-    self.seedbutton:SetPosition(155,0,0)
-    self.seedbutton:SetOnClick(function()self:Send(AOM_RPC.SEED_MODE)end)
-    self.planbutton=self.strip:AddChild(ImageButton("images/ui.xml","button_small.tex"))
-    self.planbutton:ForceImageSize(62,28);self.planbutton:SetTextSize(20)
-    self.planbutton:SetPosition(90,0,0)
-    self.planbutton:SetOnClick(function()self:Send(AOM_RPC.PLAN)end)
-    self.rotatebutton=self.strip:AddChild(ImageButton("images/ui.xml","spin_arrow.tex","spin_arrow_over.tex",nil,"spin_arrow_down.tex"))
-    self.rotatebutton:ForceImageSize(24,24);self.rotatebutton:SetPosition(40,0,0)
-    self.rotatebutton:SetOnClick(function()self:Send(AOM_RPC.PLAN_ROTATE)end)
-    self.music_icon=self.strip:AddChild(Image(ItemImage("onemanband")))
-    self.music_icon:ScaleToSize(26,26)
-    self.music_icon:SetPosition(128,0,0)
-    self.music_icon:SetClickable(false)
-    self.musicbutton=self.strip:AddChild(ImageButton("images/ui.xml","radiobutton_on.tex"))
-    self.musicbutton:ForceImageSize(22,22)
-    self.musicbutton:SetPosition(163,0,0)
-    self.musicbutton.scale_on_focus=false
-    self.musicbutton:SetOnClick(function()
-        if Value(self.tractor,"_music_available_net",false)then
-            self:Send(AOM_RPC.MUSIC,not Value(self.tractor,"_music_enabled_net",true))
+    self.badges.tool:SetOnClick(function()
+        if Value(self.tractor,"_atttype_net","")=="seeder" then
+            self._seed_controls_open=not self._seed_controls_open
+            self:Refresh(self.tractor)
         end
     end)
-    self.worklamp=self.strip:AddChild(Image("images/ui.xml","radiobutton_off.tex"))
-    self.worklamp:SetPosition(225,0,0)
+    self.seedcontrols=self.root:AddChild(Widget("seed_settings"))
+    self.seedbackground=self.seedcontrols:AddChild(Image("images/hud.xml","craft_slot.tex"))
+    self.seedbackground:SetClickable(false)
+    self.seedcontrols:Hide()
+    self.seedbutton=self.seedcontrols:AddChild(ImageButton("images/ui.xml","spin_arrow.tex","spin_arrow_over.tex",nil,"spin_arrow_down.tex"))
+    self.seedbutton:ForceImageSize(28,28)
+    self.seedbutton:SetOnClick(function()self:Send(AOM_RPC.SEED_MODE)end)
+    self.planbutton=self.seedcontrols:AddChild(ImageButton("images/ui.xml","button_small.tex"))
+    self.planbutton:ForceImageSize(62,28);self.planbutton:SetTextSize(20)
+    self.planbutton:SetOnClick(function()self:Send(AOM_RPC.PLAN)end)
+    self.rotatebutton=self.seedcontrols:AddChild(ImageButton("images/ui.xml","spin_arrow.tex","spin_arrow_over.tex",nil,"spin_arrow_down.tex"))
+    self.rotatebutton:ForceImageSize(24,24)
+    self.rotatebutton:SetOnClick(function()self:Send(AOM_RPC.PLAN_ROTATE)end)
+    self:LayoutControls(nil)
     self:MatchStatusScale()
     self:Hide()
 end)
+-- 按实际控件收紧木板；仅切换挂件/策略时重排，不打断按键或悬停。
+function AOMHud:LayoutControls(kind,mode)
+    local key=(kind or "")..(kind=="seeder" and mode=="GIANT" and ":GIANT" or "")
+    if self._layout_key==key then return end
+    self._layout_key=key
+    if kind=="seeder" and mode=="GIANT" then
+        self.seedbackground:ScaleToSize(204,36)
+        self.rotatebutton:SetPosition(-72,0,0);self.planbutton:SetPosition(0,0,0)
+        self.seedbutton:SetPosition(72,0,0)
+    else
+        self.seedbackground:ScaleToSize(48,36)
+        self.seedbutton:SetPosition(0,0,0)
+    end
+end
 function AOMHud:MatchStatusScale()
     local controls=self.owner.HUD and self.owner.HUD.controls
     local status=controls and controls.status
-    local scale=status and status:GetLooseScale().x or 1.4
+    -- 原版GetLooseScale返回x,y,z三个数值；GetScale才返回Vector3。
+    -- 兼容状态栏覆盖实现返回的向量，但不把数值当作表索引。
+    local scale=status and type(status.GetLooseScale)=="function" and status:GetLooseScale() or 1.4
+    if type(scale)=="table" then scale=scale.x end
+    if type(scale)~="number" or not (scale>0 and scale<math.huge) then scale=1.4 end
     -- 原版 Controls 的 StatusDisplays 倍率为1.4；共用表盘原始尺寸。
     for i,key in ipairs(self.order)do
         self.badges[key]:SetScale(scale)
-        self.badges[key]:SetPosition((i-3)*78*scale,40,0)
+        self.badges[key]:SetPosition((i-(#self.order+1)/2)*78*scale,40,0)
     end
+    self.seedcontrols:SetPosition((#self.order-1)/2*78*scale,-58,0)
 end
 function AOMHud:Send(rpc,...)
     local rider=self.owner.replica and self.owner.replica.rider
@@ -109,18 +101,24 @@ function AOMHud:Send(rpc,...)
 end
 function AOMHud:Refresh(tractor)
     require("aom_plan_preview").Refresh(self,tractor)
-    if not tractor or not tractor:IsValid() or self.owner:HasTag("playerghost")then self.tractor=nil;self:Hide();return end
+    if not tractor or not tractor:IsValid() or self.owner:HasTag("playerghost")then
+        self.tractor=nil;self._seed_controls_open=false;self:Hide();return
+    end
+    if self.tractor~=tractor then self._seed_controls_open=false end
     self.tractor=tractor
+    local kind=Value(tractor,"_atttype_net","")
+    self.order=kind=="irrigator" and {"health","chassis","fuel","cargo","tool","water"} or {"health","chassis","fuel","cargo","tool"}
+    Visible(self.badges.water,kind=="irrigator")
     self:MatchStatusScale()
     local hp=Value(tractor,"_health_net",600)
     local uses=Value(tractor,"_uses_net",0)
     local fuel=Value(tractor,"_fuel",0)
-    local kind=Value(tractor,"_atttype_net","")
     local name=ATT[kind]
     local att=name and (STRINGS.NAMES[string.upper(name)] or name) or L("无挂件")
     local tool=Value(tractor,"_tooluses_net",0)
     local max=Value(tractor,"_toolmax_net",0)
     local cargo=Value(tractor,"_cargo_used_net",0)
+    local count=Value(tractor,"_cargo_count_net",0)
     local code=require("aom_work_status").Read(tractor)
     local reason=require("aom_work_status").Describe(tractor)
     self.badges.health:SetValue(hp,600,L("车体生命 %d/%d",math.ceil(hp),600).."\n"..L("齿轮修复生命和底盘耐久；生命归零留下残骸"),tostring(math.ceil(hp)),hp<=0)
@@ -128,26 +126,31 @@ function AOMHud:Refresh(tractor)
     self.badges.fuel:SetValue(fuel,800,L("燃料 %d/%d",fuel,800).."\n"..L("下车手持木头、木炭等燃料右键加油"),nil,fuel<=0)
     if name then self.badges.tool:SetIcon("images/aom_attachment_inventory.xml",name..".tex")else self.badges.tool:SetIcon(ItemImage("gears"))end
     local tool_tip=max>0 and att.."\n"..L("挂件耐久 %d/%d",tool,max).."\n"..L("下车手持燧石维修；每份恢复10") or att
+    if name then tool_tip=tool_tip.."\n"..L(EFFECT[kind])end
+    if kind=="seeder" then
+        tool_tip=tool_tip.."\n"..L("种子剩余 %d 颗",Value(tractor,"_seedcount_net",0))
+            .."\n"..L("播种策略：%s",L(MODE[Value(tractor,"_seedmode_net","SEQUENTIAL")] or "顺序"))
+            .."\n"..L("左键：打开/关闭播种设置")
+    end
+    local working=Value(tractor,"_workstatus",false)
+    tool_tip=tool_tip.."\n"..(reason~="" and reason or L(working and "作业中（F 关闭）" or "作业关闭（F 开启）")).."\n"..L("车速 %.0f%%",Value(tractor,"_speedfactor_net",1)*100)
     self.badges.tool:SetValue(tool,max,tool_tip,max<=0 and "—" or nil,max>0 and tool<=0,max<=0)
     local full=code=="CARGO_FULL"
     local storage=tractor.replica and tractor.replica.container
     local opened=storage and storage:IsOpenedBy(self.owner)
-    local cargo_tip=L("货仓：%d/9格",cargo).."\n"..L("左键：打开/关闭货仓；也可左键车身")
+    local cargo_tip=L("货仓：%d/9格",cargo).."\n"..L("物品总数 %d（含堆叠）",count).."\n"..L("左键：打开/关闭货仓；也可左键车身")
+    if kind=="fertilizer" then
+        cargo_tip=cargo_tip.."\n"..L("肥料剩余 %d 次",Value(tractor,"_fertilizeruses_net",0)).."\n"..Value(tractor,"_fertilizerstock_net","")
+    end
     if full then cargo_tip=cargo_tip.."\n"..reason
     elseif cargo==9 then cargo_tip=cargo_tip.."\n"..L("格子已占用，同类物品仍可叠堆")end
-    self.badges.cargo:SetValue(cargo,9,cargo_tip,tostring(cargo).."/9",full)
+    self.badges.cargo:SetValue(cargo,9,cargo_tip,tostring(count),full)
     self.badges.cargo.icon:SetTint(opened and 1 or .85,opened and .85 or .85,opened and .5 or .85,1)
-    if name then
-        self.attachment_icon:SetTexture("images/aom_attachment_inventory.xml",name..".tex")
-        self.attachment_icon:ScaleToSize(32,32)
-        self.attachment_icon:SetTooltip(att.."\n"..L(EFFECT[kind]))
-        self.attachment_icon:Show()
-    else self.attachment_icon:Hide()end
     Visible(self.seedbutton,kind=="seeder")
-    Visible(self.musicbutton,kind=="irrigator")
-    Visible(self.music_icon,kind=="irrigator")
-    Visible(self.resource,kind=="irrigator" or kind=="seeder" or kind=="fertilizer")
     local mode=Value(tractor,"_seedmode_net","SEQUENTIAL")
+    self:LayoutControls(kind,mode)
+    if kind~="seeder" then self._seed_controls_open=false end
+    Visible(self.seedcontrols,kind=="seeder" and self._seed_controls_open==true)
     local block=require("aom_block_plan")
     local plan=block.Decode(Value(tractor,"_plan_net",""))
     Visible(self.planbutton,kind=="seeder" and mode=="GIANT")
@@ -157,44 +160,17 @@ function AOMHud:Refresh(tractor)
     self.rotatebutton:SetTooltip(L("旋转预览90°；不会改动农田"))
     local current,capacity=0,0
     if kind=="irrigator"then
-        current,capacity=Value(tractor,"_water_net",0),Value(tractor,"_watermax_net",40)
-        self.resource_num:SetString(tostring(current).."/"..tostring(capacity))
-        self.resource:SetTooltip(L("水箱 %d/%d 次水壶用量",current,capacity).."\n"..L("补水：驾驶到池塘边，右键池塘补满水箱"))
-        local available=Value(tractor,"_music_available_net",false)
-        local enabled=Value(tractor,"_music_enabled_net",true)
-        local on=available and enabled
-        if self._music_on~=on then
-            self._music_on=on
-            self.musicbutton:SetTextures("images/ui.xml",on and "radiobutton_on.tex" or "radiobutton_off.tex")
-            self.musicbutton:ForceImageSize(22,22)
-        end
-        self.musicbutton.image:SetTint(available and .6 or .4,available and 1 or .4,.3,1)
-        self.musicbutton:SetTooltip(not available and L("音乐安抚不可用：世界设置已关闭或音频资源缺失")
-            or L("音乐安抚：%s",enabled and L("开启") or L("关闭")).."\n"..L("点击切换音乐和植物安抚；洒水持续进行"))
+        current,capacity=Value(tractor,"_water_net",0),Value(tractor,"_watermax_net",400)
+        local filling=Value(tractor,"_refilling_net",false)
+        local tip=L("水量 %d/%d",current,capacity).."\n"..L(filling and "正在补水（5秒）；移动或下车中止" or "车尾靠近池塘，右键持续补水5秒")
+        self.badges.water:SetValue(current,capacity,tip,tostring(current),current<=0)
     elseif kind=="seeder"then
         current=Value(tractor,"_seedcount_net",0)
-        self.resource_num:SetString(tostring(current))
         local mode=Value(tractor,"_seedmode_net","SEQUENTIAL")
         local tip=L("播种策略：%s",L(MODE[mode] or "顺序")).."\n"..L("点击切换为：%s",L(MODE[NEXT[mode] or "SEQUENTIAL"])).."\n"..L("切换策略后按 F 重新开始作业")
         self.seedbutton:SetTooltip(tip)
-        self.resource:SetTooltip(L("种子剩余 %d 颗",current).."\n"..tip.."\n"..(plan and block.DescribeProgress({_block=plan}) or L("配比：待规划")))
-    elseif kind=="fertilizer"then
-        current=Value(tractor,"_fertilizeruses_net",0)
-        self.resource_num:SetString(tostring(current))
-        self.resource:SetTooltip(L("肥料剩余 %d 次",current).."\n"..Value(tractor,"_fertilizerstock_net",""))
+
     end
-    Visible(self.resource_frame,kind=="irrigator" and capacity>0)
-    Visible(self.resource_fill,kind=="irrigator" and capacity>0 and current>0)
-    if kind=="irrigator" and capacity>0 then
-        local percent=math.clamp(current/capacity,0,1)
-        if percent>0 then
-            self.resource_fill:ScaleToSize(92*percent,10)
-            self.resource_fill:SetPosition(12+46*percent,0,0)
-        end
-    end
-    local working=Value(tractor,"_workstatus",false)
-    SetLamp(self.worklamp,working,reason~="")
-    self.worklamp:SetTooltip((reason~="" and reason or L(working and "作业中（F 关闭）" or "作业关闭（F 开启）")).."\n"..L("车速 %.0f%%",Value(tractor,"_speedfactor_net",1)*100))
     self:Show()
 end
 return AOMHud

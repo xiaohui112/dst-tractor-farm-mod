@@ -1,21 +1,27 @@
 -- 水箱单位始终为一次普通水壶用量；土壤水分点数只交给原版管理器处理。
 local Soil=require("aom_soil_moisture")
 local L=require("aom_locale").Text
-local M={POND_DISTANCE=3}
-function M.Capacity() return TUNING.WATERINGCAN_USES or 40 end
+local M={POND_DISTANCE=3,WATER_CAPACITY=400}
+function M.Capacity() return M.WATER_CAPACITY end
 
 function M.Setup(inst)
     local uses=inst.components.finiteuses
     uses:SetMaxUses(M.Capacity())
     uses:SetDoesNotStartFull(true) -- 满罐也必须显式保存，否则空罐构造会吞掉满罐存档
     uses:SetUses(0)
+    local function SyncWater()
+        if inst._aom_water_net then inst._aom_water_net:set(uses:GetUses()) end
+    end
+    inst:ListenForEvent("percentusedchange",SyncWater)
+    SyncWater()
     inst.OnSave=function(_,data) data.aom_water_version=1 end
     -- EntityScript 先加载组件，再调用实体 OnLoad；此处迁移不会被 finiteuses 覆盖。
     inst.OnLoad=function(item,data)
         local saved=data and data.finiteuses and data.finiteuses.uses
         if not data or not data.aom_water_version then
             -- 旧版满罐100不会写 finiteuses；缺省表示旧满罐，不是新版空罐。
-            if saved==nil then saved=M.Capacity() end
+            if saved==nil then saved=40 end -- 保留旧版迁移语义，不随新容量凭空补水。
+            if type(saved)=="number" then saved=math.min(saved,40) end
         elseif saved==nil then saved=0 end
         if type(saved)~="number" or saved~=saved then saved=0 end
         item.components.finiteuses:SetUses(math.max(0,math.min(M.Capacity(),math.floor(saved))))
@@ -68,11 +74,11 @@ function M.RefillFromPond(doer,pond)
     if doer:GetDistanceSqToInst(pond)>distance*distance then return false,L("请驾驶拖拉机靠近池塘。") end
     local room=store:GetWaterMax()-store:GetWater()
     if room<=0 then return false,L("水箱已满。") end
-    -- 与原版 fillable 一致，调用水源自身的 Use 回调；结冰时原版撤销可用状态。
-    source:Use()
-    if store:AddWater(room)<=0 then return false,L("无法补水。") end
-    if doer.SoundEmitter then doer.SoundEmitter:PlaySound("turnoftides/common/together/water/emerge/small") end
-    return true,L("水箱：%d/%d",store:GetWater(),store:GetWaterMax())
+    if require("aom_pond_refill").Start(vehicle,doer,pond,tool) then
+        return true,L("正在补水（5秒）；移动或下车中止")
+    end
+    return false
+
 end
 
 function M.Sync(inst)

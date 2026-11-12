@@ -138,7 +138,7 @@ assert(vehicle.components.container:GetItemInSlot(9).components.stackable:StackS
 local Status=require('aom_work_status');local AOM=require('aom_common')
 Status.Set(t,'EMPTY','irrigator');assert(Status.Read(t)=='EMPTY')
 local client={_workstate_net=t._workstate_net}
-AOM.SetLanguage('en');assert(string.find(Status.Describe(client),'Tank empty',1,true))
+AOM.SetLanguage('en');assert(string.find(Status.Describe(client),'Water tank empty',1,true))
 AOM.SetLanguage('zh');assert(string.find(Status.Describe(client),'水箱已空',1,true))
 Status.Set(t,'CARGO_FULL');AOM.SetLanguage('en')
 assert(t._workstate_net:value()=='CARGO_FULL' and string.find(Status.Describe(client),'storage full',1,true))
