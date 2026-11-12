@@ -1,3 +1,7 @@
+【历史工具说明，2026-11-12整理】
+本目录保留早期三视图/旧交付包流程，不代表0.5.1现行资源构建。以下步骤仅用于对应旧工具包，不能将产物直接覆盖当前五视图、四档共享驾驶包。
+现行构建及验收见仓库 docs/04-资源与开发工具链.md；原说明另存 docs/history/2026-11-12-文档重整前/auxiliary/。
+
 拖拉机 · Windows 动画编译包
 生成日期：2026-11-11
 适用：Windows 10 / 11，Steam 版 Don't Starve Mod Tools
@@ -16,7 +20,7 @@
   README-zh-CN.txt            本说明
   Source-Manifest.json        源文件清单和 SHA-256
   Attachment-Preview.png      挂件装配参考图
-  AgeOfMachines\             当前 Mod，含音频和图标
+  Tractor\             当前 Mod，含音频和图标
     modinfo.lua
     modmain.lua
     exported\
@@ -83,12 +87,12 @@
 
 打开 cmd，按实际路径分别执行：
 
-"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\AgeOfMachines\exported\aom_tractor_chassis\aom_tractor_chassis.scml" "C:\AOM\AgeOfMachines"
-"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\AgeOfMachines\exported\aom_attachment_shared\aom_attachment_shared.scml" "C:\AOM\AgeOfMachines"
-"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\AgeOfMachines\exported\aom_attachment_symbols\aom_attachment_symbols.scml" "C:\AOM\AgeOfMachines"
+"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\Tractor\exported\aom_tractor_chassis\aom_tractor_chassis.scml" "C:\AOM\Tractor"
+"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\Tractor\exported\aom_attachment_shared\aom_attachment_shared.scml" "C:\AOM\Tractor"
+"C:\Program Files (x86)\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" "C:\AOM\Tractor\exported\aom_attachment_symbols\aom_attachment_symbols.scml" "C:\AOM\Tractor"
 
 每条命令有两个参数：SCML 文件路径，以及 Mod 根目录。
-第二个参数不是 anim 文件夹。最终资源应进入 AgeOfMachines\anim\。
+第二个参数不是 anim 文件夹。最终资源应进入 Tractor\anim\。
 不是把 SCML 单独拖到 scml.exe 上就能完成整个流程。
 
 工具参数依据：

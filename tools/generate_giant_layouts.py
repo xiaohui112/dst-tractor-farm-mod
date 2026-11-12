@@ -66,8 +66,11 @@ panel('summer',3,g(8,'tomato'),g(4,'dragonfruit','pepper'))
 panel('summer',4,g(8,'corn'),g(4,'pomegranate','onion'),g(4,'dragonfruit','pepper'))
 panel('summer',5,g(8,'tomato'),g(8,'corn'),g(8,'watermelon'),g(8,'dragonfruit'),g(8,'pomegranate','onion'),not_giant=('tomato',))
 
-GRID = [(-1,-1),(0,-1),(1,-1),(-1,0),(0,0),(1,0),(-1,1),(0,1),(1,1)]
-HEX = [(-1,-1),(0,-1),(1,-1),(-1.5,0),(-.5,0),(.5,0),(1.5,0),(-1,1),(0,1),(1,1)]
+# 大于原版1.25的邻坑破坏半径，跨地块也必须检查。
+TILL_SPACING = 1.25
+GRID = [(x*4/3,z*4/3) for z in (-1,0,1) for x in (-1,0,1)]
+HEX = [(x*1.28,z*1.28) for x,z in
+       [(-1,-1),(0,-1),(1,-1),(-1.5,0),(-.5,0),(.5,0),(1.5,0),(-1,1),(0,1),(1,1)]]
 def delta(crop):
     consume = CONSUME[crop]
     restore = sum(consume) // consume.count(0)
@@ -82,30 +85,50 @@ def solve(ratio, not_giant):
     rng=random.Random(int(hashlib.sha256(signature.encode()).hexdigest()[:16],16))
     for tiles in (1,2,4,8,16):
         if common%tiles or total//tiles>10:continue
-        width=1 if tiles==1 else 2
-        height=tiles//width
         per={c:n//tiles for c,n in ratio.items()}
+        # 两格十株布局纵向相邻，避免四列的横向边缘互相毁坑。
         for shape,offsets in [('grid',GRID),('hex',HEX)]:
             if sum(per.values())>len(offsets):continue
+            width=1 if tiles==1 or (tiles==2 and shape=='hex') else 2
+            height=tiles//width
             points=[(tx*4+x,tz*4+z,tx,tz,x,z) for tz in range(height) for tx in range(width) for x,z in offsets]
             neighbors=[[j for j,b in enumerate(points) if (a[0]-b[0])**2+(a[1]-b[1])**2<=16+1e-8] for a in points]
-            base=[c for c,n in sorted(per.items()) for _ in range(n)]+['']*(len(offsets)-sum(per.values()))
-            def cost(colors):
-                return sum(max(0,4-sum(colors[j]==c for j in neighbors[i]))**2 for i,c in enumerate(colors) if c and c not in not_giant)
-            for restart in range(12):
+            conflicts=[(i,j) for i,a in enumerate(points) for j,b in enumerate(points[:i])
+                       if (a[0]-b[0])**2+(a[1]-b[1])**2<=TILL_SPACING**2+1e-8]
+            crops=['']+sorted(per)
+            exempt={crops.index(c) for c in not_giant}
+            base=[crops.index(c) for c,n in sorted(per.items()) for _ in range(n)]+[0]*(len(offsets)-sum(per.values()))
+            # 整数邻居计数，交换时只更新受影响的邻居；保持生成结果确定性。
+            for restart in range(16):
                 colors=[]
                 for _ in range(tiles):
                     row=base[:];rng.shuffle(row);colors+=row
-                score=cost(colors)
-                for step in range(18000):
+                counts=[[0]*len(crops) for _ in points]
+                for i,near in enumerate(neighbors):
+                    for j in near:counts[i][colors[j]]+=1
+                def deficit(i):
+                    c=colors[i]
+                    return max(0,4-counts[i][c])**2 if c and c not in exempt else 0
+                def conflict_cost():return sum(40 for i,j in conflicts if colors[i] and colors[j])
+                score=sum(deficit(i) for i in range(len(points)))+conflict_cost()
+                for step in range(24000):
                     if score==0:
-                        return [{'tx':p[2],'tz':p[3],'x':p[4],'z':p[5],'crop':c or False} for p,c in zip(points,colors)],shape,width,height
+                        return [{'tx':p[2],'tz':p[3],'x':p[4],'z':p[5],'crop':crops[c] or False} for p,c in zip(points,colors)],shape,width,height
                     tile=rng.randrange(tiles);i=tile*len(offsets)+rng.randrange(len(offsets));j=tile*len(offsets)+rng.randrange(len(offsets))
-                    if colors[i]==colors[j]:continue
-                    colors[i],colors[j]=colors[j],colors[i]
-                    nxt=cost(colors);temperature=max(.08,1.8*(1-step/18000))
+                    a,b=colors[i],colors[j]
+                    if a==b:continue
+                    affected=set(neighbors[i])|set(neighbors[j])
+                    before=sum(deficit(k) for k in affected)+conflict_cost()
+                    for k in neighbors[i]:counts[k][a]-=1;counts[k][b]+=1
+                    for k in neighbors[j]:counts[k][b]-=1;counts[k][a]+=1
+                    colors[i],colors[j]=b,a
+                    nxt=score-before+sum(deficit(k) for k in affected)+conflict_cost()
+                    temperature=max(.08,1.8*(1-step/24000))
                     if nxt<=score or rng.random()<math.exp((score-nxt)/temperature):score=nxt
-                    else:colors[i],colors[j]=colors[j],colors[i]
+                    else:
+                        colors[i],colors[j]=a,b
+                        for k in neighbors[i]:counts[k][b]-=1;counts[k][a]+=1
+                        for k in neighbors[j]:counts[k][a]-=1;counts[k][b]+=1
     return None
 
 def lua(value):
@@ -134,7 +157,7 @@ def main():
                 else:entry['reference_only']='NO_VALID_LAYOUT'
             data[season].append(entry)
             print(entry['id'],entry.get('reference_only',entry.get('shape')),flush=True)
-    out=ROOT/'mod/AgeOfMachines/scripts/aom_giant_layouts.lua'
+    out=ROOT/'mod/Tractor/scripts/aom_giant_layouts.lua'
     out.write_text('-- 由 tools/generate_giant_layouts.py 生成；OR 已展开，false 为留空坑。\n-- 来源：https://kleiforums.com/forums/topic/126274-giant-crop-cheat-sheet/\nreturn '+lua(data)+'\n')
     print({s:{'catalog':len(v),'automatic':sum('slots'in e for e in v)} for s,v in data.items()})
 

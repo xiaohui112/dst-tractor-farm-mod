@@ -29,7 +29,7 @@ def main():
         # Mod Tools atlasing step fail with "'int' object is not subscriptable".
         subprocess.run(['magick','-size','256x256','xc:none',
                         'PNG32:'+str(OUT/part/'empty.png')],check=True)
-    root=ET.Element('spriter_data',{'scml_version':'1.0','generator':'AgeOfMachines Driver Export','generator_version':'1'})
+    root=ET.Element('spriter_data',{'scml_version':'1.0','generator':'Tractor Driver Export','generator_version':'1'})
     parts=['aom_cabin_back','aom_cabin_front','aom_driver_attachment_rear','aom_driver_attachment_front']
     for folder_id,part in enumerate(parts):
         folder=ET.SubElement(root,'folder',id=str(folder_id),name=part)

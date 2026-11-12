@@ -7,7 +7,7 @@
 
 做法：先按 Windows 收集脚本的同一套标准校验压缩包（ZIP CRC、BILD/ANIM/KTEX
 签名、bank/build 名称、原版骑乘所需动画），全部通过后才写入
-mod/AgeOfMachines/anim/aom_tractor_driver.zip、启用清单和构建报告。
+mod/Tractor/anim/aom_tractor_driver.zip、启用清单和构建报告。
 校验不通过时不动任何现有文件。
 """
 import argparse
@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from driver_animation import BANK, build_symbols, name_hash, parse_anim  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-MOD = ROOT / 'mod' / 'AgeOfMachines'
+MOD = ROOT / 'mod' / 'Tractor'
 REQUIRED_ANIMATIONS = {'mount', 'dismount', 'idle_loop', 'run_pre', 'run_loop', 'run_pst'}
 REQUIRED_ENTRIES = ('anim/aom_tractor_driver.zip',
                     'scripts/aom_driver_visual_bank.lua',

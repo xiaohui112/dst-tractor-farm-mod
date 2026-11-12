@@ -1,9 +1,9 @@
-﻿# 把 mod/AgeOfMachines 安装到《饥荒联机版》的 mods 目录，并逐文件校验 SHA-256。
+﻿# 把 mod/Tractor 安装到《饥荒联机版》的 mods 目录，并逐文件校验 SHA-256。
 # 用法： powershell -ExecutionPolicy Bypass -File tools/install_to_game.ps1
 #        powershell -ExecutionPolicy Bypass -File tools/install_to_game.ps1 -GameRoot "D:\SteamLibrary\steamapps\common\Don't Starve Together"
 param(
     [string]$GameRoot = '',
-    [string]$Source = (Join-Path $PSScriptRoot '..\mod\AgeOfMachines')
+    [string]$Source = (Join-Path $PSScriptRoot '..\mod\Tractor')
 )
 $ErrorActionPreference = 'Stop'
 
@@ -39,7 +39,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $GameRoot 'data'))) {
     throw "这不是完整的游戏根目录（缺少 data）：$GameRoot"
 }
 $mods = (New-Item -ItemType Directory -Path (Join-Path $GameRoot 'mods') -Force).FullName
-$target = Join-Path $mods 'AgeOfMachines'
+$target = Join-Path $mods 'Tractor'
 if (Test-Path -LiteralPath $target) {
     Remove-Item -LiteralPath $target -Recurse -Force
 }
@@ -65,4 +65,4 @@ if (Test-Path -LiteralPath $driver) {
 } else {
     Write-Host '驾驶室动画未包含，人物保持原版骑乘显示。'
 }
-Write-Host '进游戏 → Mods → 勾选「拖拉机（Tractor）」→ 已有存档需要重启世界；所有联机客户端使用同一版本。'
+Write-Host '进游戏 → Mods → 勾选「tractor」→ 已有存档需要重启世界；所有联机客户端使用同一版本。'

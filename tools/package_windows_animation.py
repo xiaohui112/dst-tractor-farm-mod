@@ -20,12 +20,12 @@ def main():
     if DEST.exists():
         # 该目录仅为本脚本生成的交付暂存区，不是用户游戏目录。
         shutil.rmtree(DEST)
-    mod = DEST / 'AgeOfMachines'
-    shutil.copytree(ROOT / 'mod/AgeOfMachines', mod, ignore=shutil.ignore_patterns('.*', '__pycache__'))
+    mod = DEST / 'Tractor'
+    shutil.copytree(ROOT / 'mod/Tractor', mod, ignore=shutil.ignore_patterns('.*', '__pycache__'))
     for name in COMPILED:
         # 编译产物不随工程包分发：本包的目的就是在 Windows 上重新编译这些动画。
         (mod / 'anim' / (name + '.zip')).unlink(missing_ok=True)
-    report = {'source_root': 'AgeOfMachines/exported', 'projects': [], 'files': []}
+    report = {'source_root': 'Tractor/exported', 'projects': [], 'files': []}
     for name in NAMES:
         source = ART / 'anim' / name
         scml = source / (name + '.scml')
@@ -66,7 +66,7 @@ def main():
         for file in files:
             assert archive.read(file.relative_to(DEST).as_posix()) == file.read_bytes()
         for name in NAMES:
-            assert 'AgeOfMachines/anim/'+name+'.zip' not in archive.namelist()
+            assert 'Tractor/anim/'+name+'.zip' not in archive.namelist()
     print(f'已生成 {ARCHIVE.name}：{len(files)} 个文件，{ARCHIVE.stat().st_size:,} 字节')
     print('源工程：3 个 SCML + 18 个所引用的 PNG，逐一检查尺寸、路径和 SHA-256。')
     print('已包含当前 Mod 和真实音乐；未包含占位动画或无关分帧导出。')

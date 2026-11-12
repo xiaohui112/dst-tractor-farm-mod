@@ -16,8 +16,8 @@ ARCHIVE=ROOT/'AgeOfMachines-Windows-Driver-Kit.zip'
 def main():
     if DEST.exists():
         shutil.rmtree(DEST)
-    mod=DEST/'AgeOfMachines'
-    shutil.copytree(ROOT/'mod/AgeOfMachines',mod,ignore=shutil.ignore_patterns('.*','__pycache__'))
+    mod=DEST/'Tractor'
+    shutil.copytree(ROOT/'mod/Tractor',mod,ignore=shutil.ignore_patterns('.*','__pycache__'))
     for name in ('aom_tractor_driver.zip','aom_tractor_cabin.zip'):
         (mod/'anim'/name).unlink(missing_ok=True)
     source=ROOT/'assets/driver/aom_tractor_cabin'
@@ -42,7 +42,7 @@ def main():
         (DEST/name).write_bytes(text.encode('utf-8-sig') if name.endswith('.txt') else text.encode('ascii'))
     shutil.copy2(ROOT/'tools/driver_animation.py',DEST/'driver_animation.py')
     shutil.copy2(ROOT/'assets/driver/seat-layout.json',DEST/'seat-layout.json')
-    pending=ROOT/'mod/AgeOfMachines/scripts/aom_driver_visual_bank.lua'
+    pending=ROOT/'mod/Tractor/scripts/aom_driver_visual_bank.lua'
     # 交付总是从未启用状态开始，只有成功合成了原版动作后才由 Windows 脚本启用。
     text='-- Pending Windows build.\nreturn { available=false, bank="aom_tractor_driver", build="aom_tractor_cabin" }\n'
     (DEST/'Driver-Pending.lua').write_text(text)
@@ -56,7 +56,7 @@ def main():
         for file in files:assert archive.read(file.relative_to(DEST).as_posix())==file.read_bytes()
         assert len(files)==len(archive.namelist())
         for name in ('aom_tractor_chassis','aom_attachment_shared','aom_attachment_symbols'):
-            assert 'AgeOfMachines/anim/'+name+'.zip' in archive.namelist()
+            assert 'Tractor/anim/'+name+'.zip' in archive.namelist()
     print('已生成 %s：%d 个文件，%.2f MiB，1 SCML + 8 PNG，保留三个已有世界动画。'%(ARCHIVE.name,len(files),ARCHIVE.stat().st_size/1024/1024))
 
 

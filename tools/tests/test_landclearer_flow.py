@@ -37,6 +37,48 @@ end
 assert(TRACE[1]=='tile' and last_roll<first_mound)
 ''')
 
+    def test_continuous_driving_prepares_next_tile_with_no_material_stock(self):
+        self.run_lua('''
+function inst:DoPeriodicTask(_,fn)return {fn=fn,Cancel=function(self)self.cancelled=true end}end
+Drive.SetWorking(inst,true);local task=inst._worktask
+task.fn(inst);assert(Farm.IsFieldReady(0,0,0) and inst._working)
+for i=1,10 do task.fn(inst)end
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==59)
+inst.x=8;task.fn(inst)
+assert(Farm.IsFieldReady(4,0,0) and Farm.IsFieldReady(8,0,0))
+assert(inst._working and inst._worktask==task and not task.cancelled)
+assert(inst._fuel:value()==797 and tool.components.finiteuses:GetUses()==57)
+Drive.SetWorking(inst,false);assert(task.cancelled and not inst._worktask)
+''')
+
+    def test_standard_grid_survives_native_neighbor_collapse_on_three_adjacent_tiles(self):
+        self.run_lua('''
+local native=dofile(REF..'/till_map.lua')
+function GetFarmTillSpacing()return 1.25 end
+TheWorld.Map.CollapseSoilAtPoint=native.CollapseSoilAtPoint
+local original_spawn=SpawnPrefab
+function SpawnPrefab(name)
+ local soil=original_spawn(name)
+ if name=='farm_soil' then
+  function soil:GetDistanceSqToPoint(x,y,z)return (self.x-x)^2+(self.z-z)^2 end
+  function soil:PushEvent(event)
+   if event=='breaksoil' then self:AddTag('NOBLOCK');self:AddTag('NOCLICK')
+   elseif event=='collapsesoil' then self:RemoveTag('soil') end
+  end
+ end
+ return soil
+end
+for x=0,8,4 do
+ assert(Drive.WorkTile(inst,x,0))
+ for done=0,x,4 do assert(Farm.IsFieldReady(done,0,0))end
+end
+assert(count_entities('farm_soil')==27)
+for _,soil in ipairs(ENTITIES)do
+ if soil.valid and soil.prefab=='farm_soil' then assert(not soil:HasTag('NOBLOCK') and not soil:HasTag('NOCLICK'))end
+end
+assert(not Drive.WorkTile(inst,0,0) and count_entities('farm_soil')==27)
+''')
+
     def test_native_loot_chance_is_not_replaced_by_guaranteed_drops(self):
         self.run_lua('''
 LUCK=false;TILES[tkey(0,0)]=0
@@ -206,28 +248,31 @@ assert(TILE_WRITES==0 and count_trace('debris')==0 and count_entities('farm_soil
 assert(tool.components.finiteuses:GetUses()==60 and inst._fuel:value()==800)
 ''')
 
-    def test_last_use_completes_tile_then_stops_and_repair_restores_tool(self):
+    def test_last_use_completes_tile_then_breaks_and_requires_new_tool(self):
         self.run_lua('''
 local uses=tool.components.finiteuses;uses:SetUses(1);inst._working=true
 local changed,reason=Drive.WorkTile(inst,0,0)
 assert(changed and reason=='BROKEN_ATTACHMENT' and not inst._working)
 assert(Farm.IsFieldReady(0,0,0) and uses:GetUses()==0 and tool:IsValid())
+assert(inst.components.container:GetItemInSlot(1)==nil and inst._attachment_type==nil)
 local fuel=inst._fuel:value()
 local changed2,why2=Drive.WorkTile(inst,4,0)
-assert(not changed2 and why2=='BROKEN_ATTACHMENT' and inst._fuel:value()==fuel)
-assert(require('aom_landclearer_tool').Repair(inst) and uses:GetUses()==10)
-assert(Drive.WorkTile(inst,4,0) and uses:GetUses()==9)
+assert(not changed2 and why2=='NO_ATTACHMENT' and inst._fuel:value()==fuel)
+assert(not require('aom_landclearer_tool').Repair(inst))
+tool=SpawnPrefab('aom_landclearer');inst.components.container.slots[1]=tool;inst._attachment_type='plow'
+assert(Drive.WorkTile(inst,4,0) and tool.components.finiteuses:GetUses()==59)
 ''')
 
     def test_legacy_prefab_restores_durability_and_uses_new_icon(self):
         self.run_lua('''
 local old=SpawnPrefab('aom_plow')
-assert(old.attachment_type=='plow' and old.components.inventoryitem.imagename=='aom_landclearer')
+assert(old.attachment_type=='plow' and old.components.inventoryitem==nil)
 old.components.finiteuses:Use(7)
 local save=old.components.finiteuses:OnSave()
 local loaded=SpawnPrefab('aom_plow');loaded.components.finiteuses:OnLoad(save)
 assert(old.prefab=='aom_plow' and loaded.prefab=='aom_plow')
 assert(loaded.components.finiteuses:GetUses()==53)
+old:Remove();loaded:AddTag('NOBLOCK')
 inst.components.container.slots[1]=loaded
 assert(Drive.WorkTile(inst,0,0) and loaded.components.finiteuses:GetUses()==52)
 ''')
@@ -276,8 +321,14 @@ assert(not ok and reason=='FOREIGN_CROP' and leftover.valid)
 assert(Drive.WorkTile(inst,0,0));set_flow_attachment(inst,'seeder');assert(Drive.WorkTile(inst,0,0))
 for _,v in ipairs(ENTITIES)do if v:HasTag('farm_plant') then v:Remove()end end
 local leftover=SpawnPrefab('farm_soil_debris');leftover.Transform:SetPosition(.3,0,.3)
-set_flow_attachment(inst,'plow');assert(Drive.WorkTile(inst,0,0))
+set_flow_attachment(inst,'plow')
+local changed,why=Drive.WorkTile(inst,0,0)
+assert(not changed and why=='COMPLETE' and leftover.valid)
+assert(Block.Preview(inst) and Block.Confirm(inst))
+assert(Drive.WorkTile(inst,0,0))
 assert(not leftover.valid and inst._block.done==0 and count_entities('farm_soil')==8)
+set_flow_attachment(inst,'seeder');assert(Drive.WorkTile(inst,0,0))
+assert(inst._block.done==8 and count_entities('farm_plant_eggplant')==4)
 ''')
 
 

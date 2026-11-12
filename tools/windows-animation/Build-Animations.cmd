@@ -1,7 +1,7 @@
 @echo off
 setlocal DisableDelayedExpansion
 cd /d "%~dp0"
-set "AOM_MOD=%~dp0AgeOfMachines"
+set "AOM_MOD=%~dp0Tractor"
 set "AOM_SCML=%~1"
 if not defined AOM_SCML if exist "%ProgramFiles(x86)%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" set "AOM_SCML=%ProgramFiles(x86)%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe"
 if not defined AOM_SCML if exist "%ProgramFiles%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe" set "AOM_SCML=%ProgramFiles%\Steam\steamapps\common\Don't Starve Mod Tools\mod_tools\scml.exe"
@@ -32,7 +32,7 @@ echo ERROR: scml.exe was not found. Install Don't Starve Mod Tools in Steam.
 echo Keep the whole tool folder. Do not copy scml.exe alone.
 goto failed
 :missing_mod
-echo ERROR: AgeOfMachines folder missing. Extract the complete ZIP first.
+echo ERROR: Tractor folder missing. Extract the complete ZIP first.
 goto failed
 :build_failed
 echo ERROR: Compilation failed. See the logs folder.

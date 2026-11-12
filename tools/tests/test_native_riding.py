@@ -11,8 +11,8 @@ class NativeRidingTests(unittest.TestCase):
         self.lua = LuaRuntime(unpack_returned_tuples=True)
         for name, value in {
             'REF': ROOT / 'tools/api-ref',
-            'MOD': ROOT / 'mod/AgeOfMachines',
-            'SCRIPTS': ROOT / 'mod/AgeOfMachines/scripts',
+            'MOD': ROOT / 'mod/Tractor',
+            'SCRIPTS': ROOT / 'mod/Tractor/scripts',
         }.items():
             self.lua.globals()[name] = str(value)
         self.lua.execute((ROOT / 'tools/tests/riding_engine.lua').read_text())
@@ -115,11 +115,12 @@ RPCS.AOM_TOGGLE_WORK(p);assert(not t._working)
         self.run_lua('''
 ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
 CLIENT_PLAYER=p;t._attachment_type='seeder';t._atttype_net:set('seeder')
+t.components.aom_attachment_store.GetSeedCount=function()return 10 end
 local attachment={prefab='aom_seeder',IsValid=function()return true end}
 t._attachment:set(attachment)
 local hud=HUD(p);hud:Refresh(t)
 assert(hud.workbutton==nil and hud.seedbutton.visible)
-assert(string.find(hud.lines[3].text,'F'))
+assert(string.find(hud.worklamp:GetTooltip(),'F'))
 press_f(p);release_f(p);hud:Refresh(t)
 assert(t._working and not p.attacks)
 hud.seedbutton.onclick();assert(t._seed_strategy=='RANDOM')
@@ -140,11 +141,77 @@ release_f(p);press_f(p);assert(not t._working and not p.attacks);release_f(p)
         """六种挂件都必须 F 开=F 关，不因挂件类型被区别对待。"""
         self.run_lua('''
 ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
+local store=t.components.aom_attachment_store
+store.GetSeedCount=function()return 100 end
+store.GetWater=function()return 40 end
+store.GetFertilizerCount=function()return 100 end
 for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester'}) do
     t._attachment_type=kind;t._atttype_net:set(kind);t._working=false
     press_f(p);release_f(p);assert(t._working,kind)
     press_f(p);release_f(p);assert(not t._working,kind)
 end
+''')
+
+    def test_all_six_attachments_keep_working_after_f_release_until_toggled_off(self):
+        # 验证真实按键、RPC、周期任务与跨格调度；农业效果由各配件流程测试覆盖。
+        self.run_lua('''
+assert(ACTIONS.MOUNT.fn({doer=p,target=t}));p.sg:GoToState('mounted_idle')
+local drive=require('aom_drive')
+TheWorld.Map={GetTileCenterPoint=function(_,x,y,z)return math.floor((x+2)/4)*4,0,math.floor((z+2)/4)*4 end}
+local store=t.components.aom_attachment_store
+store.GetSeedCount=function()return 100 end
+store.GetWater=function()return 40 end
+store.GetFertilizerCount=function()return 100 end
+for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester'})do
+ t._attachment_type=kind
+ local tool=CreateEntity();tool.attachment_type=kind;tool._aom_working=net(false)
+ tool.components.finiteuses={GetUses=function()return 100 end}
+ t._aom_attachment=tool;tool._aom_vehicle=tool._aom_vehicle or net(t);tool._aom_vehicle:set(t)
+ local calls={}
+ drive.WorkHere=function(_,x,z)
+  local key=x..':'..z
+  if calls[key] then return false,'NOTHING_TO_DO',true end
+  calls[key]=true;return true,nil,true
+ end
+ p.Transform:SetPosition(0,0,0)
+ press_f(p);release_f(p)
+ local task=t._worktask
+ assert(t._working and task)
+ task.fn(t);p.Transform:SetPosition(8,0,0);task.fn(t)
+ assert(calls['0:0'] and calls['4:0'] and calls['8:0'])
+ for i=1,10 do task.fn(t)end
+ assert(t._working and not task.cancelled and not p.attacks)
+ press_f(p);release_f(p)
+ assert(not t._working and task.cancelled and not t._worktask)
+end
+''')
+
+    def test_f_rejects_empty_materials_immediately_and_allows_refill_retry(self):
+        for kind, message, getter in (
+            ('seeder', '种子不足', 'GetSeedCount'),
+            ('irrigator', '水箱已空', 'GetWater'),
+            ('fertilizer', '肥料不足', 'GetFertilizerCount'),
+        ):
+            with self.subTest(attachment=kind):
+                self.setUp()
+                self.lua.globals().kind = kind
+                self.lua.globals().message = message
+                self.lua.globals().getter = getter
+                self.run_lua('''
+assert(ACTIONS.MOUNT.fn({doer=p,target=t}));p.sg:GoToState('mounted_idle')
+t._attachment_type=kind
+local messages={}
+p.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+for i=1,2 do
+ press_f(p);release_f(p)
+ assert(not t._working and not t._worktask and not t._workstatus:value())
+ assert(#messages==i and string.find(messages[i],message))
+ assert(messages[i]==require('aom_work_status').Describe(t) and not p.attacks)
+end
+t.components.aom_attachment_store[getter]=function()return 10 end
+press_f(p);release_f(p)
+assert(t._working and t._worktask and require('aom_work_status').Describe(t)=='' and #messages==2)
+press_f(p);release_f(p);assert(not t._working and not t._worktask)
 ''')
 
     def test_f_keeps_vanilla_attack_on_foot_and_respects_input_focus(self):
@@ -191,7 +258,7 @@ assert(data.mount.data.fuel==400)
         self.run_lua('''
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}
 local tool=prefabs[1].fn()
-t.components.container.GetItemInSlot=function()return tool end
+t._aom_attachment=tool;tool._aom_vehicle=tool._aom_vehicle or net(t);tool._aom_vehicle:set(t)
 t:PushEvent('itemget')
 tool.components.finiteuses:SetUses(58)
 local remaining=3
@@ -204,7 +271,7 @@ assert(actions[1].fn({doer=p,target=t,invobject=flint}))
 assert(tool.components.finiteuses:GetUses()==60 and remaining==2)
 assert(not t:TryRepair(p,flint) and remaining==2)
 tool.components.finiteuses:SetUses(0)
-assert(t:TryRepair(p,flint) and tool.components.finiteuses:GetUses()==10 and remaining==1)
+assert(tool:IsValid() and not t:TryRepair(p,flint) and remaining==2)
 assert(not t._working)
 ''')
 
@@ -213,21 +280,21 @@ assert(not t._working)
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}
 local seeder
 for _,prefab in ipairs(prefabs)do if prefab.name=='aom_fertilizer' then seeder=prefab.fn()end end
-t.components.container.GetItemInSlot=function()return seeder end;t:PushEvent('itemget')
+t._aom_attachment=seeder;seeder._aom_vehicle=seeder._aom_vehicle or net(t);seeder._aom_vehicle:set(t);t:PushEvent('itemget')
 local flint={prefab='flint',components={},IsValid=function()return true end,
  Remove=function()error('must not consume flint')end,HasTag=function()return false end}
 local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==0 and not t:TryRepair(p,flint))
 ''')
 
-    def test_weeder_flint_repair_prompt_and_action_preserve_item_at_zero(self):
+    def test_weeder_flint_repairs_before_zero_and_cannot_restore_broken_item(self):
         self.run_lua('''
 local tool
 for _,prefab in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachments.lua')})do
  if prefab.name=='aom_weeder' then tool=prefab.fn()end
 end
-t.components.container.GetItemInSlot=function()return tool end;t:PushEvent('itemget')
-tool.components.finiteuses:SetUses(0)
+t._aom_attachment=tool;tool._aom_vehicle=tool._aom_vehicle or net(t);tool._aom_vehicle:set(t);t:PushEvent('itemget')
+tool.components.finiteuses:SetUses(1)
 assert(tool:IsValid())
 local remaining=3
 local flint={prefab='flint',components={},IsValid=function()return true end}
@@ -236,10 +303,12 @@ flint.components.stackable={StackSize=function()return remaining end,
 local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==1 and actions[1].id=='AOM_REPAIR')
 assert(actions[1].fn({doer=p,target=t,invobject=flint}))
-assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
+assert(tool.components.finiteuses:GetUses()==11 and remaining==2)
 tool.components.finiteuses:SetUses(49)
 assert(t:TryRepair(p,flint) and tool.components.finiteuses:GetUses()==50 and remaining==1)
 assert(not t:TryRepair(p,flint) and remaining==1)
+tool.components.finiteuses:SetUses(0)
+assert(tool:IsValid() and not t:TryRepair(p,flint) and remaining==1)
 ''')
 
     def test_water_load_prompt_action_sync_and_hud(self):
@@ -247,14 +316,14 @@ assert(not t:TryRepair(p,flint) and remaining==1)
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}
 local tank
 for _,prefab in ipairs(prefabs)do if prefab.name=='aom_irrigator' then tank=prefab.fn();tank.prefab=prefab.name end end
-t.components.container.GetItemInSlot=function()return tank end;t:PushEvent('itemget')
+t._aom_attachment=tank;tank._aom_vehicle=tank._aom_vehicle or net(t);tank._aom_vehicle:set(t);t:PushEvent('itemget')
 local can=CreateEntity();can.prefab='wateringcan';can:AddComponent('finiteuses');can.components.finiteuses:SetUses(15)
 can.components.fillable={}
 local actions={};SCENE_HOOKS.inventoryitem(can,p,t,actions,true)
 assert(#actions==1 and actions[1].id=='AOM_LOAD')
 assert(actions[1].fn({doer=p,target=t,invobject=can}))
 assert(t._water_net:value()==15 and t._watermax_net:value()==40 and can.components.finiteuses:GetUses()==0)
-local hud=HUD(p);hud:Refresh(t);assert(string.find(hud.lines[4].text,'15/40'))
+local hud=HUD(p);hud:Refresh(t);assert(string.find(hud.resource_num:GetString(),'15/40'))
 tank.components.finiteuses:Use(1);assert(t._water_net:value()==14)
 SCENE_HOOKS.inventoryitem(can,p,t,{},false)
 local wrong=CreateEntity();wrong.prefab='other';wrong.components.fillable={};wrong:AddComponent('finiteuses')
@@ -268,8 +337,8 @@ local tool
 for _,prefab in ipairs({dofile(SCRIPTS..'/prefabs/aom_attachments.lua')})do
  if prefab.name=='aom_harvester' then tool=prefab.fn()end
 end
-t.components.container.GetItemInSlot=function()return tool end;t:PushEvent('itemget')
-tool.components.finiteuses:SetUses(0)
+t._aom_attachment=tool;tool._aom_vehicle=tool._aom_vehicle or net(t);tool._aom_vehicle:set(t);t:PushEvent('itemget')
+tool.components.finiteuses:SetUses(1)
 assert(tool:IsValid())
 local remaining=3
 local flint={prefab='flint',components={},IsValid=function()return true end}
@@ -278,7 +347,7 @@ flint.components.stackable={StackSize=function()return remaining end,
 local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==1 and actions[1].id=='AOM_REPAIR')
 assert(actions[1].fn({doer=p,target=t,invobject=flint}))
-assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
+assert(tool.components.finiteuses:GetUses()==11 and remaining==2)
 tool.components.finiteuses:SetUses(39)
 assert(t:TryRepair(p,flint) and tool.components.finiteuses:GetUses()==40 and remaining==1)
 assert(not t:TryRepair(p,flint) and remaining==1)
@@ -289,7 +358,7 @@ assert(not t:TryRepair(p,flint) and remaining==1)
 local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')};local create
 for _,prefab in ipairs(prefabs)do if prefab.name=='aom_irrigator' then create=prefab.fn end end
 local tank=create();local current=tank
-t.components.container.GetItemInSlot=function()return current end;t:PushEvent('itemget')
+t.GetAttachment=function()return current end;t:PushEvent('itemget')
 tank.components.finiteuses:SetUses(10);t:SetWorking(true)
 current=create();current.components.finiteuses:SetUses(3);t:PushEvent('itemget')
 assert(not t._working and t._water_net:value()==3)
@@ -307,11 +376,11 @@ item.components.finiteuses:SetMaxUses(5);item.components.finiteuses:SetUses(5)
 item.components.fertilizer={nutrients={0,0,16}}
 local current=item
 t.components.container.numslots=9
-t.components.container.GetItemInSlot=function(_,slot)if slot==1 then return attachment elseif slot==2 then return current end end
+t._aom_attachment=attachment;t.components.container.GetItemInSlot=function(_,slot)if slot==2 then return current end end
 t:PushEvent('itemget');assert(t._fertilizeruses_net:value()==5)
 local actions={};SCENE_HOOKS.inventoryitem(item,p,t,actions,true)
 assert(#actions==1 and actions[1].id=='AOM_LOAD')
-local hud=HUD(p);hud:Refresh(t);assert(string.find(hud.lines[4].text,'肥料剩余 5 次'))
+local hud=HUD(p);hud:Refresh(t);assert(string.find(hud.resource:GetTooltip(),'肥料剩余 5 次'))
 item.components.finiteuses:Use(1);assert(t._fertilizeruses_net:value()==4)
 current=nil;t:PushEvent('itemlose');assert(t._fertilizeruses_net:value()==0)
 item.components.finiteuses:Use(1);assert(t._fertilizeruses_net:value()==0)

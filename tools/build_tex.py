@@ -22,7 +22,7 @@ import xml.etree.ElementTree as ET
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD = os.path.join(ROOT, "mod", "AgeOfMachines")
+MOD = os.path.join(ROOT, "mod", "Tractor")
 IMG = os.path.join(MOD, "images")
 SRC = os.path.join(ROOT, "assets", "images")      # 源 PNG，不进 Mod 目录
 BUILD = os.path.join(ROOT, "outputs", "tex-build")  # 拼好的图集 PNG，不进 Mod 目录

@@ -13,6 +13,9 @@ Tractor —— 静态自检
     python3 tools/selfcheck.py
 """
 
+import argparse
+import json
+from pathlib import Path
 import glob
 import os
 import re
@@ -21,7 +24,7 @@ import struct
 from zipfile import ZipFile, BadZipFile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD = os.path.join(ROOT, "mod", "AgeOfMachines")
+MOD = os.path.join(ROOT, "mod", "Tractor")
 
 FAILS = []
 WARNS = []
@@ -48,7 +51,7 @@ def check_syntax():
     try:
         from lupa.lua51 import LuaRuntime
     except ImportError:
-        warn("未安装 lupa，跳过 Lua 语法检查（pip install --target /tmp/pylua lupa）")
+        fail("缺少必需依赖 lupa.lua51，不能执行 Lua 语法检查；请安装 requirements-dev.txt")
         return
     L = LuaRuntime()
     chk = L.eval("function(src,name) local f,e=loadstring(src,name) return f~=nil, e end")
@@ -212,7 +215,11 @@ def check_driver_assets():
         with ZipFile(os.path.join(MOD,"anim","aom_tractor_driver.zip")) as archive:
             if archive.testzip() is not None:
                 raise ValueError("驾驶动画 ZIP CRC 失败")
-            build,symbols=build_symbols(archive.read("build.bin"))
+            with ZipFile(os.path.join(MOD,"anim","aom_tractor_cabin.zip")) as shared:
+                build,symbols=build_symbols(shared.read("build.bin"))
+                atlases=[n for n in shared.namelist() if n.endswith(".tex")]
+                if not atlases or any(shared.read(n)[:4]!=b"KTEX" for n in atlases):
+                    raise ValueError("共享驾驶室图集缺失或无效")
             if build!="aom_tractor_cabin":
                 raise ValueError("驾驶室 build 名称不匹配")
             owned={"aom_cabin_back","aom_cabin_front","aom_driver_attachment_rear","aom_driver_attachment_front"}
@@ -228,11 +235,16 @@ def check_driver_assets():
             if len(set(keys))!=len(keys):
                 raise ValueError("驾驶动画包含重复动作/朝向")
             for name in required:
-                if not {5,48,192}.issubset({a["facing"] for a in bank["animations"] if a["name"]==name}):
-                    raise ValueError("驾驶动作六向不完整："+name)
-            atlases=[n for n in archive.namelist() if n.endswith(".tex")]
-            if not atlases or any(len(archive.read(n))<16 or archive.read(n)[:4]!=b"KTEX" for n in atlases):
-                raise ValueError("驾驶室图集缺失或无效")
+                if not {5,48,192,2,8}.issubset({a["facing"] for a in bank["animations"] if a["name"]==name}):
+                    raise ValueError("驾驶动作八向不完整："+name)
+            for filename,bankname in [("aom_tractor_driver_075.zip","aom_tractor_driver_075"),
+                                      ("aom_tractor_driver_125.zip","aom_tractor_driver_125"),
+                                      ("aom_tractor_driver_150.zip","aom_tractor_driver_150")]:
+                with ZipFile(os.path.join(MOD,"anim",filename)) as variant:
+                    if variant.testzip() is not None:raise ValueError("变体CRC错误："+filename)
+                    data=parse_anim(variant.read("anim.bin"))
+                    if {(a['name'],a['facing']) for a in data['animations']}!=set(keys):raise ValueError("变体动作/朝向缺失："+filename)
+                    if any(a['bank']!=name_hash(bankname) for a in data['animations']):raise ValueError("变体bank错误："+filename)
     except (OSError,KeyError,BadZipFile,ValueError) as exc:
         fail("已启用驾驶坐姿但资源未准备好："+str(exc))
 
@@ -409,6 +421,16 @@ def check_script_modules():
 def find_game_folder():
     """开发机装了游戏时，直接用游戏脚本核对 require / 类路径；找不到就跳过。"""
     candidates = [os.environ.get("DST_GAME")]
+    steam_roots = [Path.home()/"Library/Application Support/Steam",
+                   Path.home()/".steam/steam",Path.home()/".local/share/Steam"]
+    for steam_root in steam_roots:
+        libraries=[steam_root]
+        vdf=steam_root/"steamapps/libraryfolders.vdf"
+        if vdf.is_file():
+            libraries += [Path(p.replace("\\\\","\\")) for p in re.findall(r'"path"\s+"([^"]+)"',vdf.read_text())]
+        for library in libraries:
+            root=library/"steamapps/common/Don't Starve Together"
+            candidates.extend([str(root),str(root/"dontstarve_steam.app/Contents")])
     try:
         import winreg
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as key:
@@ -651,50 +673,51 @@ def check_giant_farming():
     try:
         from lupa.lua51 import LuaRuntime
     except ImportError:
-        warn("缺少 lupa.lua51，跳过巨大化行为回归检查")
+        fail("缺少必需依赖 lupa.lua51，不能执行行为回归")
         return
     import io
     import unittest
     suite = unittest.defaultTestLoader.discover(os.path.join(ROOT, "tools", "tests"))
     stream = io.StringIO()
-    result = unittest.TextTestRunner(stream=stream).run(suite)
+    result = unittest.TextTestRunner(stream=stream,buffer=True).run(suite)
     if not result.wasSuccessful() or result.testsRun == 0:
         fail("行为回归失败：\n" + stream.getvalue())
+    elif result.skipped:
+        warn("行为回归跳过 %d 项：%s" % (len(result.skipped), "; ".join(str(t)+": "+why for t,why in result.skipped)))
     else:
         print("行为回归：%d 项通过（Lua 5.1）" % result.testsRun)
+    return {"run":result.testsRun,"failures":len(result.failures),"errors":len(result.errors),"skipped":len(result.skipped)}
 
 
-def main():
-    check_syntax()
-    check_modinfo()
-    check_no_source_png()
-    check_assets()
-    check_animation_assets()
-    check_driver_assets()
-    check_music_assets()
-    check_common_module()
-    check_mod_environment()
-    check_script_modules()
-    check_game_paths()
-    check_game_globals()
-    check_recipe_ingredients()
-    check_cross_refs()
-    check_local_functions_defined()
-    check_bad_patterns()
-    check_giant_farming()
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--release',action='store_true',help='发布检查：警告或跳过也阻止打包')
+    parser.add_argument('--report',type=Path,default=Path(ROOT)/'outputs/selfcheck-validation.json')
+    args=parser.parse_args(argv)
+    FAILS.clear();WARNS.clear()
+    checks=[]
+    functions=[check_syntax,check_modinfo,check_no_source_png,check_assets,check_animation_assets,
+               check_driver_assets,check_music_assets,check_common_module,check_mod_environment,
+               check_script_modules,check_game_paths,check_game_globals,check_recipe_ingredients,
+               check_cross_refs,check_local_functions_defined,check_bad_patterns,check_giant_farming]
+    for fn in functions:
+        failures,warnings=len(FAILS),len(WARNS)
+        details=None
+        try:details=fn()
+        except Exception as exc:fail(fn.__name__+': '+str(exc))
+        checks.append({'name':fn.__name__,'status':'failed' if len(FAILS)>failures else 'warning' if len(WARNS)>warnings else 'passed',
+                       'details':details})
+    if args.release and WARNS:fail('发布检查要求所有必要检查执行且无跳过/警告')
+    report={'mode':'release' if args.release else 'development','success':not FAILS,
+            'game':find_game_folder(),'checks':checks,'failures':FAILS,'warnings':WARNS}
+    args.report.parent.mkdir(parents=True,exist_ok=True)
+    args.report.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+    print('='*60)
+    for w in WARNS:print('[警告]',w)
+    for f in FAILS:print('[失败]',f)
+    print('='*60)
+    print(('自检未通过' if FAILS else '自检通过')+'：%d 个失败，%d 个警告'%(len(FAILS),len(WARNS)))
+    return 1 if FAILS else 0
 
-    print("=" * 60)
-    for w in WARNS:
-        print("[警告]", w)
-    for f in FAILS:
-        print("[失败]", f)
-    print("=" * 60)
-    if FAILS:
-        print("自检未通过：%d 个失败，%d 个警告" % (len(FAILS), len(WARNS)))
-        return 1
-    print("自检通过：0 个失败，%d 个警告" % len(WARNS))
-    return 0
 
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__=='__main__':sys.exit(main())

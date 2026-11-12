@@ -1,14 +1,9 @@
-# 驾驶室源素材
+# 早期驾驶室源素材
 
-`tractor-views.png` 是基于现有红色拖拉机参考图生成的三视图，车窗为透明开口。由 `tools/make_driver_art.py` 裁分为前斜视、侧视、后斜视，并生成驾驶室内壁/座椅的 SVG 层、可编译 SCML 与座位参数。
+此目录保留三视图、座位锚点、SVG/SCML及Windows合成来源，供追溯原版人物时间线。它不是0.5.1当前五视图/八向/四档资源的独立构建规范。
 
-- `aom_tractor_cabin/aom_cabin_front/`：车身、车门、窗框、屋顶等前景遮挡，三帧。
-- `aom_tractor_cabin/aom_cabin_back/`：驾驶室内壁和座椅后景，三帧，保留 SVG 源文件。
-- 两个 `aom_driver_attachment_*` 符号：运行时覆盖为当前挂件，不硬画进车身。
-- `seat-layout.json`：每个视角的颈部定位点和人物矩阵缩放。坐标为 ANIM 的 Y 向下坐标，不是 SCML 的 Y 向上坐标。
+当前资源位于`assets/directional-v2`及`mod/Tractor/anim`：驾驶bank各自只有动画，驾驶室build与贴图共享；人物build和皮肤继续使用原版。构建入口及依赖见[资源与开发工具链](../../docs/04-资源与开发工具链.md)，人物显示逻辑见[aom_driver_visual](../../mod/Tractor/scripts/aom_driver_visual.lua)。
 
-三个方向组 `side/upside/downside` 与原版骑乘动画的朝向位相交，左右镜像由原版六向渲染处理。原版 `mount/dismount/idle_loop/run_*` 等动画的帧率、帧数、帧事件和人物相对动作保留。
+`tractor-views.png`和`aom_tractor_cabin`是旧三视图来源；`seat-layout.json`保存旧方向座位参数。修改后不能仅导入一个旧驾驶ZIP覆盖现行四档资源，应走当前构建及发布校验。
 
-角色贴图和皮肤不在本目录。Windows 合成器从用户安装的游戏读取 `player_mount*.zip` 中 `wilsonbeefalo` bank 的动画及牛 build 的符号列表，移除牛的图形，保留人物元素并套入车辆图层。不会修改游戏原文件，也不把角色外观固定为某个人物。
-
-当前源工程对应的Windows产物已导入并启用；构建记录见 `build/windows-2026-11-11/`。修改素材后仍需Windows重建。人物定位、复杂帽子的边缘、联机显示仍待DST实机验收。
+原详细说明保存在[历史快照](../../docs/history/2026-11-12-文档重整前/auxiliary/assets/driver/README.md)。人物皮肤、遮挡与联机仍需DST实机验收。

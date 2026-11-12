@@ -6,7 +6,7 @@ import shutil
 from music_bank import inspect_pair
 
 ROOT = Path(__file__).resolve().parents[1]
-MOD = ROOT / 'mod/AgeOfMachines'
+MOD = ROOT / 'mod/Tractor'
 EVENT = 'aom_irrigator_music/irrigator/lanhuacao'
 
 

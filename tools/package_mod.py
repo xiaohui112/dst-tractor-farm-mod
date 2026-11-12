@@ -11,9 +11,9 @@ import tempfile
 from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 ROOT=Path(__file__).resolve().parents[1]
-MOD=ROOT/'mod/AgeOfMachines'
-ARCHIVE=ROOT/'AgeOfMachines.zip'
-MANIFEST='AgeOfMachines/INSTALL-MANIFEST.json'
+MOD=ROOT/'mod/Tractor'
+ARCHIVE=ROOT/'Tractor.zip'
+MANIFEST='Tractor/INSTALL-MANIFEST.json'
 
 
 def source_files(source):
@@ -31,14 +31,14 @@ def verify_archive(source,archive):
         names=z.namelist()
         if len(names)!=len(set(names)) or z.testzip() is not None:
             raise ValueError('Duplicate archive entries or invalid ZIP CRC')
-        expected={'AgeOfMachines/'+name for name in files}|{MANIFEST}
+        expected={'Tractor/'+name for name in files}|{MANIFEST}
         if set(names)!=expected:
             raise ValueError('Archive file list differs from source')
         manifest=json.loads(z.read(MANIFEST))
         if set(manifest['files'])!=set(files):
             raise ValueError('Manifest file list differs from source')
         for name,p in files.items():
-            raw=z.read('AgeOfMachines/'+name)
+            raw=z.read('Tractor/'+name)
             digest=hashlib.sha256(raw).hexdigest()
             if raw!=p.read_bytes() or manifest['files'][name]!={'sha256':digest,'bytes':len(raw)}:
                 raise ValueError('Archive/source/manifest mismatch: '+name)
@@ -60,7 +60,7 @@ def build_archive(source,archive):
             for name,p in files.items():
                 raw=p.read_bytes()
                 manifest['files'][name]={'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}
-                write('AgeOfMachines/'+name,raw)
+                write('Tractor/'+name,raw)
             write(MANIFEST,(json.dumps(manifest,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode())
         verify_archive(source,temp)
         os.replace(temp,archive)
@@ -76,7 +76,7 @@ def main():
     if args.verify_only:
         manifest=verify_archive(MOD,ARCHIVE)
     else:
-        subprocess.run([sys.executable,str(ROOT/'tools/selfcheck.py')],cwd=ROOT,check=True)
+        subprocess.run([sys.executable,str(ROOT/'tools/selfcheck.py'),'--release'],cwd=ROOT,check=True)
         manifest=build_archive(MOD,ARCHIVE)
     report=ROOT/'outputs/install-validation.json'
     report.parent.mkdir(parents=True,exist_ok=True)
