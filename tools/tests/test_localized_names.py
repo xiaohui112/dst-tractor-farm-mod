@@ -66,9 +66,9 @@ STRINGS={NAMES={},RECIPE_DESC={}}
         self.assert_names(lua, 'zh')
 
     def test_mod_list_name_and_default_language(self):
-        for locale, expected in ((None, 'tractor'), ('zh', 'tractor'),
-                                 ('zhr', 'tractor'), ('zht', 'tractor'),
-                                 ('en', 'tractor'), ('', 'tractor')):
+        for locale, expected in ((None, 'Tractor'), ('zh', 'Tractor'),
+                                 ('zhr', 'Tractor'), ('zht', 'Tractor'),
+                                 ('en', 'Tractor'), ('', 'Tractor')):
             with self.subTest(locale=locale):
                 lua = LuaRuntime()
                 lua.globals().locale = locale

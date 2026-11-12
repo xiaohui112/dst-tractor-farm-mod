@@ -76,10 +76,18 @@ function M.Sync(inst)
     local uses=inst.components.finiteuses
     if inst._uses_net then inst._uses_net:set(uses and uses:GetUses() or 0) end
     local c=inst.components.container
-    if inst._cargo_used_net and c then
-        local used=0
-        for slot=1,c:GetNumSlots() do if c:GetItemInSlot(slot) then used=used+1 end end
-        inst._cargo_used_net:set(used)
+    if c and (inst._cargo_used_net or inst._cargo_count_net) then
+        local used,count=0,0
+        for slot=1,c:GetNumSlots() do
+            local cargo=c:GetItemInSlot(slot)
+            if cargo and cargo:IsValid() then
+                used=used+1
+                local stack=cargo.components.stackable
+                count=count+(stack and stack:StackSize() or 1)
+            end
+        end
+        if inst._cargo_used_net then inst._cargo_used_net:set(used) end
+        if inst._cargo_count_net then inst._cargo_count_net:set(count) end
     end
     local item=require("aom_attachment_mount").Get(inst)
     local max=item and TOOLS[item.attachment_type] or 0
@@ -90,10 +98,18 @@ function M.Sync(inst)
     if inst._seedcount_net then inst._seedcount_net:set(store and store:GetSeedCount() or 0) end
 end
 function M.WatchSeeds(inst)
-    for _,item in ipairs(inst._watched_seeds or {})do inst:RemoveEventCallback("stacksizechange",M.Sync,item)end
-    local store=inst.components.aom_attachment_store
-    inst._watched_seeds=store and store:ListSeeds() or {}
-    for _,item in ipairs(inst._watched_seeds)do inst:ListenForEvent("stacksizechange",M.Sync,item)end
+    -- 保留既有入口名；所有货物叠堆变化都会影响总件数，不只种子。
+    if not inst._cargo_stack_changed then inst._cargo_stack_changed=function()M.Sync(inst)end end
+    for _,item in ipairs(inst._watched_cargo or {})do inst:RemoveEventCallback("stacksizechange",inst._cargo_stack_changed,item)end
+    inst._watched_cargo={}
+    local c=inst.components.container
+    for slot=1,c and c:GetNumSlots() or 0 do
+        local item=c:GetItemInSlot(slot)
+        if item then
+            inst._watched_cargo[#inst._watched_cargo+1]=item
+            inst:ListenForEvent("stacksizechange",inst._cargo_stack_changed,item)
+        end
+    end
     M.Sync(inst)
 end
 return M

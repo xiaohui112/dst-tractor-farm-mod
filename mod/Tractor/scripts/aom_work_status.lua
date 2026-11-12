@@ -16,6 +16,7 @@ local PLAN_MESSAGES = {
     NO_FAMILY="实际坑位不满足同类距离，请换开垦机整理坑位",
 }
 local WORK_MESSAGES={
+    IVY_THREAT="附近有成熟刺针旋花，请先换除草机清理，再收割",
     NO_FUEL="燃料不足，请加油后按 F 继续作业",
     FAILED="本格作业未完成，请检查地块后按 F 重试",
     NO_ATTACHMENT="请先安装挂件",
@@ -43,7 +44,7 @@ local WORK_MESSAGES={
     WATER_FAILED="本格补水未能完成，已保留实际浇水进度，请检查后按 F 重试",
 }
 local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
-    irrigator="水箱已空：驾驶到池塘边，右键池塘补满，再按 F 继续",
+    irrigator="水箱已空：车尾靠近池塘，右键池塘补水5秒，再按 F 继续",
     fertilizer="肥料不足，请补充后按 F 继续作业"}
 WORK_MESSAGES.WORK_ERROR="作业回调异常，已保留实际进度并停工；检查日志后按 F 重试"
 WORK_MESSAGES.DETACH_BLOCKED="配件已损坏，附近无空地；驶到空地后右键卸载并维修"

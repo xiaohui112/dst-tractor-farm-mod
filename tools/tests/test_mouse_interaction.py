@@ -46,7 +46,12 @@ function pond:CollectActions(kind,doer,actions,right)
 end
 local click=picker:GetRightClickActions(Vector3(4,0,0),pond)[1]
 assert(click.action==ACTION_DEFS.AOM_POND_REFILL and click:Do())
-assert(t.components.aom_attachment_store:GetWater()==40 and player.components.rider:IsRiding())
+assert(t.components.aom_attachment_store:GetWater()==0 and t._refilling_net:value())
+assert(player.components.rider:IsRiding())
+local clock=GetTime;GetTime=function()return t._aom_pond_refill.started+5 end
+require('aom_pond_refill').Update(t);GetTime=clock
+assert(t.components.aom_attachment_store:GetWater()==400 and not t._refilling_net:value())
+assert(player.components.rider:IsRiding())
 ''')
 
     def test_other_targets_walking_and_other_mounts_keep_original_click_handlers(self):

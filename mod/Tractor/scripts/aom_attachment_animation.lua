@@ -55,7 +55,7 @@ local function GroundEffect(item)
     if fx then
         local x,_,z=item.Transform:GetWorldPosition()
         fx.Transform:SetPosition(x,0,z)
-        fx.Transform:SetRotation(item.Transform:GetRotation())
+        fx.Transform:SetRotation(Mount.Rotation(item))
     end
 end
 
@@ -78,8 +78,10 @@ function M.Success(vehicle,position)
     end
     local fx=Track(item,SpawnPrefab("aom_work_"..kind))
     if not fx then return end
-    fx.Transform:SetRotation(item.Transform:GetRotation())
+    fx.Transform:SetRotation(Mount.Rotation(item))
     if stream then
+        fx.AnimState:SetBank(kind=="irrigator" and "aom_attachment_water_mounted" or "aom_attachment_fx_mounted")
+        fx.AnimState:PlayAnimation(kind=="irrigator" and "spray" or "fertilizer",true)
         item._aom_stream=fx
         fx.entity:SetParent(item.entity)
         fx.Transform:SetPosition(0,0,0)

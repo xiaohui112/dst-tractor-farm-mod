@@ -10,10 +10,6 @@ local AOM = require("aom_common")
 local AOMDrive = require("aom_drive")
 local AOMBlock = require("aom_block_plan")
 local Profile = require("aom_work_profile")
-local LandClearer = require("aom_landclearer_tool")
-local Weeder = require("aom_weeder_tool")
-local Harvester = require("aom_harvester_tool")
-local Seeder = require("aom_seeder_tool")
 local Durability = require("aom_durability")
 local Irrigator = require("aom_irrigator")
 local DriverVisual = require("aom_driver_visual")
@@ -46,6 +42,7 @@ local prefabs =
 	"aom_weeder",
 	"aom_harvester",
 	"aom_exhaust_puff",
+    "aom_refill_hose",
 }
 
 -- 燃料：木炭
@@ -92,9 +89,11 @@ local function OnAttachmentChanged(inst)
 		inst._atttype_net:set(inst._attachment_type or "")
 	end
 	if previous~=item then
-        if previous then inst:RemoveEventCallback("percentusedchange",OnUsesChanged,previous) end
+        -- 外部事件的首参是配件而非车辆；闭包固定刷新所属车的仪表。
+        if not inst._attachment_uses_changed then inst._attachment_uses_changed=function()OnUsesChanged(inst)end end
+        if previous then inst:RemoveEventCallback("percentusedchange",inst._attachment_uses_changed,previous) end
         inst._watched_attachment=item
-        if item then inst:ListenForEvent("percentusedchange",OnUsesChanged,item) end
+        if item then inst:ListenForEvent("percentusedchange",inst._attachment_uses_changed,item) end
         AOMDrive.SetWorking(inst,false)
     end
     OnUsesChanged(inst)
@@ -169,14 +168,6 @@ local function TryRepair(inst, doer, item)
 		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
 		return true
 	end
-	if inst._destroyed or inst.components.health:IsDead() then return false end
-	-- 旧版手持入口兼容四类已挂配件；当前六种配件均在地面用燧石修理。
-	if item~=nil and item.prefab=="flint" then
-		if not (LandClearer.Repair(inst) or Seeder.Repair(inst) or Weeder.Repair(inst) or Harvester.Repair(inst)) then return false end
-		ConsumeOne(item)
-		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
-		return true
-	end
 	return false
 end
 
@@ -187,17 +178,17 @@ end
 local function OnSave(inst, data)
 	if data == nil then return end
 	data.fuel = GetFuel(inst)
-    local attachment=inst._aom_attachment
+    require("aom_pond_refill").Cancel(inst)
+    local attachment=Mount.Current(inst)
     if attachment and attachment:IsValid() then data.aom_attachment_record=attachment:GetSaveRecord() end
 	data.attachment_type = inst._attachment_type
 	data.seed_strategy = inst._seed_strategy
-	data.music_enabled=inst._music_enabled_net:value()
 	data.block = AOMBlock.OnSave(inst)
 end
 
 local function OnLoad(inst, data)
 	if data == nil then return end
-    inst._music_enabled_net:set(data.music_enabled~=false)
+    -- 音乐以当前Mod配置为准，不恢复旧车的独立开关。
     inst._aom_attachment_record=data.aom_attachment_record
 	if data.fuel ~= nil then
 		SetFuel(inst, data.fuel)
@@ -337,7 +328,7 @@ local function fn()
 	-- 空车不进入普通生物的索敌列表；承伤通过原版骑手伤害转移进入。
 	inst:AddTag("notarget")
 	inst:AddTag("peacefulmount")
-    inst.GetAttachment=function(self)return self._aom_attachment end
+    inst.GetAttachment=Mount.Current
 	DriverVisual.Attach(inst)
 	-- 原版 rideable 场景动作靠此标签显示 MOUNT；本体必须可点击。
 	inst:AddTag("rideable")
@@ -347,6 +338,9 @@ local function fn()
 	inst._water_net=net_float(inst.GUID,"aom_tractor_chassis.water","aomwaterdirty")
 	inst._watermax_net=net_float(inst.GUID,"aom_tractor_chassis.watermax","aomwaterdirty")
 	inst._cargo_used_net=net_float(inst.GUID,"aom_tractor_chassis.cargoused","aomcargodirty")
+    inst._refilling_net=net_bool(inst.GUID,"aom_tractor_chassis.refilling","aomrefilldirty")
+    inst._music_mode_net=net_string(inst.GUID,"aom_tractor_chassis.musicmode","aommusicdirty")
+    inst._cargo_count_net=net_float(inst.GUID,"aom_tractor_chassis.cargocount","aomcargodirty")
 	inst._music_enabled_net=net_bool(inst.GUID,"aom_tractor_chassis.musicenabled","aommusicdirty")
 	inst._music_available_net=net_bool(inst.GUID,"aom_tractor_chassis.musicavailable","aommusicdirty")
 	inst._health_net=net_float(inst.GUID,"aom_tractor_chassis.health","aomhealthdirty")
@@ -385,6 +379,7 @@ local function fn()
 	if not TheWorld.ismastersim then
 		return inst
 	end
+    inst._music_mode_net:set(require("aom_irrigator_music").mode)
 	inst._music_enabled_net:set(true)
 	inst._music_available_net:set(require("aom_irrigator_music").ready==true)
 

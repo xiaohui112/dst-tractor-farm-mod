@@ -27,6 +27,7 @@ function plant(x)
  e.components.farmplanttendable.ontendtofn=callbacks.ontendto
  return e
 end
+function mode(value)if t._music_mode_net:value()~=value then t._music_mode_net:set(value);t:PushEvent('aom_work_changed')end;return true end
 function start_music()press_f(player);release_f(player)end
 ''')
 
@@ -62,15 +63,15 @@ assert(not crop.components.farmplantstress.stressors.happiness and not crop:HasT
     def test_disabled_stopped_empty_unfueled_swapped_ghost_and_client_states_do_not_tend(self):
         self.run_lua('''
 local crop=plant(0)
-Music.ready=false;start_music();assert(crop.components.farmplanttendable.tendable)
-Music.ready=true
+mode('off');start_music();assert(crop.components.farmplanttendable.tendable)
+mode('on');crop.components.farmplantstress:SetStressed('happiness',true);crop.components.farmplanttendable:SetTendable(true)
 t._water_net:set(0);assert(Music.TendPlants(t)==0);t._water_net:set(40)
 t._fuel:set(0);assert(Music.TendPlants(t)==0);t._fuel:set(400)
 t._atttype_net:set('seeder');assert(Music.TendPlants(t)==0);t._atttype_net:set('irrigator')
 t._workstatus:set(false);assert(Music.TendPlants(t)==0);t._workstatus:set(true)
 player:AddTag('playerghost');assert(Music.TendPlants(t)==0);player:RemoveTag('playerghost')
 TheWorld.ismastersim=false;assert(Music.TendPlants(t)==0);TheWorld.ismastersim=true
-Music.Configure(false,MOD..'/',function()return true end,function()end)
+mode('off')
 assert(Music.TendPlants(t)==0 and crop.components.farmplantstress.stressors.happiness)
 ''')
 
@@ -83,31 +84,31 @@ assert(not crop.components.farmplantstress.stressors.happiness and t._working)
 
     def test_vehicle_switch_off_keeps_water_working_and_on_immediately_tends_new_stage(self):
         self.run_lua('''
-assert(Music.SetEnabled(t,false));local crop=plant(0);start_music()
+assert(mode('off'));local crop=plant(0);start_music()
 local task=t._worktask
 assert(t._working and crop.components.farmplanttendable.tendable)
 assert(Music.TendPlants(t)==0 and store:GetWater()==40)
-assert(Music.SetEnabled(t,true))
+assert(mode('on'))
 assert(not crop.components.farmplanttendable.tendable and not crop.components.farmplantstress.stressors.happiness)
 assert(t._working and t._worktask==task and store:GetWater()==40)
 crop.components.farmplanttendable:SetTendable(true)
-assert(Music.SetEnabled(t,true) and crop.components.farmplanttendable.tendable)
+assert(mode('on') and crop.components.farmplanttendable.tendable)
 assert(Music.TendPlants(t)==1)
 ''')
 
     def test_dedicated_server_honors_saved_off_switch_without_sound_hardware(self):
         self.run_lua('''
 TheNet.IsDedicated=function()return true end;player.SoundEmitter=nil
-assert(Music.SetEnabled(t,false))
+assert(mode('off'))
 local crop=plant(0);start_music()
 t._aom_music_tend_task.fn(t)
 assert(crop.components.farmplantstress.stressors.happiness and t._working)
-assert(Music.SetEnabled(t,true) and not crop.components.farmplantstress.stressors.happiness)
+assert(mode('on') and not crop.components.farmplantstress.stressors.happiness)
 ''')
 
     def test_audio_playback_failure_does_not_block_server_tending(self):
         self.run_lua('''
-Music.ready=false;start_music();Music.ready=true
+mode('off');start_music();mode('on')
 local crop=plant(0);AllPlayers={player}
 player.SoundEmitter={PlaySound=function()error('audio unavailable')end,KillSound=function()end}
 local controller=Music.New(player);controller:Update()

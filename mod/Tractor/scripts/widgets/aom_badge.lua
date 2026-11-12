@@ -11,24 +11,30 @@ local AOMBadge=Class(Button,function(self,owner,tint,health_icon)
     self.image:SetTint(1,1,1,0)
     self.scale_on_focus=false
     self.clickoffset=Vector3(0,0,0)
-    self.meter=self:AddChild(Badge(nil,owner,tint,health_icon and "status_health" or nil,nil,nil,true))
+    self.meter=self:AddChild(Badge(nil,owner,tint,health_icon and "status_health" or nil,nil,not health_icon,true))
+    -- 只规范自己的Badge；综合状态显示会给所有Badge缩放并额外添加数字底板。
+    self.meter:SetScale(1)
+    if not health_icon then self.meter.backing:GetAnimState():SetMultColour(.38,.36,.3,1) end
     self.meter.OnGainFocus=function()end
     self.meter.OnLoseFocus=function()end
     self.meter.num:Hide()
+    if self.meter.bg then self.meter.bg:Hide() end
+    if self.meter.maxnum then self.meter.maxnum:Hide() end
     if not health_icon then self.meter.circleframe:GetAnimState():Hide("icon") end
     self.icon=self.meter:AddChild(Image())
     self.icon:SetClickable(false)
     if health_icon then self.icon:Hide() end
     self.plate=self:AddChild(Image("images/ui.xml","button_small.tex"))
-    self.plate:ScaleToSize(48,18)
-    self.plate:SetPosition(0,-38,0)
+    -- button_small自带上下透明留边；补足高度，让可见纸面完整承托数字。
+    self.plate:ScaleToSize(58,32)
+    self.plate:SetPosition(0,-40,0)
     self.plate:SetClickable(false)
     self.text:MoveToFront()
     self:SetFont(NUMBERFONT)
-    self:SetTextSize(20)
+    self:SetTextSize(26)
     self:SetTextColour(1,1,1,1)
     self:SetTextFocusColour(1,.88,.5,1)
-    self.text:SetPosition(0,-38,0)
+    self.text:SetPosition(0,-40,0)
     self.text:SetClickable(false)
 end)
 function AOMBadge:SetIcon(atlas,texture)
@@ -41,6 +47,9 @@ end
 function AOMBadge:SetValue(value,max,tip,display,warning,empty)
     local percent=max>0 and math.clamp(value/max,0,1) or 0
     self.meter:SetPercent(percent,max)
+    self.meter.num:Hide()
+    if self.meter.bg then self.meter.bg:Hide() end
+    if self.meter.maxnum then self.meter.maxnum:Hide() end
     self:SetText(display or tostring(math.floor(value)))
     self:SetTooltip(tip)
     if empty then

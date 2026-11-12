@@ -143,7 +143,7 @@ t:SetWorking(true);Animation.Success(t)
 local fx=item._aom_stream;local oldtask=item._aom_effect_task;local timeout=fx._aom_timeout
 clock=.4;Animation.Success(t)
 assert(item._aom_stream==fx and effects(item)==1 and oldtask.cancelled and timeout.cancelled)
-assert(fx.parent==item and fx.x==0 and fx.y==0 and fx.z==0 and fx.rotation==0 and item.rotation==90)
+assert(fx.parent==item and fx.x==0 and fx.y==0 and fx.z==0 and fx.rotation==0 and Mount.Rotation(item)==90)
 local current=item._aom_effect_task;current.fn(item)
 assert(not fx:IsValid() and effects(item)==0 and current.cancelled)
 assert(t._working and item._aom_working:value())

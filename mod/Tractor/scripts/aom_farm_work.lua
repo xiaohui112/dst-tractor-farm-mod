@@ -9,6 +9,7 @@
 -- 返回值为 "ok" / nil, reason
 local AOMFarmWork = {}
 local Result=require("aom_work_result")
+local WeedDefense=require("aom_weed_defense")
 
 -- 原版杂草也带 farm_plant 标签；真正作物的组件/定义优先，兼容误加 weed 标签。
 local function IsFarmPlant(target)
@@ -438,25 +439,51 @@ function AOMFarmWork.Weed(x, y, z, doer, vehicle)
     local targets=FindWeedsAndDebris(x,y,z,FIELD_RADIUS)
     if #targets==0 then return false,"NOTHING_TO_DO",true end
     if doer==nil then return false,"NO_WORKER",false end
+    local points,seen,order={},{},{}
+    for i,v in ipairs(targets) do
+        local px,_,pz=v.Transform:GetWorldPosition()
+        points[#points+1]={x=px,z=pz};seen[v]=true;order[v]=i
+    end
+    for _,v in ipairs(WeedDefense.FindNearbyIvy(points)) do
+        if not seen[v] and IsDebris(v) then
+            targets[#targets+1]=v;seen[v]=true;order[v]=#targets
+        end
+    end
+    table.sort(targets,function(a,b)
+        local pa,pb=WeedDefense.Priority(a),WeedDefense.Priority(b)
+        return pa>pb or (pa==pb and order[a]<order[b])
+    end)
     -- 整批预检，遇到非 DIG 或不可工作的杂草时不先清理一部分。
     for _,v in ipairs(targets) do
         if not AOMFarmWork.IsClearableDebris(v) then return false,"UNCLEARABLE_WEED",false end
     end
     local changed=false
     for _,v in ipairs(targets) do
-        -- 前一株的原版/Mod回调可能改变后续实体，逐株重新保护作物及邻格。
-        if v:IsValid() and SameTile(v,x,z) and IsDebris(v) then
+        -- 普通杂草仍限本格；只有刺花可在原始目标10距离内跨格处理。
+        if v:IsValid() and IsDebris(v) and (SameTile(v,x,z)
+            or (v.prefab=="weed_ivy" and WeedDefense.NearWorkTargets(v,points))) then
             if not AOMFarmWork.IsClearableDebris(v) then return changed,"UNCLEARABLE_WEED",false end
+            if v.prefab~="weed_ivy" and WeedDefense.FindIvy(v,doer) then
+                return changed,"WEEDING_INCOMPLETE",false
+            end
             local w=v.components.workable
             local before=w:GetWorkLeft()
             local _,_,drops=Result.Observe(vehicle,function()return CaptureDrops(v,function()w:WorkedBy(doer,before)end)end, function()return not v:IsValid() or w:GetWorkLeft()<before end)
             if not v:IsValid() or w:GetWorkLeft()<before then changed=true end
             collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
             if not collected then return changed,why,false end
+            -- 刺花未清干净时不能继续普通除草，避免主动触发其护田反击。
+            if v:IsValid() and v.prefab=="weed_ivy" and IsDebris(v)
+                and WeedDefense.NearWorkTargets(v,points) then
+                return changed,"WEEDING_INCOMPLETE",false
+            end
         end
     end
     -- 调用不等于成功：工作量未减少不收费，部分完成/回调新生杂草均需暂停。
     if #FindWeedsAndDebris(x,y,z,FIELD_RADIUS)>0 then return changed,"WEEDING_INCOMPLETE",false end
+    for _,v in ipairs(WeedDefense.FindNearbyIvy(points)) do
+        if IsDebris(v) then return changed,"WEEDING_INCOMPLETE",false end
+    end
     return changed,nil,true
 end
 
@@ -533,9 +560,14 @@ function AOMFarmWork.Harvest(x, y, z, doer, vehicle)
     local targets=FindMaturePlants(x,y,z,FIELD_RADIUS)
     if #targets==0 and #FindOversizedProduce(x,y,z)==0 then return false,"NOTHING_TO_DO",true end
     if doer==nil then return false,"NO_WORKER",false end
+    -- 采摘会调用原版护田广播。先检查所有待采株，不能采了一半才发现危险。
+    for _,v in ipairs(targets) do
+        if WeedDefense.FindIvy(v,doer) then return false,"IVY_THREAT",false end
+    end
     local changed=false
     for _,v in ipairs(targets) do
         if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) then
+            if WeedDefense.FindIvy(v,doer) then return changed,"IVY_THREAT",false end
             local px,py,pz=v.Transform:GetWorldPosition()
             local p=v.components.pickable
             local _,loot,drops=Result.Observe(vehicle,function()return PickForCargo(p,doer,vehicle,px,py,pz)end, function()return not v:IsValid() or v.components.pickable~=p or not p:CanBePicked() end)

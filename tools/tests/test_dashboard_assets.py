@@ -15,6 +15,10 @@ class DashboardAssetTests(unittest.TestCase):
     def test_widget_reference_files_match_recorded_native_sources(self):
         for name,digest in CONTRACT['widget_sources'].items():
             self.assertEqual(hashlib.sha256((ROOT/'tools/api-ref'/('widget_'+name+'.lua')).read_bytes()).hexdigest(),digest,name)
+        for name,entry in CONTRACT['widget_methods'].items():
+            source=(ROOT/'tools/api-ref'/entry['reference']).read_text()
+            method=re.search(r'function Widget:'+name+r'\(\)\n.*?\nend',source,re.S).group()
+            self.assertEqual(hashlib.sha256(method.encode()).hexdigest(),entry['sha256'],name)
         main=(ROOT/'mod/Tractor/scripts/widgets/aom_hud.lua').read_text()
         badge=(ROOT/'mod/Tractor/scripts/widgets/aom_badge.lua').read_text()
         for atlas,texture in re.findall(r'Image\("([^"]+)","([^"]+)"\)',main+badge):
@@ -37,3 +41,7 @@ class DashboardAssetTests(unittest.TestCase):
         with ZipFile(game/'data/databundles/scripts.zip') as archive:
             for name,digest in CONTRACT['widget_sources'].items():
                 self.assertEqual(hashlib.sha256(archive.read('scripts/widgets/'+name+'.lua')).hexdigest(),digest,name)
+            for name,entry in CONTRACT['widget_methods'].items():
+                source=archive.read(entry['source']).decode()
+                method=re.search(r'function Widget:'+name+r'\(\)\n.*?\nend',source,re.S).group()
+                self.assertEqual(hashlib.sha256(method.encode()).hexdigest(),entry['sha256'],name)

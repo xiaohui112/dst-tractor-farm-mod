@@ -57,7 +57,7 @@ function CreateEntity()
  local e=original_create();GUID_COUNT=GUID_COUNT+1;e.GUID=GUID_COUNT;e.persists=true
  ENTITIES[#ENTITIES+1]=e
  e.StartUpdatingComponent=noop;e.StopUpdatingComponent=noop
- function e:GetDistanceSqToInst(other)return (self.x-other.x)^2+(self.z-other.z)^2 end
+ function e:GetDistanceSqToInst(other)local x,_,z=self.Transform:GetWorldPosition();local ox,_,oz=other.Transform:GetWorldPosition();return (x-ox)^2+(z-oz)^2 end
  function e:GetPhysicsRadius(default)return self.physics_radius or default or 0 end
  e.entity.SetCanSleep=noop;e.AnimState.SetLightOverride=noop
  e.AnimState.SetOrientation=function(_,orientation)e.orientation=orientation end
@@ -119,6 +119,7 @@ local function register(...)
 end
 register(dofile(SCRIPTS..'/prefabs/aom_tractor_chassis.lua'))
 register(dofile(SCRIPTS..'/prefabs/aom_attachments.lua'))
+register(dofile(SCRIPTS..'/prefabs/aom_refill_hose.lua'))
 function SpawnPrefab(name)
  local def=REGISTRY[name]
  local e=def and def.fn() or CreateEntity();e.prefab=name

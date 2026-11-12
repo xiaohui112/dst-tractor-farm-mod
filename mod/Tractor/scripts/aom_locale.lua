@@ -1,5 +1,13 @@
 -- 界面和反馈统一在显示时翻译，避免模块缓存固定语言。
 local EN={
+ ["附近有成熟刺针旋花，请先换除草机清理，再收割"]="Mature spiny bindweed nearby: clear it with the weeder before harvesting",
+ ["水箱已空：车尾靠近池塘，右键池塘补水5秒，再按 F 继续"]="Water tank empty: back up to a pond, right-click to refill for 5 seconds, then press F",
+ ["正在补水（5秒）；移动或下车中止"]="Refilling (5 seconds); move or dismount to cancel",
+ ["车尾靠近池塘，右键持续补水5秒"]="Back up to a pond; right-click to refill over 5 seconds",
+ ["机械耐久 %d/%d"]="Mechanical durability %d/%d",
+ ["水量 %d/%d"]="Water %d/%d",
+ ["物品总数 %d（含堆叠）"]="Total items %d (including stacks)",
+ ["左键：打开/关闭播种设置"]="Click: toggle seed settings",
  ["请先查看绿色配比预览，点击确认后按 F 开始"]="Review the green layout, click Confirm, then press F",
  ["%s；范围 %d×%d 格；方向 %d°"]="%s; area %dx%d tiles; rotation %d degrees",
  ["下一地块中心：%.1f，%.1f"]="Next tile center: %.1f, %.1f",

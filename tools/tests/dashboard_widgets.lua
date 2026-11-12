@@ -30,6 +30,7 @@ end
 local Widget=Class(function(self,name)
  self.name=name;self.visible=true;self.shown=true;self.enabled=true;self.children={};self.focus=false
  self.inst={entity={AddAnimState=noop},AnimState=animation(),IsValid=function()return true end,
+  UITransform={GetScale=function()return unpack(self.scale or {1,1,1})end},
   DoTaskInTime=function(_,delay,fn)return {Cancel=noop,fn=fn}end}
 end)
 function Widget:AddChild(child)self.children[child]=true;child.widget_parent=self;return child end
@@ -43,7 +44,8 @@ local function ui_vector(x,y,z)
 end
 function Widget:GetLocalPosition()return ui_vector(unpack(self.position or {0,0,0}))end
 function Widget:SetScale(x,y,z)self.scale={x,y or x,z or x}end
-function Widget:GetLooseScale()return Vector3(unpack(self.scale or {1,1,1}))end
+-- 执行原版方法摘录，避免桩把原版数值多返回值误写成Vector3而漏测崩溃。
+assert(loadfile(REF..'/widget_scale.lua'))(Widget)
 function Widget:SetTooltip(t)self.tooltip=t end
 function Widget:GetTooltip()return self.tooltip end
 function Widget:SetClickable(v)self.clickable=v end

@@ -7,7 +7,7 @@
 ]]
 
 local chinese = locale == nil or locale == "zh" or locale == "zhr" or locale == "zht"
-name = "tractor"
+name = "Tractor"
 description = chinese and [[
 	把原版农具装上拖拉机。
 
@@ -33,7 +33,7 @@ Mount original farming tools on a tractor.
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.5.1"
+version = "0.5.6"
 api_version = 10
 priority = 0
 
@@ -57,10 +57,11 @@ configuration_options =
         name = "IRRIGATOR_MUSIC",
         label = chinese and "洒水机音乐《兰花草》" or "Irrigator music: Orchid Grass",
         options = {
-            { description = chinese and "开启" or "On", data = true },
-            { description = chinese and "关闭" or "Off", data = false },
+            { description = chinese and "开启（播放并安抚）" or "On (audio and tending)", data = "on" },
+            { description = chinese and "关闭（无音乐、无安抚）" or "Off (no audio or tending)", data = "off" },
+            { description = chinese and "静音（仅安抚植物）" or "Muted (tending only)", data = "mute" },
         },
-        default = true,
+        default = "on",
     },
 	{
 		name = "MODEL_SCALE",

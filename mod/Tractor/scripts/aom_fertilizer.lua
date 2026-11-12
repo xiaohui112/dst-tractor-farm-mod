@@ -154,14 +154,17 @@ function M.Sync(inst)
 end
 
 function M.Watch(inst)
+    if not inst._fertilizer_changed then inst._fertilizer_changed=function()M.Sync(inst)end end
     for _,item in ipairs(inst._fertilizer_watched or {}) do
-        inst:RemoveEventCallback("percentusedchange",M.Sync,item)
+        inst:RemoveEventCallback("percentusedchange",inst._fertilizer_changed,item)
+        inst:RemoveEventCallback("stacksizechange",inst._fertilizer_changed,item)
     end
     inst._fertilizer_watched={}
     local store=inst.components.aom_attachment_store
     if store then
         for _,item in ipairs(store:ListFertilizers()) do
-            inst:ListenForEvent("percentusedchange",M.Sync,item)
+            inst:ListenForEvent("percentusedchange",inst._fertilizer_changed,item)
+            inst:ListenForEvent("stacksizechange",inst._fertilizer_changed,item)
             inst._fertilizer_watched[#inst._fertilizer_watched+1]=item
         end
     end

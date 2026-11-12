@@ -39,8 +39,8 @@ for i,name in ipairs({'gears','charcoal','rocks','flint','twigs','tomato_seeds'}
  assert(t.components.container:GiveItem(SpawnPrefab(name),i))
 end
 hud:Refresh(t)
-assert(#hud.order==5 and hud.lines==nil and hud.dismountbutton==nil and hud.detachbutton==nil)
-local expected={'450','850','400','38','6/9'}
+assert(#hud.order==6 and hud.lines==nil and hud.dismountbutton==nil and hud.detachbutton==nil)
+local expected={'450','850','400','6','38','20'}
 for i,key in ipairs(hud.order)do
  local badge=hud.badges[key]
  assert(badge.meter.name=='Badge' and badge:GetText()==expected[i])
@@ -49,8 +49,8 @@ for i,key in ipairs(hud.order)do
 end
 assert(hud.badges.health.meter.percent==.75 and hud.badges.fuel.meter.percent==.5)
 assert(hud.badges.tool.meter.percent==38/60 and t._cargo_used_net:value()==6)
-assert(hud.resource_num:GetString()=='20/40' and hud.resource_fill.render_size[1]==46)
-assert(not hud.seedbutton.visible and hud.musicbutton.visible and not hud.musicbutton.text.visible)
+assert(hud.badges.water:GetText()=='20' and hud.badges.water.meter.percent==.05)
+assert(not hud.seedbutton.visible and hud.musicbutton==nil and hud.strip==nil)
 assert(not hud.badges.cargo.meter.warningstarted)
 ''')
 
@@ -68,7 +68,7 @@ assert(not hud.visible and hud.tractor==nil and not player.components.rider:IsRi
 
     def test_seed_button_click_cycles_three_modes_stops_work_and_preserves_supplies(self):
         self.run_lua('''
-local seeder=attach('aom_seeder')
+local seeder=attach('aom_seeder');click(hud.badges.tool)
 local seeds=SpawnPrefab('tomato_seeds');seeds.components.stackable:SetStackSize(20)
 assert(t.components.container:GiveItem(seeds,1))
 for _,mode in ipairs({'RANDOM','GIANT','SEQUENTIAL','RANDOM'})do
@@ -77,102 +77,72 @@ for _,mode in ipairs({'RANDOM','GIANT','SEQUENTIAL','RANDOM'})do
  click(hud.seedbutton)
  assert(t._seed_strategy==mode and t._seedmode_net:value()==mode and not t._working)
  assert(t._fuel:value()==fuel and seeder.components.finiteuses:GetUses()==durability)
- assert(seeds.components.stackable:StackSize()==20 and hud.seedbutton.visible and not hud.musicbutton.visible)
+ assert(seeds.components.stackable:StackSize()==20 and hud.seedbutton.visible and hud.musicbutton==nil)
  assert(string.find(hud.seedbutton:GetTooltip(),'点击切换为',1,true))
 end
 local saved=clone(t:GetSaveRecord());t:Remove()
 local loaded=SpawnSaveRecord(saved);assert(loaded._seed_strategy=='RANDOM' and loaded._seedmode_net:value()=='RANDOM')
 ''')
 
-    def test_music_native_button_stops_audio_and_tending_but_keeps_irrigation_task_and_stock(self):
+    def test_music_configuration_modes_leave_work_and_resources_unchanged(self):
         self.run_lua('''
-t:SetWorking(true);hud:Refresh(t)
-AllPlayers={player};local controller=Music.New(player);controller:Update();assert(controller.playing)
-local task=t._worktask;local fuel=t._fuel:value();local durability=t.components.finiteuses:GetUses()
-click(hud.musicbutton);assert(not t._music_enabled_net:value() and not Music.IsActive(t))
-controller:Update();assert(not controller.playing and Music.TendPlants(t)==0)
-assert(t._working and t._worktask==task and t._fuel:value()==fuel)
-assert(t.components.finiteuses:GetUses()==durability and t.components.aom_attachment_store:GetWater()==20)
-assert(hud.musicbutton.image_normal=='radiobutton_off.tex')
-click(hud.musicbutton);controller:Update()
-assert(controller.playing and t._music_enabled_net:value() and t._working and t._worktask==task)
+t:SetWorking(true);AllPlayers={player};local audio=Music.New(player)
+local task=t._worktask;local water=t.components.aom_attachment_store:GetWater()
+for _,mode in ipairs({'on','mute','off','on'})do
+ t._music_mode_net:set(mode);audio:Update()
+ assert(audio.playing==(mode=='on') and Music.IsActive(t)==(mode~='off'))
+ assert(t._working and t._worktask==task and t.components.aom_attachment_store:GetWater()==water)
+end
 ''')
 
-    def test_disabled_music_saves_per_vehicle_through_attachment_swap_load_and_driver_change(self):
+    def test_world_music_mode_overrides_old_saved_per_vehicle_switch(self):
         self.run_lua('''
-click(hud.musicbutton)
-local other=SpawnPrefab('aom_tractor_chassis');assert(other._music_enabled_net:value())
-attach('aom_weeder');attach('aom_irrigator');assert(not t._music_enabled_net:value())
-player.components.rider:ActualDismount()
-local second=make_player();assert(ACTIONS.MOUNT.fn({doer=second,target=t}))
-assert(not t._music_enabled_net:value())
-local saved=clone(t:GetSaveRecord());t:Remove()
+Music.mode='mute';local other=SpawnPrefab('aom_tractor_chassis')
+local saved=clone(other:GetSaveRecord());saved.data.music_enabled=false
 local loaded=SpawnSaveRecord(saved)
-assert(saved.data.music_enabled==false and not loaded._music_enabled_net:value())
-local legacy=SpawnSaveRecord({prefab='aom_tractor_chassis',data={fuel=200}})
-assert(legacy._music_enabled_net:value())
+assert(other._music_mode_net:value()=='mute' and loaded._music_mode_net:value()=='mute')
+assert(hud.musicbutton==nil and RPCS.AOM_MUSIC==nil)
 ''')
 
-    def test_rpc_rejects_invalid_types_walking_busy_ghost_and_wrong_attachment(self):
-        self.run_lua('''
-for _,v in ipairs({1,0,'false',{},'on'})do RPCS.AOM_MUSIC(player,v);assert(t._music_enabled_net:value())end
-RPCS.AOM_MUSIC(player,nil);assert(t._music_enabled_net:value())
-local other=make_player();RPCS.AOM_MUSIC(other,false);assert(t._music_enabled_net:value())
-player:AddTag('playerghost');RPCS.AOM_MUSIC(player,false);assert(t._music_enabled_net:value())
-player:RemoveTag('playerghost')
-player.sg:GoToState('mount');RPCS.AOM_MUSIC(player,false);assert(t._music_enabled_net:value())
-player.sg:GoToState('mounted_idle')
-attach('aom_seeder');RPCS.AOM_MUSIC(player,false);assert(t._music_enabled_net:value())
-attach('aom_irrigator');player.components.health:SetVal(0)
-RPCS.AOM_MUSIC(player,false);assert(t._music_enabled_net:value())
-''')
 
     def test_stale_hud_callbacks_after_dismount_or_vehicle_removal_send_no_requests(self):
         self.run_lua('''
 local requests=0;SendModRPCToServer=function()requests=requests+1 end
 player.components.rider:ActualDismount()
-hud.badges.cargo.onclick();hud.musicbutton.onclick();hud.seedbutton.onclick();assert(requests==0)
+hud.badges.cargo.onclick();hud.seedbutton.onclick();assert(requests==0)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
-t:Remove();hud.badges.cargo.onclick();hud.musicbutton.onclick();assert(requests==0)
+t:Remove();hud.badges.cargo.onclick();assert(requests==0)
 ''')
 
-    def test_server_disabled_music_is_grey_and_unavailable_without_affecting_watering(self):
-        self.run_lua('''
-t._music_available_net:set(false);hud:Refresh(t)
-assert(string.find(hud.musicbutton:GetTooltip(),'世界设置',1,true))
-click(hud.musicbutton);assert(t._music_enabled_net:value() and not Music.IsActive(t))
-RPCS.AOM_MUSIC(player,false);assert(t._music_enabled_net:value())
-t:SetWorking(true);assert(t._working and t.components.aom_attachment_store:GetWater()==20)
-''')
 
     def test_full_slot_count_is_not_full_warning_and_empty_cargo_does_not_warn(self):
         self.run_lua('''
 hud:Refresh(t);assert(not hud.badges.cargo.meter.warningstarted)
 for i=1,9 do assert(t.components.container:GiveItem(SpawnPrefab('gears'),i))end
-hud:Refresh(t);assert(hud.badges.cargo:GetText()=='9/9' and not hud.badges.cargo.meter.warningstarted)
+hud:Refresh(t);assert(hud.badges.cargo:GetText()=='9' and not hud.badges.cargo.meter.warningstarted)
 assert(string.find(hud.badges.cargo:GetTooltip(),'仍可叠堆',1,true))
 require('aom_drive').StopForReason(t,'CARGO_FULL');hud:Refresh(t)
-assert(hud.badges.cargo.meter.warningstarted and hud.worklamp.tint[1]==1)
+assert(hud.badges.cargo.meter.warningstarted and string.find(hud.badges.tool:GetTooltip(),'仓库已满',1,true))
 t.components.container:RemoveItemBySlot(1):Remove();assert(t._cargo_used_net:value()==8)
 ''')
 
     def test_refresh_does_not_cancel_pressed_buttons_or_reset_hover(self):
         self.run_lua('''
-local button=hud.musicbutton;button:OnGainFocus()
+local button=hud.badges.cargo;button:OnGainFocus()
 assert(button:OnControl(CONTROL_PRIMARY,true) and button.down)
 local hide_count=button.hide_count
 for i=1,20 do hud:Refresh(t);assert(button.down and button.focus and button.hide_count==hide_count)end
-assert(button:OnControl(CONTROL_PRIMARY,false));assert(not t._music_enabled_net:value())
+assert(button:OnControl(CONTROL_PRIMARY,false));assert(t.components.container:IsOpenedBy(player))
 ''')
 
     def test_client_only_netvars_cover_six_tools_and_match_native_status_scale(self):
         self.run_lua('''
 local old=t.components;t.components={}
-player.HUD={controls={status={GetLooseScale=function()return Vector3(1.8,1.8,1.8)end}}}
+player.HUD={controls={status={GetLooseScale=function()return 1.8,1.8,1.8 end}}}
 for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester',''})do
  t._atttype_net:set(kind);hud:Refresh(t)
  for _,key in ipairs(hud.order)do assert(hud.badges[key].scale[1]==1.8)end
- assert(hud.seedbutton.visible==(kind=='seeder') and hud.musicbutton.visible==(kind=='irrigator'))
+ assert(hud.seedbutton.visible==(kind=='seeder') and hud.badges.water:IsVisible()==(kind=='irrigator'))
 end
 t.components=old
 ''')
@@ -181,10 +151,45 @@ t.components=old
         self.run_lua('''
 require('aom_common').SetLanguage('en')
 t:DetachAttachment(nil);hud:Refresh(t)
-assert(hud.badges.tool:GetText()=='—' and hud.badges.tool:GetTooltip()=='No attachment')
+assert(hud.badges.tool:GetText()=='—' and string.find(hud.badges.tool:GetTooltip(),'No attachment',1,true)==1)
 assert(string.find(hud.badges.cargo:GetTooltip(),'Cargo:',1,true))
-assert(string.find(hud.worklamp:GetTooltip(),'F to start',1,true))
-assert(not hud.resource.visible and not hud.seedbutton.visible and not hud.musicbutton.visible)
+assert(string.find(hud.badges.tool:GetTooltip(),'F to start',1,true))
+assert(hud.resource==nil and not hud.seedbutton.visible and hud.musicbutton==nil)
+''')
+
+    def test_native_numeric_scale_is_safe_during_hud_construction_and_refresh(self):
+        self.run_lua('''
+local status=require('widgets/widget')('StatusDisplays');status:SetScale(1.8,1.6,1.4)
+local x,y,z=status:GetLooseScale();assert(x==1.8 and y==1.6 and z==1.4)
+player.HUD={controls={status=status}}
+local fresh=HUD(player) -- 实机是在进入世界、尚未挂载仪表前构造时崩溃。
+assert(not fresh.visible)
+for i,key in ipairs(fresh.order)do
+ assert(fresh.badges[key].scale[1]==1.8)
+ assert(fresh.badges[key].position[1]==(i-3)*78*1.8)
+end
+status:SetScale(1.2);fresh:Refresh(t)
+for _,key in ipairs(fresh.order)do assert(fresh.badges[key].scale[1]==1.2)end
+''')
+
+    def test_vector_status_override_still_matches_dial_scale(self):
+        self.run_lua('''
+player.HUD={controls={status={GetLooseScale=function()return Vector3(1.7,1.7,1.7)end}}}
+local fresh=HUD(player);fresh:Refresh(t)
+for _,key in ipairs(fresh.order)do assert(fresh.badges[key].scale[1]==1.7)end
+''')
+
+    def test_missing_or_invalid_status_scale_uses_safe_default(self):
+        self.run_lua('''
+for _,value in ipairs({false,0,-1,math.huge,0/0,'1.8',{},Vector3(0,1,1)})do
+ player.HUD={controls={status={GetLooseScale=function()return value end}}}
+ local fresh=HUD(player);fresh:Refresh(t)
+ for _,key in ipairs(fresh.order)do assert(fresh.badges[key].scale[1]==1.4)end
+end
+for _,ownerhud in ipairs({{}, {controls={}}, {controls={status={}}}})do
+ player.HUD=ownerhud;local fresh=HUD(player);fresh:Refresh(t)
+ for _,key in ipairs(fresh.order)do assert(fresh.badges[key].scale[1]==1.4)end
+end
 ''')
 
 

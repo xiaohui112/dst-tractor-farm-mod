@@ -323,20 +323,17 @@ function AOMDrive.TrackMovement(inst)
             if not inst._working then return end
         end
     end
-    if moved and inst._plough_loaded and inst._attachment_type==AOM.TYPE.PLOW then
+    if moved then
         inst._smoke_elapsed=(inst._smoke_elapsed or 0)+Profile.SAMPLE_INTERVAL
         if inst._smoke_elapsed>=.3 then
             inst._smoke_elapsed=0
-            local puff=SpawnPrefab("aom_exhaust_puff")
-            if puff then
-                local angle=inst._rider.Transform:GetRotation()*math.pi/180
-                puff.Transform:SetPosition(x+.45*math.cos(angle),1.4,z-.45*math.sin(angle))
-            end
+            require("aom_vehicle_motion").EmitExhaust(inst)
         end
     else inst._smoke_elapsed=0 end
 end
 
 function AOMDrive.SetWorking(inst, on)
+    if on and inst._aom_pond_refill then return end
     inst._working=on and true or false
     inst._workstatus:set(inst._working)
     if inst._worktask then inst._worktask:Cancel();inst._worktask=nil end
@@ -453,6 +450,7 @@ function AOMDrive.OnMounted(inst, data)
 	local rider = data and data.rider or (inst.components.rideable and inst.components.rideable:GetRider())
 	inst._rider = rider
 	inst._rider_net:set(rider)
+	if inst.GetAttachment then require("aom_attachment_mount").UpdateVisual(inst:GetAttachment()) end
 	AOMDrive.SetWorking(inst,false)
 	inst._stop_driver_work=function()
         AOMDrive.SetWorking(inst,false)
@@ -469,6 +467,7 @@ function AOMDrive.OnMounted(inst, data)
 end
 
 function AOMDrive.OnDismounted(inst)
+    require("aom_pond_refill").Cancel(inst)
 	if inst.components.container and inst.components.container.Close and inst._rider then
 		inst.components.container:Close(inst._rider)
 	end
@@ -479,6 +478,7 @@ function AOMDrive.OnDismounted(inst)
 	inst._stop_driver_work=nil
 	inst._rider = nil
 	inst._rider_net:set(nil)
+	if inst.GetAttachment then require("aom_attachment_mount").UpdateVisual(inst:GetAttachment()) end
 	AOMDrive.SetWorking(inst, false)
 end
 
