@@ -80,6 +80,16 @@ class MountGeometryAssetTests(unittest.TestCase):
                     a=next(a for a in d['animations'] if a['bank']==name_hash('aom_attachment_mounted') and a['name']==kind and a['facing']==MASKS[i])
                     with Image.open(ART/'sprites'/kind/(view+'.png')) as im:w,h=im.size
                     x=(hitches[i][0]-.5)*w;y=(hitches[i][1]-1)*h
+                    # Rear implements are deliberately fully occluded in the
+                    # frontal mounted view. Ground art and all other views must
+                    # still contain their geometry; the front harvester stays visible.
+                    hidden=kind in {'plow','seeder','irrigator','fertilizer','weeder'} and MASKS[i]==8
+                    ground=next(v for v in d['animations'] if v['bank']==name_hash('aom_attachment_shared') and v['name']==kind and v['facing']==MASKS[i])
+                    self.assertTrue(ground['frames'][0]['elements'])
+                    if hidden:
+                        self.assertEqual(a['frames'][0]['elements'],[])
+                        continue
+                    self.assertTrue(a['frames'][0]['elements'])
                     e=a['frames'][0]['elements'][0];m=e['matrix']
                     actual=(m[0]*x+m[2]*y+m[4],m[1]*x+m[3]*y+m[5])
                     uv=LAYOUT['tractor']['front' if kind=='harvester' else 'rear'][i]
@@ -99,6 +109,12 @@ class MountGeometryAssetTests(unittest.TestCase):
                 if a['bank']!=name_hash(mounted):continue
                 original=originals[a['name'],a['facing']];self.assertEqual(len(a['frames']),len(original['frames']))
                 for f,o in zip(a['frames'],original['frames']):
+                    kind=kindfn(a['name'])
+                    hidden=kind in {'plow','seeder','irrigator','fertilizer','weeder'} and a['facing']==8
+                    self.assertTrue(o['elements'],(base,a['name'],a['facing']))
+                    if hidden:
+                        self.assertEqual(f['elements'],[],(base,a['name'],a['facing']))
+                        continue
                     self.assertEqual(len(f['elements']),len(o['elements']))
                     for e,oe in zip(f['elements'],o['elements']):
                         self.assertEqual(e['matrix'][:4],oe['matrix'][:4])

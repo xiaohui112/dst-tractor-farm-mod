@@ -11,6 +11,10 @@ LAYOUT=json.loads((SOURCE/'mount-layout.json').read_text())
 MASKS=[192,5,48,8,2]
 
 
+def occluded(kind,mask):
+    return kind in LAYOUT['hitches'] and kind!='harvester' and mask==8
+
+
 def point(kind,index,uv):
     with Image.open(SOURCE/'sprites'/kind/(LAYOUT['views'][index]+'.png')) as im:
         w,h=im.size
@@ -39,6 +43,11 @@ def mounted_bank(data,base,mounted,kind_for_animation):
         item=copy.deepcopy(a);item['bank']=name_hash(mounted)
         dx,dy=offset(kind,MASKS.index(a['facing']))
         for frame in item['frames']:
+            # 正面后挂件应完全被车身挡住；仅变更挂载bank，地面设备仍完整可见。
+            # 整帧隐藏也覆盖刀具、轮辐、肥料和水流等运动层，避免工作时穿出车头。
+            if occluded(kind,a['facing']):
+                frame['elements']=[]
+                continue
             for e in frame['elements']:
                 e['matrix'][4]+=dx;e['matrix'][5]+=dy
         result.append(item)

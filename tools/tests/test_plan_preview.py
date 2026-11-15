@@ -1,103 +1,84 @@
-"""服务端只读规划、确认/RPC权限和客户端预览生命周期。"""
+"""自动配比UI回归：移除规划确认入口，保留真实驾驶权限、三行信息及原图标操作。"""
 import unittest
 import test_dashboard as dashboard
 
-class PlanPreviewTests(unittest.TestCase):
+
+class AutomaticGiantUITests(unittest.TestCase):
     setUp=dashboard.DashboardTests.setUp
     run_lua=dashboard.DashboardTests.run_lua
 
-    def prepare(self):
+    def test_all_two_seed_modes_have_no_manual_planning_widgets_or_rpcs(self):
         self.run_lua('''
-attach('aom_seeder');t:CycleSeedStrategy(player);t:CycleSeedStrategy(player)
-assert(t._seed_strategy=='GIANT')
-for _,crop in ipairs({'tomato','potato'})do
- local seed=SpawnPrefab(crop..'_seeds');seed.components.stackable:SetStackSize(4)
- t.components.container:GiveItem(seed)
+attach('aom_seeder')
+for _,mode in ipairs({'SEQUENTIAL','GIANT'})do
+ t._seed_strategy=mode;t._seedmode_net:set(mode);hud:Refresh(t)
+ assert(hud.seedbutton==nil and hud.seedbackground==nil and hud.seedcontrols==nil)
+ assert(hud.planbutton==nil and hud.rotatebutton==nil and hud._plan_markers==nil)
 end
-hud:Refresh(t);click(hud.badges.tool)
+assert(RPCS.AOM_PLAN==nil and RPCS.AOM_PLAN_ROTATE==nil)
+assert(AOM_RPC.PLAN==nil and AOM_RPC.PLAN_ROTATE==nil)
 ''')
 
-    def test_preview_rotation_and_confirm_never_modify_soil_or_consume_resources(self):
-        self.prepare();self.run_lua('''
-local fuel=t._fuel:value();local uses=t.components.finiteuses:GetUses()
-local seeds=t.components.aom_attachment_store:GetSeedCount()
-click(hud.planbutton)
-assert(t._block and t._block.confirmed==false and t._workstate_net:value()=='PLAN_PENDING')
-assert(#hud._plan_markers==8 and hud.planbutton:GetText()=='确认' and hud.rotatebutton:IsVisible())
-for _,m in ipairs(hud._plan_markers)do
- assert(m:HasTag('FX') and m:HasTag('NOCLICK') and not m:HasTag('soil'))
- assert(not m.persists and not m.components.farmplantable and not m.components.inventoryitem)
+    def test_giant_f_starts_without_any_plan_preview_or_confirmation(self):
+        self.run_lua('''
+attach('aom_seeder');local seed=SpawnPrefab('tomato_seeds')
+seed.components.stackable:SetStackSize(20);assert(t.components.container:GiveItem(seed))
+t:CycleSeedStrategy(player)
+assert(t._seed_strategy=='GIANT' and t._block==nil)
+RPCS.AOM_TOGGLE_WORK(player)
+assert(t._working and t._worktask and t._workstate_net:value()~='PLAN_PENDING')
+''')
+
+    def test_real_prefab_rider_container_and_native_plant_action_sow_automatically(self):
+        self.run_lua('''
+attach('aom_seeder')
+TheWorld.Map.GetTileCoordsAtPoint=function(_,x,y,z)return center(x)/4,center(z)/4 end
+TheWorld.state={season='autumn'};TheWorld.components=TheWorld.components or {}
+TheWorld.components.farming_manager={GetTileNutrients=function()return 100,100,100 end}
+for _,kind in ipairs({'tomato','potato'})do
+ local seed=SpawnPrefab(kind..'_seeds');seed.components.stackable:SetStackSize(8)
+ assert(t.components.container:GiveItem(seed))
 end
-local old=hud._plan_markers;click(hud.rotatebutton)
-assert(t._block.rotation==1 and t._block.confirmed==false)
-for _,m in ipairs(old)do assert(not m:IsValid())end
-RPCS.AOM_TOGGLE_WORK(player);assert(not t._working and not t._block.confirmed)
-click(hud.planbutton);assert(t._block.confirmed and not hud.rotatebutton:IsVisible())
-assert(t._fuel:value()==fuel and t.components.finiteuses:GetUses()==uses)
-assert(t.components.aom_attachment_store:GetSeedCount()==seeds)
-for _,e in ipairs(ENTITIES)do assert(not (e:IsValid() and e.prefab=='farm_soil'))end
+for x=-1,1 do for z=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x*4/3,0,z*4/3)end end
+t:CycleSeedStrategy(player)
+local queue={};t.DoTaskInTime=function(_,_,fn)queue[#queue+1]=fn end
 RPCS.AOM_TOGGLE_WORK(player);assert(t._working)
+require('aom_drive').TrackMovement(t)
+local steps=0;while #queue>0 do steps=steps+1;assert(steps<20000);table.remove(queue,1)() end
+require('aom_drive').TrackMovement(t)
+local count=0
+for _,v in ipairs(ENTITIES)do if v:IsValid() and v:HasTag('farm_plant')then count=count+1 end end
+assert(count==8 and t._block.automatic and t._block.done==8 and t._working)
+assert(t.components.aom_attachment_store:GetSeedCount()==8 and t._fuel:value()==392)
+hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 392/400',1,true))
 ''')
 
-    def test_first_f_only_previews_and_stock_change_prevents_confirmation(self):
-        self.prepare();self.run_lua('''
-RPCS.AOM_TOGGLE_WORK(player);assert(not t._working and t._block.confirmed==false)
-local seed=t.components.container:GetItemInSlot(1)
-t.components.container:RemoveItem(seed,true)
-RPCS.AOM_PLAN(player)
-assert(t._block.confirmed==false and t._workstate_net:value()=='MISSING_SEEDS')
-''')
-
-    def test_pending_plan_roundtrip_and_markers_removed_on_mode_change_or_dismount(self):
-        self.prepare();self.run_lua('''
-click(hud.planbutton);local record=clone(t:GetSaveRecord())
-assert(record.data.block.version==3 and record.data.block.confirmed==false)
-local old=hud._plan_markers
-player.components.rider:ActualDismount();hud:Refresh(nil)
-for _,m in ipairs(old)do assert(not m:IsValid())end
-local restored=SpawnSaveRecord(record)
-assert(restored._block.confirmed==false)
-local block=require('aom_block_plan');assert(block.Decode(restored._plan_net:value()).confirmed==false)
-''')
-
-    def test_plan_rpc_rejects_non_driver_busy_and_other_attachments(self):
-        self.prepare();self.run_lua('''
-RPCS.AOM_PLAN(make_player());assert(t._block==nil)
-player.sg:GoToState('mount');RPCS.AOM_PLAN(player);assert(t._block==nil)
-player.sg:GoToState('mounted_idle')
-attach('aom_weeder');RPCS.AOM_PLAN(player);assert(t._block==nil)
-''')
-
-    def test_confirmation_rechecks_buildings_added_after_preview(self):
-        self.prepare();self.run_lua('''
-click(hud.planbutton)
-local wall=CreateEntity();wall.prefab='wall_stone';wall.Transform:SetPosition(0,0,0)
-RPCS.AOM_PLAN(player)
-assert(not t._block.confirmed and t._workstate_net:value()=='BLOCKED_MOUND')
-wall:Remove();RPCS.AOM_PLAN(player);assert(t._block.confirmed)
-''')
-
-    def test_decoder_rejects_unknown_layout_coordinates_and_invalid_completed_indices(self):
+    def test_seeder_hover_has_exact_three_lines_from_synchronized_values(self):
         self.run_lua('''
-local Block=require('aom_block_plan')
-for _,text in ipairs({'garbage','autumn-01-02;nan;0;0;0;',
- 'autumn-01-02;0;0;8;0;','autumn-01-02;0;0;0;0;999','autumn-01-02;0;0;0;0;1,1'})do
- assert(not Block.Decode(text),text)
-end
+local seeder=attach('aom_seeder');seeder.components.finiteuses:SetUses(161)
+t:CycleSeedStrategy(player);hud:Refresh(t)
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 161/400'..string.char(10)..'播种策略：巨大化')
+assert(hud.badges.tool:GetText()=='161')
+local old=t.components;t.components={};hud:Refresh(t)
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 161/400'..string.char(10)..'播种策略：巨大化')
+t.components=old
 ''')
 
-    def test_client_renders_from_network_only_and_cargo_warning_does_not_depend_on_language(self):
-        self.prepare();self.run_lua('''
-click(hud.planbutton)
-local proxy={GUID=999,IsValid=function()return true end,_plan_net=t._plan_net,
- _seedmode_net=t._seedmode_net,_atttype_net=t._atttype_net,
- _workstate_net=t._workstate_net}
-require('aom_work_status').Set(t,'CARGO_FULL')
-require('aom_common').SetLanguage('en');hud:Refresh(proxy)
-assert(hud.badges.cargo.meter.warningstarted)
-assert(string.find(hud.planbutton:GetTooltip(),'area 1x1',1,true))
-assert(#hud._plan_markers==8)
-hud:Refresh(nil);assert(hud._plan_markers==nil)
+    def test_existing_preview_markers_are_cleaned_without_creating_new_ones(self):
+        self.run_lua('''
+attach('aom_seeder');t:CycleSeedStrategy(player)
+local marker=CreateEntity();hud._plan_markers={marker};hud._plan_marker_key='old'
+hud:Refresh(t)
+assert(not marker:IsValid() and hud._plan_markers==nil and hud._plan_marker_key==nil)
 ''')
+
+    def test_stale_seed_click_after_dismount_cannot_change_strategy(self):
+        self.run_lua('''
+attach('aom_seeder');t:CycleSeedStrategy(player)
+player.components.rider:ActualDismount();hud.badges.tool.onclick()
+assert(t._seed_strategy=='GIANT')
+hud:Refresh(nil);assert(not hud:IsVisible())
+''')
+
 
 if __name__=='__main__':unittest.main()

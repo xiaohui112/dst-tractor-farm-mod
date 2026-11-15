@@ -1,0 +1,39 @@
+{
+  "target_lufs": -15.54,
+  "true_peak_ceiling_dbtp": -3,
+  "reference": "assets/audio/native-sfx-reference.json",
+  "work": {
+    "source": "assets/audio/sources/sfxmint-tractor-02.mp3",
+    "circular_overlap_seconds": 0.12,
+    "duration": 6.88,
+    "measured": {
+      "input_i": "-15.66",
+      "input_tp": "-2.97",
+      "input_lra": "0.10",
+      "input_thresh": "-25.66",
+      "output_i": "-15.57",
+      "output_tp": "-3.00",
+      "output_lra": "0.10",
+      "output_thresh": "-25.57",
+      "normalization_type": "dynamic",
+      "target_offset": "0.03"
+    },
+    "wav_sha256": "24d6e8fb9d99e641bce93c52656334f9be45f8069651c761ed877ce3d4540471"
+  },
+  "music": {
+    "source": "assets/audio/sources/lanhuacao-loop-original.wav",
+    "measured": {
+      "input_i": "-15.54",
+      "input_tp": "-5.99",
+      "input_lra": "1.20",
+      "input_thresh": "-25.64",
+      "output_i": "-15.85",
+      "output_tp": "-5.95",
+      "output_lra": "1.20",
+      "output_thresh": "-25.89",
+      "normalization_type": "dynamic",
+      "target_offset": "0.31"
+    },
+    "wav_sha256": "a9aeb602d8863956f8c565bf5a4e922b89bb5e89eb16e744f3da030185a02906"
+  }
+}

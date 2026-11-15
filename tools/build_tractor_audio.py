@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Synthesize original looping tractor effects and compile a real FMOD bank."""
+"""Compile original idle/drive and the approved, calibrated work loop into FMOD."""
 import argparse
 from array import array
 import copy
@@ -23,7 +23,7 @@ def guid(key):return '{'+str(uuid.uuid5(uuid.NAMESPACE_URL,PROJECT+'/'+key))+'}'
 
 def synthesize():
     rate=44100;seconds=4;n=rate*seconds
-    for name,hz in [('idle',23),('drive',37),('work',73)]:
+    for name,hz in [('idle',23),('drive',37)]:
         rng=random.Random(700+hz);pcm=array('h');filtered=0.
         for i in range(n):
             t=i/rate;angle=2*math.pi*hz*t
@@ -33,7 +33,6 @@ def synthesize():
             filtered=.92*filtered+.08*(rng.random()*2-1)
             noise=filtered*(.2+.8*abs(math.sin(angle/2)))
             value=.24*pulse+.12*harmonics+.11*noise
-            if name=='work':value+=.07*math.sin(2*math.pi*293*t)*(.5+.5*math.sin(2*math.pi*11*t))
             # Tiny boundary fade avoids PCM discontinuity without audible pauses.
             value*=min(1,i/(rate*.008),(n-1-i)/(rate*.008))
             pcm.append(round(max(-.95,min(.95,value))*32767))
@@ -71,13 +70,16 @@ def project():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--designer',type=Path,required=True);parser.add_argument('--wine',type=Path)
-    args=parser.parse_args();synthesize();path=project()
+    args=parser.parse_args()
+    from prepare_tractor_audio import prepare
+    calibration=prepare()
+    synthesize();path=project()
     def native(p):return 'Z:'+str(p.resolve()).replace('/','\\') if args.wine else str(p.resolve())
     with tempfile.TemporaryDirectory(prefix='aom-sfx-') as folder:
         cmd=([str(args.wine)] if args.wine else [])+[str(args.designer),'-pc','-b',native(Path(folder)),native(path)]
         result=subprocess.run(cmd,cwd=path.parent,text=True,capture_output=True,errors='replace')
         print(result.stdout)
-        if result.returncode:raise RuntimeError(result.stderr)
+        if result.returncode:raise RuntimeError(f'FMOD compiler exit {result.returncode}: {result.stdout}\n{result.stderr}')
         records={}
         for ext in ['fev','fsb']:
             raw=(Path(folder)/(PROJECT+'.'+ext)).read_bytes()
@@ -86,9 +88,10 @@ def main():
             (ROOT/'mod/Tractor/sound'/(PROJECT+'.'+ext)).write_bytes(raw)
             records[ext]=hashlib.sha256(raw).hexdigest()
         (path.parent/'tractor-build.json').write_text(json.dumps({'project':PROJECT,
-            'source':'Procedural original synthesis; no sampled third-party audio',
+            'source':'idle/drive: original synthesis; work: SFXMint Cab Tractor 02, CC0 1.0',
             'events':['tractor/'+n for n in ['idle','drive','work']],
-            'loop_seconds':4,'sample_rate':44100,'channels':1,'sha256':records,
+            'loop_seconds':{'idle':4,'drive':4,'work':calibration['work']['duration']},
+            'loudness':calibration,'sample_rate':44100,'channels':1,'sha256':records,
             'compiler_sha256':hashlib.sha256(args.designer.read_bytes()).hexdigest()},indent=2)+'\n')
 
 

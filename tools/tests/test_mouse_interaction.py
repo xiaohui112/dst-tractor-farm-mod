@@ -90,7 +90,7 @@ assert(click:Do())
 assert(STRINGS.ACTIONS.AOM_STORAGE[click.action.strfn(click)]=='Close storage')
 local hud=HUD(player);hud:Refresh(t)
 assert(hud.storagebutton==nil and hud.dismountbutton==nil)
-assert(hud.lines==nil and string.find(hud.badges.cargo:GetTooltip(),'clicking the tractor also works',1,true))
+assert(hud.lines==nil and hud.badges.cargo:GetTooltip()=='Cargo: 0/15 slots'..string.char(10)..'Total items 0 (including stacks)')
 ''')
 
 

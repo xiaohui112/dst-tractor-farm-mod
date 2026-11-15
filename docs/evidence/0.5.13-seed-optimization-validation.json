@@ -1,0 +1,243 @@
+{
+  "version": "0.5.13",
+  "completed_at": "2026-11-15T12:41:27.986254+08:00",
+  "cases": 1162,
+  "previously_timed_out": 30,
+  "former_timeout_completed": 30,
+  "constraint_failures": 0,
+  "incomplete": 0,
+  "quantity_regressions": 0,
+  "quantity_increases_vs_0_5_12": 102,
+  "source_sha256": {
+    "aom_dynamic_farm.lua": "4120bfd6592a1f367195d920f31385a737ca64b7dd2f9e88089d853f369ac3d0",
+    "aom_seed_layout.lua": "a7db22a6811153b97c8c24827c7ae60f704003e682bfd53376a17989d10d113d",
+    "aom_seed_packing.lua": "db8cbc2477efcaa3ff003a7e2cd6b498916ccc8ac2a3d25f4421c25fe34fbd54",
+    "aom_seed_balance.lua": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+    "aom_seed_exact.lua": "1bc19b0fc84d373f6e982cf906efa534280045a604046bfbf26290f5dac05f5f",
+    "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+    "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f"
+  },
+  "native_rules_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+  "native_constants": {
+    "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+    "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+    "FARM_TILL_SPACING": 1.25,
+    "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+  },
+  "timings_all": {
+    "basis": "process_cpu",
+    "cases": 1162,
+    "passed": 1162,
+    "incomplete": 0,
+    "failed": 0,
+    "source_sha256": {
+      "aom_dynamic_farm.lua": "4120bfd6592a1f367195d920f31385a737ca64b7dd2f9e88089d853f369ac3d0",
+      "aom_seed_layout.lua": "a7db22a6811153b97c8c24827c7ae60f704003e682bfd53376a17989d10d113d",
+      "aom_seed_packing.lua": "db8cbc2477efcaa3ff003a7e2cd6b498916ccc8ac2a3d25f4421c25fe34fbd54",
+      "aom_seed_balance.lua": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+      "aom_seed_exact.lua": "1bc19b0fc84d373f6e982cf906efa534280045a604046bfbf26290f5dac05f5f",
+      "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+      "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f"
+    },
+    "run_complete": true,
+    "incomplete_by_phase": {},
+    "all_completed": {
+      "quantity_seconds": {
+        "samples": 1162,
+        "total_seconds": 421.65360899999985,
+        "p50_seconds": 0.1012639999999988,
+        "p95_seconds": 1.546026649999988,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 1162,
+        "total_seconds": 72.86507900000036,
+        "p50_seconds": 0.04100050000000088,
+        "p95_seconds": 0.22819750000000266,
+        "max_seconds": 0.7833180000000084
+      }
+    },
+    "positive_completed": {
+      "quantity_seconds": {
+        "samples": 711,
+        "total_seconds": 421.3982669999999,
+        "p50_seconds": 0.23349300000000994,
+        "p95_seconds": 2.693883999999999,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 711,
+        "total_seconds": 72.86507900000036,
+        "p50_seconds": 0.056566000000000116,
+        "p95_seconds": 0.28368599999999944,
+        "max_seconds": 0.7833180000000084
+      }
+    },
+    "each_completed_phase": {
+      "quantity_seconds": {
+        "samples": 1162,
+        "total_seconds": 421.65360899999985,
+        "p50_seconds": 0.1012639999999988,
+        "p95_seconds": 1.546026649999988,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 1162,
+        "total_seconds": 72.86507900000036,
+        "p50_seconds": 0.04100050000000088,
+        "p95_seconds": 0.22819750000000266,
+        "max_seconds": 0.7833180000000084
+      }
+    },
+    "incomplete_cases": []
+  },
+  "timings_former_30": {
+    "basis": "process_cpu",
+    "cases": 30,
+    "passed": 30,
+    "incomplete": 0,
+    "failed": 0,
+    "source_sha256": {
+      "aom_dynamic_farm.lua": "4120bfd6592a1f367195d920f31385a737ca64b7dd2f9e88089d853f369ac3d0",
+      "aom_seed_layout.lua": "a7db22a6811153b97c8c24827c7ae60f704003e682bfd53376a17989d10d113d",
+      "aom_seed_packing.lua": "db8cbc2477efcaa3ff003a7e2cd6b498916ccc8ac2a3d25f4421c25fe34fbd54",
+      "aom_seed_balance.lua": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+      "aom_seed_exact.lua": "1bc19b0fc84d373f6e982cf906efa534280045a604046bfbf26290f5dac05f5f",
+      "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+      "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f"
+    },
+    "run_complete": true,
+    "incomplete_by_phase": {},
+    "all_completed": {
+      "quantity_seconds": {
+        "samples": 30,
+        "total_seconds": 152.00087200000002,
+        "p50_seconds": 3.8734870000000043,
+        "p95_seconds": 12.915326900000007,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 30,
+        "total_seconds": 6.182494000000084,
+        "p50_seconds": 0.1650349999999996,
+        "p95_seconds": 0.4310972500000018,
+        "max_seconds": 0.6720490000000012
+      }
+    },
+    "positive_completed": {
+      "quantity_seconds": {
+        "samples": 30,
+        "total_seconds": 152.00087200000002,
+        "p50_seconds": 3.8734870000000043,
+        "p95_seconds": 12.915326900000007,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 30,
+        "total_seconds": 6.182494000000084,
+        "p50_seconds": 0.1650349999999996,
+        "p95_seconds": 0.4310972500000018,
+        "max_seconds": 0.6720490000000012
+      }
+    },
+    "each_completed_phase": {
+      "quantity_seconds": {
+        "samples": 30,
+        "total_seconds": 152.00087200000002,
+        "p50_seconds": 3.8734870000000043,
+        "p95_seconds": 12.915326900000007,
+        "max_seconds": 13.739730999999999
+      },
+      "arrangement_seconds": {
+        "samples": 30,
+        "total_seconds": 6.182494000000084,
+        "p50_seconds": 0.1650349999999996,
+        "p95_seconds": 0.4310972500000018,
+        "max_seconds": 0.6720490000000012
+      }
+    },
+    "incomplete_cases": []
+  },
+  "selfcheck_tests": 625,
+  "release_checks": 17,
+  "web_tests": 13,
+  "web_mod_point_parity_cases": 76,
+  "game_install": {
+    "version": "0.5.13",
+    "completed_at": "2026-11-15T12:41:27.986254+08:00",
+    "archive": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/Tractor.zip",
+    "source_files": 87,
+    "sha256": "5f0a0f94706476631da64c3e3a12c3d27f99e505503d54c796ef875308918f59",
+    "zip_crc": true,
+    "all_source_bytes_match": true,
+    "archive_backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/release-backups/Tractor-before-0.5.13-20261115-124127-986254.zip",
+    "earlier_backups": [
+      "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/game-mod-backups/20261115-121300-184439/Tractor"
+    ],
+    "target": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+    "previous_version": "0.5.13",
+    "backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/game-mod-backups/20261115-124127-986254/Tractor",
+    "all_installed_bytes_match": true,
+    "game_restarted": false,
+    "saves_modified": false,
+    "pushed": false
+  },
+  "limits": [
+    "耗时为本机离线进程CPU秒，另保留端到端墙钟秒；不等同于游戏分帧等待。",
+    "完成案例保证数量已证明最大；排列整理为有预算的局部优化。",
+    "不替代DST实际客户端播种、生长或多人验收。"
+  ],
+  "reproduce": "PYTHONPATH=/tmp/pylua python3 tools/seed_strategy_audit.py --suite all --jobs 4 --case-seconds 30 --output outputs/seed-regression.json",
+  "frame_validation": {
+    "old_four_resumes_per_frame": [
+      {
+        "id": "nested-proof-43",
+        "count": 43,
+        "simulated_frames": 1098,
+        "valid": true,
+        "seeds_spent": 0
+      },
+      {
+        "id": "spring/bridge-7/all-six",
+        "count": 60,
+        "simulated_frames": 920,
+        "valid": true,
+        "seeds_spent": 0
+      }
+    ],
+    "new_native_start_cpu_budget": [
+      {
+        "id": "native-frame-proof-43",
+        "count": 43,
+        "simulated_frames": 284,
+        "valid": true,
+        "seeds_spent": 0
+      },
+      {
+        "id": "spring/bridge-7/all-six",
+        "count": 60,
+        "simulated_frames": 177,
+        "valid": true,
+        "seeds_spent": 0
+      }
+    ],
+    "cpu_budget_seconds": 0.004,
+    "maximum_resumes": 128,
+    "scope": "Lua队列模拟，不是实际客户端FPS或墙钟基准。"
+  },
+  "user_45_benchmark": {
+    "0": {
+      "quantity_seconds": 0.027863,
+      "arrangement_seconds": 0.134844,
+      "wall_seconds": 0.167
+    },
+    "4": {
+      "quantity_seconds": 0.033981000000000004,
+      "arrangement_seconds": 0.137328,
+      "wall_seconds": 0.175
+    }
+  }
+}

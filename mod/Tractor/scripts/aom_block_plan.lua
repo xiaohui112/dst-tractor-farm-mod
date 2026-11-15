@@ -1,4 +1,4 @@
--- 固定坐标配比规划：每格养分独立平衡，逐株验证家族距离。
+-- 坐标计划：逐株验证季节、间距和家族；播种不读取地皮养分。
 local AOMBlock = {}
 local Locale=require("aom_locale")
 local L=Locale.Text
@@ -31,7 +31,7 @@ for _,list in pairs(BLOCKS) do
 end
 AOMBlock.BLOCKS=BLOCKS
 
--- 按当前游戏的实际作物定义再次验证，避免升级或其他 Mod 改数值后仍误称免施肥。
+-- 按当前游戏实际作物定义验证季节、坑距与家族。
 function AOMBlock.ValidateCombo(combo,season)
     if not combo or combo.reference_only or not combo.slots then return false,"NO_LAYOUT" end
     local defs=require("prefabs/farm_plant_defs").PLANT_DEFS
@@ -46,7 +46,7 @@ function AOMBlock.ValidateCombo(combo,season)
             if not def or not def.good_seasons or not def.good_seasons[season] then return false,"WRONG_SEASON" end
             counts[slot.crop]=(counts[slot.crop] or 0)+1
             local k=Key(slot.tx,slot.tz)
-            local tile=tiles[k] or {net={0,0,0},count=0,positions={}}
+            local tile=tiles[k] or {count=0}
             tiles[k]=tile;tile.count=tile.count+1
             if tile.count>(TUNING.FARM_PANT_OVERCROWDING_MAX_PLANTS or 10) then return false,"OVERCROWDED" end
             for _,p in ipairs(points) do
@@ -55,19 +55,11 @@ function AOMBlock.ValidateCombo(combo,season)
                 end
             end
             points[#points+1]=slot
-            local consume,restore=def.nutrient_consumption,def.nutrient_restoration
-            if not consume or not restore then return false,"NO_NUTRIENT_DATA" end
-            local total,types=0,0
-            for n=1,3 do total=total+(consume[n] or 0);if restore[n] then types=types+1 end end
-            if types==0 or total%types~=0 then return false,"UNSTABLE_NUTRIENTS" end
-            for n=1,3 do tile.net[n]=tile.net[n]-(consume[n] or 0)+(restore[n] and total/types or 0) end
+
         end
     end
     for crop,n in pairs(combo.ratio) do if counts[crop]~=n then return false,"INVALID_COUNTS" end end
     for crop in pairs(counts) do if not combo.ratio[crop] then return false,"INVALID_COUNTS" end end
-    for _,tile in pairs(tiles) do
-        for _,n in ipairs(tile.net) do if math.abs(n)>.0001 then return false,"NUTRIENT_IMBALANCE" end end
-    end
     for _,p in ipairs(combo.slots) do
         if p.crop and not exempt[p.crop] then
             local def=defs[p.crop]
@@ -102,22 +94,27 @@ local function Rotate(x,z,r)
     return x,z
 end
 function AOMBlock.WorldSlots(block)
+    if block.dynamic then
+        local tiles={};for _,t in ipairs(block.tiles) do tiles[Key(t.x,t.z)]={x=t.x,z=t.z} end
+        return block.slots,tiles
+    end
     local combo=BY_ID[block.combo_id]
     local slots,tiles={},{}
     for i,p in ipairs(combo.slots) do
         local dx,dz=Rotate(p.tx*4,p.tz*4,block.rotation)
         local ox,oz=Rotate(p.x,p.z,block.rotation)
         local cx,cz=block.x+dx,block.z+dz
-        slots[i]={x=cx+ox,z=cz+oz,cx=cx,cz=cz,crop=p.crop,index=i}
+        local pos=block.positions and block.positions[i]
+        slots[i]={x=pos and pos.x or cx+ox,z=pos and pos.z or cz+oz,cx=cx,cz=cz,crop=p.crop,index=i}
         tiles[Key(cx,cz)]={x=cx,z=cz}
     end
     return slots,tiles
 end
-local function CheckField(block,preparing)
+local function CheckField(block,preparing,skip_occupied)
     local slots,tiles=AOMBlock.WorldSlots(block)
     local found={}
     for _,tile in pairs(tiles) do
-        if not TheWorld.Map:IsPassableAtPoint(tile.x,0,tile.z) then return false,"INVALID_LAND" end
+        if not skip_occupied and not TheWorld.Map:IsPassableAtPoint(tile.x,0,tile.z) then return false,"INVALID_LAND" end
         if not preparing and TheWorld.Map:GetTileAtPoint(tile.x,0,tile.z)~=WORLD_TILES.FARMING_SOIL then return false,"NEED_PLOW" end
         for _,v in ipairs(TheWorld.Map:GetEntitiesOnTileAtPoint(tile.x,0,tile.z)) do
             local clearable=preparing and Farm.IsClearableDebris(v)
@@ -130,10 +127,10 @@ local function CheckField(block,preparing)
                         found[i]={x=x,z=z,crop=p.crop};matched=true;break
                     end
                 end
-                if not matched then return false,"FOREIGN_CROP" end
+                if not matched and not skip_occupied then return false,"FOREIGN_CROP" end
             end
         end
-        if preparing then
+        if preparing and not skip_occupied then
             if TheWorld.Map:GetTileAtPoint(tile.x,0,tile.z)~=WORLD_TILES.FARMING_SOIL
                 and TheWorld.Map.CanPlowAtPoint and not TheWorld.Map:CanPlowAtPoint(tile.x,0,tile.z) then return false,"INVALID_LAND" end
             local targets={}
@@ -150,7 +147,7 @@ end
 local function NewBlock(combo,season,x,z,r)
     return {version=VERSION,combo_id=combo.id,season=season,x=x,z=z,rotation=r,confirmed=false,completed={},done=0}
 end
-function AOMBlock.ResetBlock(inst) inst._block=nil;inst._aom_plan_outdated=nil end
+function AOMBlock.ResetBlock(inst) inst._block=nil;inst._aom_plan_outdated=nil;inst._aom_dynamic_job=nil;inst._aom_dynamic_reason=nil end
 
 -- 先检查整套余料及真实场地，再返回本格目标；调用方不得降级为顺序播种。
 function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
@@ -158,6 +155,7 @@ function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
     -- 作业入口只消费明确确认的计划，不隐式创建或替换起点/方向/配比。
     if not inst._block then return nil,"PLAN_PENDING" end
     local block=inst._block
+    if block.dynamic then return require("aom_dynamic_farm").Targets(inst,cx,cz) end
     local combo=BY_ID[block.combo_id]
     if block.confirmed~=true then return nil,"PLAN_PENDING" end
     -- 完成后保留坐标与进度；即使收获后全空，也必须显式重规划/确认下一轮。
@@ -168,7 +166,8 @@ function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
     local slots,tiles=AOMBlock.WorldSlots(block)
     if not tiles[Key(cx,cz)] then return nil,"NEXT_TILE" end
     if not HasSeeds(seed_counts,Remaining(block,combo)) then return nil,"MISSING_SEEDS" end
-    local field_ok,field_reason,positions=CheckField(block,preparing)
+    -- 实际开垦按当前地块/坑位跳过占用；预览、确认及播种仍严格检查整套计划。
+    local field_ok,field_reason,positions=CheckField(block,preparing,preparing)
     if not field_ok then return nil,field_reason end
     -- 全部地块都准备好才开种，降低两边生长阶段相差过大的风险。
     if not preparing then
@@ -197,26 +196,6 @@ function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
             end
         end
     end
-    -- 初始养分需足以承担本格一轮消耗；免追加施肥不等于贫瘠土地也能开种。
-    if not preparing and block.done==0 then
-        local defs=require("prefabs/farm_plant_defs").PLANT_DEFS
-        local needs={}
-        for _,p in ipairs(slots) do
-            if p.crop then
-                local key=Key(p.cx,p.cz)
-                local t=needs[key] or {x=p.cx,z=p.cz,n={0,0,0}}
-                needs[key]=t
-                for j=1,3 do t.n[j]=t.n[j]+(defs[p.crop].nutrient_consumption[j] or 0) end
-            end
-        end
-        local manager=TheWorld.components.farming_manager
-        if not manager then return nil,"LOW_NUTRIENTS" end
-        for _,t in pairs(needs) do
-            local tx,tz=TheWorld.Map:GetTileCoordsAtPoint(t.x,0,t.z)
-            local current={manager:GetTileNutrients(tx,tz)}
-            for j=1,3 do if (current[j] or 0)<t.n[j] then return nil,"LOW_NUTRIENTS" end end
-        end
-    end
     local targets={}
     for i,p in ipairs(slots) do
         if p.crop and not block.completed[i] and Key(p.cx,p.cz)==Key(cx,cz) then targets[#targets+1]=p end
@@ -243,17 +222,51 @@ function AOMBlock.OnSave(inst)
     local completed={}
     for i in pairs(b.completed) do completed[#completed+1]=i end
     table.sort(completed)
-    return {version=VERSION,combo_id=b.combo_id,season=b.season,x=b.x,z=b.z,rotation=b.rotation,confirmed=b.confirmed==true,completed=completed}
+    if b.dynamic then
+        local tiles,slots={},{}
+        for i,t in ipairs(b.tiles) do tiles[i]={x=t.x,z=t.z} end
+        for i,p in ipairs(b.slots) do slots[i]={x=p.x,z=p.z,cx=p.cx,cz=p.cz,crop=p.crop or false,index=i} end
+        return {version=4,dynamic=true,season=b.season,tiles=tiles,slots=slots,completed=completed,total=b.total,upper=b.upper,optimal=b.optimal,nutrient_balanced=b.nutrient_balanced}
+    end
+    return {version=VERSION,combo_id=b.combo_id,season=b.season,x=b.x,z=b.z,rotation=b.rotation,
+        confirmed=b.confirmed==true,completed=completed,automatic=b.automatic,positions=b.positions}
 end
 function AOMBlock.OnLoad(inst,data)
     -- 旧版只有总株数，无法推断真实位置；不把旧计数迁移进新地图。
     if not data then return end
+    if data.version==4 and data.dynamic then
+        local ok,total=require('aom_dynamic_farm').Validate(data)
+        if not ok or type(data.completed)~='table' then return end
+        local b={dynamic=true,version=4,season=data.season,tiles=data.tiles,slots=data.slots,total=total,upper=total,optimal=false,completed={},done=0,automatic=true,confirmed=true,nutrient_balanced=data.nutrient_balanced==true}
+        for _,i in ipairs(data.completed) do
+            if type(i)~='number' or i%1~=0 or not b.slots[i] or not b.slots[i].crop or b.completed[i] then return end
+            b.completed[i]=true;b.done=b.done+1
+        end
+        for i,p in ipairs(b.slots) do p.index=i end
+        inst._block=b
+        for _,t in ipairs(b.tiles) do require('aom_farm_registry').Record(TheWorld,t.x,t.z) end
+        return
+    end
     if data.outdated or data.version==2 then inst._aom_plan_outdated=true;return end
     if data.version~=VERSION or not BY_ID[data.combo_id] then return end
     if not ValidNumber(data.x) or not ValidNumber(data.z) or type(data.rotation)~="number" or data.rotation%1~=0 or data.rotation<0 or data.rotation>3 then return end
     local combo=BY_ID[data.combo_id]
     if not AOMBlock.ValidateCombo(combo,data.season) then return end
     local b=NewBlock(combo,data.season,data.x,data.z,data.rotation)
+    if data.automatic==true then
+        b.automatic=true
+        if data.positions~=nil then
+            if type(data.positions)~="table" then return end
+            local slots=AOMBlock.WorldSlots(b)
+            b.positions={}
+            for i,p in ipairs(slots) do
+                local v=data.positions[i]
+                if type(v)~="table" or not ValidNumber(v.x) or not ValidNumber(v.z)
+                    or (v.x-p.x)^2+(v.z-p.z)^2>.16 then return end
+                b.positions[i]={x=v.x,z=v.z}
+            end
+        end
+    end
     b.confirmed=data.confirmed==true
     for _,i in ipairs(data.completed or {}) do
         if type(i)~="number" or i%1~=0 or not combo.slots[i] or not combo.slots[i].crop or b.completed[i] then return end
@@ -264,6 +277,7 @@ end
 function AOMBlock.DescribeProgress(inst)
     local b=inst._block
     if not b then return L("配比：待规划") end
+    if b.dynamic then return L('动态巨大化 %d/%d',b.done,b.total) end
     local combo=BY_ID[b.combo_id]
     local text=string.format("%s %d/%d",AOMBlock.BuildName(combo.ratio),b.done,combo.total)
     if #combo.not_giant>0 then
@@ -326,6 +340,7 @@ function AOMBlock.NextTile(inst)
     local b=inst._block
     if not b then return end
     local slots=AOMBlock.WorldSlots(b)
+    if b.dynamic then for _,p in ipairs(slots) do if p.crop and not b.completed[p.index] then return p.cx,p.cz end end;return end
     if inst._attachment_type=="plow" then
         local ordered,seen={},{}
         for _,p in ipairs(slots) do
@@ -334,7 +349,9 @@ function AOMBlock.NextTile(inst)
             if p.crop and not b.completed[p.index] then seen[key].targets[#seen[key].targets+1]=p end
         end
         for _,tile in ipairs(ordered) do
-            if #tile.targets>0 and not Farm.IsFieldReady(tile.x,0,tile.z,tile.targets) then return tile.x,tile.z end
+            local targets=tile.targets
+            if b.automatic then targets=nil end -- 自动模式开垦统一九坑，留空位不应被铲掉。
+            if #tile.targets>0 and not Farm.IsFieldReady(tile.x,0,tile.z,targets) then return tile.x,tile.z end
         end
     end
     for _,p in ipairs(slots) do if p.crop and not b.completed[p.index] then return p.cx,p.cz end end
@@ -343,6 +360,16 @@ function AOMBlock.Sync(inst)
     if not inst._plan_net then return end
     local b=inst._block
     if not b then inst._plan_net:set("");return end
+    if b.dynamic then
+        local nx,nz=AOMBlock.NextTile(inst)
+        -- HUD needs progress and the next tile; complete layouts stay server-side.
+        local points={}
+        for _,p in ipairs(b.slots) do if p.crop and not b.completed[p.index] and p.cx==nx and p.cz==nz then
+            points[#points+1]=table.concat({string.format('%.4f',p.x),string.format('%.4f',p.z),p.crop},',')
+        end end
+        inst._plan_net:set(table.concat({'D4',b.total,b.done,b.season,nx or '',nz or '',table.concat(points,'|')},';'))
+        return
+    end
     local completed={}
     for i in pairs(b.completed) do completed[#completed+1]=i end
     table.sort(completed)
@@ -352,6 +379,26 @@ end
 -- 严格解析数据，客户端从同版本模板还原预览，不接受可执行字符串。
 function AOMBlock.Decode(text)
     if type(text)~="string" then return end
+    if string.sub(text,1,3)=='D4;' then
+        if #text>2048 then return end
+        local total,done,season,x,z,raw=string.match(text,'^D4;(%d+);(%d+);([a-z]+);([^;]*);([^;]*);([^;]*)$')
+        total,done=tonumber(total),tonumber(done)
+        if not total or total<1 or total>576 or done>total or not BLOCKS[season] then return end
+        local b={dynamic=true,total=total,done=done,season=season,confirmed=true,completed={},tiles={},slots={}}
+        if x=='' and z=='' and raw=='' and done==total then return b end
+        x,z=tonumber(x),tonumber(z)
+        if not ValidNumber(x) or not ValidNumber(z) then return end
+        b.next_x,b.next_z=x,z;b.tiles[1]={x=x,z=z}
+        for part in string.gmatch(raw,'[^|]+') do
+            local px,pz,crop=string.match(part,'^([^,]+),([^,]+),([a-z]+)$')
+            px,pz=tonumber(px),tonumber(pz)
+            local def=crop and require('prefabs/farm_plant_defs').PLANT_DEFS[crop]
+            if not ValidNumber(px) or not ValidNumber(pz) or not def or not def.good_seasons[season] or math.abs(px-x)>=2 or math.abs(pz-z)>=2 or #b.slots>=9 then return end
+            b.slots[#b.slots+1]={x=px,z=pz,cx=x,cz=z,crop=crop,index=#b.slots+1}
+        end
+        if #b.slots==0 and done<total then return end
+        return b
+    end
     local id,x,z,r,confirmed,done,nx,nz=string.match(text,"^([^;]+);([^;]+);([^;]+);([0-3]);([01]);([%d,]*);([^;]*);([^;]*)$")
     if not id or not BY_ID[id] then return end
     x,z=tonumber(x),tonumber(z)
@@ -374,6 +421,11 @@ function AOMBlock.Decode(text)
 end
 function AOMBlock.DescribePreview(b)
     if not b then return L("配比：待规划") end
+    if b.dynamic then
+        local text=L('动态巨大化 %d/%d',b.done,b.total)
+        if b.next_x then text=text..'\n'..L('下一地块中心：%.1f，%.1f',b.next_x,b.next_z) end
+        return text
+    end
     local combo=BY_ID[b.combo_id]
     local width,height=combo.width,combo.height
     if b.rotation%2==1 then width,height=height,width end

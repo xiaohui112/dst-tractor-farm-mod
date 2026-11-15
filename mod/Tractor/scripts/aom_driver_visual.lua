@@ -45,6 +45,7 @@ function M.Clear(inst,animstate)
     animstate:ClearOverrideSymbol("aom_driver_attachment_rear")
     animstate:ClearOverrideSymbol("aom_driver_attachment_front")
     animstate:SetScale(1,1,1)
+    require("aom_driver_speech").Clear(inst._rider or inst._aom_motion_rider,inst)
     if inst._rider and inst._rider.Transform then inst._rider.Transform:SetFourFaced() end
     inst._aom_driver_animstate=nil
     -- 原版 ActualDismount 已恢复 wilson bank，不改角色自己的 build 或皮肤。

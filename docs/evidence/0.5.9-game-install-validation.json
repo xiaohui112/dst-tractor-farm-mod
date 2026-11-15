@@ -1,0 +1,12 @@
+{
+  "installed_at": "2026-11-13T18:50:20.199082+08:00",
+  "version": "0.5.9",
+  "target": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+  "backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/game-mod-backups/20261113-185020-199082/Tractor",
+  "archive_sha256": "43f219621d12bdbaeec633f506c7f1bbac83ccd6ece715de3ad678e43d18152f",
+  "source_files": 81,
+  "all_installed_bytes_match": true,
+  "installed_manifest_matches": true,
+  "game_restarted": false,
+  "save_files_modified": false
+}

@@ -17,7 +17,7 @@ class LayoutRegressionTests(unittest.TestCase):
         count=0
         for season,combos in w.block.BLOCKS.items():
             for _,combo in combos.items():
-                if combo.reference_only:continue
+                if not w.lua.eval("require('aom_auto_seeding').IsGrid")(combo):continue
                 count+=1
                 for rotation in range(4):
                     with self.subTest(layout=combo.id,rotation=rotation):
@@ -32,7 +32,7 @@ class LayoutRegressionTests(unittest.TestCase):
                         w.lua.globals().set_flow_attachment(inst,'seeder')
                         for _,tile in tiles.items():w.drive.WorkTile(inst,tile.x,tile.z)
                         self.assertEqual(inst._block.done,combo.total)
-        self.assertEqual(count,109)
+        self.assertEqual(count,203)
 
     def test_validator_rejects_cross_tile_neighbors_and_changed_world_spacing(self):
         w=World();c=w.combo('autumn-01-02')

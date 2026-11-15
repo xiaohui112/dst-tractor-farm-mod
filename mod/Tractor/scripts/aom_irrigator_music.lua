@@ -1,6 +1,6 @@
 -- 客户端音效每个听者最多一首；植物安抚独立在服务端执行原版 TendTo。
 local Bank=require("aom_irrigator_music_bank")
-local M={ready=false,mode="on",RADIUS=20,HANDLE="aom_irrigator_music"}
+local M={ready=false,mode="on",RADIUS=20,VOLUME=1,HANDLE="aom_irrigator_music"}
 
 function M.Configure(enabled,root,exists,asset)
     M.mode=(enabled==false or enabled=="off") and "off" or enabled=="mute" and "mute" or "on"
@@ -29,6 +29,10 @@ end
 
 function M.Mode(tractor)
     return tractor and tractor._music_mode_net and Value(tractor,"_music_mode_net") or M.mode
+end
+
+function M.PlaysInsteadOfTractor(tractor)
+    return M.ready and M.Mode(tractor)=="on" and M.IsActive(tractor)
 end
 
 function M.TendPlants(tractor)
@@ -82,11 +86,11 @@ function M.New(owner)
     end
     function self:Update()
         local ok=pcall(function()
-            if not M.ready or self.failed or not owner:IsValid() or owner:HasTag("playerghost") then self:Stop();return end
+            if (IsPaused and IsPaused()) or not M.ready or self.failed or not owner:IsValid() or owner:HasTag("playerghost") then self:Stop();return end
             local tractor,distance=Nearest(owner)
             local emitter=owner.SoundEmitter
             if not tractor or not emitter then self:Stop();return end
-            local volume=.35*(1-math.sqrt(distance)/M.RADIUS)
+            local volume=M.VOLUME*(1-math.sqrt(distance)/M.RADIUS)
             if not self.playing then
                 -- 先记状态，PlaySound 抛错也会执行 KillSound 清理。
                 self.playing=true

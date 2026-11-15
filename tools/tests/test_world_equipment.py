@@ -62,11 +62,11 @@ for _,v in ipairs(RECIPE_INGREDIENTS.aom_fertilizer)do
 end
 ''')
 
-    def test_nine_cargo_slots_stay_available_with_independent_attached_equipment(self):
+    def test_sixteen_cargo_slots_stay_available_with_independent_attached_equipment(self):
         self.run_lua('''
 local tool=equipment('aom_seeder');ride();assert(act(tool))
-for i=1,9 do assert(t.components.container:GiveItem(SpawnPrefab('gears'),i))end
-assert(t:GetAttachment()==tool and t.components.container:GetNumSlots()==9)
+for i=1,15 do assert(t.components.container:GiveItem(SpawnPrefab('gears'),i))end
+assert(t:GetAttachment()==tool and t.components.container:GetNumSlots()==15)
 assert(t.components.container:GetItemInSlot(1).prefab=='gears')
 assert(not t.components.container:CanTakeItemInSlot(tool,1))
 assert(not t.components.container:GiveItem(tool,1,nil,false))
@@ -125,15 +125,16 @@ for _,name in ipairs({'aom_landclearer','aom_seeder','aom_weeder','aom_harvester
 end
 ''')
 
-    def test_foot_repair_uses_exactly_one_flint_and_cannot_repair_while_driving(self):
+    def test_ground_repair_uses_one_flint_on_foot_or_while_driving(self):
         self.run_lua('''
 local tool=equipment('aom_weeder');tool.components.finiteuses:SetUses(0)
 local flint=SpawnPrefab('flint');flint.components.stackable:SetStackSize(3)
 local action=prompt(flint,player,tool)[1];assert(action==ACTION_DEFS.AOM_REPAIR)
-ride();assert(not action.fn({doer=player,target=tool,invobject=flint}))
+ride();assert(action.fn({doer=player,target=tool,invobject=flint}))
+assert(Durability.GetUses(tool)==10 and flint.components.stackable:StackSize()==2)
 player.components.rider:ActualDismount()
 assert(action.fn({doer=player,target=tool,invobject=flint}))
-assert(Durability.GetUses(tool)==10 and flint.components.stackable:StackSize()==2)
+assert(Durability.GetUses(tool)==20 and flint.components.stackable:StackSize()==1)
 ride();assert(act(tool))
 ''')
 

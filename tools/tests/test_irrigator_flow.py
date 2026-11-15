@@ -204,7 +204,7 @@ assert(#messages==1)
         start=text.index('local AOM_LOAD = AddAction(')
         end=text.index('AOM_LOAD.distance',start)
         self.run_lua('function AddAction(id,label,fn)LoadAction=fn;return {}end')
-        self.run_lua(text[start:end])
+        self.run_lua("local Feedback=require('aom_feedback')\n"+text[start:end])
         self.run_lua('''
 assert(water_count()==0)
 local can=watercan(2)

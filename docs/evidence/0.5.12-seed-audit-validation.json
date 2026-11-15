@@ -1,0 +1,488 @@
+{
+  "version": "0.5.12",
+  "completed_at": "2026-11-15T01:09:20.030765+08:00",
+  "priority": [
+    "season, stock, spacing, density, per-plant family, per-tile nutrient net zero; two-species 4+4 center gap",
+    "maximum found plant count",
+    "family fragmentation then nearest-three distance",
+    "tidiness"
+  ],
+  "source": {
+    "version": "0.5.12",
+    "runtime": "Lua 5.1",
+    "files": [
+      {
+        "path": "scripts/aom_dynamic_farm.lua",
+        "sha256": "5e4683118b5081d976c36b824c9164aaf8e3260ddb4a04060bdccdcab73cd21b",
+        "bytes": 7948
+      },
+      {
+        "path": "scripts/aom_seed_layout.lua",
+        "sha256": "712d0a08f4e88a4d98efb2e5f585833f04415bdc85f90fb08bf5befb35b82480",
+        "bytes": 18410
+      },
+      {
+        "path": "scripts/aom_seed_packing.lua",
+        "sha256": "cc7f8376f78abfd35da1d8cbd88a0d6e134f7061b783b9cdbb26f11fdcad1a55",
+        "bytes": 32835
+      },
+      {
+        "path": "scripts/aom_seed_balance.lua",
+        "sha256": "dad0d47031fa9cec1191d1f5602d5e7dc2b0b8a49d9b583fea5a03e86a282ff4",
+        "bytes": 6521
+      },
+      {
+        "path": "scripts/aom_seed_strategy.lua",
+        "sha256": "4906064358bd76c38569ca78028a43cc841c19741d002f803fd63dce5c737b76",
+        "bytes": 2022
+      },
+      {
+        "path": "scripts/aom_farm_registry.lua",
+        "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+        "bytes": 1387
+      },
+      {
+        "path": "scripts/aom_crop_state.lua",
+        "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+        "bytes": 1667
+      },
+      {
+        "path": "scripts/components/aom_attachment_store.lua",
+        "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+        "bytes": 8377
+      }
+    ],
+    "fingerprint": "cabd1cb932c9d96c72bd3b13a04f5700af96a0ac4ca1ea8613ab04d350cebc8a",
+    "installed_match": true,
+    "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+    "constants": {
+      "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+      "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+      "FARM_TILL_SPACING": 1.25,
+      "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+    }
+  },
+  "scene_count": 1162,
+  "suites": {
+    "structured": 908,
+    "holdout": 120,
+    "symmetry": 128,
+    "large": 6
+  },
+  "season_counts": {
+    "autumn": 293,
+    "winter": 265,
+    "spring": 321,
+    "summer": 283
+  },
+  "constraint_failures": 0,
+  "composition_upper_met": 1052,
+  "zero_upper_cases": 451,
+  "below_relaxed_upper": 110,
+  "spatial_optimum_additionally_proved": 10,
+  "known_better_valid_witnesses": [
+    {
+      "id": "autumn/L-3/all-six",
+      "mod_count": 26,
+      "relaxed_upper": 27,
+      "spatial": {
+        "count": 27,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 1.867
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "autumn/T-4/user-tails",
+      "mod_count": 35,
+      "relaxed_upper": 36,
+      "spatial": {
+        "count": 36,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 1.477
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "autumn/U-5/user-tails",
+      "mod_count": 43,
+      "relaxed_upper": 45,
+      "spatial": {
+        "count": 45,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 1.81
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "autumn/plus-5/user-tails",
+      "mod_count": 42,
+      "relaxed_upper": 45,
+      "spatial": {
+        "count": 45,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 0.916
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "autumn/plus-5/six-seven",
+      "mod_count": 33,
+      "relaxed_upper": 35,
+      "spatial": {
+        "count": 35,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 0.851
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "spring/T-4/user-tails",
+      "mod_count": 35,
+      "relaxed_upper": 36,
+      "spatial": {
+        "count": 36,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 1.735
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "spring/U-5/user-tails",
+      "mod_count": 43,
+      "relaxed_upper": 45,
+      "spatial": {
+        "count": 45,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 1.945
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    },
+    {
+      "id": "spring/plus-5/user-tails",
+      "mod_count": 42,
+      "relaxed_upper": 45,
+      "spatial": {
+        "count": 45,
+        "proven": true,
+        "status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "native_witness_valid": true,
+        "seconds": 0.977
+      },
+      "better_valid_witness": true,
+      "spatial_optimum_met": false
+    }
+  ],
+  "quantity_improvements_since_first_pass": [
+    {
+      "id": "autumn/L-3/five-tails",
+      "before": 23,
+      "after": 25
+    },
+    {
+      "id": "autumn/L-3/six-seven",
+      "before": 26,
+      "after": 27
+    },
+    {
+      "id": "autumn/T-4/all-six",
+      "before": 32,
+      "after": 34
+    },
+    {
+      "id": "autumn/S-4/all-season",
+      "before": 24,
+      "after": 32
+    },
+    {
+      "id": "autumn/S-4/six-seven",
+      "before": 32,
+      "after": 35
+    },
+    {
+      "id": "autumn/S-4/four-season-stock",
+      "before": 24,
+      "after": 32
+    },
+    {
+      "id": "autumn/plus-5/user-tails",
+      "before": 41,
+      "after": 42
+    },
+    {
+      "id": "autumn/plus-5/all-six",
+      "before": 30,
+      "after": 43
+    },
+    {
+      "id": "spring/L-3/all-season",
+      "before": 20,
+      "after": 24
+    },
+    {
+      "id": "spring/L-3/six-seven",
+      "before": 26,
+      "after": 27
+    },
+    {
+      "id": "spring/L-3/all-six",
+      "before": 26,
+      "after": 27
+    },
+    {
+      "id": "spring/L-3/four-season-stock",
+      "before": 20,
+      "after": 24
+    },
+    {
+      "id": "spring/T-4/six-seven",
+      "before": 32,
+      "after": 35
+    },
+    {
+      "id": "spring/S-4/six-seven",
+      "before": 32,
+      "after": 35
+    },
+    {
+      "id": "spring/plus-5/user-tails",
+      "before": 41,
+      "after": 42
+    },
+    {
+      "id": "spring/square-9/all-six",
+      "before": 53,
+      "after": 58
+    },
+    {
+      "id": "summer/horizontal-5/all-six",
+      "before": 18,
+      "after": 44
+    },
+    {
+      "id": "summer/vertical-5/all-six",
+      "before": 18,
+      "after": 44
+    },
+    {
+      "id": "summer/L-3/all-season",
+      "before": 12,
+      "after": 20
+    },
+    {
+      "id": "summer/L-3/four-season-stock",
+      "before": 12,
+      "after": 20
+    },
+    {
+      "id": "summer/T-4/all-six",
+      "before": 32,
+      "after": 35
+    },
+    {
+      "id": "summer/U-5/all-six",
+      "before": 38,
+      "after": 44
+    },
+    {
+      "id": "summer/plus-5/all-six",
+      "before": 38,
+      "after": 41
+    },
+    {
+      "id": "summer/notch-8/all-six",
+      "before": 42,
+      "after": 44
+    },
+    {
+      "id": "summer/bridge-7/all-six",
+      "before": 41,
+      "after": 44
+    },
+    {
+      "id": "summer/snake-7/six-seven",
+      "before": 31,
+      "after": 32
+    },
+    {
+      "id": "summer/snake-7/all-six",
+      "before": 41,
+      "after": 44
+    },
+    {
+      "id": "summer/comb-9/all-six",
+      "before": 18,
+      "after": 44
+    },
+    {
+      "id": "summer/square-9/all-six",
+      "before": 38,
+      "after": 44
+    },
+    {
+      "id": "holdout-007/summer",
+      "before": 50,
+      "after": 53
+    },
+    {
+      "id": "holdout-026/spring",
+      "before": 60,
+      "after": 68
+    },
+    {
+      "id": "holdout-038/spring",
+      "before": 38,
+      "after": 44
+    },
+    {
+      "id": "holdout-040/autumn",
+      "before": 88,
+      "after": 90
+    },
+    {
+      "id": "holdout-047/summer",
+      "before": 35,
+      "after": 36
+    }
+  ],
+  "quantity_regressions_since_first_pass": 0,
+  "selfcheck": {
+    "mode": "release",
+    "success": true,
+    "game": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents",
+    "checks": [
+      {
+        "name": "check_syntax",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_modinfo",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_no_source_png",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_animation_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_driver_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_music_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_common_module",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_mod_environment",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_script_modules",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_paths",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_globals",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_recipe_ingredients",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_cross_refs",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_local_functions_defined",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_bad_patterns",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_giant_farming",
+        "status": "passed",
+        "details": {
+          "run": 617,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "failures": [],
+    "warnings": []
+  },
+  "web_tests": {
+    "run": 10,
+    "failures": 0,
+    "point_parity_scenarios": 76
+  },
+  "scope_limits": [
+    "Finite heuristic search; known quantity gaps are explicitly listed. No claim of universal quantity or arrangement optimality.",
+    "Independent spatial MILP is development-only and never feeds a layout to the Mod or webpage.",
+    "Offline adapters do not replace DST client, growth or multiplayer acceptance."
+  ],
+  "reproduce": [
+    "PYTHONPATH=/tmp/pylua python3 tools/seed_strategy_audit.py --suite all --jobs 4 --output outputs/0.5.12-release-all.json",
+    "PYTHONPATH=/tmp/pylua python3 tools/balanced_gap_audit.py --source outputs/0.5.12-release-all.json --output outputs/0.5.12-release-spatial.json",
+    "PYTHONPATH=/tmp/pylua python3 tools/selfcheck.py --release --report outputs/0.5.12-release-selfcheck.json",
+    "PYTHONPATH=/tmp/pylua python3 -m unittest discover -s web/giant-seed-verifier/tests -v"
+  ]
+}

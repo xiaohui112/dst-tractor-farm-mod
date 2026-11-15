@@ -3,7 +3,7 @@
 import base64
 from pathlib import Path
 from PIL import Image
-from mount_geometry import ROOT,SOURCE,LAYOUT,point,offset,exhaust
+from mount_geometry import ROOT,SOURCE,LAYOUT,MASKS,point,offset,exhaust,occluded
 
 
 def sprite(kind,view,dx=0,dy=0,mirror=False):
@@ -19,7 +19,8 @@ def main():
     for row,kind in enumerate(kinds):
         for col,view in enumerate(LAYOUT['views']):
             i=col;dx,dy=offset(kind,i)
-            tractor=sprite('tractor',view);tool=sprite(kind,view,dx,dy,kind=='harvester' and i in (0,1))
+            tractor=sprite('tractor',view)
+            tool='' if occluded(kind,MASKS[i]) else sprite(kind,view,dx,dy,kind=='harvester' and i in (0,1))
             rear_front=(kind!='harvester' and view in ('up','upside')) or (kind=='harvester' and view in ('down','downside','side'))
             x,y=point('tractor',i,LAYOUT['tractor']['front' if kind=='harvester' else 'rear'][i])
             ex,ey=exhaust(i)

@@ -1,0 +1,3204 @@
+{
+  "source": "Native farm_plant_defs + independent stock DP; external MILP confirmed strictly better feasible witnesses. 2026-11-14 audit.",
+  "cases": [
+    {
+      "id": "autumn/T-4/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 24,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/S-4/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 28,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/U-5/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 28,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/plus-5/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 28,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/ring-8/user-tails",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "autumn/ring-8/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 24,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/notch-8/user-tails",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "autumn/notch-8/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 20,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/bridge-7/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 28,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/comb-9/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 24,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "autumn/square-9/user-tails",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "autumn/square-9/all-season",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 24,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "winter/ring-8/user-tails",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "potato": 7,
+        "asparagus": 24,
+        "pumpkin": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "winter/notch-8/user-tails",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "potato": 7,
+        "asparagus": 24,
+        "pumpkin": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "winter/square-9/user-tails",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "potato": 7,
+        "asparagus": 24,
+        "pumpkin": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "spring/T-4/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 24,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "spring/S-4/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 36,
+      "previous": 28,
+      "independent_witness_count": 36
+    },
+    {
+      "id": "spring/U-5/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 44,
+      "previous": 28,
+      "independent_witness_count": 44
+    },
+    {
+      "id": "spring/plus-5/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 44,
+      "previous": 32,
+      "independent_witness_count": 44
+    },
+    {
+      "id": "spring/ring-8/user-tails",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "spring/ring-8/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 24,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "spring/notch-8/user-tails",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "spring/notch-8/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 28,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "spring/bridge-7/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 36,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "spring/snake-7/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 32,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "spring/comb-9/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 32,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "spring/square-9/user-tails",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 24,
+        "tomato": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "spring/square-9/all-season",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 32,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "summer/T-4/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 20,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/S-4/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/U-5/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/plus-5/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/ring-8/user-tails",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 7,
+        "tomato": 7,
+        "watermelon": 24,
+        "dragonfruit": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "summer/ring-8/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 20,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/notch-8/user-tails",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 7,
+        "tomato": 7,
+        "watermelon": 24,
+        "dragonfruit": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "summer/notch-8/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/bridge-7/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/comb-9/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "summer/square-9/user-tails",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 7,
+        "tomato": 7,
+        "watermelon": 24,
+        "dragonfruit": 17,
+        "randomseed": 40
+      },
+      "expected": 55,
+      "previous": 48,
+      "independent_witness_count": 55
+    },
+    {
+      "id": "summer/square-9/all-season",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 4,
+        "tomato": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4,
+        "randomseed": 40
+      },
+      "expected": 32,
+      "previous": 24,
+      "independent_witness_count": 32
+    },
+    {
+      "id": "autumn/U-5/six-seven",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 7,
+        "tomato": 7,
+        "eggplant": 7,
+        "pumpkin": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 35,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "autumn/U-5/all-six",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "eggplant": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 28,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "autumn/plus-5/six-seven",
+      "season": "autumn",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 7,
+        "tomato": 7,
+        "eggplant": 7,
+        "pumpkin": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 21,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "autumn/plus-5/all-six",
+      "season": "autumn",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "eggplant": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 23,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "autumn/ring-8/all-six",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "eggplant": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "randomseed": 40
+      },
+      "expected": 54,
+      "previous": 18,
+      "independent_witness_count": 53
+    },
+    {
+      "id": "autumn/notch-8/all-six",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "eggplant": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "randomseed": 40
+      },
+      "expected": 54,
+      "previous": 24,
+      "independent_witness_count": 54
+    },
+    {
+      "id": "autumn/snake-7/all-six",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "eggplant": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "randomseed": 40
+      },
+      "expected": 54,
+      "previous": 36,
+      "independent_witness_count": 52
+    },
+    {
+      "id": "winter/T-4/all-six",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "potato": 6,
+        "asparagus": 6,
+        "pumpkin": 6,
+        "garlic": 6,
+        "randomseed": 40
+      },
+      "expected": 30,
+      "previous": 18,
+      "independent_witness_count": 30
+    },
+    {
+      "id": "spring/U-5/six-seven",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 7,
+        "tomato": 7,
+        "asparagus": 7,
+        "eggplant": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 35,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "spring/U-5/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 28,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "spring/plus-5/six-seven",
+      "season": "spring",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 7,
+        "corn": 7,
+        "potato": 7,
+        "tomato": 7,
+        "asparagus": 7,
+        "eggplant": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 21,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "spring/plus-5/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 23,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "spring/ring-8/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 72,
+      "previous": 18,
+      "independent_witness_count": 65
+    },
+    {
+      "id": "spring/notch-8/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 72,
+      "previous": 42,
+      "independent_witness_count": 64
+    },
+    {
+      "id": "spring/snake-7/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 63,
+      "previous": 45,
+      "independent_witness_count": 59
+    },
+    {
+      "id": "spring/comb-9/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 72,
+      "previous": 42,
+      "independent_witness_count": 66
+    },
+    {
+      "id": "spring/square-9/all-six",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6,
+        "tomato": 6,
+        "asparagus": 6,
+        "eggplant": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "durian": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 72,
+      "previous": 30,
+      "independent_witness_count": 67
+    },
+    {
+      "id": "summer/U-5/six-seven",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "corn": 7,
+        "tomato": 7,
+        "watermelon": 7,
+        "dragonfruit": 7,
+        "garlic": 7,
+        "onion": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 35,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "summer/U-5/all-six",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "corn": 6,
+        "tomato": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 28,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "summer/plus-5/six-seven",
+      "season": "summer",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 7,
+        "tomato": 7,
+        "watermelon": 7,
+        "dragonfruit": 7,
+        "garlic": 7,
+        "onion": 7,
+        "randomseed": 40
+      },
+      "expected": 42,
+      "previous": 21,
+      "independent_witness_count": 42
+    },
+    {
+      "id": "summer/plus-5/all-six",
+      "season": "summer",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "corn": 6,
+        "tomato": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 45,
+      "previous": 23,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "summer/snake-7/all-six",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "corn": 6,
+        "tomato": 6,
+        "watermelon": 6,
+        "dragonfruit": 6,
+        "garlic": 6,
+        "onion": 6,
+        "pepper": 6,
+        "pomegranate": 6,
+        "randomseed": 40
+      },
+      "expected": 48,
+      "previous": 30,
+      "independent_witness_count": 48
+    },
+    {
+      "id": "holdout-031/summer",
+      "season": "summer",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "watermelon": 4,
+        "pepper": 4,
+        "garlic": 7,
+        "pomegranate": 6,
+        "corn": 0,
+        "tomato": 24,
+        "onion": 7
+      },
+      "expected": 45,
+      "previous": 41,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "holdout-092/autumn",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "potato": 4,
+        "carrot": 9,
+        "pumpkin": 6,
+        "pepper": 7,
+        "garlic": 11,
+        "tomato": 10,
+        "eggplant": 4
+      },
+      "expected": 45,
+      "previous": 36,
+      "independent_witness_count": 45
+    },
+    {
+      "id": "holdout-154/spring",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "stock": {
+        "eggplant": 7,
+        "corn": 24,
+        "watermelon": 9,
+        "asparagus": 10,
+        "garlic": 4,
+        "carrot": 11,
+        "dragonfruit": 7,
+        "onion": 5,
+        "tomato": 10,
+        "durian": 4,
+        "potato": 3
+      },
+      "expected": 91,
+      "previous": 73,
+      "independent_witness_count": 89
+    },
+    {
+      "id": "holdout-234/spring",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "stock": {
+        "garlic": 6,
+        "dragonfruit": 9,
+        "watermelon": 40,
+        "pomegranate": 9,
+        "corn": 3,
+        "onion": 4,
+        "durian": 9,
+        "asparagus": 40,
+        "potato": 5,
+        "tomato": 24,
+        "eggplant": 24
+      },
+      "expected": 170,
+      "previous": 151,
+      "independent_witness_count": 0
+    }
+  ]
+}

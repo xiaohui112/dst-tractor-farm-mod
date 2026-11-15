@@ -1,7 +1,9 @@
 -- 网络只传稳定原因码和参数；语言、文案不参与业务判断。
 local L=require("aom_locale").Text
 local PLAN_MESSAGES = {
-    MISSING_SEEDS="种子不足，请补齐整套配比所需种子",
+    PLANNING="正在规划巨大化布局，请稍候",
+    FARM_TOO_LARGE="连通农田超过64块，请分区播种",
+    MISSING_SEEDS="配比种子不足，请补齐当前方案所需种子后按 F 继续",
     NEED_PLOW="请换开垦机，准备好全部计划地块的坑位",
     NEXT_TILE="本格已完成，请驾驶到相邻的计划地块",
     COMPLETE="本轮配比已完成；收获后请在播种面板重规划并确认下一轮",
@@ -13,11 +15,12 @@ local PLAN_MESSAGES = {
     LOW_NUTRIENTS="初始养分不足，请先给计划地块补肥",
     BLOCKED_MOUND="计划坑位被占用，请清理后重新作业",
     CARGO_FULL="拖拉机仓库已满，请腾出空间后按 F 继续作业",
-    NO_FAMILY="实际坑位不满足同类距离，请换开垦机整理坑位",
+    NO_BALANCED_COMBO="现有种子与农田无法组成互补巨大化配比，请调整种子或扩大农田",
+    NO_FAMILY="现有库存和地皮未找到合适巨大化布局，请调整种子或农田范围",
 }
 local WORK_MESSAGES={
     IVY_THREAT="附近有成熟刺针旋花，请先换除草机清理，再收割",
-    NO_FUEL="燃料不足，请加油后按 F 继续作业",
+    NO_FUEL="燃料不足，请加油后继续驾驶；按 F 恢复作业",
     FAILED="本格作业未完成，请检查地块后按 F 重试",
     NO_ATTACHMENT="请先安装挂件",
     BROKEN_ATTACHMENT="开垦机已损坏并卸载，请维修后重新挂载",
@@ -26,9 +29,9 @@ local WORK_MESSAGES={
     BROKEN_FERTILIZER="施肥机已损坏并卸载，请维修后重新挂载",
     BROKEN_HARVESTER="收割机已损坏并卸载，请维修后重新挂载",
     BROKEN_SEEDER="播种机已损坏并卸载，请维修后重新挂载",
-    BROKEN_CHASSIS="底盘耐久已耗尽，请下车用齿轮修理后按 F 继续",
+    BROKEN_CHASSIS="底盘耐久已耗尽，拿起齿轮点击底盘图标修理后按 F 继续",
     DESTROYED="拖拉机已损毁",
-    UNCLEARABLE_WEED="本格有无法用铲子清理的杂草或残渣，已暂停除草",
+    UNCLEARABLE_WEED="本格有无法用铲子清理的杂草、残渣或枯株，已暂停除草",
     WEEDING_INCOMPLETE="本格除草尚未完成，已保留实际进度，请检查后按 F 重试",
     HARVEST_INCOMPLETE="本格收割或巨大作物拆分尚未完成，已保留实际进度，请检查后按 F 重试",
     PROTECTED_CROP="本格有作物，已保留原状；收获后再开垦",
@@ -80,5 +83,14 @@ function M.Set(inst,code,detail)
         inst._workstate_net:set(code~="" and (detail~="" and code.."|"..detail or code) or "")
     end
     return M.Text(code,detail)
+end
+-- 同一原因与参数仅在变化时喊话；主动重试可force再次提示。
+function M.Report(inst,code,detail,player,force)
+    local previous,old_detail=M.Read(inst)
+    local text=M.Set(inst,code,detail)
+    if force or previous~=(code or "") or old_detail~=(detail or "") then
+        require("aom_feedback").Say(player or inst._rider,text)
+    end
+    return text
 end
 return M

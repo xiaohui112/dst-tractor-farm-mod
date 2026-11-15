@@ -88,11 +88,11 @@ assert(count_trace('loot_roll')==2 and count_entities('flint')==0)
 assert(Farm.IsFieldReady(0,0,0))
 ''')
 
-    def test_all_109_layouts_use_new_land_generation_cleanup_and_verified_mounds(self):
+    def test_all_203_grid_layouts_use_new_land_generation_cleanup_and_nine_mounds(self):
         w=self.w;total=0
         for season,combos in w.block.BLOCKS.items():
             for _,combo in combos.items():
-                if combo.reference_only:continue
+                if not w.lua.eval("require('aom_auto_seeding').IsGrid")(combo):continue
                 total+=1
                 with self.subTest(layout=combo.id):
                     self.run_lua('ENTITIES={};TILES={};TRACE={};TILE_WRITES=0')
@@ -105,13 +105,13 @@ assert(Farm.IsFieldReady(0,0,0))
                         result=w.drive.WorkTile(inst,tile.x,tile.z)
                         self.assertTrue(result[0] if isinstance(result,tuple) else result)
                     self.assertEqual(w.lua.globals().count_entities('farm_soil_debris'),0)
-                    self.assertEqual(w.lua.globals().count_entities('farm_soil'),combo.total)
+                    self.assertEqual(w.lua.globals().count_entities('farm_soil'),9*combo.width*combo.height)
                     w.lua.globals().set_flow_attachment(inst,'seeder')
                     for _,tile in tiles.items():
                         result=w.drive.WorkTile(inst,tile.x,tile.z)
                         self.assertTrue(result[0] if isinstance(result,tuple) else result)
                     self.assertEqual(inst._block.done,combo.total)
-        self.assertEqual(total,109)
+        self.assertEqual(total,203)
 
     def test_random_attempts_and_spacing_match_original_callback(self):
         self.run_lua('''
@@ -177,7 +177,7 @@ local crop=SpawnPrefab('farm_plant_tomato');crop.Transform:SetPosition(0,0,0)
 local soil=SpawnPrefab('farm_soil');soil.Transform:SetPosition(.2,0,1.5)
 inst._working=true
 local worked,reason=Drive.WorkTile(inst,0,0)
-assert(not worked and reason=='PROTECTED_CROP' and not inst._working)
+assert(not worked and reason=='PROTECTED_CROP' and inst._working)
 assert(crop.valid and soil.valid and TILE_WRITES==0 and count_trace('debris')==0)
 assert(inst._fuel:value()==800 and tool.components.finiteuses:GetUses()==60)
 ''')
@@ -202,8 +202,8 @@ local weed=SpawnPrefab('weed_ivy');weed.tags.weed=true
 weed.components.workable=dofile(REF..'/workable.lua')(weed)
 weed.components.workable:SetWorkAction(ACTIONS.CHOP)
 local ok,reason=Drive.WorkTile(inst,0,0)
-assert(not ok and reason=='UNCLEARABLE_DEBRIS' and weed.valid)
-assert(count_entities('farm_soil')==0 and inst._fuel:value()==800)
+assert(ok and reason=='BLOCKED_MOUND' and weed.valid)
+assert(count_entities('farm_soil')==8 and inst._fuel:value()==799)
 ''')
 
     def test_cleanup_failure_preserves_old_layout_and_reports_partial_work(self):
@@ -229,7 +229,7 @@ TheWorld.Map.CanTillSoilAtPoint=function(self,x,y,z)
 end
 inst._working=true
 local changed,reason=Drive.WorkTile(inst,0,0)
-assert(changed and reason=='BLOCKED_MOUND' and not inst._working)
+assert(changed and reason=='BLOCKED_MOUND' and inst._working)
 assert(count_entities('farm_soil')==8 and not Farm.IsFieldReady(0,0,0))
 local spawned=count_trace('debris');local loot=count_trace('loot_roll')
 TheWorld.Map.CanTillSoilAtPoint=original;inst._working=true
@@ -243,7 +243,7 @@ assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==58)
         self.run_lua('''
 TILES[tkey(0,0)]=-1;inst._working=true
 local worked,reason=Drive.WorkTile(inst,0,0)
-assert(not worked and reason=='CANNOT_PLOW' and not inst._working)
+assert(not worked and reason=='CANNOT_PLOW' and inst._working)
 assert(TILE_WRITES==0 and count_trace('debris')==0 and count_entities('farm_soil')==0)
 assert(tool.components.finiteuses:GetUses()==60 and inst._fuel:value()==800)
 ''')
@@ -293,8 +293,8 @@ assert(Drive.WorkTile(inst,0,0));set_flow_attachment(inst,'seeder');assert(Drive
 assert(inst._block.done==1 and crop_count()==1)
 set_flow_attachment(inst,'plow')
 local changed,reason,ready=Drive.WorkHere(inst)
-assert(not changed and ready and reason=='ALREADY_TILLED')
-assert(inst._block.done==1 and crop_count()==1 and count_entities('farm_soil')==7)
+assert(not changed and not ready and reason=='BLOCKED_MOUND')
+assert(inst._block.done==1 and crop_count()==1 and count_entities('farm_soil')==8)
 ''')
 
     def test_giant_preparation_cleans_debris_but_sowing_keeps_strict_check(self):
@@ -305,7 +305,7 @@ assert(inst._block.done==1 and crop_count()==1 and count_entities('farm_soil')==
 TILES[tkey(0,0)]=0
 local old=SpawnPrefab('farm_soil_debris');old.Transform:SetPosition(1.99,0,1.99)
 assert(Drive.WorkTile(inst,0,0))
-assert(not old.valid and count_entities('farm_soil_debris')==0 and count_entities('farm_soil')==8)
+assert(not old.valid and count_entities('farm_soil_debris')==0 and count_entities('farm_soil')==9)
 local leftover=SpawnPrefab('farm_soil_debris');leftover.Transform:SetPosition(1.5,0,1.5)
 set_flow_attachment(inst,'seeder')
 local ok,reason=Drive.WorkHere(inst)
@@ -323,10 +323,8 @@ for _,v in ipairs(ENTITIES)do if v:HasTag('farm_plant') then v:Remove()end end
 local leftover=SpawnPrefab('farm_soil_debris');leftover.Transform:SetPosition(.3,0,.3)
 set_flow_attachment(inst,'plow')
 local changed,why=Drive.WorkTile(inst,0,0)
-assert(not changed and why=='COMPLETE' and leftover.valid)
-assert(Block.Preview(inst) and Block.Confirm(inst))
-assert(Drive.WorkTile(inst,0,0))
-assert(not leftover.valid and inst._block.done==0 and count_entities('farm_soil')==8)
+assert(changed and not leftover.valid and count_entities('farm_soil')==9)
+assert(inst._block.done==8) -- 新轮次由播种机自动选择，不需要人工确认。
 set_flow_attachment(inst,'seeder');assert(Drive.WorkTile(inst,0,0))
 assert(inst._block.done==8 and count_entities('farm_plant_eggplant')==4)
 ''')

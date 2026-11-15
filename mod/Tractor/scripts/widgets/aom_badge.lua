@@ -38,11 +38,30 @@ local AOMBadge=Class(Button,function(self,owner,tint,health_icon)
     self.text:SetClickable(false)
 end)
 function AOMBadge:SetIcon(atlas,texture)
+    if not atlas then
+        self.icon_atlas,self.icon_texture=nil,nil
+        self.icon:Hide()
+        return
+    end
     if self.icon_atlas==atlas and self.icon_texture==texture then return end
     self.icon_atlas,self.icon_texture=atlas,texture
     self.icon:SetTexture(atlas,texture)
     self.icon:ScaleToSize(30,30)
     self.icon:Show()
+end
+function AOMBadge:SetOnRightClick(fn)self.onrightclick=fn end
+function AOMBadge:OnControl(control,down)
+    if control==CONTROL_SECONDARY and self.onrightclick then
+        if not self:IsEnabled() or not self.focus or not self:IsVisible() then self._right_down=nil;return false end
+        if down then self._right_down=true
+        elseif self._right_down then self._right_down=nil;self.onrightclick()end
+        return true
+    end
+    return Button.OnControl(self,control,down)
+end
+function AOMBadge:OnLoseFocus()
+    self._right_down=nil
+    Button.OnLoseFocus(self)
 end
 function AOMBadge:SetValue(value,max,tip,display,warning,empty)
     local percent=max>0 and math.clamp(value/max,0,1) or 0

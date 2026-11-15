@@ -1,2 +1,5 @@
 lupa==2.8
 Pillow>=11.0,<13
+
+# Independent composition/spatial audit only; not a Mod or webpage runtime dependency.
+scipy==1.13.1

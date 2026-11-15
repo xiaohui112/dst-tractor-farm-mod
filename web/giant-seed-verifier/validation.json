@@ -1,0 +1,71 @@
+{
+  "checked_at": "2026-11-14T13:06:49.455587+00:00",
+  "source": {
+    "version": "0.5.11",
+    "runtime": "Lua 5.1",
+    "files": [
+      {
+        "path": "scripts/aom_dynamic_farm.lua",
+        "sha256": "639e5dace4cda60d3637a83fa8d3d53018c1fcdaace654e64083978837dafb77",
+        "bytes": 15123
+      },
+      {
+        "path": "scripts/aom_seed_layout.lua",
+        "sha256": "87f12ebc37e97829ddd17e7dfae538badf4edc568d2d822f7bf16f5ac10c89a0",
+        "bytes": 18027
+      },
+      {
+        "path": "scripts/aom_seed_packing.lua",
+        "sha256": "cec9c7105c98f84b52ca713a78d812c88be92e58fd77ab9dfa7da9daa44bec46",
+        "bytes": 11871
+      },
+      {
+        "path": "scripts/aom_seed_strategy.lua",
+        "sha256": "4906064358bd76c38569ca78028a43cc841c19741d002f803fd63dce5c737b76",
+        "bytes": 2022
+      },
+      {
+        "path": "scripts/aom_farm_registry.lua",
+        "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+        "bytes": 1387
+      },
+      {
+        "path": "scripts/aom_crop_state.lua",
+        "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+        "bytes": 1667
+      },
+      {
+        "path": "scripts/components/aom_attachment_store.lua",
+        "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+        "bytes": 8377
+      }
+    ],
+    "fingerprint": "07c22e40fc80e93cb2c0043d165dcde86b82c082be133476e4f71258cd25935c",
+    "installed_match": true,
+    "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+    "constants": {
+      "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+      "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+      "FARM_TILL_SPACING": 1.25,
+      "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0
+    }
+  },
+  "tests": {
+    "unittest_cases": 9,
+    "passed": 9,
+    "failed": 0,
+    "point_for_point_scenarios": 76,
+    "inventory_boundary_cases": 7,
+    "http_status": 200
+  },
+  "browser_checks": [
+    "番茄土豆各18株",
+    "T形九种各4颗全部36株，逐株同族检查",
+    "冬季番茄不参与且库存保留",
+    "点击编辑地皮后清除旧结果并重新计算",
+    "完整结果导出、后端重算逐坑一致、导入成功",
+    "版本与七个模块哈希显示，已安装模块一致",
+    "无前端warn/error日志"
+  ],
+  "scope": "使用Mod原始Lua5.1模块；网页适配完整九宫格空田及库存，不模拟游戏驾驶/联网/动态世界变化"
+}

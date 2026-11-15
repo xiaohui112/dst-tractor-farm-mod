@@ -27,20 +27,21 @@
     "aom_tractor_driver_150": 3.75
   },
   "driver_motion": "fixed_seated_pose_with_vehicle_suspension",
+  "driver_facing": "directional_side_pose_and_rear_pose_with_upright_head",
+  "side_pose_source": "player_idles.zip/idle_loop/5/frame0",
+  "rear_attachments_front_view": "occluded_in_mounted_banks_only",
+  "wreck_source": "\u7f8e\u672f\u4ea4\u4ed8/2026-11-11-v1/originals/death.png",
   "sha256": {
-    "aom_attachment_shared": "8c05376b40d2f6532103f441155adc0b60209644dda384a765aac60fe7ea31a9",
-    "aom_attachment_symbols": "c75a7078e1e0aee98407ae1924e25c8abe9e6f86594e44fc8341558d1da3c7cd",
-    "aom_tractor_chassis": "0e1bb626b4720755f2e377bb7de585ef314eefc0d99f72e971bf96a45081e353",
-    "aom_tractor_cabin": "ca5f67428c8c33e38900079ba09e8af477472724bb495dfa751b275c092d4051",
-    "aom_tractor_driver": "906e4985b22722b215f7c6b7961e501a45baa191fb2e7e74dffb612d81e355f5",
-    "aom_tractor_driver_075": "41548b8acc083dc5932112ce90a1057eb81a18f4a977064d28a5a29062c6e569",
-    "aom_tractor_driver_125": "1f1a9ee1fbd740d22fd1c18b20f2d4c2dbb4a36d7bf8f2b774015fe2a66f0506",
-    "aom_tractor_driver_150": "cf012bd05b07f77782696b32e259a4e13b6a27e93c13e07fe693bc0c464e309f",
-    "aom_attachment_fx": "7fa6271c77fe7c990a89916e30ee081b265ee793dba42388d999341e3f95d61b",
-    "aom_attachment_water": "4f3c596d9a9152eeba03fd480e129111650e89c148f48ce5631ba0f978699127"
+    "aom_attachment_symbols": "77ddd213c7bced0edd8189034aa3f9737d27bca90c45c3bf9fa2e001e98a913a",
+    "aom_attachment_shared": "97b4b3e162918332109c32eec015b387e90647eefce52357b226b0fe36eb3652",
+    "aom_attachment_fx": "6f0e9895124ecac8f2c3bc9d35ee8276b8735a323593c37831bcdce81aed7fc5",
+    "aom_attachment_water": "981fbddf17060e38415bffb89e5282ecf65d2a926739685c1014c0a9d4110e9a",
+    "aom_tractor_chassis": "87bedeea224e98486b011037854e7a96176e7f335b52d2c44be6ec358c01fca8",
+    "aom_tractor_cabin": "eb9aefba60a66f2fbd101997910fc620e4e1fda77f13eaaa4b5f7c396e728849",
+    "aom_tractor_driver": "6c2740cdd296b151d284da0751feb219dcb9a7e51e19ac6f569f57396f2fef7f",
+    "aom_tractor_driver_075": "01d60d4460d1f73f1565b6945110242e94530cfcb2e9ce1acf7f9052abda542d",
+    "aom_tractor_driver_125": "e5d62a0ea3ae45730420e6b9884087c338269c58685e1ea4c9d3beabb9dc694e",
+    "aom_tractor_driver_150": "1a791629b255f4ac0b6210c56b4e83c0813171480f750320bac5a81c8060b121"
   },
-  "game_validation": false,
-  "attachment_report": "Attachment-Build-Report.json",
-  "shared_driver_build": "aom_tractor_cabin",
-  "mount_geometry": "assets/directional-v2/mount-layout.json"
+  "game_validation": false
 }
