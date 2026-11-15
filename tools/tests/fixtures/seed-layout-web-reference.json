@@ -1,0 +1,236 @@
+{
+  "source": "Validated offline planner.js, 2026-11-13; metrics and arrangement rules without nutrient constraints in the Lua seeder",
+  "sha256": "3527d966b3343b83090fdfe9376fa312276da306f26968c576bc4152a2d99b20",
+  "cases": [
+    {
+      "w": 1,
+      "h": 1,
+      "cells": [
+        [
+          "potato",
+          "tomato",
+          "potato",
+          null,
+          "potato",
+          "tomato",
+          "tomato",
+          "potato",
+          "tomato"
+        ]
+      ],
+      "metrics": {
+        "score": 25232,
+        "local": 17032,
+        "neighborMismatches": 0,
+        "repeatedMotifMismatches": 0,
+        "spatial": {
+          "family": 82,
+          "seams": 0,
+          "score": 8200
+        }
+      },
+      "regularized": {
+        "cells": [
+          [
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            null,
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato"
+          ]
+        ],
+        "metrics": {
+          "score": -392,
+          "local": -5992,
+          "neighborMismatches": 0,
+          "repeatedMotifMismatches": 0,
+          "spatial": {
+            "family": 56,
+            "seams": 0,
+            "score": 5600
+          }
+        }
+      }
+    },
+    {
+      "w": 2,
+      "h": 1,
+      "cells": [
+        [
+          "carrot",
+          "carrot",
+          "carrot",
+          "corn",
+          "corn",
+          "corn",
+          "potato",
+          "potato",
+          "potato"
+        ],
+        [
+          "potato",
+          "carrot",
+          "corn",
+          "potato",
+          "carrot",
+          "corn",
+          "potato",
+          "carrot",
+          "corn"
+        ]
+      ],
+      "metrics": {
+        "score": -8092,
+        "local": -35910,
+        "neighborMismatches": 6,
+        "repeatedMotifMismatches": 6,
+        "spatial": {
+          "family": 220,
+          "seams": 1,
+          "score": 21800
+        }
+      }
+    },
+    {
+      "w": 1,
+      "h": 2,
+      "cells": [
+        [
+          "carrot",
+          "corn",
+          "potato",
+          "carrot",
+          "corn",
+          "potato",
+          "carrot",
+          "corn",
+          "potato"
+        ],
+        [
+          "carrot",
+          "corn",
+          "potato",
+          "carrot",
+          "corn",
+          "potato",
+          null,
+          null,
+          null
+        ]
+      ],
+      "metrics": {
+        "score": -4188,
+        "local": -17988,
+        "neighborMismatches": 0,
+        "repeatedMotifMismatches": 0,
+        "spatial": {
+          "family": 138,
+          "seams": 0,
+          "score": 13800
+        }
+      },
+      "regularized": {
+        "cells": [
+          [
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato"
+          ],
+          [
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato",
+            null,
+            null,
+            null
+          ]
+        ],
+        "metrics": {
+          "score": -4188,
+          "local": -17988,
+          "neighborMismatches": 0,
+          "repeatedMotifMismatches": 0,
+          "spatial": {
+            "family": 138,
+            "seams": 0,
+            "score": 13800
+          }
+        }
+      }
+    },
+    {
+      "w": 2,
+      "h": 2,
+      "cells": [
+        [
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          null,
+          "tomato",
+          "tomato",
+          "tomato",
+          "tomato"
+        ],
+        [
+          "tomato",
+          "tomato",
+          "tomato",
+          "tomato",
+          null,
+          "potato",
+          "potato",
+          "potato",
+          "potato"
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          "potato",
+          "potato"
+        ]
+      ],
+      "metrics": {
+        "score": -10875,
+        "local": -29911,
+        "neighborMismatches": 12,
+        "repeatedMotifMismatches": 8,
+        "spatial": {
+          "family": 118,
+          "seams": 4,
+          "score": 11000
+        }
+      }
+    }
+  ]
+}

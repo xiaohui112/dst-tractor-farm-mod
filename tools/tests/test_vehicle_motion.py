@@ -39,7 +39,7 @@ class VehicleAssetTests(unittest.TestCase):
                     records=symbols[name_hash(kind)]
                     self.assertEqual([r[0] for r in records],list(range(5)))
                     self.assertNotEqual(records[3][-2],records[4][-2])
-                    variants=[a for a in anim['animations'] if a['name']==('idle' if kind=='body' else kind)]
+                    variants=[a for a in anim['animations'] if a['bank']==name_hash(name) and a['name']==('idle' if kind=='body' else kind)]
                     self.assertEqual({a['facing'] for a in variants},{5,48,192,2,8})
                     frames={a['facing']:next(e['frame'] for e in a['frames'][0]['elements'] if e['symbol']==name_hash(kind)) for a in variants}
                     self.assertEqual(frames[8],3);self.assertEqual(frames[2],4)
@@ -99,7 +99,7 @@ class VehicleAssetTests(unittest.TestCase):
         self.assertEqual(fsb[:4],b'FSB5');self.assertEqual(struct.unpack_from('<I',fsb,8)[0],3)
         for name in ['idle','drive','work']:
             with wave.open(str(ROOT/'assets/audio'/('tractor_'+name+'.wav'))) as audio:
-                self.assertEqual(audio.getnframes(),44100*4)
+                self.assertEqual(audio.getnframes(),round(44100*(6.88 if name=='work' else 4)))
                 self.assertEqual(audio.getnchannels(),1)
                 self.assertGreater(len(set(audio.readframes(audio.getnframes()))),50)
 

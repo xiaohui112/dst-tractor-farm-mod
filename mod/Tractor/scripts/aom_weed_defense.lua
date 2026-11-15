@@ -36,6 +36,8 @@ function M.ClearSnares(vehicle,rider)
     if not TheWorld.ismastersim or not rider or not rider:IsValid() then return 0 end
     local mounted=rider.components and rider.components.rider
     if not vehicle:IsValid() or not mounted or mounted:GetMount()~=vehicle then return 0 end
+    -- 收割机只做护田风险预检，不再替除草机破除已经生成的根须。
+    if vehicle._attachment_type=="harvester" then return 0 end
     local x,y,z=rider.Transform:GetWorldPosition()
     local radius=(rider.GetPhysicsRadius and rider:GetPhysicsRadius(0) or 0)+2.5
     local count=0

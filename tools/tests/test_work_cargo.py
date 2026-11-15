@@ -42,7 +42,7 @@ function quantity(owner,name)
  return n
 end
 function fill()
- for i=1,9 do local e=SpawnPrefab('gears');e.components.stackable:SetStackSize(40)
+ for i=1,t.components.container:GetNumSlots() do local e=SpawnPrefab('gears');e.components.stackable:SetStackSize(40)
   assert(t.components.container:GiveItem(e,i))end
 end
 function weed(x,z)
@@ -94,18 +94,18 @@ assert(quantity(t,'twigs')==2 and quantity(t,'rocks')==2 and t._fuel:value()==39
 assert(e.components.finiteuses:GetUses()==48)
 ''')
 
-    def test_full_cargo_stops_after_actual_harvest_and_preserves_loot_and_next_crop(self):
+    def test_fully_stacked_cargo_stops_before_harvest_and_resumes_after_freeing_space(self):
         self.run_lua('''
 fill();local a=crop('tomato',0,0,false);local b=crop('tomato',1,0,false)
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
-assert(changed and why=='CARGO_FULL' and not t._working and not a.valid and b.valid)
-assert(quantity(nil,'tomato')==1 and quantity(nil,'tomato_seeds')==1)
-assert(quantity(player,'tomato')==0 and t._fuel:value()==399)
+assert(not changed and why=='CARGO_FULL' and not t._working and a.valid and b.valid)
+assert(quantity(nil,'tomato')==0 and quantity(nil,'tomato_seeds')==0)
+assert(quantity(player,'tomato')==0 and t._fuel:value()==400)
 assert(string.find(require('aom_work_status').Describe(t),'仓库已满',1,true))
 t.components.container:RemoveItemBySlot(1):Remove();t.components.container:RemoveItemBySlot(2):Remove()
-t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not b.valid and t._working)
+t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not a.valid and not b.valid and t._working)
 assert(quantity(t,'tomato')==2 and quantity(t,'tomato_seeds')==2)
-assert(quantity(nil,'tomato')==0 and t._fuel:value()==398)
+assert(quantity(nil,'tomato')==0 and t._fuel:value()==399)
 ''')
 
     def test_full_cargo_before_weeding_does_not_destroy_weeds_or_charge(self):

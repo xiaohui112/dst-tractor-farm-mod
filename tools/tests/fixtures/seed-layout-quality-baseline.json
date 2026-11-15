@@ -1,0 +1,768 @@
+{
+  "source": "0.5.10 valid layouts rescored with the independently checked fragmentation term; retain or improve when primary goals match",
+  "cases": [
+    {
+      "id": "winter/U-5/all-season",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/U-5/four-season-stock",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/plus-5/all-season",
+      "season": "winter",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": -2958
+    },
+    {
+      "id": "winter/plus-5/four-season-stock",
+      "season": "winter",
+      "tiles": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4,
+        "asparagus": 4,
+        "eggplant": 4,
+        "pumpkin": 4,
+        "watermelon": 4,
+        "dragonfruit": 4,
+        "durian": 4,
+        "garlic": 4,
+        "onion": 4,
+        "pepper": 4,
+        "pomegranate": 4
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": -2958
+    },
+    {
+      "id": "holdout-033/winter",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "stock": {
+        "pumpkin": 8,
+        "asparagus": 17,
+        "garlic": 4
+      },
+      "expected": 29,
+      "kinds": 3,
+      "used_tiles": 4,
+      "score": -21643
+    },
+    {
+      "id": "holdout-078/spring",
+      "season": "spring",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "stock": {
+        "garlic": 4,
+        "asparagus": 40,
+        "potato": 4
+      },
+      "expected": 48,
+      "kinds": 3,
+      "used_tiles": 8,
+      "score": -62884
+    },
+    {
+      "id": "holdout-089/winter",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 11,
+        "garlic": 3,
+        "asparagus": 9
+      },
+      "expected": 20,
+      "kinds": 2,
+      "used_tiles": 3,
+      "score": -21681
+    },
+    {
+      "id": "holdout-101/winter",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "potato": 4,
+        "carrot": 11
+      },
+      "expected": 15,
+      "kinds": 2,
+      "used_tiles": 2,
+      "score": -18374
+    },
+    {
+      "id": "winter/T-4/all-season/D4-3",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/T-4/all-season/D4-7",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/U-5/all-season/D4-0",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/U-5/all-season/D4-4",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/snake-7/all-season/D4-1",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": -11942.999999999998
+    },
+    {
+      "id": "winter/snake-7/all-season/D4-2",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "winter/snake-7/all-season/D4-6",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": -11942.999999999998
+    },
+    {
+      "id": "winter/snake-7/all-season/D4-7",
+      "season": "winter",
+      "tiles": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "stock": {
+        "carrot": 4,
+        "potato": 4,
+        "asparagus": 4,
+        "pumpkin": 4,
+        "garlic": 4,
+        "randomseed": 40
+      },
+      "expected": 20,
+      "kinds": 5,
+      "used_tiles": 3,
+      "score": 6709
+    },
+    {
+      "id": "holdout-108/autumn",
+      "season": "autumn",
+      "tiles": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          7,
+          3
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ]
+      ],
+      "stock": {
+        "pepper": 5,
+        "tomato": 40,
+        "carrot": 10,
+        "garlic": 4,
+        "eggplant": 3,
+        "corn": 17,
+        "pumpkin": 11,
+        "onion": 3
+      },
+      "expected": 87,
+      "kinds": 6,
+      "used_tiles": 11,
+      "score": -113966
+    }
+  ]
+}

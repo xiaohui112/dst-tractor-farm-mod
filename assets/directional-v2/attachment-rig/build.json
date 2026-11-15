@@ -35,9 +35,9 @@
     "animation": "move"
   },
   "sha256": {
-    "aom_attachment_shared": "f662571cfe9c7ac4d02c09d09bc6de0f32726aa7e45856d055420142e3483b9b",
-    "aom_attachment_fx": "e9971bbfc84bfa159a5b3d78dda1eabdb88daa846fa168a9ad446beb8dd06f7c",
-    "aom_attachment_water": "d8b57b7b896efe4acca866748c18cface1bcb7792cc864250b19e46a0f5f7ba1"
+    "aom_attachment_shared": "97b4b3e162918332109c32eec015b387e90647eefce52357b226b0fe36eb3652",
+    "aom_attachment_fx": "6f0e9895124ecac8f2c3bc9d35ee8276b8735a323593c37831bcdce81aed7fc5",
+    "aom_attachment_water": "981fbddf17060e38415bffb89e5282ecf65d2a926739685c1014c0a9d4110e9a"
   },
   "dst_client_verified": false,
   "multiplayer_verified": false,

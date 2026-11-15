@@ -11,7 +11,7 @@ local function UpdateHoses(s)
     local points={{sx,sy,sz,bx,.08,bz},{bx,.08,bz,px,.02,pz}}
     for i,fx in ipairs(s.hoses)do if Valid(fx)then fx:SetEnds(unpack(points[i]))end end
 end
-function M.Cancel(vehicle)
+function M.Cancel(vehicle,notify)
     local state=vehicle._aom_pond_refill
     if not state then return end
     vehicle._aom_pond_refill=nil
@@ -19,6 +19,7 @@ function M.Cancel(vehicle)
     for _,v in ipairs(state.listeners)do vehicle:RemoveEventCallback(v[1],state.cancel,v[2])end
     for _,fx in ipairs(state.hoses)do if Valid(fx)then fx:Remove()end end
     if vehicle._refilling_net then vehicle._refilling_net:set(false)end
+    if notify then require("aom_feedback").Say(state.rider,require("aom_locale").Text("补水已中断，已保留补入的水量。")) end
 end
 local function ValidSession(vehicle,s)
     local rider,pond,tool=s.rider,s.pond,s.tool
@@ -38,7 +39,7 @@ end
 function M.Update(vehicle)
     local s=vehicle._aom_pond_refill
     if not s then return end
-    if not ValidSession(vehicle,s) then M.Cancel(vehicle);return end
+    if not ValidSession(vehicle,s) then M.Cancel(vehicle,true);return end
     UpdateHoses(s)
     local progress=math.clamp((GetTime()-s.started)/M.DURATION,0,1)
     local current=s.store:GetWater()
@@ -59,7 +60,7 @@ function M.Start(vehicle,rider,pond,tool)
         started=GetTime(),x=x,z=z,px=px,pz=pz,rotation=rotation,hoses={},listeners={}}
     vehicle._aom_pond_refill=s
     if vehicle._refilling_net then vehicle._refilling_net:set(true)end
-    s.cancel=function()M.Cancel(vehicle)end
+    s.cancel=function()M.Cancel(vehicle,true)end
     for _,v in ipairs({{"onremove",vehicle},{"onremove",rider},{"dismount",rider},{"death",rider},
         {"onremove",pond},{"onremove",tool},{"aom_attachment_changed",vehicle}})do
         vehicle:ListenForEvent(v[1],s.cancel,v[2]);s.listeners[#s.listeners+1]=v

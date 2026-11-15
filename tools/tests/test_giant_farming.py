@@ -150,7 +150,7 @@ function crop_count()local n=0;for _,v in ipairs(ENTITIES)do if v.valid and v:Ha
   season=ident.split('-')[0]
   return next(c for _,c in self.block.BLOCKS[season].items() if c.id==ident)
  def bind(self,inst,c):
-  self.block.OnLoad(inst,self.lua.table_from({'version':3,'combo_id':c.id,'season':c.id.split('-')[0],'x':0,'z':0,'rotation':0,'confirmed':True,'completed':self.lua.table()}))
+  self.block.OnLoad(inst,self.lua.table_from({'version':3,'combo_id':c.id,'season':c.id.split('-')[0],'x':0,'z':0,'rotation':0,'confirmed':True,'automatic':True,'completed':self.lua.table()}))
  def prepare(self,inst):
   _,tiles=self.block.WorldSlots(inst._block)
   inst._attachment_type='plow'
@@ -185,7 +185,7 @@ class GiantFarmingTests(unittest.TestCase):
   self.assertEqual(store.GetSeedCount(store),8)
  def test_catalog_expands_or_and_preserves_exception(self):
   w=self.w
-  self.assertEqual([len(w.block.BLOCKS[s]) for s in ['autumn','winter','spring','summer']],[21,4,72,14])
+  self.assertEqual([len(w.block.BLOCKS[s]) for s in ['autumn','winter','spring','summer']],[42,8,143,34])
   self.assertEqual(as_dict(w.combo('autumn-01-01').ratio),{'tomato':4,'eggplant':4})
   self.assertEqual(as_dict(w.combo('spring-02-02').ratio),{'tomato':4,'potato':4})
   for ident in ['summer-05-01','summer-05-02']:
@@ -207,7 +207,7 @@ class GiantFarmingTests(unittest.TestCase):
     exempt=set(c.not_giant.values())
     for x,z,crop in points:
      if crop not in exempt:self.assertGreaterEqual(sum(crop==q and (x-a)**2+(z-b)**2<=16+1e-8 for a,b,q in points),4)
-  self.assertEqual(active,109)
+  self.assertEqual(active,225)
  def test_new_farm_tile_can_be_ploughed_without_existing_mounds(self):
   w=self.w
   self.assertTrue(w.farm.CanWorkAt('plow',0,0,0))
@@ -256,10 +256,12 @@ end
   inst._attachment_type='seeder'
   self.assertEqual(w.drive.WorkHere(inst),(False,'MISSING_SEEDS',False))
   self.assertEqual(w.lua.globals().crop_count(),0)
- def test_incomplete_stock_does_not_start_plan(self):
-  w=self.w;inst=w.make({'tomato':3,'potato':4,'carrot':40});inst._attachment_type='seeder'
-  self.assertEqual(w.block.Preview(inst),(False,'MISSING_SEEDS'))
-  self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False));self.assertIsNone(inst._block)
+ def test_insufficient_species_does_not_exclude_other_usable_stock(self):
+  w=self.w;inst=w.make({'tomato':4,'potato':4,'carrot':3})
+  w.farm.Plough(0,0,0,None,None);inst._attachment_type='seeder'
+  self.assertTrue(w.drive.WorkHere(inst)[0]);self.assertTrue(inst._block.dynamic)
+  self.assertEqual(inst._block.total,8)
+  self.assertFalse(any(p.crop=='carrot' for p in inst._block.slots.values()))
  def test_saved_plan_resumes_at_exact_coordinates(self):
   w=self.w;c=w.combo('winter-01-01');inst=w.make(as_dict(c.ratio),'winter');w.bind(inst,c);w.prepare(inst)
   inst._attachment_type='seeder';self.assertTrue(w.drive.WorkHere(inst));self.assertEqual(inst._block.done,1)
@@ -277,41 +279,56 @@ end
   blank=next(p for _,p in w.block.WorldSlots(inst._block)[0].items() if not p.crop)
   weed=w.lua.globals().SpawnPrefab('weed_firenettle');weed.Transform.SetPosition(weed.Transform,blank.x,0,blank.z)
   inst._attachment_type='seeder';self.assertEqual(w.drive.WorkHere(inst),(False,'FOREIGN_CROP',False))
- def test_full_multi_tile_and_hexagonal_workflows(self):
+ def test_full_multi_tile_grid_workflows_and_excluded_hexagonal_data(self):
   w=self.w
-  for ident in ['autumn-10-02','winter-01-02','summer-05-01','spring-16-01']:
+  for ident in ['autumn-10-02','winter-01-02']:
    with self.subTest(ident=ident):
     w.lua.globals().reset_world();c=w.combo(ident);inst=w.make(as_dict(c.ratio),ident.split('-')[0]);w.bind(inst,c);w.prepare(inst)
     self.assertEqual(w.sow_all(inst,c),c.total)
     self.assertEqual(w.lua.globals().crop_count(),c.total)
- def test_other_mod_nutrient_changes_disable_unsafe_layout(self):
+  for ident in ['summer-05-01','spring-16-01']:
+   self.assertFalse(w.lua.eval("require('aom_auto_seeding').IsGrid")(w.combo(ident)))
+ def test_other_mod_nutrient_changes_do_not_require_zero_net(self):
   w=self.w;c=w.combo('autumn-01-02')
-  w.lua.globals().DEFS.tomato.nutrient_consumption[1]=3
-  self.assertFalse(w.block.ValidateCombo(c,'autumn')[0])
+  w.lua.globals().DEFS.tomato.nutrient_consumption[1]=4
+  self.assertTrue(w.block.ValidateCombo(c,'autumn'))
+ def test_nonzero_nutrient_layout_uses_native_family_rules(self):
+  self.lua=self.w.lua
+  self.lua.execute("""
+local combo={slots={},ratio={carrot=4},not_giant={}}
+for _,i in ipairs({1,2,4,5}) do
+ local x=((i-1)%3-1)*4/3;local z=(math.floor((i-1)/3)-1)*4/3
+ combo.slots[#combo.slots+1]={tx=0,tz=0,x=x,z=z,crop='carrot'}
+end
+assert(Block.ValidateCombo(combo,'autumn'))
+""")
  def test_old_count_only_save_is_not_migrated_to_new_map(self):
   w=self.w;inst=w.make({});w.block.OnLoad(inst,w.lua.table_from({'combo_name':'old','done':8}));self.assertIsNone(inst._block)
  def test_missing_mound_does_not_consume_a_seed(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);inst._attachment_type='seeder'
   self.assertEqual(w.drive.WorkHere(inst),(False,'NEED_PLOW',False));self.assertEqual(inst._block.done,0)
- def test_initial_nutrients_are_checked_before_first_seed(self):
+ def test_legacy_plan_never_reads_nutrients_or_emits_fertilizer_warnings(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst)
-  w.lua.execute('TheWorld.components.farming_manager.GetTileNutrients=function()return 0,0,0 end')
+  w.lua.execute("TheWorld.components.farming_manager.GetTileNutrients=function()error('seeder must not read nutrients') end; warnings=0")
+  w.lua.globals().warning_inst=inst
+  w.lua.execute("warning_inst._rider.components.talker={Say=function(_,text) warnings=warnings+1; last_warning=text end}")
   inst._attachment_type='seeder'
-  self.assertEqual(w.drive.WorkHere(inst),(False,'LOW_NUTRIENTS',False));self.assertEqual(inst._block.done,0)
+  self.assertTrue(w.drive.WorkHere(inst)[0]);self.assertEqual(inst._block.done,1);self.assertFalse(inst._block.nutrient_warning)
+  self.assertEqual(w.lua.globals().warnings,0)
+  self.assertTrue(w.drive.WorkHere(inst)[0]);self.assertEqual(w.lua.globals().warnings,0)
  def test_occupied_mound_reports_blockage_instead_of_skipping(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c)
   w.lua.execute('TheWorld.Map.CanTillSoilAtPoint=function()return false end')
   self.assertEqual(w.drive.WorkHere(inst),(False,'BLOCKED_MOUND',False));self.assertEqual(inst._block.done,0)
- def test_harvested_completed_field_requires_explicit_next_batch_confirmation(self):
+ def test_harvested_completed_field_starts_next_batch_without_confirmation(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make({'tomato':8,'potato':8});w.bind(inst,c);w.prepare(inst);w.sow_all(inst,c)
+  first=inst._block
   w.lua.execute('for _,v in ipairs(ENTITIES)do if v:HasTag("farm_plant")then v:Remove()end end')
   inst._attachment_type='plow';inst.x=0;inst.z=0
-  self.assertEqual(w.drive.WorkHere(inst),(False,'COMPLETE',False));self.assertEqual(inst._block.done,c.total)
-  self.assertTrue(w.block.Preview(inst));self.assertFalse(inst._block.confirmed)
-  self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False))
-  self.assertTrue(w.block.Confirm(inst))
-  self.assertTrue(w.drive.WorkHere(inst)[0]);self.assertEqual(inst._block.done,0)
+  self.assertTrue(w.drive.WorkHere(inst)[0])
   self.assertEqual(w.sow_all(inst,c),c.total)
+  self.assertEqual(w.lua.globals().crop_count(),8)
+  self.assertNotEqual(inst._block,first)
  def test_missing_planted_crop_pauses_without_sowing_replacement(self):
   w=self.w;c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst);inst._attachment_type='seeder'
   w.drive.WorkHere(inst)

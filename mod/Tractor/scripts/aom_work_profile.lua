@@ -4,6 +4,7 @@ local M = {}
 M.BASE_SPEED = 6
 M.SAMPLE_INTERVAL = .1
 M.TILE_SIZE = 4
+M.DRIVE_FUEL_PER_UNIT = 1 / M.TILE_SIZE -- 每行驶一格另扣1燃料，与农业成本分开。
 M.MAX_SWEEP_DISTANCE = 16 -- 超出正常短时移动视为传送，不耕种沿途地块。
 M.REFERENCE_MPH = {}
 for kind,def in pairs(require("aom_equipment_defs")) do M.REFERENCE_MPH[kind]=def.mph end

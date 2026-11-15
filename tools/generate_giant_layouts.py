@@ -12,6 +12,7 @@ import hashlib
 import json
 import math
 import random
+from giant_layout_variants import enhance_catalog
 
 ROOT = Path(__file__).resolve().parents[1]
 # nutrient_consumption 的三个通道，顺序与游戏原始数组一致。
@@ -157,6 +158,7 @@ def main():
                 else:entry['reference_only']='NO_VALID_LAYOUT'
             data[season].append(entry)
             print(entry['id'],entry.get('reference_only',entry.get('shape')),flush=True)
+    enhance_catalog(data, CONSUME)
     out=ROOT/'mod/Tractor/scripts/aom_giant_layouts.lua'
     out.write_text('-- 由 tools/generate_giant_layouts.py 生成；OR 已展开，false 为留空坑。\n-- 来源：https://kleiforums.com/forums/topic/126274-giant-crop-cheat-sheet/\nreturn '+lua(data)+'\n')
     print({s:{'catalog':len(v),'automatic':sum('slots'in e for e in v)} for s,v in data.items()})

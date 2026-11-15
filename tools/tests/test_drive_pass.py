@@ -171,7 +171,7 @@ assert(inst._block.done==8 and crop_count()==8)
         w=self.w
         for season,combos in w.block.BLOCKS.items():
             for _,combo in combos.items():
-                if combo.reference_only:continue
+                if not w.lua.eval("require('aom_auto_seeding').IsGrid")(combo):continue
                 with self.subTest(layout=combo.id):
                     w.lua.globals().reset_world()
                     inst=self.make(as_dict(combo.ratio),season);w.bind(inst,combo)

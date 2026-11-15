@@ -81,10 +81,10 @@ function M.Sync(vehicle)
 end
 function M.Detach(vehicle,doer,force)
     local item=M.Current(vehicle)
-    if not item then return false end
+    if not item then return false,"NO_ATTACHMENT" end
     local pos=M.FreePosition(vehicle,item)
     if not pos and force then pos=Vector3(Source(vehicle).Transform:GetWorldPosition()) end
-    if not pos then return false end -- 无安全落点时保留损坏设备，不能丢失物品。
+    if not pos then return false,"NO_DROP_SPACE" end -- 保留原挂载，不丢失物品。
     require("aom_drive").SetWorking(vehicle,false)
     ClearVisualParent(item)
     UnwatchRemoval(vehicle)
@@ -100,14 +100,15 @@ function M.Detach(vehicle,doer,force)
 end
 function M.Attach(vehicle,doer,item)
     local current=M.Current(vehicle)
-    if vehicle._destroyed or vehicle.components.health and vehicle.components.health:IsDead()
-        or not item or not item:IsValid() or not item:HasTag("aom_attachment")
-        or M.Owner(item) or current then return false end
-    if require("aom_durability").GetUses(item)<=0 then return false end
+    if vehicle._destroyed or vehicle.components.health and vehicle.components.health:IsDead() then return false,"DESTROYED" end
+    if not item or not item:IsValid() or not item:HasTag("aom_attachment") then return false,"INVALID_TARGET" end
+    if M.Owner(item) then return false,"IN_USE" end
+    if current then return false,"OCCUPIED" end
+    if require("aom_durability").GetUses(item)<=0 then return false,"BROKEN" end
     if doer then
         local rider=doer.components.rider
-        if not rider or not rider:IsRiding() or rider:GetMount()~=vehicle or vehicle._rider~=doer
-            or not M.CanReach(doer,item) then return false end
+        if not rider or not rider:IsRiding() or rider:GetMount()~=vehicle or vehicle._rider~=doer then return false,"NOT_DRIVING" end
+        if not M.CanReach(doer,item) then return false,"TOO_FAR" end
     end
     local ii=item.components.inventoryitem
     if ii and ii.owner then ii:RemoveFromOwner(true) end
@@ -120,7 +121,7 @@ function M.Attach(vehicle,doer,item)
         UnwatchRemoval(vehicle)
         ClearVisualParent(item)
         item._aom_vehicle:set(nil)
-        require("aom_drive").SetWorking(vehicle,false)
+        require("aom_drive").StopForReason(vehicle,"NO_ATTACHMENT")
         M.Sync(vehicle)
     end
     vehicle:ListenForEvent("onremove",vehicle._aom_attachment_removed,item)

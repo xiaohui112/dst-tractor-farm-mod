@@ -3,7 +3,7 @@
 __pycache__/
 *.py[cod]
 *.log
-/undo-log.txt
+undo-log.txt
 /outputs/
 /AgeOfMachines-Windows-Driver-Kit/
 .venv/

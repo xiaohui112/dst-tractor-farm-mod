@@ -13,7 +13,7 @@
 
 local AttachmentStore = Class(function(self, inst)
 	self.inst = inst
-	-- 底盘初始化时绑定原版九格货仓，配件由独立挂点持有
+	-- 底盘初始化时绑定原版Container货仓，配件由独立挂点持有
 	self.container = nil
 end)
 

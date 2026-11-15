@@ -31,6 +31,19 @@ end
 
     def run_lua(self,s):self.lua.execute(s)
 
+    def test_no_attachment_has_blank_icon_and_attaching_again_restores_it(self):
+        self.run_lua('''
+assert(t:DetachAttachment(player));hud:Refresh(t)
+assert(not hud.badges.tool.icon:IsVisible())
+assert(hud.badges.tool:GetText()=='—' and hud.badges.tool:GetTooltip()=='无挂件')
+for i=1,3 do
+ local item=SpawnPrefab('aom_weeder');assert(t:AttachAttachment(nil,item));hud:Refresh(t)
+ assert(hud.badges.tool.icon:IsVisible() and hud.badges.tool.icon_texture=='aom_weeder.tex')
+ assert(t:DetachAttachment(player));hud:Refresh(t)
+ assert(not hud.badges.tool.icon:IsVisible())
+end
+''')
+
     def test_five_native_dials_numbers_liquid_and_hover_without_persistent_labels(self):
         self.run_lua('''
 t._health_net:set(450);t.components.finiteuses:SetUses(850)
@@ -50,7 +63,7 @@ end
 assert(hud.badges.health.meter.percent==.75 and hud.badges.fuel.meter.percent==.5)
 assert(hud.badges.tool.meter.percent==38/60 and t._cargo_used_net:value()==6)
 assert(hud.badges.water:GetText()=='20' and hud.badges.water.meter.percent==.05)
-assert(not hud.seedbutton.visible and hud.musicbutton==nil and hud.strip==nil)
+assert(hud.seedbutton==nil and hud.musicbutton==nil and hud.strip==nil)
 assert(not hud.badges.cargo.meter.warningstarted)
 ''')
 
@@ -66,22 +79,26 @@ player.components.rider:ActualDismount();hud:Refresh(nil)
 assert(not hud.visible and hud.tractor==nil and not player.components.rider:IsRiding())
 ''')
 
-    def test_seed_button_click_cycles_three_modes_stops_work_and_preserves_supplies(self):
+    def test_tool_dial_click_cycles_two_modes_stops_work_and_preserves_supplies(self):
         self.run_lua('''
-local seeder=attach('aom_seeder');click(hud.badges.tool)
+local seeder=attach('aom_seeder')
 local seeds=SpawnPrefab('tomato_seeds');seeds.components.stackable:SetStackSize(20)
 assert(t.components.container:GiveItem(seeds,1))
-for _,mode in ipairs({'RANDOM','GIANT','SEQUENTIAL','RANDOM'})do
+for _,mode in ipairs({'GIANT','SEQUENTIAL','GIANT','SEQUENTIAL'})do
  t:SetWorking(true);hud:Refresh(t)
  local fuel=t._fuel:value();local durability=seeder.components.finiteuses:GetUses()
- click(hud.seedbutton)
+ click(hud.badges.tool)
  assert(t._seed_strategy==mode and t._seedmode_net:value()==mode and not t._working)
  assert(t._fuel:value()==fuel and seeder.components.finiteuses:GetUses()==durability)
- assert(seeds.components.stackable:StackSize()==20 and hud.seedbutton.visible and hud.musicbutton==nil)
- assert(string.find(hud.seedbutton:GetTooltip(),'点击切换为',1,true))
+ assert(seeds.components.stackable:StackSize()==20 and hud.seedbutton==nil and hud.seedbackground==nil)
+ local names={GIANT='巨大化',SEQUENTIAL='顺序'}
+ assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 400/400'..string.char(10)..'播种策略：'..names[mode])
+ assert(hud.seedcontrols==nil and hud.planbutton==nil and hud.rotatebutton==nil)
 end
 local saved=clone(t:GetSaveRecord());t:Remove()
-local loaded=SpawnSaveRecord(saved);assert(loaded._seed_strategy=='RANDOM' and loaded._seedmode_net:value()=='RANDOM')
+local loaded=SpawnSaveRecord(saved);assert(loaded._seed_strategy=='SEQUENTIAL' and loaded._seedmode_net:value()=='SEQUENTIAL')
+local legacy=clone(saved);legacy.data.seed_strategy='RANDOM'
+local migrated=SpawnSaveRecord(legacy);assert(migrated._seed_strategy=='SEQUENTIAL' and migrated._seedmode_net:value()=='SEQUENTIAL')
 ''')
 
     def test_music_configuration_modes_leave_work_and_resources_unchanged(self):
@@ -93,6 +110,19 @@ for _,mode in ipairs({'on','mute','off','on'})do
  assert(audio.playing==(mode=='on') and Music.IsActive(t)==(mode~='off'))
  assert(t._working and t._worktask==task and t.components.aom_attachment_store:GetWater()==water)
 end
+''')
+
+    def test_seed_dial_hover_is_one_localized_line_and_refresh_does_not_repeat_click(self):
+        self.run_lua('''
+attach('aom_seeder');require('aom_common').SetLanguage('en');hud:Refresh(t)
+assert(hud.badges.tool:GetTooltip()=='Seeder'..string.char(10)..'Durability 400/400'..string.char(10)..'Seed mode: Sequential')
+local button=hud.badges.tool;button:OnGainFocus()
+assert(button:OnControl(CONTROL_PRIMARY,true))
+for _=1,20 do hud:Refresh(t);assert(t._seed_strategy=='SEQUENTIAL')end
+assert(button:OnControl(CONTROL_PRIMARY,false));hud:Refresh(t)
+assert(t._seed_strategy=='GIANT' and button:GetTooltip()=='Seeder'..string.char(10)..'Durability 400/400'..string.char(10)..'Seed mode: Giant')
+for _=1,20 do hud:Refresh(t)end
+assert(t._seed_strategy=='GIANT' and hud.seedcontrols==nil)
 ''')
 
     def test_world_music_mode_overrides_old_saved_per_vehicle_switch(self):
@@ -109,7 +139,8 @@ assert(hud.musicbutton==nil and RPCS.AOM_MUSIC==nil)
         self.run_lua('''
 local requests=0;SendModRPCToServer=function()requests=requests+1 end
 player.components.rider:ActualDismount()
-hud.badges.cargo.onclick();hud.seedbutton.onclick();assert(requests==0)
+t._atttype_net:set('seeder')
+hud.badges.cargo.onclick();hud.badges.tool.onclick();assert(requests==0)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 t:Remove();hud.badges.cargo.onclick();assert(requests==0)
 ''')
@@ -118,12 +149,12 @@ t:Remove();hud.badges.cargo.onclick();assert(requests==0)
     def test_full_slot_count_is_not_full_warning_and_empty_cargo_does_not_warn(self):
         self.run_lua('''
 hud:Refresh(t);assert(not hud.badges.cargo.meter.warningstarted)
-for i=1,9 do assert(t.components.container:GiveItem(SpawnPrefab('gears'),i))end
-hud:Refresh(t);assert(hud.badges.cargo:GetText()=='9' and not hud.badges.cargo.meter.warningstarted)
-assert(string.find(hud.badges.cargo:GetTooltip(),'仍可叠堆',1,true))
+for i=1,15 do assert(t.components.container:GiveItem(SpawnPrefab('gears'),i))end
+hud:Refresh(t);assert(hud.badges.cargo:GetText()=='15' and not hud.badges.cargo.meter.warningstarted)
+assert(hud.badges.cargo:GetTooltip()=='货仓：15/15格'..string.char(10)..'物品总数 15（含堆叠）')
 require('aom_drive').StopForReason(t,'CARGO_FULL');hud:Refresh(t)
-assert(hud.badges.cargo.meter.warningstarted and string.find(hud.badges.tool:GetTooltip(),'仓库已满',1,true))
-t.components.container:RemoveItemBySlot(1):Remove();assert(t._cargo_used_net:value()==8)
+assert(hud.badges.cargo.meter.warningstarted and not string.find(hud.badges.tool:GetTooltip(),'仓库已满',1,true))
+t.components.container:RemoveItemBySlot(1):Remove();assert(t._cargo_used_net:value()==14)
 ''')
 
     def test_refresh_does_not_cancel_pressed_buttons_or_reset_hover(self):
@@ -142,7 +173,8 @@ player.HUD={controls={status={GetLooseScale=function()return 1.8,1.8,1.8 end}}}
 for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester',''})do
  t._atttype_net:set(kind);hud:Refresh(t)
  for _,key in ipairs(hud.order)do assert(hud.badges[key].scale[1]==1.8)end
- assert(hud.seedbutton.visible==(kind=='seeder') and hud.badges.water:IsVisible()==(kind=='irrigator'))
+ assert(hud.seedbutton==nil and hud.badges.water:IsVisible()==(kind=='irrigator'))
+ if kind=='seeder' then assert(string.find(hud.badges.tool:GetTooltip(),'播种策略：顺序',1,true))end
 end
 t.components=old
 ''')
@@ -153,8 +185,8 @@ require('aom_common').SetLanguage('en')
 t:DetachAttachment(nil);hud:Refresh(t)
 assert(hud.badges.tool:GetText()=='—' and string.find(hud.badges.tool:GetTooltip(),'No attachment',1,true)==1)
 assert(string.find(hud.badges.cargo:GetTooltip(),'Cargo:',1,true))
-assert(string.find(hud.badges.tool:GetTooltip(),'F to start',1,true))
-assert(hud.resource==nil and not hud.seedbutton.visible and hud.musicbutton==nil)
+assert(hud.badges.tool:GetTooltip()=='No attachment')
+assert(hud.resource==nil and hud.seedbutton==nil and hud.musicbutton==nil)
 ''')
 
     def test_native_numeric_scale_is_safe_during_hud_construction_and_refresh(self):

@@ -1,5 +1,5 @@
 -- 所有客户端按同步骑手播放声音；声源在骑手上，避免隐藏底盘的坐标造成无声。
-local M={ENGINE="aom_tractor_engine",WORK="aom_tractor_work"}
+local M={ENGINE="aom_tractor_engine",WORK="aom_tractor_work",WORK_VOLUME=1}
 function M.EmitExhaust(inst)
     local rider=inst._rider
     if not rider or not rider:IsValid() then return end
@@ -31,6 +31,7 @@ end
 local function Stop(inst)
     local rider=inst._aom_motion_rider
     if rider and rider:IsValid() then
+        require("aom_driver_speech").Clear(rider,inst)
         if rider.SoundEmitter then
             rider.SoundEmitter:KillSound(M.ENGINE)
             rider.SoundEmitter:KillSound(M.WORK)
@@ -58,6 +59,7 @@ function M.Update(inst)
         -- Rider:Mount 在覆盖 build 后强制六向，所以必须在骑乘建立后设八向。
         rider.Transform:SetEightFaced()
     end
+    require("aom_driver_speech").Update(inst,rider)
     local kind=inst._atttype_net:value()
     if kind~=inst._aom_motion_attachment then
         require("aom_driver_visual").UpdateAttachment(inst,rider.AnimState)
@@ -69,7 +71,8 @@ function M.Update(inst)
     if TheNet:IsDedicated() then return end
     local emitter=rider.SoundEmitter
     if not emitter then return end
-    local event=inst._fuel:value()>0 and (moving and "drive" or "idle") or nil
+    local music=require("aom_irrigator_music").PlaysInsteadOfTractor(inst)
+    local event=not music and inst._fuel:value()>0 and (moving and "drive" or "idle") or nil
     if event~=inst._aom_engine_event then
         emitter:KillSound(M.ENGINE)
         if event then emitter:PlaySound("aom_tractor_sfx/tractor/"..event,M.ENGINE,.45) end
@@ -77,13 +80,14 @@ function M.Update(inst)
     end
     local working=event~=nil and moving and inst._workstatus:value()
     if working and not inst._aom_work_sound then
-        emitter:PlaySound("aom_tractor_sfx/tractor/work",M.WORK,.3)
+        emitter:PlaySound("aom_tractor_sfx/tractor/work",M.WORK,M.WORK_VOLUME)
     elseif not working and inst._aom_work_sound then emitter:KillSound(M.WORK) end
     inst._aom_work_sound=working
 end
 
 function M.Attach(inst)
     inst._aom_motion_task=inst:DoPeriodicTask(.1,M.Update)
+    inst:ListenForEvent("aomriderdirty",M.Update)
     inst:ListenForEvent("onremove",Stop)
 end
 return M

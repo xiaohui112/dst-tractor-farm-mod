@@ -1,0 +1,23 @@
+{
+  "game_build": "DST r762172",
+  "bank": "data/sound/farming.fsb",
+  "samples": [
+    {
+      "name": "A_LP_drill_farm_plowDST-001",
+      "integrated_lufs": -15.43,
+      "true_peak_dbtp": -1.47
+    },
+    {
+      "name": "A_LP_drill_farm_plowDST-002",
+      "integrated_lufs": -15.75,
+      "true_peak_dbtp": -1.05
+    },
+    {
+      "name": "A_LP_drill_farm_plowDST-003",
+      "integrated_lufs": -15.54,
+      "true_peak_dbtp": -1.26
+    }
+  ],
+  "method": "Median integrated loudness of three native farm-plow drill loops, decoded locally; native audio is not redistributed.",
+  "target_lufs": -15.54
+}

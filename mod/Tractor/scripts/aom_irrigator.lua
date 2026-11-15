@@ -65,11 +65,11 @@ function M.RefillFromPond(doer,pond)
     if not vehicle or not vehicle:IsValid() or vehicle.prefab~="aom_tractor_chassis"
         or vehicle._rider~=doer or vehicle._destroyed
         or vehicle.components.health and vehicle.components.health:IsDead()
-        or doer.components.health and doer.components.health:IsDead() then return false end
+        or doer.components.health and doer.components.health:IsDead() then return false,L("请先驾驶拖拉机。") end
     local store=vehicle.components.aom_attachment_store
     local tool=require("aom_attachment_mount").Get(vehicle)
     if not store or vehicle._attachment_type~="irrigator" or not tool
-        or not tool:IsValid() or tool.prefab~="aom_irrigator" then return false end
+        or not tool:IsValid() or tool.prefab~="aom_irrigator" then return false,L("请装入当前挂件需要的物料。") end
     local distance=M.POND_DISTANCE+pond:GetPhysicsRadius(0)+doer:GetPhysicsRadius(0)
     if doer:GetDistanceSqToInst(pond)>distance*distance then return false,L("请驾驶拖拉机靠近池塘。") end
     local room=store:GetWaterMax()-store:GetWater()
@@ -77,7 +77,7 @@ function M.RefillFromPond(doer,pond)
     if require("aom_pond_refill").Start(vehicle,doer,pond,tool) then
         return true,L("正在补水（5秒）；移动或下车中止")
     end
-    return false
+    return false,L(vehicle._aom_pond_refill and "正在补水（5秒）；移动或下车中止" or "无法补水。")
 
 end
 

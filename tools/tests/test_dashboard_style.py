@@ -28,16 +28,13 @@ for _,water in ipairs({0,1,200,399,400})do
 end
 ''')
 
-    def test_only_seed_settings_popup_has_buttons_and_no_equipment_has_a_status_strip(self):
+    def test_all_seed_modes_have_no_planning_controls_or_lower_square(self):
         self.run_lua('''
 for _,kind in ipairs({'plow','weeder','harvester','fertilizer','seeder','irrigator'})do
- t._atttype_net:set(kind);hud:Refresh(t)
- assert(hud.strip==nil and hud.background==nil and hud.resource==nil)
-end
-t._atttype_net:set('seeder');t._seedmode_net:set('GIANT');hud:Refresh(t)
-click(hud.badges.tool);assert(hud.seedbackground.render_size[1]==204)
-for _,widget in ipairs({hud.seedbutton,hud.planbutton,hud.rotatebutton})do
- if widget:IsVisible()then assert(math.abs(widget.position[1])<102)end
+ for _,mode in ipairs({'SEQUENTIAL','GIANT'})do
+  t._atttype_net:set(kind);t._seedmode_net:set(mode);hud:Refresh(t)
+  assert(hud.strip==nil and hud.seedcontrols==nil and hud.planbutton==nil and hud.rotatebutton==nil)
+ end
 end
 ''')
 
@@ -85,16 +82,16 @@ end
 assert(unrelated.bg:IsVisible() and unrelated.maxnum:IsVisible() and unrelated.scale[1]==.9)
 ''')
 
-    def test_layout_refresh_does_not_move_a_pressed_plan_button(self):
+    def test_layout_refresh_keeps_seed_dial_pressed_until_single_release(self):
         self.run_lua('''
-attach('aom_seeder');t:CycleSeedStrategy(player);t:CycleSeedStrategy(player);hud:Refresh(t)
-local button=hud.planbutton;button:OnGainFocus()
+attach('aom_seeder');t:CycleSeedStrategy(player);hud:Refresh(t)
+local button=hud.badges.tool;button:OnGainFocus()
 assert(button:OnControl(CONTROL_PRIMARY,true) and button.down)
 local x,y=button.position[1],button.position[2]
 for _=1,20 do
- hud:Refresh(t);assert(button.down and button.position[1]==x and button.position[2]==y)
+ hud:Refresh(t);assert(button.down and button.position[1]==x and button.position[2]==y and t._seed_strategy=='GIANT')
 end
-assert(button:OnControl(CONTROL_PRIMARY,false))
+assert(button:OnControl(CONTROL_PRIMARY,false));assert(t._seed_strategy=='SEQUENTIAL')
 ''')
 
 

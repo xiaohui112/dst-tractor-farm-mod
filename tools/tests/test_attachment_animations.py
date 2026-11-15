@@ -168,7 +168,7 @@ class AttachmentAnimationAssetTests(unittest.TestCase):
             _,symbols=build_frames(z.read('build.bin'));d=parse_anim(z.read('anim.bin'))
         for kind in ['plow','seeder','irrigator','fertilizer','weeder','harvester']:
             for suffix,n in [('pre',6),('loop',24),('pst',6)]:
-                variants=[a for a in d['animations'] if a['name']==kind+'_work_'+suffix]
+                variants=[a for a in d['animations'] if a['bank']==name_hash('aom_attachment_shared') and a['name']==kind+'_work_'+suffix]
                 self.assertEqual({a['facing']for a in variants},{5,48,192,2,8})
                 for a in variants:
                     self.assertEqual(len(a['frames']),n)

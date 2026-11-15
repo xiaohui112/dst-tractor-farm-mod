@@ -9,13 +9,14 @@ import hashlib
 import io
 import json
 import math
+import os
 from pathlib import Path
 import struct
 import subprocess
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from PIL import Image
-from driver_animation import Reader, parse_anim, write_anim, name_hash
+from driver_animation import Reader, parse_anim, write_anim, name_hash, read_game_zip
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'assets/directional-v2'
@@ -198,6 +199,60 @@ def vehicle_layers(index,mask,phase=None,cabin=False):
 def y_scale(index):return 1.
 
 
+def build_chassis(sprites,wheels):
+    # Use the supplied wreck image at normal vehicle width; packed art alone is half size.
+    source=ROOT/'美术交付/2026-11-11-v1/originals/death.png'
+    wreck=SOURCE/'sprites/tractor/death.png'
+    with Image.open(source) as im:
+        box=im.getchannel('A').point(lambda n:255 if n>128 else 0).getbbox()
+    x,y,x2,y2=box
+    run(['magick',source,'-crop',f'{x2-x}x{y2-y}+{x}+{y}','+repage',
+         '-resize','260x288','PNG32:'+str(wreck)])
+    symbols={'body':sprites['tractor'],'wreck':[wreck],
+             'attachment':sprites['empty']*5,'attachment_front':sprites['empty']*5,'aom_wheels':wheels}
+    b,t=compile_build('aom_tractor_chassis',symbols);an=[]
+    for index,(_,mask) in enumerate(VIEWS):
+        for name in ['idle','work','run_loop','idle_packed','death']:
+            moving=name in ('run_loop','work')
+            fs=[frame(vehicle_layers(index,mask,p if moving else None)) for p in range(12 if moving else 1)]
+            if name=='idle_packed':fs=[frame([element('body',index,scale=.5)])]
+            elif name=='death':fs=[frame([element('wreck')])]
+            an.append(animation('aom_tractor_chassis',name,mask,fs))
+    return save('aom_tractor_chassis',b,bank('aom_tractor_chassis',an,symbols),t)
+
+
+def stable_driver(name):
+    return name.startswith(('run_','walk_','sprint_','idle_','dial_','dialog_','sand_idle')) or name=='alert_idle'
+
+
+def seated_driver(by_key,anim,frame_index,owned,anchor,scale,side_pose):
+    """按人物姿势选方向，不能把原版idle的207宽掩码当作侧面/背面姿势。"""
+    mask=anim['facing']
+    source_mask={2:48,8:192}.get(mask,mask)
+    stable=stable_driver(anim['name'])
+    # 骑牛idle和run的侧面都是正脸。使用真正的原版侧向idle，身体下部由车身遮住。
+    pose_name='idle_loop' if stable else anim['name']
+    source=by_key.get((pose_name,source_mask),anim)
+    pose=source['frames'][0 if stable else frame_index%len(source['frames'])]
+    if stable and source_mask==5:pose=side_pose
+    reference=pose if stable else by_key['idle_loop',source_mask]['frames'][0]
+    head=next(e for e in reference['elements'] if e['symbol']==name_hash('headbase'))
+    matrix=head['matrix'];hx,hy=matrix[4:6]
+    # 统一变换整个姿势，人物/皮肤/帽子保持相对关系；左右镜像仍由引擎处理。
+    angle=math.atan2(matrix[1],matrix[0]) if matrix[0]>=0 else math.atan2(-matrix[1],-matrix[0])
+    angle=-angle if stable else 0
+    ratio=scale/math.hypot(matrix[0],matrix[1]) if stable else scale/.24
+    c,s=math.cos(angle)*ratio,math.sin(angle)*ratio
+    driver=copy.deepcopy([e for e in pose['elements'] if e['symbol'] not in owned])
+    driver.sort(key=lambda e:e['z'],reverse=True)
+    for i,e in enumerate(driver):e['z']=.6-.2*i/max(1,len(driver)-1)
+    for e in driver:
+        a,b,x,y,tx,ty=e['matrix'];tx-=hx;ty-=hy
+        e['matrix']=[c*a-s*b,s*a+c*b,c*x-s*y,s*x+c*y,
+                     c*tx-s*ty+anchor[0],s*tx+c*ty+anchor[1]]
+    return driver
+
+
 def main():
     sprites=prepare();wheels=wheel_layers(sprites)
     digest={}
@@ -209,17 +264,7 @@ def main():
         digest[name]=save(name,b,bank(name,an,symbols),t)
     from build_attachment_animations import build as build_attachments
     digest.update(build_attachments(sprites))
-    symbols={'body':sprites['tractor'],'attachment':sprites['empty']*5,
-             'attachment_front':sprites['empty']*5,'aom_wheels':wheels}
-    b,t=compile_build('aom_tractor_chassis',symbols);an=[]
-    for index,(_,mask) in enumerate(VIEWS):
-        for name in ['idle','work','run_loop','idle_packed','death']:
-            moving=name in ('run_loop','work')
-            fs=[frame(vehicle_layers(index,mask,p if moving else None)) for p in range(12 if moving else 1)]
-            if name in ('idle_packed','death'):
-                for f in fs:f['elements']=[element('body',index,scale=.5)]
-            an.append(animation('aom_tractor_chassis',name,mask,fs))
-    digest['aom_tractor_chassis']=save('aom_tractor_chassis',b,bank('aom_tractor_chassis',an,symbols),t)
+    digest['aom_tractor_chassis']=build_chassis(sprites,wheels)
     symbols={'aom_cabin_front':sprites['tractor'],'aom_cabin_back':sprites['empty'],
              'aom_driver_attachment_rear':sprites['empty']*5,'aom_driver_attachment_front':sprites['empty']*5,'aom_wheels':wheels}
     b,t=compile_build('aom_tractor_cabin',symbols);an=[]
@@ -241,13 +286,19 @@ def main():
     with ZipFile(ROOT/'Driver-Results.zip') as archive:
         name=next(n for n in archive.namelist() if n.replace('\\','/').endswith('anim/aom_tractor_driver.zip'))
         with ZipFile(io.BytesIO(archive.read(name))) as z:old=parse_anim(z.read('anim.bin'))
-    old_config=json.loads((ROOT/'assets/driver/seat-layout.json').read_text())
     owned={name_hash(s) for s in ['aom_cabin_front','aom_cabin_back','aom_driver_attachment_rear','aom_driver_attachment_front']}
     output=copy.deepcopy(old);output['strings'].update(cabin['strings'])
     # Vanilla running only supplies six-facing poses. Straight front/back use
     # their native seated idle character pose plus the new vehicle's run rig,
     # retaining each run action's frame count, rate and frame events.
     by_key={(a['name'],a['facing']):a for a in old['animations']}
+    game=Path(os.environ.get('DST_GAME',str(Path.home()/
+        "Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents")))
+    with read_game_zip(str(game),'player_idles.zip') as archive:
+        idle=parse_anim(archive.read('anim.bin'))
+    side_pose=next(a['frames'][0] for a in idle['animations'] if a['name']=='idle_loop' and a['facing']==5)
+    for e in side_pose['elements']:
+        output['strings'][e['symbol']]=idle['strings'][e['symbol']]
     moving_names={a['name'] for a in old['animations'] if a['name'].startswith(('run_','walk_','sprint_'))}
     for name in sorted(moving_names):
         for mask,source_mask in [(2,48),(8,192)]:
@@ -259,8 +310,7 @@ def main():
             output['animations'].append(extra)
     for a in output['animations']:
         mask=a['facing'];index=next(i for i,(_,m) in enumerate(VIEWS) if m==mask)
-        view=VIEWS[index][0];oldview='upside' if view=='up' else 'downside' if view=='down' else view
-        before=old_config['views'][oldview]['neck'];after=config['views'][view]['neck'];ratio=config['driver_scale']/old_config['driver_scale']
+        view=VIEWS[index][0];after=config['views'][view]['neck']
         motion=a['name'].startswith(('run_','walk_','sprint_'))
         for fi,f in enumerate(a['frames']):
             phase=int(fi*30/a['rate'])%12 if motion else None
@@ -268,11 +318,9 @@ def main():
             shell=next(e for e in vehicle if e['symbol']==name_hash('aom_cabin_front'))
             # Stable seated pose: remove beefalo gait/leaning from every body part.
             # Only the vehicle's suspension translation moves the entire driver.
-            stable=motion or a['name']=='idle_loop'
-            pose=by_key['idle_loop',mask]['frames'][0] if stable else f
-            driver=copy.deepcopy([e for e in pose['elements'] if e['symbol'] not in owned])
+            stable=stable_driver(a['name'])
+            driver=seated_driver(by_key,a,fi,owned,after,config['driver_scale'],side_pose)
             for e in driver:
-                m=e['matrix'];e['matrix']=[m[0]*ratio,m[1]*ratio,m[2]*ratio,m[3]*ratio,(m[4]-before[0])*ratio+after[0],(m[5]-before[1])*ratio+after[1]]
                 if stable:
                     e['matrix'][4]+=shell['matrix'][4];e['matrix'][5]+=shell['matrix'][5]
             f['elements']=sorted(vehicle+driver,key=lambda e:e['z'])
@@ -290,7 +338,7 @@ def main():
             a['bank']=name_hash(bankname)
             view=next(v for v,mask in VIEWS if mask==a['facing'])
             anchor=config['views'][view]['neck']
-            stable=a['name'].startswith(('run_','walk_','sprint_')) or a['name']=='idle_loop'
+            stable=stable_driver(a['name'])
             for f in a['frames']:
                 shell=next(e for e in f['elements'] if e['symbol']==name_hash('aom_cabin_front'))
                 x=anchor[0]+(shell['matrix'][4] if stable else 0)
@@ -307,6 +355,10 @@ def main():
             'driver_animations':len(output['animations']),'driving_phases':12,
             'world_scale':2.5,'driver_world_scale':1,'vehicle_scales':config['vehicle_scales'],
             'driver_motion':'fixed_seated_pose_with_vehicle_suspension',
+            'driver_facing':'directional_side_pose_and_rear_pose_with_upright_head',
+            'side_pose_source':'player_idles.zip/idle_loop/5/frame0',
+            'rear_attachments_front_view':'occluded_in_mounted_banks_only',
+            'wreck_source':'美术交付/2026-11-11-v1/originals/death.png',
             'sha256':digest,'game_validation':False}
     (SOURCE/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     (MOD/'Driver-Build-Report.json').write_text(json.dumps(report,indent=2)+'\n')

@@ -5,5 +5,8 @@
 # FMOD build records hash the project bytes; keep them stable on Windows.
 *.fdp text eol=lf
 
+# Keep generated timing reports consistent in Git.
+*.csv text eol=lf
+
 # Preserve whitespace in original upstream reference sources.
 tools/api-ref/** -whitespace

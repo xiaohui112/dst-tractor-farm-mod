@@ -84,8 +84,19 @@ assert(#assets==0 and not Music.ready);controller:Update();assert(plays==0)
 ready();controller:Update();controller:Update();assert(plays==1 and active)
 local other=player(5);other.replica.rider={GetMount=function()return tractor()end}
 AllPlayers[#AllPlayers+1]=other;controller:Update();assert(plays==1)
-AllPlayers={owner,driver};driver.x=10;controller:Update();assert(volumes[#volumes]==.175)
+AllPlayers={owner,driver};driver.x=10;controller:Update();assert(volumes[#volumes]==.5)
 driver.x=21;controller:Update();assert(not active and kills==1)
+''')
+
+    def test_pause_stops_once_and_resume_rechecks_work_before_playing(self):
+        self.run_lua('''
+function IsPaused()return PAUSED end
+ready();controller:Update();assert(plays==1 and active)
+PAUSED=true;controller:Update();controller:Update()
+assert(not active and kills==1 and not controller.failed)
+PAUSED=false;controller:Update();assert(active and plays==2)
+PAUSED=true;controller:Update();t._water_net:set(0)
+PAUSED=false;controller:Update();assert(not active and plays==2)
 ''')
 
     def test_client_plays_from_synced_attachment_type_without_inventory_entity(self):

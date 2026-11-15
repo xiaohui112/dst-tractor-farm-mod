@@ -106,6 +106,40 @@ assert(hp(t)==600 and t._fuel:value()==399)
 for _,root in ipairs(ROOTS)do assert(not root.physics_active)end
 ''')
 
+    def test_harvester_never_breaks_existing_roots_even_when_stopped_or_turning(self):
+        self.run_lua('''
+attach('aom_harvester');ride()
+local own=SpawnPrefab('ivy_snare');own.target=player
+local vehicle_root=SpawnPrefab('ivy_snare');vehicle_root.target=t
+local foreign=SpawnPrefab('ivy_snare');foreign.target=make_player()
+for _,working in ipairs({false,true,false})do
+ t:SetWorking(working)
+ assert(Defense.ClearSnares(t,player)==0)
+ player.Transform:SetRotation(90)
+ require('aom_vehicle_motion').Update(t)
+ for _,root in ipairs({own,vehicle_root,foreign})do
+  assert(not root.components.health:IsDead() and root.physics_active)
+ end
+end
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==40)
+attach('aom_weeder');require('aom_vehicle_motion').Update(t)
+assert(own.components.health:IsDead() and not own.physics_active)
+assert(vehicle_root.components.health:IsDead() and not vehicle_root.physics_active)
+assert(not foreign.components.health:IsDead() and foreign.physics_active)
+''')
+
+    def test_harvester_keeps_native_bindweed_damage_and_does_not_clear_new_trap(self):
+        self.run_lua('''
+attach('aom_harvester');ride();local ivy=mature_ivy(1,0)
+Native.Broadcast(crop(0,0),player);assert(#ROOTS==6)
+run_attacks();assert(hp(t)==590 and hp(player)==150)
+require('aom_vehicle_motion').Update(t)
+for _,root in ipairs(ROOTS)do
+ assert(not root.components.health:IsDead() and root.physics_active)
+end
+assert(ivy:IsValid() and player.components.rider:IsRiding())
+''')
+
     def test_immature_burning_and_plantkin_follow_native_exceptions(self):
         self.run_lua('''
 local plant=crop(0,0);local ivy=mature_ivy(1,0,false)
@@ -209,7 +243,7 @@ assert(stored==1 and t._fuel:value()==399)
         self.run_lua('''
 attach('aom_weeder');ride();local weed=ordinary_weed(0,0)
 local a=mature_ivy(7,0);ivy_loot(a);local b=mature_ivy(8,0)
-for i=1,9 do local item=SpawnPrefab('gears');item.components.stackable:SetStackSize(40)
+for i=1,t.components.container:GetNumSlots() do local item=SpawnPrefab('gears');item.components.stackable:SetStackSize(40)
  assert(t.components.container:GiveItem(item,i))end
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(changed and reason=='CARGO_FULL' and not t._working)
@@ -303,7 +337,7 @@ for slot=1,9 do
 end
 hud:Refresh(t)
 assert(hud.badges.cargo:GetText()=='360' and t._fertilizeruses_net:value()==360)
-assert(string.find(hud.badges.cargo:GetTooltip(),'肥料剩余 360 次',1,true))
+assert(hud.badges.cargo:GetTooltip()=='货仓：9/15格'..string.char(10)..'物品总数 360（含堆叠）')
 assert(hud.strip==nil)
 ''')
 
@@ -318,14 +352,14 @@ local fertilizer=SpawnPrefab('fertilizer');fertilizer:AddComponent('finiteuses')
 fertilizer.components.fertilizer={nutrients={0,0,8}};fertilizer:AddTag('fertilizer')
 assert(t.components.container:GiveItem(fertilizer,1));hud:Refresh(t)
 assert(hud.badges.cargo:GetText()=='1')
-assert(string.find(hud.badges.cargo:GetTooltip(),'肥料剩余 3 次',1,true))
-assert(hud.badges.tool:GetText()=='60' and not hud.seedcontrols:IsVisible())
+assert(t._fertilizeruses_net:value()==3 and not string.find(hud.badges.cargo:GetTooltip(),'肥料剩余',1,true))
+assert(hud.badges.tool:GetText()=='60' and hud.seedcontrols==nil)
 fertilizer.PushEvent=function(self,event,data)
  local callbacks={};for _,cb in ipairs(self.events[event] or {})do callbacks[#callbacks+1]=cb.fn end
  for _,fn in ipairs(callbacks)do fn(self,data)end
 end
 fertilizer.components.finiteuses:SetUses(2);hud:Refresh(t)
-assert(hud.badges.cargo:GetText()=='1' and string.find(hud.badges.cargo:GetTooltip(),'肥料剩余 2 次',1,true))
+assert(hud.badges.cargo:GetText()=='1' and t._fertilizeruses_net:value()==2)
 ''')
 
 

@@ -128,18 +128,18 @@ local function ConsumeOne(item)
 end
 
 local function TryRefuel(inst, doer, item)
-	if inst._destroyed or inst.components.health:IsDead() then return false end
+	if inst._destroyed or inst.components.health:IsDead() then return false,"DESTROYED" end
 	-- 支持原版燃料（wood / charcoal 等 burnable）
 	if item == nil or item.components.fuel == nil then
-		return false
+		return false,"WRONG_FUEL"
 	end
 	local room = MAX_FUEL - GetFuel(inst)
 	if room <= 0 then
-		return false
+		return false,"FUEL_FULL"
 	end
 	local v = item.components.fuel.fuelvalue
-	if type(v)~="number" or v~=v or v<=0 or v==math.huge then return false end
-	if item.components.fuel.fueltype~=nil and item.components.fuel.fueltype~=FUELTYPE.BURNABLE then return false end
+	if type(v)~="number" or v~=v or v<=0 or v==math.huge then return false,"WRONG_FUEL" end
+	if item.components.fuel.fueltype~=nil and item.components.fuel.fueltype~=FUELTYPE.BURNABLE then return false,"WRONG_FUEL" end
 	-- 燃料以整份投入，余量封顶；只要增加油量就消耗一份，满箱不消耗。
 	local used = math.min(room, v)
 	SetFuel(inst, GetFuel(inst) + used)
@@ -148,13 +148,13 @@ local function TryRefuel(inst, doer, item)
 end
 
 local function TryRepair(inst, doer, item)
-	if item == nil then return false end
+	if item == nil then return false,"REPAIR_GEARS" end
 	local rider=doer and doer.components.rider
-	if rider and rider:IsRiding() then return false end
+	if rider and rider:IsRiding() then return false,"DISMOUNT_FIRST" end
 	-- 齿轮同时修复车体血量和作业耐久；残骸原地恢复，不重置油量或货物。
 	if item.prefab == "gears" then
 		local health,uses=inst.components.health,inst.components.finiteuses
-		if health.currenthealth>=MAX_HEALTH and uses:GetUses()>=MAX_USES then return false end
+		if health.currenthealth>=MAX_HEALTH and uses:GetUses()>=MAX_USES then return false,"REPAIR_FULL" end
 		ConsumeOne(item)
 		health:SetVal(math.min(MAX_HEALTH,math.max(0,health.currenthealth)+100))
 		uses:SetUses(math.min(MAX_USES,uses:GetUses()+100))
@@ -168,7 +168,7 @@ local function TryRepair(inst, doer, item)
 		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
 		return true
 	end
-	return false
+	return false,"REPAIR_GEARS"
 end
 
 ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ local function OnLoad(inst, data)
 		inst._attachment_type = data.attachment_type
 	end
 	if data.seed_strategy ~= nil then
-		inst._seed_strategy = data.seed_strategy
+		inst._seed_strategy = require("aom_seed_strategy").Normalize(data.seed_strategy)
         inst._seedmode_net:set(inst._seed_strategy)
 	end
 	if data.block ~= nil then
@@ -210,6 +210,7 @@ end
 local function OnHealthDead(inst)
 	inst._destroyed=true
 	local rider=inst._rider
+    require("aom_feedback").Say(rider,require("aom_locale").Text("拖拉机已损毁，配件和货物已落地；用齿轮修复残骸"))
 	if rider ~= nil and rider.components.rider ~= nil then
 		AOMDrive.Dismount(inst,rider)
 		-- 立即把驾驶员放到地上，不能等骑乘状态机下一帧才释放坐骑。
@@ -281,7 +282,7 @@ local function item_ondeploy(inst, pt, deployer)
     if inst.aom_packed_health~=nil then obj.components.health:SetVal(inst.aom_packed_health) end
     if inst.aom_packed_plan then AOMBlock.OnLoad(obj,inst.aom_packed_plan) end
     if inst.aom_packed_strategy then
-        obj._seed_strategy=inst.aom_packed_strategy
+        obj._seed_strategy=require("aom_seed_strategy").Normalize(inst.aom_packed_strategy)
         obj._seedmode_net:set(obj._seed_strategy)
     end
     obj._planprogress_net:set(AOMBlock.DescribeProgress(obj))
@@ -476,7 +477,7 @@ local function fn()
                     inst._aom_legacy_attachment_record=v
                 else cargo[k]=v end
             end
-            return original_load(c,{items=cargo},newents)
+            return require("aom_cargo").Load(c,{items=cargo},newents,original_load)
         end
         return original_load(c,data,newents)
     end
@@ -591,7 +592,7 @@ local function item_fn()
     inst.components.inventoryitem.canbepickedup=false
     inst.components.inventoryitem.cangoincontainer=false
 
-	-- 打包物品自带一个 9 格容器，用于保存挂件与物料（container 组件自带存档）
+	-- 旧打包物品使用同规格货仓保存挂件与物料（container组件自带存档）
 	inst:AddComponent("container")
 	inst.components.container:WidgetSetup("aom_tractor_chassis")
 	inst.components.container.canbeopened = false
@@ -605,7 +606,7 @@ local function item_fn()
                 inst._aom_legacy_attachment_record=record
             else cargo[slot]=record end
         end
-        return legacy_load(c,{items=cargo},newents)
+        return require("aom_cargo").Load(c,{items=cargo},newents,legacy_load)
     end
 
 	inst:AddComponent("deployable")

@@ -5,59 +5,40 @@ from test_giant_farming import World, as_dict
 
 
 class PlanReviewTests(unittest.TestCase):
-    def test_completed_plan_cannot_relocate_change_ratio_or_rotation_implicitly(self):
+    def test_completed_plan_can_move_to_next_prepared_region_automatically(self):
         w=World();c=w.combo('autumn-01-02')
         inst=w.make({'tomato':4,'eggplant':4});w.bind(inst,c)
-        inst._block.rotation=2
         inst._block.completed=w.lua.table_from({i:True for i,p in c.slots.items() if p.crop})
         inst._block.done=c.total
-        before=w.block.OnSave(inst)
-        inst.x=40
-        self.assertEqual(w.drive.WorkHere(inst,40,0),(False,'COMPLETE',False))
-        after=w.block.OnSave(inst)
-        for key in ('combo_id','x','z','rotation','confirmed'):
-            self.assertEqual(after[key],before[key])
-        self.assertEqual(inst._block.done,c.total)
-        # 保存/加载仍保留已完成计划，不能偷偷承认当前坐标的新方案。
-        w.block.OnLoad(inst,after)
-        self.assertEqual(w.drive.WorkHere(inst,40,0),(False,'COMPLETE',False))
-        self.assertTrue(w.block.Preview(inst))
-        self.assertEqual(inst._block.x,40)
-        self.assertNotEqual(inst._block.combo_id,c.id)
-        self.assertFalse(inst._block.confirmed)
-        self.assertEqual(w.drive.WorkHere(inst,40,0),(False,'PLAN_PENDING',False))
-        self.assertTrue(w.block.Confirm(inst))
+        w.farm.Plough(40,0,0,None,None);inst._attachment_type='seeder';inst.x=40
         self.assertTrue(w.drive.WorkHere(inst,40,0)[0])
+        self.assertTrue(inst._block.dynamic)
+        self.assertEqual(inst._block.tiles[1].x,40)
+        self.assertTrue(inst._block.automatic and inst._block.confirmed)
+        self.assertEqual(inst._block.done,1)
 
-    def test_unconfirmed_or_missing_confirmation_never_becomes_confirmed_through_save(self):
+    def test_legacy_unconfirmed_save_no_longer_requires_player_confirmation(self):
         w=World();c=w.combo('autumn-01-02');inst=w.make(as_dict(c.ratio))
-        self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False))
-        self.assertIsNone(inst._block)
-        self.assertTrue(w.block.Preview(inst))
-        inst._block.confirmed=None
-        saved=w.block.OnSave(inst)
-        self.assertFalse(saved.confirmed)
-        saved.confirmed=None
-        w.block.OnLoad(inst,saved)
+        w.farm.Plough(0,0,0,None,None)
+        w.block.OnLoad(inst,w.lua.table_from({'version':3,'combo_id':c.id,'season':'autumn','x':0,'z':0,'rotation':0,'completed':w.lua.table()}))
         self.assertFalse(inst._block.confirmed)
-        self.assertEqual(w.drive.WorkHere(inst),(False,'PLAN_PENDING',False))
+        inst._attachment_type='seeder'
+        self.assertTrue(w.drive.WorkHere(inst)[0])
+        self.assertTrue(inst._block.automatic and inst._block.confirmed)
+        self.assertEqual(inst._block.done,1)
 
-    def test_next_tile_is_advisory_for_plough_and_seeder_and_reentry_works(self):
-        for kind in ('plow','seeder'):
-            with self.subTest(kind=kind):
-                w=World();c=w.combo('autumn-10-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c)
-                if kind=='seeder':w.prepare(inst)
-                inst._attachment_type=kind;inst._working=True
-                fuel=inst._fuel.value(inst._fuel)
-                tool=inst.components.container.GetItemInSlot(inst.components.container,1)
-                uses=tool.components.finiteuses.GetUses(tool.components.finiteuses)
-                self.assertEqual(w.drive.WorkTile(inst,40,0),(False,'NEXT_TILE'))
-                self.assertTrue(inst._working)
-                self.assertEqual(inst._fuel.value(inst._fuel),fuel)
-                self.assertEqual(tool.components.finiteuses.GetUses(tool.components.finiteuses),uses)
-                x,z=w.block.NextTile(inst)
-                self.assertTrue(w.drive.WorkTile(inst,x,z))
-                self.assertTrue(inst._working)
+    def test_seeder_keeps_pending_region_and_plough_is_independent_of_seed_strategy(self):
+        w=World();c=w.combo('autumn-10-02');inst=w.make(as_dict(c.ratio));w.bind(inst,c);w.prepare(inst)
+        inst._attachment_type='seeder';inst._working=True
+        fuel=inst._fuel.value(inst._fuel)
+        self.assertEqual(w.drive.WorkTile(inst,40,0),(False,'NEXT_TILE'))
+        self.assertTrue(inst._working)
+        self.assertEqual(inst._fuel.value(inst._fuel),fuel)
+        self.assertTrue(w.drive.WorkTile(inst,0,0)[0])
+        inst._attachment_type='plow'
+        self.assertTrue(w.drive.WorkTile(inst,40,0))
+        self.assertTrue(inst._working)
+        self.assertEqual(inst._block.done,8)
 
     def test_preview_distinguishes_invalid_template_insufficient_seeds_and_blocked_field(self):
         w=World();inst=w.make({'tomato':4,'potato':4})

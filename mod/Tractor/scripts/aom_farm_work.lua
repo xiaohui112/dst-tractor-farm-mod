@@ -10,24 +10,19 @@
 local AOMFarmWork = {}
 local Result=require("aom_work_result")
 local WeedDefense=require("aom_weed_defense")
+local Cargo=require("aom_cargo")
+local Crops=require("aom_crop_state")
 
 -- 原版杂草也带 farm_plant 标签；真正作物的组件/定义优先，兼容误加 weed 标签。
 local function IsFarmPlant(target)
-    if target.components.farmplantstress~=nil or target.plant_def~=nil then return true end
-    if target.weed_def~=nil or target:HasTag("weedplantstress") then return false end
-    return (type(target.prefab)=="string" and string.sub(target.prefab,1,11)=="farm_plant_")
-        or target:HasTag("farm_plant")
+    return Crops.IsFarmPlant(target)
 end
 
 -- 该作物是否可收获
 -- 原版 farm plant 的收获走 pickable：CanBePicked / Pick
 -- （核对 components/pickable.lua:382 CanBePicked、:535 Pick）
 local function CanHarvestPlant(target)
-	if not IsFarmPlant(target) then
-		return false
-	end
-	local pickable = target.components.pickable
-	return pickable ~= nil and pickable:CanBePicked()
+    return Crops.CanHarvest(target)
 end
 
 ---------------------------------------------------------------------------
@@ -87,15 +82,18 @@ local function IsDebris(v)
         or (type(v.prefab)=="string" and string.sub(v.prefab,1,5)=="weed_")
         or v:HasTag("weed"))
 end
+local function IsWeedingTarget(v)
+    return IsDebris(v) or Crops.CanClearRemains(v)
+end
 
 -- 找某点附近半径 r 内的杂草与园艺残渣
-local function FindWeedsAndDebris(x, y, z, r)
+local function FindWeedsAndDebris(x, y, z, r, include_remains)
 	local ents = TheSim:FindEntities(x, y, z, r, nil, { "NOCLICK", "INLIMBO", "player", "INV_MISC" })
 	local result = {}
 	for _, v in ipairs(ents) do
 		-- 原版杂草 prefab：weed_forgetmelots / weed_firenettle / weed_tillweed / weed_ivy
 		-- 原版残渣 prefab：farm_soil_debris（两者 workable 动作都是 DIG）
-		if v:IsValid() and SameTile(v,x,z) and IsDebris(v) then
+		if v:IsValid() and SameTile(v,x,z) and (IsDebris(v) or include_remains and Crops.CanClearRemains(v)) then
 			table.insert(result, v)
 		end
 	end
@@ -192,9 +190,9 @@ end
 
 -- 修改地皮、铲除或删除旧坑前先保护作物和不可清理的障碍。
 -- 配比模式的 targets 仅含尚未播种的位置；已记录作物由规划器核对后保留。
-local function CheckProtected(x,z,doer,targets)
+local function CheckProtected(x,z,doer,targets,protected_plants)
     for _,v in ipairs(TheWorld.Map:GetEntitiesOnTileAtPoint(x,0,z)) do
-        if v:IsValid() and v~=doer then
+        if v:IsValid() and v~=doer and not (protected_plants and protected_plants[v]) then
             if IsDebris(v) then
                 if not AOMFarmWork.IsClearableDebris(v) then return false,"UNCLEARABLE_DEBRIS" end
             elseif IsFarmPlant(v) then
@@ -215,6 +213,25 @@ end
 
 AOMFarmWork.CheckProtected=CheckProtected
 
+-- 跳过场地占用不等于完成；仍保留严格IsFieldReady供播种计划核对。
+function AOMFarmWork.IsPloughSkip(reason)
+    return reason=="PROTECTED_CROP" or reason=="BLOCKED_MOUND"
+        or reason=="UNCLEARABLE_DEBRIS" or reason=="CANNOT_PLOW"
+end
+local function NearPlant(p,plants)
+    local spacing=GetFarmTillSpacing and GetFarmTillSpacing() or TUNING.FARM_TILL_SPACING or 1.25
+    for _,plant in ipairs(plants) do
+        local x,_,z=plant.Transform:GetWorldPosition()
+        if (p.x-x)^2+(p.z-z)^2<spacing^2 then return true end
+    end
+    return false
+end
+local function IsRootedPlant(v)
+    return IsFarmPlant(v) or IsDebris(v) and v.prefab~="farm_soil_debris"
+        or v:HasTag("plant") or v:HasTag("tree") or v:HasTag("stump") or v:HasTag("bush")
+        or v.components.pickable~=nil and v.components.inventoryitem==nil
+end
+
 -- 普通与配比模式共用完成标准，不把“做过一部分”当作完成。
 function AOMFarmWork.IsFieldReady(x,y,z,targets)
     if not CheckProtected(x,z,nil,targets) then return false end
@@ -232,7 +249,7 @@ function AOMFarmWork.IsFieldReady(x,y,z,targets)
 end
 
 -- 只收本格无人持有、原版允许拾取并放入容器的物品；建筑和作物仍保留占用检查。
-function AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
+function AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,selective)
     local container=vehicle and vehicle.components.container
     local items=TheWorld.Map:GetEntitiesOnTileAtPoint(x,y,z)
     local seen={};for _,item in ipairs(items) do seen[item]=true end
@@ -255,17 +272,19 @@ function AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
             local stack=item.components.stackable
             local size=stack and stack:StackSize() or 1
             local count=math.min(size,container:CanAcceptCount(item))
-            if count<=0 then return false,"CARGO_FULL" end
-            local pos=Vector3(item.Transform:GetWorldPosition())
-            local picked=count<size and stack:Get(count) or item
-            picked.Transform:SetPosition(pos:Get())
-            -- 保留原版拾取回调（如熄灭闷烧）；GiveItem 负责归属、隐藏和自动叠堆。
-            local consumed=picked.components.inventoryitem:OnPickup(vehicle,pos)
-            if not consumed and picked:IsValid() and not container:GiveItem(picked,nil,pos,false) then
-                return false,"CARGO_FULL"
+            if count<=0 and not selective then return false,"CARGO_FULL" end
+            if count>0 then
+                local pos=Vector3(item.Transform:GetWorldPosition())
+                local picked=count<size and stack:Get(count) or item
+                picked.Transform:SetPosition(pos:Get())
+                -- 保留原版拾取回调；GiveItem负责归属、隐藏和自动叠堆。
+                local consumed=picked.components.inventoryitem:OnPickup(vehicle,pos)
+                if not consumed and picked:IsValid() and not container:GiveItem(picked,nil,pos,false) then
+                    return false,"CARGO_FULL"
+                end
+                -- 开垦/除草遇到剩余物必须暂停；选择性收割可跳过它们。
+                if count<size and not selective then return false,"CARGO_FULL" end
             end
-            -- 部分叠堆后，剩余物品仍在原地；不能在它上面继续挖坑。
-            if count<size then return false,"CARGO_FULL" end
         end
     end
     return true
@@ -290,16 +309,36 @@ local function CaptureDrops(target,fn,on_drop)
     return a,b,drops
 end
 
--- 返回 changed, reason, ready。部分改动也记录消耗，但必须暂停而不是宣告完成。
+-- 返回 changed, reason, ready；占用允许继续行驶，不能伪报整格完成。
 function AOMFarmWork.Plough(x,y,z,doer,tf,targets,vehicle)
-    local safe,reason=CheckProtected(x,z,doer,targets)
+    local map=TheWorld.Map
+    local new_land=map:GetTileAtPoint(x,y,z)~=WORLD_TILES.FARMING_SOIL
+    local plants={}
+    -- 邻格作物也保护，CollapseSoilAtPoint会影响间距范围内的实体。
+    for _,v in ipairs(TheSim:FindEntities(x,y,z,FIELD_RADIUS+1.25,nil,{"INLIMBO","NOCLICK"})) do
+        if v:IsValid() and IsRootedPlant(v) then plants[#plants+1]=v;plants[v]=true end
+        if new_land and v:IsValid() and SameTile(v,x,z)
+            and IsRootedPlant(v) then
+            return false,"PROTECTED_CROP",false
+        end
+    end
+    local wanted={}
+    for _,p in ipairs(GetMoundTargets(x,z,targets)) do
+        if not NearPlant(p,plants) then wanted[#wanted+1]=p end
+    end
+    local safe,reason=CheckProtected(x,z,doer,wanted,plants)
     if not safe then return false,reason,false end
     local collected,why=AOMFarmWork.CollectPloughItems(x,y,z,vehicle)
     if not collected then return false,why,false end
     if AOMFarmWork.IsFieldReady(x,y,z,targets) then return false,"ALREADY_TILLED",true end
-    local map=TheWorld.Map
-    local new_land=map:GetTileAtPoint(x,y,z)~=WORLD_TILES.FARMING_SOIL
-    if doer==nil and (new_land or #FindWeedsAndDebris(x,y,z,FIELD_RADIUS)>0) then
+    local function Debris()
+        local out={}
+        for _,v in ipairs(FindWeedsAndDebris(x,y,z,FIELD_RADIUS)) do
+            if not plants[v] then out[#out+1]=v end
+        end
+        return out
+    end
+    if doer==nil and (new_land or #Debris()>0) then
         return false,"NO_WORKER",false
     end
     local changed=false
@@ -315,7 +354,7 @@ function AOMFarmWork.Plough(x,y,z,doer,tf,targets,vehicle)
     end
 
     -- 原版 WorkedBy 会触发杂物自身的掉落回调；绝不手动 Remove 杂物或代造掉落。
-    for _,v in ipairs(FindWeedsAndDebris(x,y,z,FIELD_RADIUS)) do
+    for _,v in ipairs(Debris()) do
         if v:IsValid() then
             if not AOMFarmWork.IsClearableDebris(v) then return changed,"UNCLEARABLE_DEBRIS",false end
             local w=v.components.workable
@@ -329,14 +368,13 @@ function AOMFarmWork.Plough(x,y,z,doer,tf,targets,vehicle)
         end
     end
     -- 清理未完成时保留旧土坑，不能接着删坑、挖坑。
-    if #FindWeedsAndDebris(x,y,z,FIELD_RADIUS)>0 then return changed,"CLEARING_INCOMPLETE",false end
+    if #Debris()>0 then return changed,"CLEARING_INCOMPLETE",false end
     -- 原版铲除回调刚生成的石头、树枝等也要收走，否则会挡住接下来的九宫格。
     collected,why=AOMFarmWork.CollectPloughItems(x,y,z,vehicle)
     if not collected then return changed,why,false end
-    local still_safe,blocked=CheckProtected(x,z,doer,targets)
+    local still_safe,blocked=CheckProtected(x,z,doer,wanted,plants)
     if not still_safe then return changed,blocked,false end
 
-    local wanted=GetMoundTargets(x,z,targets)
     -- 挖坑期间让占用检查忽略拖拉机本身（NOBLOCK 在 TILLSOIL_IGNORE_TAGS 里）。
     local vehicle_had_noblock = type(vehicle) == "table" and type(vehicle.HasTag) == "function"
         and vehicle:HasTag("NOBLOCK")
@@ -345,7 +383,8 @@ function AOMFarmWork.Plough(x,y,z,doer,tf,targets,vehicle)
     end
     local kept={}
     for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
-        local keep=false
+        local sx,_,sz=soil.Transform:GetWorldPosition()
+        local keep=NearPlant({x=sx,z=sz},plants)
         for i,p in ipairs(wanted) do
             if not kept[i] and Matches(soil,p) then kept[i]=true;keep=true;break end
         end
@@ -430,13 +469,13 @@ function AOMFarmWork.Fertilize(x,y,z,doer,fertilizer)
 end
 
 ---------------------------------------------------------------------------
--- 5) 除草机：对应铲子 DIG（只铲杂草与残渣）
+-- 5) 除草机：原版DIG杂草、残渣及明确失去采收能力的腐烂/死亡农作物。
 ---------------------------------------------------------------------------
 
 function AOMFarmWork.Weed(x, y, z, doer, vehicle)
     local collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle)
     if not collected then return false,why,false end
-    local targets=FindWeedsAndDebris(x,y,z,FIELD_RADIUS)
+    local targets=FindWeedsAndDebris(x,y,z,FIELD_RADIUS,true)
     if #targets==0 then return false,"NOTHING_TO_DO",true end
     if doer==nil then return false,"NO_WORKER",false end
     local points,seen,order={},{},{}
@@ -455,18 +494,21 @@ function AOMFarmWork.Weed(x, y, z, doer, vehicle)
     end)
     -- 整批预检，遇到非 DIG 或不可工作的杂草时不先清理一部分。
     for _,v in ipairs(targets) do
-        if not AOMFarmWork.IsClearableDebris(v) then return false,"UNCLEARABLE_WEED",false end
+        local w=v.components.workable
+        if not v:IsValid() or not IsWeedingTarget(v) or not w or w:GetWorkAction()~=ACTIONS.DIG or not w:CanBeWorked() then
+            return false,"UNCLEARABLE_WEED",false
+        end
     end
     local changed=false
     for _,v in ipairs(targets) do
         -- 普通杂草仍限本格；只有刺花可在原始目标10距离内跨格处理。
-        if v:IsValid() and IsDebris(v) and (SameTile(v,x,z)
+        if v:IsValid() and IsWeedingTarget(v) and (SameTile(v,x,z)
             or (v.prefab=="weed_ivy" and WeedDefense.NearWorkTargets(v,points))) then
-            if not AOMFarmWork.IsClearableDebris(v) then return changed,"UNCLEARABLE_WEED",false end
+            local w=v.components.workable
+            if not w or w:GetWorkAction()~=ACTIONS.DIG or not w:CanBeWorked() then return changed,"UNCLEARABLE_WEED",false end
             if v.prefab~="weed_ivy" and WeedDefense.FindIvy(v,doer) then
                 return changed,"WEEDING_INCOMPLETE",false
             end
-            local w=v.components.workable
             local before=w:GetWorkLeft()
             local _,_,drops=Result.Observe(vehicle,function()return CaptureDrops(v,function()w:WorkedBy(doer,before)end)end, function()return not v:IsValid() or w:GetWorkLeft()<before end)
             if not v:IsValid() or w:GetWorkLeft()<before then changed=true end
@@ -480,7 +522,7 @@ function AOMFarmWork.Weed(x, y, z, doer, vehicle)
         end
     end
     -- 调用不等于成功：工作量未减少不收费，部分完成/回调新生杂草均需暂停。
-    if #FindWeedsAndDebris(x,y,z,FIELD_RADIUS)>0 then return changed,"WEEDING_INCOMPLETE",false end
+    if #FindWeedsAndDebris(x,y,z,FIELD_RADIUS,true)>0 then return changed,"WEEDING_INCOMPLETE",false end
     for _,v in ipairs(WeedDefense.FindNearbyIvy(points)) do
         if IsDebris(v) then return changed,"WEEDING_INCOMPLETE",false end
     end
@@ -555,18 +597,20 @@ end
 
 -- 返回 changed, reason, ready；采摘与锤开在同一格内结算一次。
 function AOMFarmWork.Harvest(x, y, z, doer, vehicle)
-    local collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle)
+    -- 不让装不下的旧地面物/种子阻断其他仍可叠堆的作物。
+    local collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,nil,true)
     if not collected then return false,why,false end
+    if not Cargo.HasSpace(vehicle) then return false,"CARGO_FULL",false end
     local targets=FindMaturePlants(x,y,z,FIELD_RADIUS)
     if #targets==0 and #FindOversizedProduce(x,y,z)==0 then return false,"NOTHING_TO_DO",true end
     if doer==nil then return false,"NO_WORKER",false end
     -- 采摘会调用原版护田广播。先检查所有待采株，不能采了一半才发现危险。
     for _,v in ipairs(targets) do
-        if WeedDefense.FindIvy(v,doer) then return false,"IVY_THREAT",false end
+        if Cargo.CanHarvest(v,vehicle) and WeedDefense.FindIvy(v,doer) then return false,"IVY_THREAT",false end
     end
     local changed=false
     for _,v in ipairs(targets) do
-        if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) then
+        if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) and Cargo.CanHarvest(v,vehicle) then
             if WeedDefense.FindIvy(v,doer) then return changed,"IVY_THREAT",false end
             local px,py,pz=v.Transform:GetWorldPosition()
             local p=v.components.pickable
@@ -592,25 +636,28 @@ function AOMFarmWork.Harvest(x, y, z, doer, vehicle)
                     for _,drop in ipairs(giantdrops or {}) do drops[#drops+1]=drop end
                 end
             end
-            collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
+            collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,true)
             if not collected then return changed,why,false end
         end
     end
     -- 再扫描同格地面，包含采摘回调直接落地的产物和此前已采下的巨大产物。
     for _,v in ipairs(FindOversizedProduce(x,y,z)) do
-        if IsOversizedProduce(v) and SameTile(v,x,z) then
+        if IsOversizedProduce(v) and SameTile(v,x,z) and Cargo.CanHarvest(v,vehicle) then
             local item=v.components.inventoryitem
             if item==nil or item.owner==nil then
                 local worked,ready,drops=BreakOversized(v,doer,vehicle)
                 changed=changed or worked
                 if not ready then return changed,"HARVEST_INCOMPLETE",false end
-                collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
+                collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,true)
                 if not collected then return changed,why,false end
             end
         end
     end
-    if #FindMaturePlants(x,y,z,FIELD_RADIUS)>0 or #FindOversizedProduce(x,y,z)>0 then
-        return changed,"HARVEST_INCOMPLETE",false
+    if not Cargo.HasSpace(vehicle) then return changed,"CARGO_FULL",false end
+    local remaining=FindMaturePlants(x,y,z,FIELD_RADIUS)
+    for _,v in ipairs(FindOversizedProduce(x,y,z))do remaining[#remaining+1]=v end
+    for _,v in ipairs(remaining)do
+        if Cargo.CanHarvest(v,vehicle) then return changed,"HARVEST_INCOMPLETE",false end
     end
     return changed,nil,true
 end
@@ -639,7 +686,7 @@ function AOMFarmWork.CanWorkAt(att_type, x, y, z)
         local n=Fertilizer.Read(x,z)
         return n~=nil and not Fertilizer.Full(n)
 	elseif att_type == AOM_ATTACHMENT_TYPE.WEEDER then
-		return #FindWeedsAndDebris(x, y, z, 2.9) > 0
+		return #FindWeedsAndDebris(x, y, z, 2.9, true) > 0
 	elseif att_type == AOM_ATTACHMENT_TYPE.HARVESTER then
 		return #FindMaturePlants(x,y,z,FIELD_RADIUS)>0 or #FindOversizedProduce(x,y,z)>0
 	end

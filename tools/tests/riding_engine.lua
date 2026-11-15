@@ -67,6 +67,8 @@ function CreateEntity()
         self.last_periodic=task;return task
     end
     e.DoTaskInTime=e.DoPeriodicTask
+    -- 原版EntityScript静态时钟；暂停停音用例另以独立队列验证调度。
+    e.DoStaticPeriodicTask=e.DoPeriodicTask
     e.entity={AddTransform=noop,AddAnimState=noop,AddSoundEmitter=noop,AddNetwork=noop,SetPristine=noop,
         owner=e,SetParent=function(_,parent)e.parent=parent and parent.owner end}
     e.Transform={SetPosition=function(_,x,y,z)e.x=x;e.y=y;e.z=z end,
@@ -129,7 +131,7 @@ function CreateEntity()
         elseif name=='finiteuses' then c=NativeFiniteUses(self)
         elseif name=='workable' then c.SetWorkAction=noop;c.SetWorkLeft=noop;c.SetOnFinishCallback=noop
         elseif name=='container' then
-            c.WidgetSetup=noop;c.GetNumSlots=function()return 9 end;c.GetItemInSlot=function()return nil end
+            c.WidgetSetup=noop;c.GetNumSlots=function()return 15 end;c.GetItemInSlot=function()return nil end
             c.IsOpenedBy=function()return self.opened or false end
             c.Close=function()self.opened=false end
             self.replica.container={IsOpenedBy=function()return self.opened or false end,GetItemInSlot=c.GetItemInSlot}

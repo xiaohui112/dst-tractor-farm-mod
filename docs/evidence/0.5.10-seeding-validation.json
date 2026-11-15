@@ -1,0 +1,436 @@
+{
+  "version": "0.5.10",
+  "checked_at": "2026-11-14T18:45:53.986936+08:00",
+  "environment": "Lua 5.1 production planner with observable game-API doubles; not in-game acceptance",
+  "no_nutrient_reads": true,
+  "inventory_oracle_cases": 128,
+  "single_tile_sowing_oracle_cases": 64,
+  "web_reference_fixture": "tools/tests/fixtures/seed-layout-web-reference.json",
+  "cases": [
+    {
+      "case": "autumn-single-mixed",
+      "season": "autumn",
+      "stock": {
+        "potato": 40,
+        "tomato": 40
+      },
+      "total": 9,
+      "used": {
+        "potato": 5,
+        "tomato": 4
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 9,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -3991,
+        "after_score": -3991,
+        "trials": 12
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "autumn-four-mixed",
+      "season": "autumn",
+      "stock": {
+        "potato": 40,
+        "tomato": 40
+      },
+      "total": 36,
+      "used": {
+        "tomato": 18,
+        "potato": 18
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 36,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -19958,
+        "after_score": -22778,
+        "trials": 200
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "tomato",
+            "tomato",
+            "tomato",
+            "potato",
+            "potato",
+            "tomato",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 0,
+          "cells": [
+            "tomato",
+            "tomato",
+            "tomato",
+            "potato",
+            "potato",
+            "tomato",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        },
+        {
+          "x": 0,
+          "z": 4,
+          "cells": [
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 4,
+          "cells": [
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato",
+            "tomato"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "horizontal-three-crop",
+      "season": "autumn",
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6
+      },
+      "total": 18,
+      "used": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 18,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -20982,
+        "after_score": -20982,
+        "trials": 52
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "corn",
+            "corn",
+            "corn",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "corn",
+            "corn",
+            "corn",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "vertical-three-crop",
+      "season": "autumn",
+      "stock": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6
+      },
+      "total": 18,
+      "used": {
+        "carrot": 6,
+        "corn": 6,
+        "potato": 6
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 18,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -12582,
+        "after_score": -20982,
+        "trials": 104
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato"
+          ]
+        },
+        {
+          "x": 0,
+          "z": 4,
+          "cells": [
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato",
+            "carrot",
+            "corn",
+            "potato"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "sparse-four-crop",
+      "season": "autumn",
+      "stock": {
+        "carrot": 4,
+        "corn": 4,
+        "potato": 4,
+        "tomato": 4
+      },
+      "total": 16,
+      "used": {
+        "carrot": 4,
+        "potato": 4,
+        "corn": 4,
+        "tomato": 4
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 16,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -1364,
+        "after_score": -6147,
+        "trials": 240
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "carrot",
+            "potato",
+            "corn",
+            "corn",
+            "corn",
+            "corn"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 0,
+          "cells": [
+            "potato",
+            null,
+            "tomato",
+            "potato",
+            "tomato",
+            "tomato",
+            "potato",
+            null,
+            "tomato"
+          ]
+        },
+        {
+          "x": 0,
+          "z": 4,
+          "cells": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "x": 4,
+          "z": 4,
+          "cells": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "case": "irregular-L",
+      "season": "autumn",
+      "stock": {
+        "carrot": 40,
+        "corn": 40,
+        "potato": 40
+      },
+      "total": 27,
+      "used": {
+        "carrot": 9,
+        "corn": 9,
+        "potato": 9
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 27,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -27273,
+        "after_score": -27273,
+        "trials": 72
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "corn",
+            "corn",
+            "corn",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 0,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "corn",
+            "corn",
+            "corn",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        },
+        {
+          "x": 4,
+          "z": 4,
+          "cells": [
+            "carrot",
+            "carrot",
+            "carrot",
+            "corn",
+            "corn",
+            "corn",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        }
+      ]
+    },
+    {
+      "case": "winter-season-filter",
+      "season": "winter",
+      "stock": {
+        "potato": 40,
+        "tomato": 40
+      },
+      "total": 9,
+      "used": {
+        "potato": 9
+      },
+      "native_coordinate_validation": true,
+      "quantity_upper": 9,
+      "quantity_optimal": true,
+      "arrangement": {
+        "before_score": -14891,
+        "after_score": -14891,
+        "trials": 1
+      },
+      "tiles": [
+        {
+          "x": 0,
+          "z": 0,
+          "cells": [
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato",
+            "potato"
+          ]
+        }
+      ]
+    }
+  ]
+}

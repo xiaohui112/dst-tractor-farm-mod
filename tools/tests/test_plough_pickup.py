@@ -34,7 +34,7 @@ function ground(name,x,z,count)
  return e
 end
 function fill_cargo()
- for i=1,9 do
+ for i=1,t.components.container:GetNumSlots() do
   local item=SpawnPrefab('gears');item.components.stackable:SetStackSize(40)
   assert(t.components.container:GiveItem(item,i))
  end
@@ -149,7 +149,8 @@ local worked,reason=Drive.WorkTile(t,0,0)
 assert(not worked and reason=='BLOCKED_MOUND' and not loot.hidden)
 wall:Remove();ground('farm_plant_tomato',0,0)
 worked,reason=Drive.WorkTile(t,0,0)
-assert(not worked and reason=='PROTECTED_CROP' and not loot.hidden)
+assert(worked and reason=='BLOCKED_MOUND' and loot.hidden)
+assert(not Farm.IsFieldReady(0,0,0))
 ''')
 
     def test_cargo_survives_container_save_and_load_with_attachment(self):

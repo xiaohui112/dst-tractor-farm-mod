@@ -1,12 +1,11 @@
 --[[
 	Tractor —— 播种策略
 
-	三种策略：
-	  1. SEQUENTIAL 按种子顺序播种：手里/仓里有什么种什么，一种一坑
-	  2. RANDOM     随机播种：从仓里随机挑种子，一种一坑
-	  3. GIANT      巨大化配比播种：按当前季节的已验证坐标模板播种
+	两种策略：
+	  1. SEQUENTIAL 按种子顺序播种
+	  2. GIANT      巨大化播种
 
-	配比与空间约束统一由 aom_block_plan / aom_giant_layouts 管理。
+	自动规划由 aom_auto_seeding 管理。
 ]]
 
 local AOMSeedStrategy = {}
@@ -18,6 +17,10 @@ local AOMSeedStrategy = {}
 local PLANT_PREFIX = "farm_plant_"
 
 -- 从种子的 farmplantable 读出它会长成哪种作物；读不出返回 nil
+function AOMSeedStrategy.Normalize(mode)
+    return mode == "GIANT" and "GIANT" or "SEQUENTIAL"
+end
+
 function AOMSeedStrategy.GetCropOfSeedItem(item)
 	if item == nil or item.components.farmplantable == nil then
 		return nil
@@ -51,23 +54,6 @@ function AOMSeedStrategy.PickSequential(item_list)
 		end
 	end
 	return nil
-end
-
----------------------------------------------------------------------------
--- 策略 2：随机
----------------------------------------------------------------------------
-
-function AOMSeedStrategy.PickRandom(item_list)
-	local valid = {}
-	for _, item in ipairs(item_list) do
-		if item ~= nil and item:IsValid() then
-			table.insert(valid, item)
-		end
-	end
-	if #valid == 0 then
-		return nil
-	end
-	return valid[math.random(#valid)]
 end
 
 -- 所有配比只从坐标规划器读取，避免两份数据发生漂移。

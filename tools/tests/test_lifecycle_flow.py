@@ -166,11 +166,11 @@ assert(click.action==ACTION_DEFS.AOM_STORAGE and click.action.instant and click.
 assert(click.action.strfn(click)=='GENERIC' and click:Do())
 local c=t.components.container
 assert(click.action.strfn(click)=='CLOSE')
-assert(c:IsOpenedBy(player) and c:GetNumSlots()==9)
-assert(not c.issidewidget and require('containers').MAXITEMSLOTS>=9)
-local window={Open=function()end,AddChild=function(_,child)return child end}
+assert(c:IsOpenedBy(player) and c:GetNumSlots()==15)
+assert(not c.issidewidget and require('containers').MAXITEMSLOTS>=15)
+local window={Open=function()end,Close=function()end,SetPosition=noop,SetScale=function(self,x)self.scale=x end,bgimage={ScaleToSize=noop,SetClickable=noop}}
 POST_FNS['widgets/containerwidget'](window);window:Open(t,player)
-assert(window.aom_storage_title.text=='货物与物料' and string.find(window.aom_storage_hint.text,'9格'))
+assert(window.aom_storage_title==nil and window.aom_storage_hint==nil and window.scale==1 and window.slotsperrow==15)
 assert(c:GetItemInSlot(2).components.stackable:StackSize()==17)
 player.Transform:SetPosition(12,0,0);c:OnUpdate(.1)
 assert(c:IsOpenedBy(player))
@@ -185,7 +185,7 @@ local t=deploy_kit(kit,0,0,player)
 player.components.inventory={opencontainers={}}
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 local picker=make_mouse_picker(player);assert(picker:GetLeftClickActions(nil,player)[1]:Do())
-local window={Open=function()end,AddChild=function(_,child)return child end}
+local window={Open=function()end,Close=function()end,SetPosition=noop,SetScale=function(self,x)self.scale=x end,bgimage={ScaleToSize=noop,SetClickable=noop}}
 POST_FNS['widgets/containerwidget'](window);window:Open(t,player)
 assert(window.aom_storage_close==nil and window.aom_storage_dismount==nil)
 -- 原版翻找动作可能带 busy，关闭不能被一般作业 RPC 的 busy 检查拦截。
@@ -234,10 +234,8 @@ assert(native_root.child==hud.aom_hud)
 local panel=hud.aom_hud
 assert(panel.storagebutton==nil and panel.dismountbutton==nil)
 assert(panel.detachbutton==nil)
-for _,button in ipairs({panel.seedbutton,panel.musicbutton})do
- local position=button:GetLocalPosition()
- assert(panel.root.position[2]+panel.seedcontrols.position[2]+position.y>=90)
-end
+assert(panel.seedbutton==nil and panel.seedbackground==nil and panel.musicbutton==nil)
+assert(panel.planbutton==nil and panel.rotatebutton==nil and panel.seedcontrols==nil)
 for _,key in ipairs(panel.order)do assert(panel.badges[key].scale[1]==1.4)end
 ''')
 
@@ -347,7 +345,7 @@ local ice=SpawnPrefab('ice');refill=prompt(ice,player,t)[1]
 assert(refill and refill.strfn({target=t})=='REFILL' and refill.fn({doer=player,target=t,invobject=ice}))
 assert(not ice:IsValid() and t.components.aom_attachment_store:GetWater()==8)
 local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(string.find(hud.badges.water:GetTooltip(),'车尾',1,true) and string.find(hud.badges.water:GetTooltip(),'5秒',1,true))
+assert(hud.badges.water:GetTooltip()=='水量 8/400')
 local store=t.components.aom_attachment_store
 for i=1,8 do assert(store:TakeWater())end
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
@@ -364,7 +362,7 @@ assert(t:AttachAttachment(nil,SpawnPrefab('aom_irrigator')))
 local ice=SpawnPrefab('ice');local refill=prompt(ice,player,t)[1]
 assert(refill.strfn({target=t})=='REFILL' and STRINGS.ACTIONS.AOM_LOAD.REFILL=='Refill water')
 local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(string.find(hud.badges.water:GetTooltip(),'refill over 5 seconds',1,true))
+assert(hud.badges.water:GetTooltip()=='Water 0/400')
 ''')
 
     def test_all_seven_recipes_require_alchemy_engine_for_first_unlock(self):
@@ -472,7 +470,7 @@ assert(string.find(require('aom_work_status').Describe(t),'Seeder broke'))
 local hud=HUD(player);hud:Refresh(t)
 assert(string.find(hud.badges.chassis:GetTooltip(),'Chassis 1000/1000'))
 assert(not string.find(hud.badges.chassis:GetTooltip(),'Tool'))
-assert(hud.lines==nil and not hud.seedbutton.text.visible)
+assert(hud.lines==nil and hud.seedbutton==nil)
 assert(ACTION_DEFS.AOM_REFUEL.label=='Refuel' and ACTION_DEFS.AOM_REPAIR.label=='Repair')
 local proxy={IsValid=function()return true end,_attachment=t._attachment,_fuel=t._fuel,
  _workstatus=t._workstatus,_seedmode_net=t._seedmode_net,_workstate_net=t._workstate_net,

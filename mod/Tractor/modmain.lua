@@ -61,6 +61,7 @@ GLOBAL.AOM_CONFIG = {
 local AOM=require("aom_common")
 if AOM.SetLanguage then AOM.SetLanguage(GetModConfigData("LANGUAGE")) end
 local L=require("aom_locale").Text
+local Feedback=require("aom_feedback")
 
 local DriverVisual=require("aom_driver_visual")
 if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then
@@ -81,10 +82,10 @@ local AOM_ATTACHMENT_TYPE = GLOBAL.AOM_ATTACHMENT_TYPE
 local AOM_REFUEL = AddAction("AOM_REFUEL", L("加油"), function(act)
 	local target, invobject = act.target, act.invobject
 	if target == nil or invobject == nil or target.TryRefuel == nil then
-		return false
+		return false,"INVALID_TARGET"
 	end
 	if target.prefab ~= "aom_tractor_chassis" then
-		return false
+		return false,"INVALID_TARGET"
 	end
 	return target:TryRefuel(act.doer, invobject)
 end)
@@ -95,34 +96,39 @@ AOM_REFUEL.mount_valid = false
 local AOM_REPAIR = AddAction("AOM_REPAIR", L("修理"), function(act)
 	local target, invobject = act.target, act.invobject
 	if target == nil or invobject == nil or (target.TryRepair == nil and not target:HasTag(AOM_TAG.ATTACHMENT)) then
-		return false
+		return false,"INVALID_TARGET"
 	end
 	if target:HasTag(AOM_TAG.ATTACHMENT) then
         local rider=act.doer and act.doer.components.rider
-        if rider and rider:IsRiding() or require("aom_attachment_mount").Owner(target)
-            or invobject.prefab~="flint" then return false end
-        if act.doer:GetDistanceSqToInst(target)>16 then return false end
-        if not require("aom_durability").RepairAttachment(target) then return false end
+        if rider and rider:IsRiding() then
+            local mount=rider:GetMount()
+            if not mount or not mount:IsValid() or mount.prefab~="aom_tractor_chassis"
+                or mount._rider~=act.doer or mount.components.rideable:GetRider()~=act.doer then return false,"NOT_DRIVING" end
+        end
+        if require("aom_attachment_mount").Owner(target) then return false,"DETACH_FIRST" end
+        if invobject.prefab~="flint" then return false,"REPAIR_FLINT" end
+        if not act.doer or act.doer:GetDistanceSqToInst(target)>16 then return false,"TOO_FAR" end
+        if not require("aom_durability").RepairAttachment(target) then return false,"REPAIR_FULL" end
         local stack=invobject.components.stackable
         if stack and stack:StackSize()>1 then stack:Get(1):Remove() else invobject:Remove() end
         return true
     end
-    if target.prefab ~= "aom_tractor_chassis" then return false end
+    if target.prefab ~= "aom_tractor_chassis" then return false,"INVALID_TARGET" end
     return target:TryRepair(act.doer, invobject)
 end)
 AOM_REPAIR.distance = 3
 AOM_REPAIR.priority = 2
-AOM_REPAIR.mount_valid = false
+AOM_REPAIR.mount_valid = true
 
 local Irrigator = require("aom_irrigator")
 
 local AOM_LOAD = AddAction("AOM_LOAD", L("装料"), function(act)
 	local doer, target, invobject = act.doer, act.target, act.invobject
 	if target == nil or invobject == nil then
-		return false
+		return false,"INVALID_TARGET"
 	end
 	if target.prefab ~= "aom_tractor_chassis" or target.components.aom_attachment_store == nil then
-		return false
+		return false,"INVALID_TARGET"
 	end
 	local store = target.components.aom_attachment_store
 	local att = target._attachment_type
@@ -146,14 +152,11 @@ local AOM_LOAD = AddAction("AOM_LOAD", L("装料"), function(act)
 	elseif att == AOM_ATTACHMENT_TYPE.IRRIGATOR then
         local ok
         ok,msg=Irrigator.Load(store,invobject)
-        if doer and doer.components.talker then doer.components.talker:Say(msg) end
-        return ok
+        if ok then Feedback.Say(doer,msg);return true end
+        return false,Feedback.Reason(msg)
 	end
 
-	if doer ~= nil and doer.components.talker ~= nil and msg ~= nil then
-		doer.components.talker:Say(msg)
-	end
-	return false
+	return false,msg and Feedback.Reason(msg) or "WRONG_LOAD"
 end)
 AOM_LOAD.distance = 3
 AOM_LOAD.priority = 2
@@ -172,17 +175,15 @@ local AOM_ATTACH=AddAction("AOM_ATTACH",L("挂载"),function(act)
     local vehicle=rider and rider:IsRiding() and rider:GetMount()
     local target=act.target
     if not vehicle or vehicle.prefab~="aom_tractor_chassis" or vehicle._rider~=doer
-        or not target or not target:HasTag(AOM_TAG.ATTACHMENT) then return false end
+        or not target or not target:HasTag(AOM_TAG.ATTACHMENT) then return false,"NOT_DRIVING" end
     local Mount=require("aom_attachment_mount")
-    if not Mount.CanReach(doer,target) then return false end
+    if not Mount.CanReach(doer,target) then return false,"TOO_FAR" end
     if Mount.Owner(target)==vehicle then return vehicle:DetachAttachment(doer) end
     if vehicle:GetAttachment() then
-        if doer.components.talker then doer.components.talker:Say(L("请先卸载当前配件")) end
-        return false
+        return false,"OCCUPIED"
     end
     if require("aom_durability").GetUses(target)<=0 then
-        if doer.components.talker then doer.components.talker:Say(L("配件已损坏，请下车用燧石维修后挂载")) end
-        return false
+        return false,"BROKEN"
     end
     return vehicle:AttachAttachment(doer,target)
 end)
@@ -213,8 +214,8 @@ end
 
 local AOM_POND_REFILL=AddAction("AOM_POND_REFILL",L("补满水箱"),function(act)
     local ok,msg=Irrigator.RefillFromPond(act.doer,act.target)
-    if msg and act.doer and act.doer.components.talker then act.doer.components.talker:Say(msg) end
-    return ok
+    if ok then Feedback.Say(act.doer,msg);return true end
+    return false,Feedback.Reason(msg)
 end)
 AOM_POND_REFILL.distance=Irrigator.POND_DISTANCE
 AOM_POND_REFILL.priority=3
@@ -277,53 +278,54 @@ end)
 local function GetDrivenTractor(player,allow_busy)
 	if not GLOBAL.TheWorld.ismastersim or player == nil or not player:IsValid()
 		or player:HasTag("playerghost")
-		or (player.components.health ~= nil and player.components.health:IsDead())
-		or (not allow_busy and player.sg ~= nil and player.sg:HasStateTag("busy")) then
+		or (player.components.health ~= nil and player.components.health:IsDead()) then
 		return nil
 	end
+    if not allow_busy and player.sg ~= nil and player.sg:HasStateTag("busy") then return nil,"BUSY" end
 	local rider = player.components.rider
 	local mount = rider ~= nil and rider:IsRiding() and rider:GetMount() or nil
 	if mount ~= nil and mount:IsValid() and mount:HasTag(AOM_TAG.TRACTOR)
 		and mount.components.rideable:GetRider() == player then
 		return mount
 	end
+    return nil,"NOT_DRIVING"
+end
+local function DrivenForInput(player,allow_busy)
+    local tractor,reason=GetDrivenTractor(player,allow_busy)
+    if not tractor and reason then Feedback.Say(player,Feedback.Text(reason)) end
+    return tractor
 end
 
 AddModRPCHandler("aom_rpc", "AOM_TOGGLE_WORK", function(player)
-	local tractor = GetDrivenTractor(player)
+	local tractor = DrivenForInput(player)
 	if tractor ~= nil then tractor:ToggleWorking(player) end
 end)
 
 AddModRPCHandler("aom_rpc", "AOM_SEED_MODE", function(player)
-	local tractor = GetDrivenTractor(player)
+	local tractor = DrivenForInput(player)
 	if tractor ~= nil then tractor:CycleSeedStrategy(player) end
 end)
 
-local function PlanAction(player,rotate)
-    local tractor=GetDrivenTractor(player)
-    if not tractor or tractor._attachment_type~="seeder" or tractor._seed_strategy~="GIANT" then return end
-    tractor:SetWorking(false)
-    local block=require("aom_block_plan")
-    local ok,reason
-    if not rotate and tractor._block and tractor._block.confirmed==false then ok,reason=block.Confirm(tractor)
-    else ok,reason=block.Preview(tractor,rotate) end
-    block.Sync(tractor)
-    if ok then require("aom_work_status").Set(tractor,tractor._block.confirmed==false and "PLAN_PENDING" or nil)
-    else require("aom_drive").StopForReason(tractor,reason) end
-end
-AddModRPCHandler("aom_rpc","AOM_PLAN",function(player)PlanAction(player,false)end)
-AddModRPCHandler("aom_rpc","AOM_PLAN_ROTATE",function(player)PlanAction(player,true)end)
-
 AddModRPCHandler("aom_rpc", "AOM_DETACH", function(player,target)
 	local tractor = GetDrivenTractor(player)
+    if tractor and target and target~=tractor then Feedback.Say(player,Feedback.Text("INVALID_TARGET"));return end
 	if tractor==nil and player and player:IsValid() and target and target:IsValid()
         and target.prefab=="aom_tractor_chassis" and target.components.container
         and target.components.container:IsOpenedBy(player)
         and target.components.rideable:GetRider()==nil
         and player:GetDistanceSqToInst(target)<=16 then tractor=target end
 	if tractor ~= nil and tractor.DetachAttachment ~= nil then
-		tractor:DetachAttachment(player)
-	end
+		local ok,reason=tractor:DetachAttachment(player)
+        if not ok then Feedback.Say(player,Feedback.Text(reason)) end
+	else Feedback.Say(player,Feedback.Text("NOT_DRIVING")) end
+end)
+
+AddModRPCHandler("aom_rpc","AOM_MAINTAIN",function(player,target,part)
+    local safe,ok,message=pcall(require("aom_dashboard_actions").Perform,player,target,part)
+    if not safe then
+        print("[Tractor] Dashboard action failed: "..tostring(ok))
+        Feedback.Say(player,Feedback.Text("GENERIC"))
+    else Feedback.Say(player,ok and message or Feedback.Text(message))end
 end)
 
 local function CloseTractorStorage(player,tractor)
@@ -335,13 +337,19 @@ local function CloseTractorStorage(player,tractor)
     end
 end
 
-local function ToggleTractorStorage(player)
+local function ToggleTractorStorage(player,announce)
     local tractor=GetDrivenTractor(player,true)
-    if not tractor then return false end
+    if not tractor then
+        if announce then Feedback.Say(player,Feedback.Text("NOT_DRIVING")) end
+        return false,"NOT_DRIVING"
+    end
     local container=tractor.components.container
     if container:IsOpenedBy(player) then CloseTractorStorage(player,tractor)
     elseif container:CanOpen() then container:Open(player)
-    else return false end
+    else
+        if announce then Feedback.Say(player,Feedback.Text("STORAGE_BLOCKED")) end
+        return false,"STORAGE_BLOCKED"
+    end
     return true
 end
 
@@ -358,18 +366,19 @@ AOM_STORAGE.strfn=function(act)
     return container and container:IsOpenedBy(act.doer) and "CLOSE" or "GENERIC"
 end
 GLOBAL.STRINGS.ACTIONS.AOM_STORAGE={GENERIC=L("打开仓库"),CLOSE=L("关闭仓库")}
+Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_POND_REFILL,AOM_STORAGE})
 local MouseInput=require("aom_mouse_input")
 AddClassPostConstruct("components/playeractionpicker",function(self)MouseInput.WrapPicker(self,AOM_STORAGE)end)
 
 -- 图标与左键车身共用同一个仓库入口，不增加另一套仓库。
-AddModRPCHandler("aom_rpc", "AOM_STORAGE", ToggleTractorStorage)
+AddModRPCHandler("aom_rpc", "AOM_STORAGE", function(player)ToggleTractorStorage(player,true)end)
 
 AddModRPCHandler("aom_rpc", "AOM_CLOSE_STORAGE", function(player,target)
     CloseTractorStorage(player,target or GetDrivenTractor(player,true))
 end)
 
 AddModRPCHandler("aom_rpc", "AOM_DISMOUNT", function(player)
-    local tractor=GetDrivenTractor(player,true)
+	local tractor=DrivenForInput(player,true)
     if tractor then
         CloseTractorStorage(player,tractor)
         require("aom_drive").Dismount(tractor,player)
@@ -379,8 +388,7 @@ end)
 -- 模块（HUD、按键包装）跑在游戏主环境，拿不到 modmain 的 MOD_RPC；
 -- 这里把需要发送的 RPC 句柄挂到主环境，模块只读这一份。
 GLOBAL.AOM_RPC = {
-    PLAN=GetModRPC("aom_rpc","AOM_PLAN"),
-    PLAN_ROTATE=GetModRPC("aom_rpc","AOM_PLAN_ROTATE"),
+    MAINTAIN=GetModRPC("aom_rpc","AOM_MAINTAIN"),
 	TOGGLE_WORK = GetModRPC("aom_rpc", "AOM_TOGGLE_WORK"),
 	SEED_MODE = GetModRPC("aom_rpc", "AOM_SEED_MODE"),
 	DETACH = GetModRPC("aom_rpc", "AOM_DETACH"),
@@ -397,47 +405,28 @@ AddStategraphPostInit("wilson",require("aom_vehicle_motion").ConfigureMountSound
 AddClassPostConstruct("widgets/hoverer",require("aom_machine_info").Install)
 
 ---------------------------------------------------------------------------
--- 3) 容器定义：拖拉机独立挂点与九格货物/物料仓
+-- 3) 容器定义：独立挂点与15格货仓，原版物品栏上方单排左对齐。
 ---------------------------------------------------------------------------
 
 -- containers 是模块不是全局：主环境里没有这个名字，strict.lua 会报变量未声明。
 local params = require("containers").params
+local Cargo=require("aom_cargo")
+local cargo_slots=Cargo.SlotPositions()
 
 params.aom_tractor_chassis={
     widget={
-        slotpos={Vector3(-75,75,0),Vector3(0,75,0),Vector3(75,75,0),
-                 Vector3(-75,0,0),Vector3(0,0,0),Vector3(75,0,0),
-                 Vector3(-75,-75,0),Vector3(0,-75,0),Vector3(75,-75,0)},
-        animbank="ui_chest_3x3",animbuild="ui_chest_3x3",pos=Vector3(-260,120,0),side_align_tip=160,
+        slotpos=cargo_slots,slotposfn=Cargo.SlotPositions,bgatlas="images/hud.xml",bgimage="inventory_bg.tex",
+        pos=Vector3(0,80,0),posfn=Cargo.Position,top_align_tip=76,
     },
-    issidewidget=false,type="chest",openlimit=1,
+    issidewidget=false,type="inv",openlimit=1,
     itemtestfn=function(container,item,slot)
         if not item or item:HasTag(AOM_TAG.ATTACHMENT) or item:HasTag(AOM_TAG.TRACTOR) then return false end
         return not GLOBAL.TheWorld.ismastersim or item.components.inventoryitem~=nil
     end,
 }
 local containers=require("containers")
-containers.MAXITEMSLOTS=math.max(containers.MAXITEMSLOTS or 0,9)
-AddClassPostConstruct("widgets/containerwidget",function(self)
-    local open=self.Open
-    self.Open=function(widget,container,doer)
-        open(widget,container,doer)
-        if container and container.prefab=="aom_tractor_chassis" then
-            if not widget.aom_storage_title then
-                local Text=require("widgets/text")
-                widget.aom_storage_title=widget:AddChild(Text(GLOBAL.NUMBERFONT,24,""))
-                widget.aom_storage_title:SetPosition(0,225,0)
-                widget.aom_storage_hint=widget:AddChild(Text(GLOBAL.NUMBERFONT,18,""))
-                widget.aom_storage_hint:SetPosition(0,198,0)
-            end
-            widget.aom_storage_title:SetString(L("货物与物料"))
-            widget.aom_storage_hint:SetString(L("9格货仓；配件使用独立挂点"))
-            widget.aom_storage_title:Show();widget.aom_storage_hint:Show()
-        elseif widget.aom_storage_title then
-            widget.aom_storage_title:Hide();widget.aom_storage_hint:Hide()
-        end
-    end
-end)
+containers.MAXITEMSLOTS=math.max(containers.MAXITEMSLOTS or 0,Cargo.SLOTS)
+AddClassPostConstruct("widgets/containerwidget",require("widgets/aom_cargo_widget").Install)
 local RECIPE_PRODUCT={aom_tractor_chassis="aom_tractor_chassis"}
 local function AddMachineRecipe(name,ingredients,tech)
     AddRecipe2(name,ingredients,tech,{product=RECIPE_PRODUCT[name] or name,placer=name.."_placer",min_spacing=2,
@@ -536,12 +525,15 @@ AddClassPostConstruct("screens/playerhud", function(self)
 		hud.aom_hud = hud.controls.bottom_root:AddChild(AOMHud(owner))
 		if Music then
 			local ok, controller = pcall(Music.New, owner)
-			if ok then hud.aom_music = controller end
+			if ok then
+                hud.aom_music=controller
+                -- 仿原版Widget的静态任务：世界暂停时仍能停音，恢复后重新播放。
+                hud.aom_music_task=owner:DoStaticPeriodicTask(.1,function()controller:Update()end)
+            end
 		end
 
 		-- 每 0.25 秒刷新一次：读 netvar，开销很低
 		hud.aom_hud_task = owner:DoPeriodicTask(0.25, function()
-			if hud.aom_music then hud.aom_music:Update() end
 			if owner == nil or not owner:IsValid() then
 				return
 			end
@@ -554,13 +546,16 @@ AddClassPostConstruct("screens/playerhud", function(self)
 			hud.aom_hud:Refresh(mount ~= nil and mount.prefab == "aom_tractor_chassis" and mount or nil)
 		end)
 
-		hud.inst:ListenForEvent("onremove", function()
+        local function Cleanup()
             require("aom_plan_preview").Clear(hud.aom_hud)
 			if hud.aom_music then hud.aom_music:Stop() end
+            if hud.aom_music_task then hud.aom_music_task:Cancel();hud.aom_music_task=nil end
 			if hud.aom_hud_task ~= nil then
 				hud.aom_hud_task:Cancel()
 				hud.aom_hud_task = nil
 			end
-		end, owner)
+		end
+        hud.inst:ListenForEvent("onremove",Cleanup,owner)
+        hud.inst:ListenForEvent("onremove",Cleanup)
 	end
 end)

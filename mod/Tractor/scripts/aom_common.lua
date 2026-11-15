@@ -71,8 +71,8 @@ local function MakeStrings(lang)
 				AOM_SEEDER = "Plants seeds into empty farm soil.",
 				AOM_IRRIGATOR = "Waters the soil ahead, like a watering can.",
 				AOM_FERTILIZER = "Applies fertilizer to the soil ahead.",
-				AOM_WEEDER = "Digs up weeds and garden detritus.",
-				AOM_HARVESTER = "Harvests ripe crops and breaks giant produce into its original drops.",
+				AOM_WEEDER = "Digs up weeds, debris and unharvestable rotten or dead crop remains.",
+				AOM_HARVESTER = "Harvests ripe or rotten crops and breaks giant produce into its original drops.",
 			},
 			ACTION = {
 				DRIVE = "Drive",
@@ -107,8 +107,8 @@ local function MakeStrings(lang)
 				AOM_SEEDER = "把种子种进前面的空土坑。",
 				AOM_IRRIGATOR = "给车前的地补水，和洒水壶一样。",
 				AOM_FERTILIZER = "给车前的地施肥，和原版肥料一样。",
-				AOM_WEEDER = "铲掉杂草和园艺残渣，和铲子一样。",
-				AOM_HARVESTER = "收割成熟作物，并按原版掉落锤开巨大作物。",
+				AOM_WEEDER = "铲除杂草、园艺残渣和无法采收的腐烂枯株。",
+				AOM_HARVESTER = "采收成熟或腐烂作物，并按原版掉落锤开巨大作物。",
 			},
 			ACTION = {
 				DRIVE = "驾驶",

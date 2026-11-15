@@ -679,7 +679,13 @@ def check_giant_farming():
     import unittest
     suite = unittest.defaultTestLoader.discover(os.path.join(ROOT, "tools", "tests"))
     stream = io.StringIO()
-    result = unittest.TextTestRunner(stream=stream,buffer=True).run(suite)
+    class ProgressResult(unittest.TextTestResult):
+        def startTest(self, test):
+            progress=Path(ROOT)/'outputs/selfcheck-current-test.txt'
+            progress.parent.mkdir(parents=True,exist_ok=True)
+            progress.write_text(test.id()+'\n',encoding='utf-8')
+            super().startTest(test)
+    result = unittest.TextTestRunner(stream=stream,buffer=True,resultclass=ProgressResult).run(suite)
     if not result.wasSuccessful() or result.testsRun == 0:
         fail("行为回归失败：\n" + stream.getvalue())
     elif result.skipped:
