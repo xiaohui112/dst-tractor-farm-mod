@@ -1,0 +1,19 @@
+{
+  "aom_tractor_chassis": {
+    "krane_exit": 0,
+    "stderr": ""
+  },
+  "aom_attachment_shared": {
+    "krane_exit": 0,
+    "stderr": ""
+  },
+  "aom_attachment_symbols": {
+    "krane_exit": 0,
+    "stderr": ""
+  },
+  "aom_tractor_cabin": {
+    "krane_exit": 0,
+    "stderr": ""
+  },
+  "driver_build_and_texture_match_cabin": true
+}

@@ -1,4 +1,4 @@
--- 播种机每成功播下一颗种子扣一次耐久。
+-- 播种机每完成一块地皮当前策略的播种扣一次耐久，由 aom_drive 统一结算。
 local Def=require("aom_equipment_defs").seeder
 local M={MAX_USES=Def.uses,REPAIR_USES=Def.repair}
 function M.Get(inst)

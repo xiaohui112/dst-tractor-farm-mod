@@ -1,0 +1,72 @@
+test_cache_is_per_capture_and_never_saved_in_slots (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_killjoy_is_excluded_from_query_and_resume (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_load_defers_until_entities_exist_and_rechecks_before_sowing (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_missing_field_cannot_produce_an_optimal_proof (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_native_boundary_is_not_refiltered_as_double (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_native_counts_across_field_translations (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_query_membership_crosses_lua_bucket_boundary (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_radius_exclusion_and_height_follow_query (test_native_farm_neighbors.NativeFarmNeighborTests) ... ok
+test_all_203_grid_layouts_use_new_land_generation_cleanup_and_nine_mounds (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_building_and_non_dig_weeds_are_preserved (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_cleanup_failure_preserves_old_layout_and_reports_partial_work (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_colliding_attempts_are_skipped_without_forcing_two_drops (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_continuous_driving_prepares_next_tile_with_no_material_stock (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_crop_blocks_before_terraforming_or_deleting_player_mounds (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_existing_farm_clears_corner_debris_without_generating_more (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_extra_duplicate_mound_is_removed_and_field_becomes_ready (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_giant_preparation_cleans_debris_but_sowing_keeps_strict_check (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_giant_replant_cycle_allows_harvest_debris_without_wiping_crops (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_last_use_completes_tile_then_breaks_and_requires_new_tool (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_legacy_prefab_restores_durability_and_uses_new_icon (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_missing_worker_cannot_generate_debris_that_cannot_be_worked (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_native_loot_chance_is_not_replaced_by_guaranteed_drops (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_new_land_full_sequence_uses_native_loot_before_mounds (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_offset_handmade_mounds_are_recognized_and_rearranged (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_partial_tilling_is_not_complete_and_retry_does_not_respawn_debris (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_random_attempts_and_spacing_match_original_callback (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_repeated_pass_does_not_regenerate_debris_or_charge_again (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_repreparing_giant_field_preserves_already_recorded_crop (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_standard_grid_survives_native_neighbor_collapse_on_three_adjacent_tiles (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_uncultivable_land_has_no_side_effects (test_landclearer_flow.LandClearerFlowTests) ... ok
+test_actual_mound_positions_are_checked_for_family_distance (test_giant_farming.GiantFarmingTests) ... ok
+test_catalog_expands_or_and_preserves_exception (test_giant_farming.GiantFarmingTests) ... ok
+test_eight_plant_layout_leaves_ninth_slot_empty (test_giant_farming.GiantFarmingTests) ... ok
+test_every_automatic_layout_balances_each_tile_and_family (test_giant_farming.GiantFarmingTests) ... ok
+test_failed_planting_returns_seed_without_committing (test_giant_farming.GiantFarmingTests) ... ok
+test_foreign_crop_in_reserved_space_blocks_sowing (test_giant_farming.GiantFarmingTests) ... ok
+test_full_multi_tile_grid_workflows_and_excluded_hexagonal_data (test_giant_farming.GiantFarmingTests) ... ok
+test_harvested_completed_field_starts_next_batch_without_confirmation (test_giant_farming.GiantFarmingTests) ... ok
+test_insufficient_species_does_not_exclude_other_usable_stock (test_giant_farming.GiantFarmingTests) ... ok
+test_landclearer_clears_debris_and_leaves_ready_field (test_giant_farming.GiantFarmingTests)
+开垦机一次作业：清掉园艺残渣，并整出可直接播种的 3x3 坑位。 ... ok
+test_legacy_plan_never_reads_nutrients_or_emits_fertilizer_warnings (test_giant_farming.GiantFarmingTests) ... ok
+test_load_action_uses_the_real_material_store_interface (test_giant_farming.GiantFarmingTests) ... ok
+test_missing_mound_does_not_consume_a_seed (test_giant_farming.GiantFarmingTests) ... ok
+test_missing_planted_crop_pauses_without_sowing_replacement (test_giant_farming.GiantFarmingTests) ... ok
+test_new_farm_tile_can_be_ploughed_without_existing_mounds (test_giant_farming.GiantFarmingTests) ... ok
+test_nonzero_nutrient_layout_uses_native_family_rules (test_giant_farming.GiantFarmingTests) ... ok
+test_occupied_mound_reports_blockage_instead_of_skipping (test_giant_farming.GiantFarmingTests) ... ok
+test_old_count_only_save_is_not_migrated_to_new_map (test_giant_farming.GiantFarmingTests) ... ok
+test_other_mod_nutrient_changes_do_not_require_zero_net (test_giant_farming.GiantFarmingTests) ... ok
+test_saved_plan_resumes_at_exact_coordinates (test_giant_farming.GiantFarmingTests) ... ok
+test_season_change_pauses_instead_of_replacing_plan (test_giant_farming.GiantFarmingTests) ... ok
+test_short_stock_never_falls_back_to_other_seeds (test_giant_farming.GiantFarmingTests) ... ok
+test_async_template_scan_can_cancel_before_reading_whole_field (test_template_capacity.TemplateCapacityTests) ... ok
+test_entire_fields_beyond_old_tile_and_plant_limits (test_template_capacity.TemplateCapacityTests) ... ok
+test_only_current_complete_module_is_rechecked_before_sowing (test_template_capacity.TemplateCapacityTests) ... ok
+test_paused_large_job_resumes_and_rechecks_changed_inventory (test_template_capacity.TemplateCapacityTests) ... ok
+test_preview_packet_is_bounded_moves_and_preserves_real_positions (test_template_capacity.TemplateCapacityTests) ... ok
+test_saved_large_plan_keeps_modules_progress_and_inventory_checks (test_template_capacity.TemplateCapacityTests) ... ok
+test_sparse_geometry_has_identical_edges_and_metrics (test_template_capacity.TemplateCapacityTests) ... ok
+test_native_hud_refreshes_nearby_modules_and_completed_markers (test_template_capacity.TemplatePreviewClientTests) ... ok
+test_all_transforms_recipes_keep_positions_and_reject_a_changed_cell (test_seed_catalog.CatalogTests) ... ok
+test_cached_module_indices_follow_current_scan_order (test_seed_catalog.CatalogTests) ... ok
+test_real_pit_distance_is_checked_before_placing_and_budget_is_fixed (test_seed_catalog.CatalogTests) ... ok
+test_source_pair_exact_rows_and_role_cannot_split_or_use_unlisted_crop (test_seed_catalog.CatalogTests) ... ok
+test_task_report_isolation_and_independent_entry_points (test_seed_catalog.CatalogTests) ... ok
+test_two_pairs_and_square_are_distinct_and_cache_respects_lock (test_seed_catalog.CatalogTests) ... ok
+
+----------------------------------------------------------------------
+Ran 66 tests in 37.306s
+
+OK

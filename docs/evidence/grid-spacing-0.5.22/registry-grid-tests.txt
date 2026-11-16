@@ -1,0 +1,11 @@
+test_component_is_shared_but_bounded_by_world_lifetime (test_farm_registry.FarmRegistryTests) ... ok
+test_plow_records_complete_and_already_ready_but_not_incomplete (test_farm_registry.FarmRegistryTests) ... ok
+test_empty_old_grid_is_rebuilt_but_adjacent_old_pits_survive (test_farm_grid.FarmGridTests) ... ok
+test_existing_crop_does_not_move_during_retiling (test_farm_grid.FarmGridTests) ... ok
+test_native_boundary_and_spacing_at_positive_negative_large_origins (test_farm_grid.FarmGridTests) ... ok
+test_tilling_25_tiles_survives_native_collapse_and_plans_225 (test_farm_grid.FarmGridTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.010s
+
+OK

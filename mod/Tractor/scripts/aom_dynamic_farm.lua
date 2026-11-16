@@ -10,6 +10,7 @@ local Seed=require('aom_seed_strategy')
 local Layout=require('aom_seed_layout')
 local Packing=require('aom_seed_packing')
 local Neighbors=require('aom_farm_neighbors')
+local Grid=require('aom_farm_grid')
 local function Key(x,z)return string.format('%.3f:%.3f',x,z)end
 local function Number(x)return type(x)=='number' and x==x and math.abs(x)<1000000 end
 local function Defs()return require('prefabs/farm_plant_defs').PLANT_DEFS end
@@ -23,7 +24,7 @@ function M.Scan(tile,expected)
   local crop=type(v.prefab)=='string' and string.match(v.prefab,'^farm_plant_(.+)$')
   if soil or crop then
    local x,y,z=v.Transform:GetWorldPosition();local found
-   for s=1,9 do local px,pz=tile.x+((s-1)%3-1)*4/3,tile.z+(math.floor((s-1)/3)-1)*4/3;if (px-x)^2+(pz-z)^2<=.16 then found=s;break end end
+   for s=1,9 do local px,pz=tile.x+((s-1)%3-1)*Grid.SPACING,tile.z+(math.floor((s-1)/3)-1)*Grid.SPACING;if (px-x)^2+(pz-z)^2<=.16 then found=s;break end end
    if not found or out[found] then return nil,'FOREIGN_CROP' end
    if not soil and (not expected or expected[found]~=crop or v.weed_def or v:HasTag('farm_plant_killjoy')or v:HasTag('deadplant') or v.components.health and v.components.health:IsDead() or require('aom_crop_state').IsRotten(v)) then return nil,'FOREIGN_CROP' end
    out[found]={x=x,y=y,z=z,cx=tile.x,cz=tile.z,crop=crop or false,soil=soil}
@@ -41,7 +42,7 @@ function M.Validate(b,yieldfn,defer_spatial)
   local planted=0
   for s=1,9 do local p=b.slots[(ti-1)*9+s]
    if type(p)~='table' or not Number(p.x) or not Number(p.z) or not Number(p.y or 0)or p.cx~=t.x or p.cz~=t.z then return false end
-   local x,z=t.x+((s-1)%3-1)*4/3,t.z+(math.floor((s-1)/3)-1)*4/3
+   local x,z=t.x+((s-1)%3-1)*Grid.SPACING,t.z+(math.floor((s-1)/3)-1)*Grid.SPACING
    if (p.x-x)^2+(p.z-z)^2>.16 then return false end
    if p.crop then planted=planted+1 end
    if p.crop and (not defs[p.crop] or not defs[p.crop].good_seasons or not defs[p.crop].good_seasons[b.season]) then return false end
@@ -69,7 +70,7 @@ end
 local function PitKey(p)return string.format('%.17g,%.17g,%.17g',p.x,p.y or 0,p.z)end
 local function InputKey(slots,counts,season,strategy,template_id)
  local defs=Defs();local crops=Layout.Crops(counts,defs,season)
- local signature={Neighbors.VERSION,season,strategy or 'GIANT',template_id or '',require('aom_seed_catalog').version}
+ local signature={Grid.VERSION,Neighbors.VERSION,season,strategy or 'GIANT',template_id or '',require('aom_seed_catalog').version}
  for _,k in ipairs(crops)do
   local d=defs[k];signature[#signature+1]=k..':'..counts[k]..':'..(d.family_min_count or 4)..':'..(d.family_check_dist or 4)
   signature[#signature+1]=table.concat(require('aom_seed_balance').Vector(d)or {},',')
@@ -148,9 +149,7 @@ function M.Gather(inst,cx,cz,trace)
  if trace then
   local stock={};for k,n in pairs(counts)do stock[#stock+1]=k..':'..n end;table.sort(stock)
   trace:Context({seed_stock=table.concat(stock,','),seed_item_total=inst.components.aom_attachment_store:GetSeedCount()})
-  trace:Emit('INPUT',trace.context)
-  local pits={};for _,p in ipairs(slots)do pits[#pits+1]=string.format('%.17g,%.17g,%.17g,%.17g',p.x,p.z,p.cx,p.cz)end
-  trace:Emit('PITS',{format='x,z,cx,cz;...',points=table.concat(pits,';')})
+
  end
  return usable,slots,counts
 end
@@ -228,7 +227,6 @@ function M.Cancel(inst,reason)
   inst._aom_suspended_job=inst._aom_dynamic_job;inst._aom_dynamic_job=nil
   paused[#paused+1]=setmetatable({inst},{__mode='v'})
   if #paused>4 then local old=table.remove(paused,1)[1];if old and old~=inst and old._aom_suspended_job then M.Cancel(old,'PAUSED_CACHE_EVICTED')end end
-  if inst._aom_plan_trace then inst._aom_plan_trace:Emit('PAUSED',{reason=reason})end
   return
  end
  require('aom_plan_timing').Cancel(inst,reason)
@@ -246,7 +244,7 @@ function M.Start(inst,cx,cz,background)
    if inst._aom_plan_trace then inst._aom_plan_trace.request_wall=inst._aom_plan_request.wall end
    inst._aom_plan_request=nil
   end
-  if inst._aom_plan_trace then inst._aom_plan_trace.quiet=background;inst._aom_plan_trace:Context({tick_cpu_budget_ms=background and 1 or 4});inst._aom_plan_trace:Emit('RESUMED',{background=background or false,tick_cpu_budget_ms=background and 1 or 4})end
+  if inst._aom_plan_trace then inst._aom_plan_trace.quiet=background;inst._aom_plan_trace:Context({tick_cpu_budget_ms=background and 1 or 4})end
   if not inst._aom_job_scheduled then inst._aom_job_scheduled=true;inst:DoTaskInTime(FRAMES or 1/30,inst._aom_job_tick)end
   return
  end

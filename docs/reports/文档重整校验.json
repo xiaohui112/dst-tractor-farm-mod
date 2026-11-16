@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-17",
+  "baseline": "0.5.23",
+  "current_document_local_links_checked": 199,
+  "broken_links": 0,
+  "source_and_archive_unchanged": true,
+  "archive_source_files_verified": 98,
+  "directory_inventory_rows": 2916,
+  "directory_deletion_performed": false,
+  "history_snapshot": "docs/history/2026-11-17-文档重整前/manifest.json",
+  "checks": [
+    "git diff --check",
+    "planner_fingerprint.py --check",
+    "package_mod.py --verify-only",
+    "build_seed_catalog.py --check"
+  ],
+  "full_runtime_regression_rerun": false,
+  "reason": "documentation-only; existing 0.5.23 release evidence retained with original scope",
+  "history_original_sha256_verified": true,
+  "template_catalog_enabled": 30,
+  "template_catalog_coordinate_cases": 364
+}

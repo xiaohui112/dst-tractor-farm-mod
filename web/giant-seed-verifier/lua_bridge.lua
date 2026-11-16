@@ -16,12 +16,13 @@ local native=assert(loadstring(NATIVE_SOURCE));setfenv(native,environment)
 local defs=native().PLANT_DEFS
 package.preload['prefabs/farm_plant_defs']=function()return {PLANT_DEFS=defs}end
 local function Key(x,z)return string.format('%.3f:%.3f',x,z)end
+local Grid=require('aom_farm_grid')
 local scene={}
 TheWorld={state={season=INPUT.season},components={},Map={}}
 for _,tile in ipairs(INPUT.tiles) do
  local cx,cz=tile[1]*4,tile[2]*4;local entities={};scene[Key(cx,cz)]=entities
  for row=0,2 do for col=0,2 do
-  local x,z=PY_F32(cx+(col-1)*4/3),PY_F32(cz+(row-1)*4/3)
+  local x,z=PY_F32(cx+(col-1)*Grid.SPACING),PY_F32(cz+(row-1)*Grid.SPACING)
   local soil={prefab='farm_soil',components={}}
   function soil:IsValid()return true end
   function soil:HasTag(tag)return tag=='soil' end

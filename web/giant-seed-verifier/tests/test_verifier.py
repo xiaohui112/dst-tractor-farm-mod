@@ -8,6 +8,17 @@ import runner,server
 import seed_strategy_audit as audit
 
 class NativeParity(unittest.TestCase):
+ def test_binary_grid_fills_both_autumn_5_by_5_cases(self):
+  seasonal={c['id']:40 for c in runner.metadata()['crops'] if 'autumn' in c['seasons']}
+  for seeds in ({'garlic':100,'onion':100,'pepper':100},seasonal):
+   r=runner.run({'strategy':'GIANT','season':'autumn','width':5,'height':5,'seeds':seeds})
+   self.assertEqual(r['count'],225);self.assertEqual(r['upper'],225)
+   self.assertTrue(r['valid'] and r['optimal'])
+   self.assertEqual(r['source']['grid_spacing'],1.3125)
+   for p in r['slots']:
+    self.assertIn(p['x']-p['cx'],(-1.3125,0,1.3125))
+    self.assertIn(p['z']-p['cz'],(-1.3125,0,1.3125))
+
  def test_full_point_parity(self):
   # Every season × every irregular shape, with varying minimum/tail/full stocks.
   cases=audit.cases();chosen=[]

@@ -1,6 +1,7 @@
 -- 模版预览只同步附近完整模块；全田计划与进度仍由服务器保存。
 local M={RADIUS=20,MAX_POINTS=512,MAX_MODULES=64,MAX_BYTES=24000}
 local Catalog=require('aom_seed_catalog')
+local Grid=require('aom_farm_grid')
 local specs={};for _,s in ipairs(Catalog.templates)do specs[s.id]=s end
 local function Key(x,z)return x..':'..z end
 local function Number(v)return type(v)=='number'and v==v and math.abs(v)<1000000 end
@@ -61,7 +62,7 @@ function M.Encode(inst,nx,nz)
    bits[localindex]=active and '1'or '0'
    if active then
     pending=pending+1;local s=(i-1)%9
-    local px,pz=p.cx+(s%3-1)*4/3,p.cz+(math.floor(s/3)-1)*4/3
+    local px,pz=p.cx+(s%3-1)*Grid.SPACING,p.cz+(math.floor(s/3)-1)*Grid.SPACING
     if math.abs(px-p.x)>.00001 or math.abs(pz-p.z)>.00001 then offsets[#offsets+1]=localindex..'@'..string.format('%.4f@%.4f',p.x,p.z)end
    end
   end
@@ -108,8 +109,8 @@ function M.Decode(text)
    for s=0,8 do local i=t*9+s+1
     if f[9]:sub(i,i)=='1'then
      local crop=recipe.map[variant.cells[i]];if not crop or #b.slots>=M.MAX_POINTS or #b.slots>=total-done then return end
-     local p=overrides[i]or {x=cx+(s%3-1)*4/3,z=cz+(math.floor(s/3)-1)*4/3}
-     if math.abs(p.x-(cx+(s%3-1)*4/3))>.4001 or math.abs(p.z-(cz+(math.floor(s/3)-1)*4/3))>.4001 then return end
+     local p=overrides[i]or {x=cx+(s%3-1)*Grid.SPACING,z=cz+(math.floor(s/3)-1)*Grid.SPACING}
+     if math.abs(p.x-(cx+(s%3-1)*Grid.SPACING))>.4001 or math.abs(p.z-(cz+(math.floor(s/3)-1)*Grid.SPACING))>.4001 then return end
      local pk=string.format('%.4f:%.4f',p.x,p.z);if pointkeys[pk]then return end;pointkeys[pk]=true
      if not tilekeys[key]then tilekeys[key]=true;b.tiles[#b.tiles+1]={x=cx,z=cz}end
      p.cx,p.cz,p.crop,p.index=cx,cz,crop,#b.slots+1;b.slots[#b.slots+1]=p

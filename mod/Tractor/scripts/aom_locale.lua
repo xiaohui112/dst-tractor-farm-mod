@@ -4,7 +4,6 @@ local EN={
  ["巨大化规划完成：用时%d秒，开始播种"]="Giant plan complete in %d seconds; starting sowing",
  ["巨大化规划已取消：用时%d秒"]="Giant planning cancelled after %d seconds",
  ["巨大化规划未完成：用时%d秒"]="Giant planning stopped after %d seconds",
- ["（规划日志写入失败）"]=" (planning log write failed)",
  ["配件已损坏，请用燧石维修后挂载"]="Equipment broken: repair with flint before attaching",
  ["挂件需要用燧石修理。"]="Use flint to repair equipment.",
  ["底盘耐久已耗尽，拿起齿轮点击底盘图标修理后按 F 继续"]="Chassis worn out: pick up gears, click the chassis icon to repair, then press F",

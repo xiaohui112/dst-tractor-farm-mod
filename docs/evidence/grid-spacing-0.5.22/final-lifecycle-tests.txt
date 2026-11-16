@@ -1,0 +1,29 @@
+test_background_completion_only_populates_cache (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_background_job_never_plants_and_f_promotes_same_job (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_cache_survives_start_tile_change_without_moving_crops (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_cached_layout_uses_exact_inventory_and_rechecks_input (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_changed_field_is_rechecked_before_background_result_is_used (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_changed_stock_replaces_suspended_job (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_first_seed_wait_starts_at_f_when_background_job_is_promoted (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_pause_resume_preserves_stack_and_changes_invalidate_it (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_planning_keeps_high_resolution_timing_without_log_output (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_spatial_buckets_match_exhaustive_distances_with_offset_pits (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_stable_nearby_input_prepares_without_spending_seeds (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_two_vehicles_share_one_frame_budget (test_planner_optimization.PlannerOptimizationTests) ... ok
+test_cancel_during_preview_stops_timer_and_cannot_plant (test_plan_timing.PlanTimingTests) ... ok
+test_cancelled_pending_job_stops_once_and_old_callbacks_cannot_submit (test_plan_timing.PlanTimingTests) ... ok
+test_cpu_excludes_other_frame_work_and_step_wall_times_add_up (test_plan_timing.PlanTimingTests) ... ok
+test_failure_retains_reason_without_success_or_first_seed (test_plan_timing.PlanTimingTests) ... ok
+test_fallback_phases_are_measured_without_nested_double_counting (test_plan_timing.PlanTimingTests) ... ok
+test_live_process_clock_timings_remain_unchanged_for_web_and_sync_builds (test_plan_timing.PlanTimingTests) ... ok
+test_moving_away_during_preview_records_travel_wait_before_first_seed (test_plan_timing.PlanTimingTests) ... ok
+test_real_async_planner_retains_same_layout_and_excludes_simulated_engine_cpu (test_plan_timing.PlanTimingTests) ... ok
+test_slice_budget_yields_without_losing_search_progress (test_plan_timing.PlanTimingTests) ... ok
+test_cancelled_or_failed_timer_stops_once_without_io (test_plan_stopwatch.PlanStopwatchTests) ... ok
+test_quiet_background_timer_remains_silent_without_io (test_plan_stopwatch.PlanStopwatchTests) ... ok
+test_start_progress_and_end_use_same_real_elapsed_time_without_io (test_plan_stopwatch.PlanStopwatchTests) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.645s
+
+OK

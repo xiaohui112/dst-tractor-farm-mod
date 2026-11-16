@@ -1,0 +1,634 @@
+{
+  "grid_spacing": 1.3125,
+  "version": "0.5.22",
+  "runtime": "Lua 5.1",
+  "files": [
+    {
+      "path": "scripts/aom_farm_grid.lua",
+      "sha256": "61185abfe74551ab547981c9c569d0134c8c49aba46901cdc0fc3319f288e4dc",
+      "bytes": 249
+    },
+    {
+      "path": "scripts/aom_farm_neighbors.lua",
+      "sha256": "da21093617104a74aba6b4ef164a83f00a6763c3a0420ec4f505758c608e2702",
+      "bytes": 2054
+    },
+    {
+      "path": "scripts/aom_seed_catalog.lua",
+      "sha256": "fec810e863324ef5a58532eba6081992cacafdeb534e7047971cb2c806701803",
+      "bytes": 109724
+    },
+    {
+      "path": "scripts/aom_seed_template_data.lua",
+      "sha256": "73a2706aa87e58e8475a33219c1d55e1e2ce0ef0e68e28260e540c638f6ed1a7",
+      "bytes": 4436
+    },
+    {
+      "path": "scripts/aom_seed_initial.lua",
+      "sha256": "51fb9588394e9313a4210a6a3e1d6df564f3d4e88f25db0becdc01488a529098",
+      "bytes": 12212
+    },
+    {
+      "path": "scripts/aom_seed_templates.lua",
+      "sha256": "23473b97f109f342830cb4fdc1c23992a8834c5a98f689bbf11b4d022d62e2a7",
+      "bytes": 8306
+    },
+    {
+      "path": "scripts/aom_template_preview.lua",
+      "sha256": "4e44c927ddc02ce56189f78d665af7b8920ca1b8eb515a06ba03f19f2ccef4a4",
+      "bytes": 6659
+    },
+    {
+      "path": "scripts/aom_seed_regions.lua",
+      "sha256": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+      "bytes": 3836
+    },
+    {
+      "path": "scripts/aom_planner_build.lua",
+      "sha256": "3e0a9bc25e02c38eaf1a7654786ee4a8565fd76996fdde87b909758359438da4",
+      "bytes": 158
+    },
+    {
+      "path": "scripts/aom_dynamic_farm.lua",
+      "sha256": "65ef26621ed3b8fc55d30a75848928421f79fa13ce0191c6e6e582b632b612ae",
+      "bytes": 21157
+    },
+    {
+      "path": "scripts/aom_seed_layout.lua",
+      "sha256": "735f703a5fbdbeee5849ded774a7d512fe5350ace19a393595f55ebca212ccc2",
+      "bytes": 21114
+    },
+    {
+      "path": "scripts/aom_seed_packing.lua",
+      "sha256": "ae0736fbc18839aae3409cd9912622d6e8d351f7aab98d77fb3b1a36cd681fba",
+      "bytes": 9373
+    },
+    {
+      "path": "scripts/aom_seed_exact.lua",
+      "sha256": "c4161a19524b5a3c4857e98b4e86f532ba542949fe89620805e83c8471c497cc",
+      "bytes": 62412
+    },
+    {
+      "path": "scripts/aom_seed_heuristic.lua",
+      "sha256": "c380f0ccfd7a75f914a2101a70b3f43834d930aa97dccb0c3a59cf2b87bd1fcc",
+      "bytes": 35454
+    },
+    {
+      "path": "scripts/aom_seed_feasible.lua",
+      "sha256": "19b8f9353795aa327993ff584f9752ae6bb857fbb453904699ceefad753071c4",
+      "bytes": 6658
+    },
+    {
+      "path": "scripts/aom_seed_balance.lua",
+      "sha256": "7b768b89b9bac4fb4b7780e0fbd573715e01883c68f47414d0034bdff61ba007",
+      "bytes": 11436
+    },
+    {
+      "path": "scripts/aom_seed_strategy.lua",
+      "sha256": "a49889673ede68b6b521eeef3c361693d3025243ac54c6c272d7c3953f6d4a51",
+      "bytes": 2215
+    },
+    {
+      "path": "scripts/aom_farm_registry.lua",
+      "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+      "bytes": 1387
+    },
+    {
+      "path": "scripts/aom_crop_state.lua",
+      "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+      "bytes": 1667
+    },
+    {
+      "path": "scripts/components/aom_attachment_store.lua",
+      "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+      "bytes": 8377
+    }
+  ],
+  "fingerprint": "3452162282a6748fc29ea10d62a7411e857a64c86748cc0b7a92ea2e7c1c317f",
+  "installed_match": true,
+  "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+  "constants": {
+    "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+    "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+    "FARM_TILL_SPACING": 1.25,
+    "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+  },
+  "templates": [
+    {
+      "id": "autumn-01",
+      "total": 8,
+      "source": "autumn.png",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "autumn-02",
+      "total": 12,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-04",
+      "total": 12,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-05",
+      "total": 12,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-07",
+      "total": 16,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-08",
+      "total": 16,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-09",
+      "total": 16,
+      "source": "autumn.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "autumn-10",
+      "total": 32,
+      "source": "autumn.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "winter-01",
+      "total": 12,
+      "source": "winter.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-01",
+      "total": 8,
+      "source": "spring.png",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "spring-02",
+      "total": 8,
+      "source": "spring.png",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "spring-03",
+      "total": 12,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-04",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "spring-05",
+      "total": 12,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-06",
+      "total": 12,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-07",
+      "total": 12,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-08",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "spring-09",
+      "total": 16,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-10",
+      "total": 16,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-11",
+      "total": 16,
+      "source": "spring.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "spring-12",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "spring-13",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "spring-14",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "spring-15",
+      "total": 32,
+      "source": "spring.png",
+      "size": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "summer-01",
+      "total": 12,
+      "source": "summer.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "summer-02",
+      "total": 12,
+      "source": "summer.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "summer-03",
+      "total": 12,
+      "source": "summer.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "summer-04",
+      "total": 16,
+      "source": "summer.png",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "program-18-ratio",
+      "total": 18,
+      "source": "program",
+      "size": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "program-18-equal",
+      "total": 18,
+      "source": "program",
+      "size": [
+        2,
+        1
+      ]
+    }
+  ],
+  "catalog_version": "c705e9780b8419d08e5f30cc0c7a77f42ed1f546f9754202be772d271af2ad80",
+  "verifier_schema": 4,
+  "strategies": [
+    {
+      "id": "GIANT_TEMPLATE",
+      "name": "巨大化·模版"
+    },
+    {
+      "id": "GIANT",
+      "name": "巨大化·最优"
+    }
+  ],
+  "crops": [
+    {
+      "id": "carrot",
+      "name": "胡萝卜",
+      "seasons": [
+        "autumn",
+        "winter",
+        "spring"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        -4.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "corn",
+      "name": "玉米",
+      "seasons": [
+        "autumn",
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        2.0,
+        -4.0,
+        2.0
+      ]
+    },
+    {
+      "id": "potato",
+      "name": "土豆",
+      "seasons": [
+        "autumn",
+        "winter",
+        "spring"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        2.0,
+        2.0,
+        -4.0
+      ]
+    },
+    {
+      "id": "tomato",
+      "name": "番茄",
+      "seasons": [
+        "autumn",
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        -2.0,
+        -2.0,
+        4.0
+      ]
+    },
+    {
+      "id": "asparagus",
+      "name": "芦笋",
+      "seasons": [
+        "winter",
+        "spring"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        2.0,
+        -4.0,
+        2.0
+      ]
+    },
+    {
+      "id": "eggplant",
+      "name": "茄子",
+      "seasons": [
+        "autumn",
+        "spring"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        2.0,
+        2.0,
+        -4.0
+      ]
+    },
+    {
+      "id": "pumpkin",
+      "name": "南瓜",
+      "seasons": [
+        "autumn",
+        "winter"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        -4.0,
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "id": "watermelon",
+      "name": "西瓜",
+      "seasons": [
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        4.0,
+        -2.0,
+        -2.0
+      ]
+    },
+    {
+      "id": "dragonfruit",
+      "name": "火龙果",
+      "seasons": [
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        4.0,
+        4.0,
+        -8.0
+      ]
+    },
+    {
+      "id": "durian",
+      "name": "榴莲",
+      "seasons": [
+        "spring"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        4.0,
+        -8.0,
+        4.0
+      ]
+    },
+    {
+      "id": "garlic",
+      "name": "大蒜",
+      "seasons": [
+        "autumn",
+        "winter",
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        4.0,
+        -8.0,
+        4.0
+      ]
+    },
+    {
+      "id": "onion",
+      "name": "洋葱",
+      "seasons": [
+        "autumn",
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        -8.0,
+        4.0,
+        4.0
+      ]
+    },
+    {
+      "id": "pepper",
+      "name": "辣椒",
+      "seasons": [
+        "autumn",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        4.0,
+        4.0,
+        -8.0
+      ]
+    },
+    {
+      "id": "pomegranate",
+      "name": "石榴",
+      "seasons": [
+        "spring",
+        "summer"
+      ],
+      "family_min": 4,
+      "family_radius": 4,
+      "nutrient_net": [
+        -8.0,
+        4.0,
+        4.0
+      ]
+    }
+  ],
+  "max_tiles": 64,
+  "strategy_limits": {
+    "GIANT": 64,
+    "GIANT_TEMPLATE": null
+  },
+  "policy": [
+    "逐地皮养分互补、应季、同族和坑距",
+    "合法配比内播种数量优先",
+    "同族连片及距离",
+    "行列与整体排列"
+  ],
+  "app_id": "tractor-native-seed-verifier",
+  "server_build": "d25880a13abfe9613ce8fc60c6b173655a65ea3d81ae2a920419ffff9f1f0b70"
+}

@@ -8,6 +8,7 @@
 
 -- 返回值为 "ok" / nil, reason
 local AOMFarmWork = {}
+local Grid=require("aom_farm_grid")
 local Result=require("aom_work_result")
 local WeedDefense=require("aom_weed_defense")
 local Cargo=require("aom_cargo")
@@ -176,8 +177,8 @@ local function GetMoundTargets(x,z,targets)
     if targets then return targets end
     local out={}
     -- 原版 CollapseSoilAtPoint 会打坏 1.25 范围内的邻坑；间距 1 会互相毁坑。
-    -- 4/3 均分一块 4×4 地皮，九坑之间及跨地皮的间距都大于原版 1.25。
-    local spacing=4/3
+    -- 二进制精确偏移；同格1.3125、跨格1.375，均大于原版1.25。
+    local spacing=Grid.SPACING
     for dx=-1,1 do
         for dz=-1,1 do out[#out+1]={x=x+dx*spacing,z=z+dz*spacing} end
     end
@@ -420,7 +421,10 @@ end
 -- 普通播种一次一颗；只搜索本格，不越界补种到相邻地皮。
 function AOMFarmWork.Seed(x,y,z,doer,seed,vehicle)
     if not seed or not seed.components.farmplantable then return false,"NO_SEED" end
-    for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
+    local soils=FindEmptySoil(x,y,z,FIELD_RADIUS)
+    -- 中断续种继续按现场剩余坑判断；失败不结算，最后一坑的异常成功仍结算。
+    if vehicle and vehicle._aom_work_result then vehicle._aom_work_result.seed_tile_complete=#soils==1 end
+    for _,soil in ipairs(soils) do
         local sx,_,sz=soil.Transform:GetWorldPosition()
         if Result.Observe(vehicle,function()return seed.components.farmplantable:Plant(soil,doer)end, function()return not soil:IsValid()end) then return true,nil,{x=sx,z=sz} end
     end

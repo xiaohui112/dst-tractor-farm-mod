@@ -1,4 +1,4 @@
-"""Planning lifecycle, cache validity, spatial indexing and crash-replay telemetry."""
+"""Planning lifecycle, cache validity, spatial indexing and in-memory timing."""
 import unittest
 import test_plan_timing
 
@@ -35,7 +35,7 @@ end
 D.Start(inst,0,0);table.remove(queue,1).fn();local job=inst._aom_dynamic_job
 D.Cancel(inst,'WORK_STOPPED');assert(inst._aom_suspended_job==job)
 D.Start(inst,0,0);assert(inst._aom_dynamic_job==job)
-run_planning();assert(built==1 and inst._block.total==8 and contains('[RESUMED]'))
+run_planning();assert(built==1 and inst._block.total==8 and inst._aom_plan_trace.status=='complete')
 ''')
 
  def test_background_job_never_plants_and_f_promotes_same_job(self):
@@ -71,12 +71,12 @@ assert(not inst._block and crop_count()==0 and inst.components.aom_attachment_st
   self.lua.execute('''
 prepare();local cpu=0;os.clock=function()return cpu end
 D.Build=function()while true do cpu=cpu+.005;coroutine.yield()end end
-D.Start(inst,0,0);table.remove(queue,1).fn();local old=inst._aom_dynamic_job
+D.Start(inst,0,0);table.remove(queue,1).fn();local old=inst._aom_dynamic_job;local oldtrace=inst._aom_plan_trace
 D.Cancel(inst,'WORK_STOPPED')
 local replacement=make_inst({tomato=9,potato=9},'autumn')
 inst.components.aom_attachment_store=replacement.components.aom_attachment_store
 D.Start(inst,0,0)
-assert(inst._aom_dynamic_job~=old and not inst._aom_suspended_job and contains('reason=REPLACED'))
+assert(inst._aom_dynamic_job~=old and not inst._aom_suspended_job and oldtrace.finished and oldtrace.reason=='REPLACED')
 ''')
 
  def test_changed_field_is_rechecked_before_background_result_is_used(self):
@@ -86,7 +86,7 @@ D.Build=function()cpu=cpu+.005;coroutine.yield();return plan end
 inst._working=false;D.Start(inst,0,0,true);table.remove(queue,1).fn()
 for _,v in ipairs(ENTITIES)do if v.prefab=='farm_soil'then v:Remove();break end end
 while #queue>0 do table.remove(queue,1).fn()end
-assert(not inst._block and not inst._aom_dynamic_job and crop_count()==0 and contains('reason=INPUT_CHANGED'))
+assert(not inst._block and not inst._aom_dynamic_job and crop_count()==0 and inst._aom_plan_trace.reason=='INPUT_CHANGED')
 ''')
 
  def test_first_seed_wait_starts_at_f_when_background_job_is_promoted(self):
@@ -97,7 +97,8 @@ D.Build=function()cpu=cpu+.005;coroutine.yield();return plan end
 inst._working=false;D.Start(inst,0,0,true);table.remove(queue,1).fn()
 now=110;Timing.Request(inst);inst._working=true;D.Start(inst,0,0)
 run_planning();now=112;inst._aom_plan_trace:FirstSeed({crop='tomato',x=0,z=0})
-assert(contains('request_to_seed_wall_ms=2000.000'))
+local trace=inst._aom_plan_trace
+assert(trace.first_seed and math.abs(trace.first_seed.wall-(trace.request_wall-trace.started_wall)-2)<1e-9)
 ''')
 
  def test_two_vehicles_share_one_frame_budget(self):
@@ -115,16 +116,15 @@ for _,task in ipairs(queue)do if task.delay<1 then task.fn();break end end
 assert(built==2 and second._block)
 ''')
 
- def test_input_is_written_before_completion_and_clock_is_high_resolution(self):
+ def test_planning_keeps_high_resolution_timing_without_log_output(self):
   self.lua.execute('''
 prepare();local now=123.125;GetTimeRealSeconds=function()return now end
 local trace=Timing.New(inst,0,0);trace:TickBegin();now=now+.004
 trace:TickEnd('cpu_budget');trace:Complete('complete',nil,{total=8,upper=8,optimal=true})
-assert(contains('wall_precision_ms=1') and contains('wall_ms=4.000'))
-logs={};D.Start(inst,0,0);run_planning()
-local input,summary,pits
-for i,line in ipairs(logs)do if line:find('[INPUT]',1,true)and not input then input=i end;if line:find('[SUMMARY]',1,true)then summary=i end;if line:find('[PITS]',1,true)then pits=i end end
-assert(input and pits and summary and input<summary and pits<summary and contains('[LAYOUT]'))
+assert(trace.wall_basis=='engine_realtime_seconds' and math.abs(trace.planning.wall-.004)<1e-9)
+D.Start(inst,0,0);run_planning()
+assert(inst._block and inst._aom_plan_trace.status=='complete')
+assert(inst._aom_plan_trace.context.seed_stock and inst._aom_plan_trace.batch==nil)
 ''')
 
  def test_spatial_buckets_match_exhaustive_distances_with_offset_pits(self):

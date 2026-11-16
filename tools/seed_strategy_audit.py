@@ -52,6 +52,8 @@ TUNING.FARM_PANT_OVERCROWDING_MAX_PLANTS=NATIVE_CONSTANTS.FARM_PANT_OVERCROWDING
  if source_dir:
   L.globals().AUDIT_SCRIPTS=str(source_dir)
   L.execute("package.path=AUDIT_SCRIPTS..'/?.lua;'..package.path;package.loaded.aom_seed_layout=nil;package.loaded.aom_dynamic_farm=nil")
+ grid=Path(source_dir or giant.ROOT/'mod/Tractor/scripts')/'aom_farm_grid.lua'
+ w.grid_spacing=L.eval("require('aom_farm_grid').SPACING") if grid.exists() else 4/3
  return w
 
 def rules():
@@ -202,7 +204,7 @@ def run_case(case,source_dir=None,recheck=False,case_seconds=None,native_float=F
  L.execute("inst.components.container.numslots=15;inst._attachment_type='seeder';TheWorld.components.farming_manager.GetTileNutrients=function()error('unexpected nutrient read')end;D=require('aom_dynamic_farm')")
  for x,z in case['tiles']:
   for dx in (-1,0,1):
-   for dz in (-1,0,1):L.globals().SpawnPrefab('farm_soil').Transform.SetPosition(None,x*4+dx*4/3,0,z*4+dz*4/3)
+   for dz in (-1,0,1):L.globals().SpawnPrefab('farm_soil').Transform.SetPosition(None,x*4+dx*w.grid_spacing,0,z*4+dz*w.grid_spacing)
  x,z=case['tiles'][0];start=time.perf_counter()
  if case_seconds:
   def guard():
@@ -267,7 +269,8 @@ def exact_oracle(case,time_limit=2):
  from scipy.optimize import Bounds,LinearConstraint,milp
  from scipy.sparse import coo_matrix
  crops=[k for k,n in case['stock'].items() if k in RULES and case['season'] in RULES[k]['seasons'] and n>=RULES[k]['minimum']]
- points=[(x*4+dx*4/3,z*4+dz*4/3) for x,z in case['tiles'] for dz in (-1,0,1) for dx in (-1,0,1)]
+ spacing=world().grid_spacing
+ points=[(x*4+dx*spacing,z*4+dz*spacing) for x,z in case['tiles'] for dz in (-1,0,1) for dx in (-1,0,1)]
  P,K=len(points),len(crops);V=P*K+K
  if not K:return {'count':0,'kinds':0,'proven':True,'points':[]}
  rr=[];cc=[];vv=[];lo=[];hi=[]
@@ -304,7 +307,7 @@ def main():
  selected=[c for c in {'structured':cases,'holdout':holdout_cases,'symmetry':symmetry_cases,'large':large_cases,'all':all_balanced_cases}[args.suite]() if not args.only or args.only in c['id']]
  if args.limit:selected=selected[:args.limit]
  source=args.source or ROOT/'mod/Tractor/scripts'
- def hashes():return {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(source.glob('aom_seed_*.lua'))|{source/'aom_dynamic_farm.lua',source/'aom_template_preview.lua'}) if p.exists()}
+ def hashes():return {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(source.glob('aom_seed_*.lua'))|{source/'aom_dynamic_farm.lua',source/'aom_template_preview.lua',source/'aom_farm_grid.lua',source/'aom_farm_neighbors.lua'}) if p.exists()}
  initial=hashes()
  report={'source_sha256':initial,'native_rules_sha256':hashlib.sha256(NATIVE.encode()).hexdigest(),'native_constants':CONSTANTS,'rules':RULES,'started_at':datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),'source':str(source),'case_wall_budget_seconds':args.case_seconds,'rows':[]}
  args.output.parent.mkdir(parents=True,exist_ok=True)

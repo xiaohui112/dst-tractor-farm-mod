@@ -1,0 +1,656 @@
+{
+  "root_before_allocated_bytes": 8298827776,
+  "outputs_before_allocated_bytes": 3639611392,
+  "deleted": [
+    {
+      "path": "outputs/template-18-coverage/install-backup",
+      "allocated_bytes": 93474816
+    },
+    {
+      "path": "outputs/upgrade-0.5.18/install-backup",
+      "allocated_bytes": 292651008
+    },
+    {
+      "path": "outputs/optimization-0.5.17/install-backup",
+      "allocated_bytes": 292569088
+    },
+    {
+      "path": "outputs/grid-spacing-0.5.22/install/backup-20261117-000218",
+      "allocated_bytes": 293007360
+    },
+    {
+      "path": "outputs/unbounded-template/install-backup",
+      "allocated_bytes": 193069056
+    },
+    {
+      "path": "outputs/native-query-fix/install/backup-20261116-202013",
+      "allocated_bytes": 292995072
+    },
+    {
+      "path": "outputs/seeder-durability-0.5.23/install/backup-0.5.22/Tractor",
+      "allocated_bytes": 99753984
+    },
+    {
+      "path": "outputs/seeder-durability-0.5.23/install/backup-0.5.22/installed-before-replace",
+      "allocated_bytes": 99753984
+    },
+    {
+      "path": "outputs/grid-spacing-0.5.22/source-snapshot",
+      "allocated_bytes": 100265984
+    },
+    {
+      "path": "outputs/grid-spacing-0.5.22/final-source-snapshot",
+      "allocated_bytes": 100249600
+    },
+    {
+      "path": "outputs/cpsat-comparison/source-snapshot",
+      "allocated_bytes": 100245504
+    },
+    {
+      "path": "outputs/cpsat-native-float32/source-snapshot",
+      "allocated_bytes": 100257792
+    },
+    {
+      "path": "outputs/native-query-fix/source-snapshot",
+      "allocated_bytes": 100261888
+    },
+    {
+      "path": "outputs/unbounded-template/before-mod",
+      "allocated_bytes": 99729408
+    },
+    {
+      "path": "outputs/cpsat-venv",
+      "allocated_bytes": 225337344
+    },
+    {
+      "path": "outputs/native-query-fix/test-venv",
+      "allocated_bytes": 200974336
+    },
+    {
+      "path": "outputs/attachment-preview",
+      "allocated_bytes": 27918336
+    },
+    {
+      "path": "outputs/vehicle-preview",
+      "allocated_bytes": 19521536
+    },
+    {
+      "path": "outputs/visual-alignment-fix",
+      "allocated_bytes": 44298240
+    },
+    {
+      "path": "outputs/directional-build",
+      "allocated_bytes": 66498560
+    },
+    {
+      "path": "outputs/directional-roundtrip",
+      "allocated_bytes": 86056960
+    },
+    {
+      "path": "outputs/hud-native",
+      "allocated_bytes": 54804480
+    },
+    {
+      "path": "outputs/mount-geometry",
+      "allocated_bytes": 11239424
+    },
+    {
+      "path": "outputs/tex-build",
+      "allocated_bytes": 294912
+    },
+    {
+      "path": "tools/__pycache__",
+      "allocated_bytes": 299008
+    },
+    {
+      "path": "tools/cpsat_benchmark/__pycache__",
+      "allocated_bytes": 77824
+    },
+    {
+      "path": "tools/tests/__pycache__",
+      "allocated_bytes": 1056768
+    },
+    {
+      "path": "web/giant-seed-verifier/__pycache__",
+      "allocated_bytes": 57344
+    },
+    {
+      "path": "web/giant-seed-verifier/tests/__pycache__",
+      "allocated_bytes": 45056
+    }
+  ],
+  "preserved": [
+    {
+      "path": "outputs/preserved-test-snapshots",
+      "snapshot_count": 6,
+      "unique_objects": 188,
+      "archive_sha256": "a63afd6cedad1370c5ddbe6f59daea5879a9b55a46d8eb33c144c96641252b85"
+    },
+    {
+      "path": "outputs/seeder-durability-0.5.23/install/backup-0.5.22/Tractor.zip",
+      "version": "0.5.22",
+      "files": 98,
+      "sha256": "f437aa52fd953fdffc77426062e3b34ba930ba3ef27a3dc7067bb54bc8e3f00a"
+    }
+  ],
+  "git_history_touched": false,
+  "planned_paths": [
+    "outputs/template-18-coverage/install-backup",
+    "outputs/upgrade-0.5.18/install-backup",
+    "outputs/optimization-0.5.17/install-backup",
+    "outputs/grid-spacing-0.5.22/install/backup-20261117-000218",
+    "outputs/unbounded-template/install-backup",
+    "outputs/native-query-fix/install/backup-20261116-202013",
+    "outputs/seeder-durability-0.5.23/install/backup-0.5.22/Tractor",
+    "outputs/seeder-durability-0.5.23/install/backup-0.5.22/installed-before-replace",
+    "outputs/grid-spacing-0.5.22/source-snapshot",
+    "outputs/grid-spacing-0.5.22/final-source-snapshot",
+    "outputs/cpsat-comparison/source-snapshot",
+    "outputs/cpsat-native-float32/source-snapshot",
+    "outputs/native-query-fix/source-snapshot",
+    "outputs/unbounded-template/before-mod",
+    "outputs/cpsat-venv",
+    "outputs/native-query-fix/test-venv",
+    "outputs/attachment-preview",
+    "outputs/vehicle-preview",
+    "outputs/visual-alignment-fix",
+    "outputs/directional-build",
+    "outputs/directional-roundtrip",
+    "outputs/hud-native",
+    "outputs/mount-geometry",
+    "outputs/tex-build",
+    "tools/__pycache__",
+    "tools/cpsat_benchmark/__pycache__",
+    "tools/tests/__pycache__",
+    "web/giant-seed-verifier/__pycache__",
+    "web/giant-seed-verifier/tests/__pycache__"
+  ],
+  "git_metadata_unchanged": true,
+  "tracked_existing_files_unchanged": true,
+  "root_after_allocated_bytes": 4933664768,
+  "outputs_after_allocated_bytes": 275705856,
+  "net_allocated_bytes_reduced": 3365163008,
+  "lossless_compressed_results": [
+    {
+      "path": "outputs/0.5.12-balanced-structured.json",
+      "preserved_as": "outputs/0.5.12-balanced-structured.json.gz",
+      "bytes": 2754838,
+      "compressed_bytes": 75595,
+      "sha256": "d115b8fe4b05b7e7eb19e5fd0f240d3ae646afdafcc54a20345995195da62920"
+    },
+    {
+      "path": "outputs/0.5.12-final-structured.json",
+      "preserved_as": "outputs/0.5.12-final-structured.json.gz",
+      "bytes": 4633175,
+      "compressed_bytes": 138594,
+      "sha256": "49b25838b24cb61d649ab107fde568745af18e438f9b0b0bdd1630e0c0fe70ac"
+    },
+    {
+      "path": "outputs/0.5.12-final-symmetry.json",
+      "preserved_as": "outputs/0.5.12-final-symmetry.json.gz",
+      "bytes": 1169580,
+      "compressed_bytes": 26811,
+      "sha256": "6f593d0c3b9307c952bf5c94963b6caf70b0eae17dcd33a0f0eaf2b5bce46721"
+    },
+    {
+      "path": "outputs/0.5.12-release-all.json",
+      "preserved_as": "outputs/0.5.12-release-all.json.gz",
+      "bytes": 6973205,
+      "compressed_bytes": 214880,
+      "sha256": "133fb0bdf13b9e81625c2cabd8cbe430f4b7959bd966731c05dda2a1f282f134"
+    },
+    {
+      "path": "outputs/0.5.13-before-delta-audit.json",
+      "preserved_as": "outputs/0.5.13-before-delta-audit.json.gz",
+      "bytes": 4524784,
+      "compressed_bytes": 156941,
+      "sha256": "52ad2806c327000822ddd2b087342cb778f18d36ae1d8bea71b348e92d5731f0"
+    },
+    {
+      "path": "outputs/0.5.13-final-all.json",
+      "preserved_as": "outputs/0.5.13-final-all.json.gz",
+      "bytes": 4240873,
+      "compressed_bytes": 145981,
+      "sha256": "361e31165c85452f5630420866091de85bf344be2c10396404d92d37deccbc51"
+    },
+    {
+      "path": "outputs/0.5.13-final2-all.json",
+      "preserved_as": "outputs/0.5.13-final2-all.json.gz",
+      "bytes": 7046292,
+      "compressed_bytes": 246239,
+      "sha256": "015213c2ab53891583246e9876fd2a1809d50fd1afe1990fdf54df42ffb06faa"
+    },
+    {
+      "path": "outputs/0.5.13-full-scout.json",
+      "preserved_as": "outputs/0.5.13-full-scout.json.gz",
+      "bytes": 4820874,
+      "compressed_bytes": 166179,
+      "sha256": "0c8219f1f2ce63d9c16ffa6a6470679476b780d7eb6e7786e88c616b0ca8c510"
+    },
+    {
+      "path": "outputs/0.5.13-scout2.json",
+      "preserved_as": "outputs/0.5.13-scout2.json.gz",
+      "bytes": 4595438,
+      "compressed_bytes": 159258,
+      "sha256": "8e9a8f0c3c1baa5205c99b49d516934229008f0395521c16f46716094d7a7956"
+    },
+    {
+      "path": "outputs/0.5.13-stage-timing-audit-original-30s.json",
+      "preserved_as": "outputs/0.5.13-stage-timing-audit-original-30s.json.gz",
+      "bytes": 7043034,
+      "compressed_bytes": 248599,
+      "sha256": "ce5b69ef79fed9ecebafbfbd76335f3a3616443f2897759c170ed3d55ff1ac8f"
+    },
+    {
+      "path": "outputs/0.5.13-stage-timing-audit.json",
+      "preserved_as": "outputs/0.5.13-stage-timing-audit.json.gz",
+      "bytes": 7099817,
+      "compressed_bytes": 248967,
+      "sha256": "2b5c669e2593bcf11ba2bfca23eca39b9f20485a8eaf451c9b3ce7daa1dac917"
+    },
+    {
+      "path": "outputs/0.5.13-verified-all.json",
+      "preserved_as": "outputs/0.5.13-verified-all.json.gz",
+      "bytes": 4524784,
+      "compressed_bytes": 156941,
+      "sha256": "52ad2806c327000822ddd2b087342cb778f18d36ae1d8bea71b348e92d5731f0"
+    },
+    {
+      "path": "outputs/cpsat-native-float32/main.json",
+      "preserved_as": "outputs/cpsat-native-float32/main.json.gz",
+      "bytes": 1641482,
+      "compressed_bytes": 79126,
+      "sha256": "0e3b40ee6c1807217122a33ddde2d161e3eb96f9d360ae79c14e1620901c99b3"
+    },
+    {
+      "path": "outputs/native-riding-inspection.json",
+      "preserved_as": "outputs/native-riding-inspection.json.gz",
+      "bytes": 112139270,
+      "compressed_bytes": 18187374,
+      "sha256": "3bbe4f73869f657eec6f1ccee49925bc652f68c3472d990f457e90d50eee895f"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-final.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-final.json.gz",
+      "bytes": 7380892,
+      "compressed_bytes": 261009,
+      "sha256": "89b10f53f8e93421989c4fb7cb37f3481ce0b1267129e1bfa33e0209e0340c1a"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-first.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-first.json.gz",
+      "bytes": 7339170,
+      "compressed_bytes": 260004,
+      "sha256": "c624ec19aec3ddba266f8aed68783e0076c714944cde3118def3feb2e1ff8134"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-ratio-8.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-ratio-8.json.gz",
+      "bytes": 7379340,
+      "compressed_bytes": 259209,
+      "sha256": "8edf3e8e7073e6044eeab6ef550aa871b33139527c75d8cf8e98e7b27812016b"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-release.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-release.json.gz",
+      "bytes": 7380690,
+      "compressed_bytes": 260847,
+      "sha256": "9d6c1a5118db6ddf8cdb420fe770aecee68811b79b6572b837dd62ceba77083d"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-second.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-second.json.gz",
+      "bytes": 7380813,
+      "compressed_bytes": 260819,
+      "sha256": "2be498b13c7b04953225058d949b793650d6c24800873a0f729197036f096930"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/all-shipping.json",
+      "preserved_as": "outputs/optimization-0.5.17/all-shipping.json.gz",
+      "bytes": 7380924,
+      "compressed_bytes": 260168,
+      "sha256": "401d5766bd58dcca5e61d4756490c1896bfd5de42d14004dc65763e55ea17e1f"
+    },
+    {
+      "path": "outputs/optimization-0.5.17/baseline-now.json",
+      "preserved_as": "outputs/optimization-0.5.17/baseline-now.json.gz",
+      "bytes": 7378274,
+      "compressed_bytes": 254100,
+      "sha256": "8c5191bdd569256004d5e8c93c1722a0b86633cd65060b23b1dfec3a5f0636b2"
+    },
+    {
+      "path": "outputs/seed-audit-0511-holdout.json",
+      "preserved_as": "outputs/seed-audit-0511-holdout.json.gz",
+      "bytes": 2650180,
+      "compressed_bytes": 107794,
+      "sha256": "d44dafd38387ed99948f1e903ace3744065ae8d5e74536d2f75fd3a160cde6bb"
+    },
+    {
+      "path": "outputs/seed-audit-0511-matrix.json",
+      "preserved_as": "outputs/seed-audit-0511-matrix.json.gz",
+      "bytes": 6709737,
+      "compressed_bytes": 203809,
+      "sha256": "dede4dbc559483a10b3a9b6a7cd05358b934c2a3a86a7caa376ccd470571ae21"
+    },
+    {
+      "path": "outputs/seed-audit-0511-symmetry.json",
+      "preserved_as": "outputs/seed-audit-0511-symmetry.json.gz",
+      "bytes": 3444674,
+      "compressed_bytes": 76578,
+      "sha256": "42c5df1e01cfee702143007166fbd322bc0086b5c21bbb4ac7fff5d9973f333a"
+    },
+    {
+      "path": "outputs/seed-audit-before.json",
+      "preserved_as": "outputs/seed-audit-before.json.gz",
+      "bytes": 4983773,
+      "compressed_bytes": 163230,
+      "sha256": "b7a094f7ad90c9ce43eca0bcfaa0c9d01cecee562ad5f4c9ff860da29ef15a6e"
+    },
+    {
+      "path": "outputs/seed-audit-expanded-final.json",
+      "preserved_as": "outputs/seed-audit-expanded-final.json.gz",
+      "bytes": 6415304,
+      "compressed_bytes": 201588,
+      "sha256": "d08ac8f27f129d6c05046fe6cbfaed635a86a9dfa1df584682a4942ea44d1b3e"
+    },
+    {
+      "path": "outputs/seed-audit-final-holdout.json",
+      "preserved_as": "outputs/seed-audit-final-holdout.json.gz",
+      "bytes": 2659756,
+      "compressed_bytes": 108782,
+      "sha256": "013554affe9a35eea394f532f5efaf26d2fbfc778e034a20b728b743fdbb8c5a"
+    },
+    {
+      "path": "outputs/seed-audit-final-matrix.json",
+      "preserved_as": "outputs/seed-audit-final-matrix.json.gz",
+      "bytes": 6747367,
+      "compressed_bytes": 208484,
+      "sha256": "e30513a479ab2d5e1bacbe3691f92b4beebda90e6a65b186685a869f95eb1a4e"
+    },
+    {
+      "path": "outputs/seed-audit-final-symmetry.json",
+      "preserved_as": "outputs/seed-audit-final-symmetry.json.gz",
+      "bytes": 3444343,
+      "compressed_bytes": 76608,
+      "sha256": "9f7ea81766649220688dc246ec5d9296e46b1abb8f0539b71c3710a1821320d7"
+    },
+    {
+      "path": "outputs/seed-audit-holdout-final.json",
+      "preserved_as": "outputs/seed-audit-holdout-final.json.gz",
+      "bytes": 2659649,
+      "compressed_bytes": 108586,
+      "sha256": "56604863b862293dcd3105f2faf89a2dec927c9ab7d91136b42d400284243623"
+    },
+    {
+      "path": "outputs/seed-audit-holdout-packing.json",
+      "preserved_as": "outputs/seed-audit-holdout-packing.json.gz",
+      "bytes": 2805246,
+      "compressed_bytes": 117226,
+      "sha256": "f5a3bcb53022e89f651934d584ca2c86980072d1b9d8c6754646e57bd2520c5f"
+    },
+    {
+      "path": "outputs/seed-audit-original-holdout.json",
+      "preserved_as": "outputs/seed-audit-original-holdout.json.gz",
+      "bytes": 2647395,
+      "compressed_bytes": 106751,
+      "sha256": "06582bb1c0ac816e9ec76c21a44e4bdd725dd14ced1da8601812a3a3d2067b16"
+    },
+    {
+      "path": "outputs/seed-audit-original-matrix.json",
+      "preserved_as": "outputs/seed-audit-original-matrix.json.gz",
+      "bytes": 6695446,
+      "compressed_bytes": 202210,
+      "sha256": "aa314e583681c0935b4dbd27f366dae3377300484433b16b9ed663afbb15955b"
+    },
+    {
+      "path": "outputs/seed-audit-original-symmetry.json",
+      "preserved_as": "outputs/seed-audit-original-symmetry.json.gz",
+      "bytes": 3426557,
+      "compressed_bytes": 77794,
+      "sha256": "339ad871194d32d7b469f44ca2639e0c6f379e0f72af155f3671f5d8e6c8ecb6"
+    },
+    {
+      "path": "outputs/seed-audit-packing.json",
+      "preserved_as": "outputs/seed-audit-packing.json.gz",
+      "bytes": 4690382,
+      "compressed_bytes": 144622,
+      "sha256": "a1e7929cb2002ce31756116647fe96a0913fb4cd1041aece20ecd21c45544f81"
+    },
+    {
+      "path": "outputs/seed-audit-release-holdout.json",
+      "preserved_as": "outputs/seed-audit-release-holdout.json.gz",
+      "bytes": 2659840,
+      "compressed_bytes": 108662,
+      "sha256": "1b130ffef98961ea601f6ad166d630b51b2411cb8cf73776c0dcbb3d7f31b28f"
+    },
+    {
+      "path": "outputs/seed-audit-release-matrix.json",
+      "preserved_as": "outputs/seed-audit-release-matrix.json.gz",
+      "bytes": 6747186,
+      "compressed_bytes": 206784,
+      "sha256": "0513a0ed5b401b8cc6fc03ae4bac815a2a6a266b98db1935bf15a9348eb88852"
+    },
+    {
+      "path": "outputs/seed-audit-release-symmetry.json",
+      "preserved_as": "outputs/seed-audit-release-symmetry.json.gz",
+      "bytes": 3444358,
+      "compressed_bytes": 76245,
+      "sha256": "a0b28111fc94a74dbdf92b5e1233f401dfe6b757710266e8b17dc7462e7f1ec8"
+    },
+    {
+      "path": "outputs/seed-optimization-30/acceptance-all.json",
+      "preserved_as": "outputs/seed-optimization-30/acceptance-all.json.gz",
+      "bytes": 7312201,
+      "compressed_bytes": 253928,
+      "sha256": "f070a8293092f955a9c49062c50c2bb3dc3a60c0155bd3a5ed75a976baadc817"
+    },
+    {
+      "path": "outputs/seed-optimization-30/final-all.json",
+      "preserved_as": "outputs/seed-optimization-30/final-all.json.gz",
+      "bytes": 7379596,
+      "compressed_bytes": 254713,
+      "sha256": "79269da08ac61701bd5823da18d8c32f0a15ecd663c16b7441e28839bf608506"
+    },
+    {
+      "path": "outputs/seed-optimization-30/full-regression-final.json",
+      "preserved_as": "outputs/seed-optimization-30/full-regression-final.json.gz",
+      "bytes": 7167034,
+      "compressed_bytes": 251492,
+      "sha256": "f4447ce9e45e8e111fa22db68f093763e464d275b3b594590019216051bdf71e"
+    },
+    {
+      "path": "outputs/seed-optimization-30/full-regression.json",
+      "preserved_as": "outputs/seed-optimization-30/full-regression.json.gz",
+      "bytes": 7279435,
+      "compressed_bytes": 251827,
+      "sha256": "1092c3c9bb2fc07c9acbb3e7f75af081b0a1d086afc272157cc0b1edb695b150"
+    },
+    {
+      "path": "outputs/seed-optimization-30/release-all.json",
+      "preserved_as": "outputs/seed-optimization-30/release-all.json.gz",
+      "bytes": 7379485,
+      "compressed_bytes": 254660,
+      "sha256": "a860271a3771707257da17744f3b42a53fbf7f338eebd0a5e48f8596f44599d1"
+    },
+    {
+      "path": "outputs/seed-optimization-30/verified-all.json",
+      "preserved_as": "outputs/seed-optimization-30/verified-all.json.gz",
+      "bytes": 7306995,
+      "compressed_bytes": 254692,
+      "sha256": "49341433f9ae9f3af0a27e1ad6362cbfb69deba68a6d4e2a30a5730b457c6191"
+    },
+    {
+      "path": "outputs/template-18-coverage/intermediate-first-expansion/optimal-all.json",
+      "preserved_as": "outputs/template-18-coverage/intermediate-first-expansion/optimal-all.json.gz",
+      "bytes": 5202121,
+      "compressed_bytes": 185630,
+      "sha256": "b1c1f011a8b22dd3729a19b63df99f3d768db48a8c5f08d39f6416b65d21b57a"
+    },
+    {
+      "path": "outputs/template-18-coverage/intermediate-first-expansion/template-all.json",
+      "preserved_as": "outputs/template-18-coverage/intermediate-first-expansion/template-all.json.gz",
+      "bytes": 7438267,
+      "compressed_bytes": 234638,
+      "sha256": "e42f285c4c24f5ec0464202eb2263c2d817bff7b8de91d698d82d5e46bd856c6"
+    },
+    {
+      "path": "outputs/template-18-coverage/optimal-all.json",
+      "preserved_as": "outputs/template-18-coverage/optimal-all.json.gz",
+      "bytes": 7411969,
+      "compressed_bytes": 260507,
+      "sha256": "2c78cdd9dd39bc3843b445e266cd8f0628114ae88ac7425036bb8fdbbbab9e1e"
+    },
+    {
+      "path": "outputs/template-18-coverage/template-all.json",
+      "preserved_as": "outputs/template-18-coverage/template-all.json.gz",
+      "bytes": 7438358,
+      "compressed_bytes": 234613,
+      "sha256": "2751d291bd4cdc722c2b80d035c79d9d432fff8a406461dc93066ec15ab9a76f"
+    },
+    {
+      "path": "outputs/template-v2-accepted-matrix.json",
+      "preserved_as": "outputs/template-v2-accepted-matrix.json.gz",
+      "bytes": 8852755,
+      "compressed_bytes": 398759,
+      "sha256": "b61d27b5b1c1033bf594b13b525291e244fbfa2608fa4af1b734b4598c4366f1"
+    },
+    {
+      "path": "outputs/template-v2-before-cache-optimal-all.json",
+      "preserved_as": "outputs/template-v2-before-cache-optimal-all.json.gz",
+      "bytes": 7412477,
+      "compressed_bytes": 260276,
+      "sha256": "a5aa7575ba49762020b4763b65c9de7af6671ba6e112f2329c8c2e33f0a7f7bd"
+    },
+    {
+      "path": "outputs/template-v2-before-cache-template-all.json",
+      "preserved_as": "outputs/template-v2-before-cache-template-all.json.gz",
+      "bytes": 7435338,
+      "compressed_bytes": 233164,
+      "sha256": "a4f1bb0f3734c42593458a192c643b2d827ebdb8ec05a4ef4ef8240851c95f74"
+    },
+    {
+      "path": "outputs/template-v2-final-matrix.json",
+      "preserved_as": "outputs/template-v2-final-matrix.json.gz",
+      "bytes": 4669351,
+      "compressed_bytes": 205737,
+      "sha256": "3e20ba06dadd292ded2d12723b7633aa7d6d6d6b246f58661b0847eb3e2c61ba"
+    },
+    {
+      "path": "outputs/template-v2-final-optimal-all.json",
+      "preserved_as": "outputs/template-v2-final-optimal-all.json.gz",
+      "bytes": 7412477,
+      "compressed_bytes": 260276,
+      "sha256": "a5aa7575ba49762020b4763b65c9de7af6671ba6e112f2329c8c2e33f0a7f7bd"
+    },
+    {
+      "path": "outputs/template-v2-final-template-all.json",
+      "preserved_as": "outputs/template-v2-final-template-all.json.gz",
+      "bytes": 7435338,
+      "compressed_bytes": 233164,
+      "sha256": "a4f1bb0f3734c42593458a192c643b2d827ebdb8ec05a4ef4ef8240851c95f74"
+    },
+    {
+      "path": "outputs/template-v2-matrix.json",
+      "preserved_as": "outputs/template-v2-matrix.json.gz",
+      "bytes": 4720481,
+      "compressed_bytes": 208974,
+      "sha256": "240b7f95fecfd79085742f6a18b2d06991b063755fa1d1e3431af048dda6dde6"
+    },
+    {
+      "path": "outputs/template-v2-optimal-all.json",
+      "preserved_as": "outputs/template-v2-optimal-all.json.gz",
+      "bytes": 7411047,
+      "compressed_bytes": 258987,
+      "sha256": "d06a6423112533ff554fef40b70760a40db4bd4d0d3a11b56b77f0b80590369b"
+    },
+    {
+      "path": "outputs/template-v2-optimal-cached-all.json",
+      "preserved_as": "outputs/template-v2-optimal-cached-all.json.gz",
+      "bytes": 7410718,
+      "compressed_bytes": 259577,
+      "sha256": "439781a91b1e4d83e3d2bf6140b9ecedcdd29d1f3c10d448a499995e718fdeb6"
+    },
+    {
+      "path": "outputs/template-v2-template-all.json",
+      "preserved_as": "outputs/template-v2-template-all.json.gz",
+      "bytes": 7435606,
+      "compressed_bytes": 233079,
+      "sha256": "5bbf4248e24fe9352825ca81cbe3f8d62689691fa68f387785107a30c5989362"
+    },
+    {
+      "path": "outputs/template-v2-template-cached-all.json",
+      "preserved_as": "outputs/template-v2-template-cached-all.json.gz",
+      "bytes": 7435659,
+      "compressed_bytes": 232731,
+      "sha256": "a38d2a480adb8cfd51e12b273520e65884540b77d98a9deb04eff4945b4d9319"
+    },
+    {
+      "path": "outputs/unbounded-template/matrix.json",
+      "preserved_as": "outputs/unbounded-template/matrix.json.gz",
+      "bytes": 8829388,
+      "compressed_bytes": 398110,
+      "sha256": "6be4a917aae858a46bb1aa3aad339f1ca9548cea2f0774a312a81d496a2d01b2"
+    },
+    {
+      "path": "outputs/unbounded-template/optimal-all.json",
+      "preserved_as": "outputs/unbounded-template/optimal-all.json.gz",
+      "bytes": 7379446,
+      "compressed_bytes": 259527,
+      "sha256": "7d639a099ba6815b9c41c8b6574d3bceecf64aa2153e855a37110d9085682822"
+    },
+    {
+      "path": "outputs/unbounded-template/optimal-effective.json",
+      "preserved_as": "outputs/unbounded-template/optimal-effective.json.gz",
+      "bytes": 7411932,
+      "compressed_bytes": 260634,
+      "sha256": "a80360b443060d8e4c9a8dad60a49d4bf6cc41e70d5fe74875a50a1637396dcc"
+    },
+    {
+      "path": "outputs/unbounded-template/template-all.json",
+      "preserved_as": "outputs/unbounded-template/template-all.json.gz",
+      "bytes": 7435744,
+      "compressed_bytes": 232797,
+      "sha256": "2c71656dc134abbc0ad62bd833f13085af7834f53c294e95b5773f032bc5b2c5"
+    },
+    {
+      "path": "outputs/upgrade-0.5.18/matrix.json",
+      "preserved_as": "outputs/upgrade-0.5.18/matrix.json.gz",
+      "bytes": 8853877,
+      "compressed_bytes": 395829,
+      "sha256": "843faa3fe825612f58c78f76d01524f9085c414f7caa8b20e04de1d0a7074387"
+    },
+    {
+      "path": "outputs/upgrade-0.5.18/optimal-all.json",
+      "preserved_as": "outputs/upgrade-0.5.18/optimal-all.json.gz",
+      "bytes": 7381594,
+      "compressed_bytes": 256249,
+      "sha256": "f536eac66ab6636c82490af414d097485f96eeb9b8bb849632cdceb993253cf7"
+    },
+    {
+      "path": "outputs/upgrade-0.5.18/template-all.json",
+      "preserved_as": "outputs/upgrade-0.5.18/template-all.json.gz",
+      "bytes": 7423464,
+      "compressed_bytes": 229356,
+      "sha256": "cdc3fd30473722990f09ca1632237a26ed6683a6f6617d8b61cae701cf0336bb"
+    }
+  ],
+  "full_snapshot_restore_test": {
+    "snapshot": "outputs/grid-spacing-0.5.22/final-source-snapshot",
+    "files_verified": 152,
+    "success": true
+  },
+  "web_service_healthy": {
+    "version": "0.5.23",
+    "installed_match": true,
+    "grid_spacing": 1.3125
+  },
+  "post_cleanup_checks": [
+    "98-file archive/source verification",
+    "planning fingerprint",
+    "30-template/364-coordinate catalog check",
+    "full frozen snapshot restoration",
+    "live web meta installed_match",
+    "Git file metadata unchanged",
+    "existing tracked file bytes unchanged before documentation updates"
+  ]
+}

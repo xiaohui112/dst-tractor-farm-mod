@@ -66,7 +66,6 @@ local AOM=require("aom_common")
 if AOM.SetLanguage then AOM.SetLanguage(GetModConfigData("LANGUAGE")) end
 local L=require("aom_locale").Text
 local Feedback=require("aom_feedback")
-require("aom_plan_log").Configure(MODROOT)
 
 local DriverVisual=require("aom_driver_visual")
 if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then

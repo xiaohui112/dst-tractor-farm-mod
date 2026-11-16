@@ -4,7 +4,7 @@ import argparse,hashlib,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SCRIPTS=ROOT/'mod/Tractor/scripts'
-NAMES=sorted({p.name for p in SCRIPTS.glob('aom_seed_*.lua')}|{'aom_farm_neighbors.lua','aom_dynamic_farm.lua','aom_plan_timing.lua','aom_plan_log.lua','aom_auto_seeding.lua','aom_farm_registry.lua','aom_template_preview.lua','aom_block_plan.lua','aom_drive.lua'})
+NAMES=sorted({p.name for p in SCRIPTS.glob('aom_seed_*.lua')}|{'aom_farm_grid.lua','aom_farm_work.lua','aom_farm_neighbors.lua','aom_dynamic_farm.lua','aom_plan_timing.lua','aom_auto_seeding.lua','aom_farm_registry.lua','aom_template_preview.lua','aom_block_plan.lua','aom_drive.lua'})
 def content():
  files={name:hashlib.sha256((SCRIPTS/name).read_bytes()).hexdigest()for name in NAMES}
  digest=hashlib.sha256(json.dumps(files,sort_keys=True,separators=(',',':')).encode()).hexdigest()

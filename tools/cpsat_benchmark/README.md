@@ -1,7 +1,7 @@
 # CP-SAT 离线对照原型
 
 此目录只用于开发机实验，不被 Mod、网页验证器或发布包引用。
-比较当前工作区 `aom_seed_packing.Balanced` 与 OR-Tools CP-SAT 的最大播种量求解。
+比较选定冻结源码的 `aom_seed_packing.Balanced` 与 OR-Tools CP-SAT 的最大播种量求解；当前Mod版本0.5.23。历史实验不代表此版本已重测，设计与结论口径见[最优报告](../../docs/reports/巨大化最优设计与验证报告.md)。
 
 ## 运行
 

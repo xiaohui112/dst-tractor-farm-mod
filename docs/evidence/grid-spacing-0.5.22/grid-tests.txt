@@ -1,0 +1,9 @@
+test_empty_old_grid_is_rebuilt_but_adjacent_old_pits_survive (test_farm_grid.FarmGridTests) ... ok
+test_existing_crop_does_not_move_during_retiling (test_farm_grid.FarmGridTests) ... ok
+test_native_boundary_and_spacing_at_positive_negative_large_origins (test_farm_grid.FarmGridTests) ... ok
+test_tilling_25_tiles_survives_native_collapse_and_plans_225 (test_farm_grid.FarmGridTests) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.469s
+
+OK

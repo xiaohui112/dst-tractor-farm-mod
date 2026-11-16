@@ -1,0 +1,26 @@
+test_large_field_and_per_strategy_limits (test_template_capacity.LargeTemplateTests) ... ok
+test_wide_field_and_sparse_canvas_have_no_old_32_or_1024_limit (test_template_capacity.LargeTemplateTests) ... ok
+test_all_native_full_grid_combinations_are_available_without_a_picture_recipe (test_template_catalog.TemplateCatalogWebTests) ... ok
+test_catalog_comes_from_mod_and_lock_survives_roundtrip (test_template_catalog.TemplateCatalogWebTests) ... ok
+test_lock_rejects_disabled_unknown_or_optimal_strategy (test_template_catalog.TemplateCatalogWebTests) ... ok
+test_picture32_corner_holes_and_single8_center_hole_are_distinct (test_template_catalog.TemplateCatalogWebTests) ... ok
+test_same_stock_can_reproduce_two_pairs_or_one_square (test_template_catalog.TemplateCatalogWebTests) ... ok
+test_cancel (test_verifier.HTTPTests) ... ok
+test_embedded_metadata_cannot_terminate_script (test_verifier.HTTPTests) ... ok
+test_invalid_and_origin (test_verifier.HTTPTests) ... ok
+test_job_roundtrip (test_verifier.HTTPTests) ... ok
+test_page_bootstraps_live_crop_data (test_verifier.HTTPTests) ... ok
+test_page_keeps_retry_ui_when_native_metadata_unavailable (test_verifier.HTTPTests) ... ok
+test_stale_service_is_not_reused (test_verifier.HTTPTests) ... ok
+test_static_and_meta (test_verifier.HTTPTests) ... ok
+test_bad_inputs (test_verifier.NativeParity) ... ok
+test_full_point_parity (test_verifier.NativeParity) ... ok
+test_inventory_boundary_and_disconnected_start (test_verifier.NativeParity) ... ok
+test_large_and_cancel (test_verifier.NativeParity) ... ok
+test_source_reread_and_manifest (test_verifier.NativeParity) ... ok
+test_template_point_parity_and_strategy_roundtrip (test_verifier.NativeParity) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 56.286s
+
+OK

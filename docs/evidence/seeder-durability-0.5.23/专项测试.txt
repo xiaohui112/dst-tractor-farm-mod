@@ -1,0 +1,47 @@
+test_all_three_strategies_charge_one_per_completed_tile (test_seeder_durability.SeederDurabilityTests) ... ok
+test_failed_last_seed_does_not_charge_and_new_round_charges_again (test_seeder_durability.SeederDurabilityTests) ... ok
+test_last_durability_point_finishes_whole_tile (test_seeder_durability.SeederDurabilityTests) ... ok
+test_last_seed_callback_error_after_change_charges_once (test_seeder_durability.SeederDurabilityTests) ... ok
+test_partial_plan_survives_stop_save_load_and_charges_at_completion (test_seeder_durability.SeederDurabilityTests) ... ok
+test_sequential_short_stock_and_refill_charge_only_at_completion (test_seeder_durability.SeederDurabilityTests) ... ok
+test_actual_soil_coordinates_and_new_stock_do_not_change_saved_plan (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_conflicting_plants_and_weeds_are_preserved (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_corrupt_saved_coordinates_are_rejected (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_different_species_cannot_be_combined_to_fake_a_family (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_empty_stock_stops_without_spending_fuel (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_four_unrecorded_tiles_fill_without_confirmation_and_use_both_seed_types (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_insufficient_families_and_random_seed_never_spend_resources (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_legacy_matching_seedlings_only_need_missing_seeds (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_missing_reserved_seed_stops_and_refill_resumes_the_same_plan (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_native_callback_error_after_success_is_charged_once (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_new_and_harvested_regions_start_new_rounds (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_out_of_season_seeds_remain_untouched (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_single_tile_mixes_large_and_unequal_stocks (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_sparse_stock_keeps_family_groups_without_requiring_full_field_stock (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_three_crop_tails_are_used_and_packed_into_two_tiles (test_auto_grid_seeding.AutoGridSeedingTests) ... ok
+test_craft_atlas_uses_seven_separate_128_pixel_cells (test_equipment_update.CraftIconTests) ... ok
+test_all_directions_use_front_for_harvester_and_rear_for_other_tools (test_equipment_update.EquipmentUpdateTests) ... ok
+test_detach_state_executes_immediately_on_server_and_client_without_facing_target (test_equipment_update.EquipmentUpdateTests) ... ok
+test_every_attachment_has_one_hundred_mechanical_uses_and_old_seeder_caps_on_load (test_equipment_update.EquipmentUpdateTests) ... ok
+test_entire_plan_renders_on_client_and_reuses_remaining_markers_then_cleans_on_dismount (test_equipment_update.FullPlanPreviewTests) ... ok
+test_ready_message_and_preview_precede_first_seed_and_cancel_is_safe (test_equipment_update.FullPlanPreviewTests) ... ok
+test_callback_after_pick_stops_bills_actual_progress_once_and_restores_methods (test_audit_regressions.CallbackRegressionTests) ... ok
+test_error_before_any_change_stops_without_consuming_resources (test_audit_regressions.CallbackRegressionTests) ... ok
+test_workable_error_after_dig_is_billed_and_does_not_escape_sampling (test_audit_regressions.CallbackRegressionTests) ... ok
+test_all_layouts_prepare_and_sow_in_all_rotations_with_native_neighbor_collapse (test_audit_regressions.LayoutRegressionTests) ... ok
+test_next_tile_advances_after_actual_plough_preparation (test_audit_regressions.LayoutRegressionTests) ... ok
+test_plough_refuses_to_break_unplanned_neighbor_mound (test_audit_regressions.LayoutRegressionTests) ... ok
+test_v2_plan_never_reinterprets_completed_indices_in_new_layout (test_audit_regressions.LayoutRegressionTests) ... ok
+test_validator_rejects_cross_tile_neighbors_and_changed_world_spacing (test_audit_regressions.LayoutRegressionTests) ... ok
+test_blocked_legacy_migration_preserves_owner_and_retries_without_duplicate_cargo (test_audit_regressions.MachineRegressionTests) ... ok
+test_broken_water_and_fertilizer_cannot_restart_when_detach_is_blocked (test_audit_regressions.MachineRegressionTests) ... ok
+test_status_code_can_be_rendered_in_another_client_language_without_components (test_audit_regressions.MachineRegressionTests) ... ok
+test_scattered_new_drop_is_collected_without_picking_neighbor_items (test_audit_regressions.PloughRegressionTests) ... ok
+test_tilling_error_cleans_noblock_and_charges_only_actual_progress (test_audit_regressions.PloughRegressionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 50.610s
+
+OK
+[Tractor] Work failed: [string "<python>"]:7: after final seed
+[Tractor] Work failed: [string "<python>"]:6: native plant failed after spawning crop

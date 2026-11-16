@@ -50,7 +50,7 @@ local count=0
 for _,v in ipairs(ENTITIES)do if v:IsValid() and v:HasTag('farm_plant')then count=count+1 end end
 assert(count==8 and t._block.automatic and t._block.done==8 and t._working)
 assert(t.components.aom_attachment_store:GetSeedCount()==8 and t._fuel:value()==392)
-hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 92/100',1,true))
+hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 99/100',1,true))
 ''')
 
     def test_seeder_hover_has_exact_three_lines_from_synchronized_values(self):

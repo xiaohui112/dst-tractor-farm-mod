@@ -1,0 +1,51 @@
+{
+  "root_before_allocated_bytes": 8298827776,
+  "outputs_before_allocated_bytes": 3639611392,
+  "deleted": [],
+  "preserved": [
+    {
+      "path": "outputs/preserved-test-snapshots",
+      "snapshot_count": 6,
+      "unique_objects": 188,
+      "archive_sha256": "a63afd6cedad1370c5ddbe6f59daea5879a9b55a46d8eb33c144c96641252b85"
+    },
+    {
+      "path": "outputs/seeder-durability-0.5.23/install/backup-0.5.22/Tractor.zip",
+      "version": "0.5.22",
+      "files": 98,
+      "sha256": "f437aa52fd953fdffc77426062e3b34ba930ba3ef27a3dc7067bb54bc8e3f00a"
+    }
+  ],
+  "git_history_touched": false,
+  "planned_paths": [
+    "outputs/template-18-coverage/install-backup",
+    "outputs/upgrade-0.5.18/install-backup",
+    "outputs/optimization-0.5.17/install-backup",
+    "outputs/grid-spacing-0.5.22/install/backup-20261117-000218",
+    "outputs/unbounded-template/install-backup",
+    "outputs/native-query-fix/install/backup-20261116-202013",
+    "outputs/seeder-durability-0.5.23/install/backup-0.5.22/Tractor",
+    "outputs/seeder-durability-0.5.23/install/backup-0.5.22/installed-before-replace",
+    "outputs/grid-spacing-0.5.22/source-snapshot",
+    "outputs/grid-spacing-0.5.22/final-source-snapshot",
+    "outputs/cpsat-comparison/source-snapshot",
+    "outputs/cpsat-native-float32/source-snapshot",
+    "outputs/native-query-fix/source-snapshot",
+    "outputs/unbounded-template/before-mod",
+    "outputs/cpsat-venv",
+    "outputs/native-query-fix/test-venv",
+    "outputs/attachment-preview",
+    "outputs/vehicle-preview",
+    "outputs/visual-alignment-fix",
+    "outputs/directional-build",
+    "outputs/directional-roundtrip",
+    "outputs/hud-native",
+    "outputs/mount-geometry",
+    "outputs/tex-build",
+    "tools/__pycache__",
+    "tools/cpsat_benchmark/__pycache__",
+    "tools/tests/__pycache__",
+    "web/giant-seed-verifier/__pycache__",
+    "web/giant-seed-verifier/tests/__pycache__"
+  ]
+}

@@ -17,7 +17,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 from farm_native_math import f32, distance_squared, radius_squared
 MOD=Path(os.environ.get('TRACTOR_MOD_SOURCE',str(ROOT/'mod/Tractor'))).resolve()
 GAME=Path(os.environ.get('DST_GAME_SCRIPTS',str(Path.home()/"Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/data/databundles/scripts.zip")))
-MODULES=('aom_farm_neighbors.lua','aom_seed_catalog.lua','aom_seed_template_data.lua','aom_seed_initial.lua','aom_seed_templates.lua','aom_template_preview.lua','aom_seed_regions.lua','aom_planner_build.lua','aom_dynamic_farm.lua','aom_seed_layout.lua','aom_seed_packing.lua','aom_seed_exact.lua','aom_seed_heuristic.lua','aom_seed_feasible.lua','aom_seed_balance.lua','aom_seed_strategy.lua','aom_farm_registry.lua','aom_crop_state.lua','components/aom_attachment_store.lua')
+MODULES=('aom_farm_grid.lua','aom_farm_neighbors.lua','aom_seed_catalog.lua','aom_seed_template_data.lua','aom_seed_initial.lua','aom_seed_templates.lua','aom_template_preview.lua','aom_seed_regions.lua','aom_planner_build.lua','aom_dynamic_farm.lua','aom_seed_layout.lua','aom_seed_packing.lua','aom_seed_exact.lua','aom_seed_heuristic.lua','aom_seed_feasible.lua','aom_seed_balance.lua','aom_seed_strategy.lua','aom_farm_registry.lua','aom_crop_state.lua','components/aom_attachment_store.lua')
 NAMES={'carrot':'胡萝卜','corn':'玉米','potato':'土豆','tomato':'番茄','asparagus':'芦笋','eggplant':'茄子','pumpkin':'南瓜','watermelon':'西瓜','dragonfruit':'火龙果','durian':'榴莲','garlic':'大蒜','onion':'洋葱','pepper':'辣椒','pomegranate':'石榴'}
 CROP_ORDER=tuple(NAMES)
 REASONS={'NO_BALANCED_COMBO':'现有应季库存与农田容量无法组成逐地皮互补配比，请调整种子或农田范围。','MISSING_SEEDS':'没有能组成同族的应季种子，请增加种子或检查季节。','FARM_TOO_LARGE':'从起点连通的农田超过最优策略的64块上限；可缩小范围或切换模版策略。','NEED_PLOW':'起点需要完整的九宫格空坑。','FOREIGN_CROP':'起点存在不符合空田要求的作物或障碍。','NO_FAMILY':'本次未找到能通过同族与坑距检查的方案。'}
@@ -31,6 +31,14 @@ def _native_data(path,mtime):
 
 def native_data():return _native_data(str(GAME),GAME.stat().st_mtime_ns)
 
+@lru_cache(maxsize=4)
+def _grid_spacing(path,mtime):
+ return LuaRuntime().execute(Path(path).read_text()).SPACING
+
+def grid_spacing():
+ p=MOD/'scripts/aom_farm_grid.lua'
+ return _grid_spacing(str(p),p.stat().st_mtime_ns)
+
 def manifest():
  files=[]
  for name in MODULES:
@@ -40,7 +48,7 @@ def manifest():
  source,constants=native_data()
  installed=Path.home()/"Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor"
  matches=installed.exists() and all((installed/row['path']).exists() and hashlib.sha256((installed/row['path']).read_bytes()).hexdigest()==row['sha256'] for row in files)
- return {'version':version,'runtime':'Lua 5.1','files':files,'fingerprint':hashlib.sha256(json.dumps(files,sort_keys=True).encode()).hexdigest(),'installed_match':matches,'native_sha256':hashlib.sha256(source.encode()).hexdigest(),'constants':constants}
+ return {'grid_spacing':grid_spacing(),'version':version,'runtime':'Lua 5.1','files':files,'fingerprint':hashlib.sha256(json.dumps(files,sort_keys=True).encode()).hexdigest(),'installed_match':matches,'native_sha256':hashlib.sha256(source.encode()).hexdigest(),'constants':constants}
 
 def to_lua(L,value):
  if isinstance(value,dict):return L.table_from({k:to_lua(L,v) for k,v in value.items()})

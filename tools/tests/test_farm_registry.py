@@ -7,8 +7,9 @@ class FarmRegistryTests(unittest.TestCase):
         self.w=giant.World();self.lua=self.w.lua
         self.lua.execute('''Registry=require('aom_farm_registry')
 function make_field(x,z)
+ local spacing=require('aom_farm_grid').SPACING
  for dx=-1,1 do for dz=-1,1 do
-  SpawnPrefab('farm_soil').Transform:SetPosition(x+dx*4/3,0,z+dz*4/3)
+  SpawnPrefab('farm_soil').Transform:SetPosition(x+dx*spacing,0,z+dz*spacing)
  end end
 end
 ''')

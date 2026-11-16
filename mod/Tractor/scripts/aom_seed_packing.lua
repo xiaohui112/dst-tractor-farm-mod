@@ -152,7 +152,6 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,trace,task)
   proof.methods={}
   for _,task in ipairs(tasks)do
    proof.methods[#proof.methods+1]={name=task.name,cpu=task.cpu,resumes=task.resumes,complete=task.done or false,total=task.total or 0}
-   if trace then trace:Emit('METHOD',proof.methods[#proof.methods])end
   end
  end
  if trace then trace:Context({quantity_total=proof.total,quantity_upper=proof.upper,proof_mode=proof.mode or "-",proof_nodes=proof.nodes or 0,proof_propagations=proof.propagations or 0})end

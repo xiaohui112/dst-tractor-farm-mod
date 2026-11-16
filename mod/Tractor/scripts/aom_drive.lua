@@ -166,6 +166,8 @@ local function GiantWorkHere(inst,cx,y,cz)
     if trace and trace.awaiting_first then trace:Stage("first_seed")end
     local item=store:TakeSeedOfCrop(target.crop,AOMSeed.GetCropOfSeedItem)
     if not item then SetPlanMessage(inst,"MISSING_SEEDS");return false,"MISSING_SEEDS" end
+    -- 本格最后一个计划坑成功后才结算挂件耐久；模版留空不算待播坑。
+    if inst._aom_work_result then inst._aom_work_result.seed_tile_complete=#targets==1 end
     local safe,ok=pcall(AOMFarmWork.SeedAt,target,inst._rider,item,inst)
     if not safe or not ok then
         if item:IsValid() then store:ReturnSeed(item) end
@@ -243,7 +245,9 @@ function AOMDrive.WorkHere(inst,workx,workz)
     end)
     if result.changed then
         Result.Protect(result,function()inst.components.finiteuses:Use(1)end)
-        Result.Protect(result,function()Durability.UseAttachment(inst,item)end)
+        if item and (item.attachment_type~="seeder" or result.seed_tile_complete) then
+            Result.Protect(result,function()Durability.UseAttachment(inst,item)end)
+        end
         Result.Protect(result,function()AttachmentAnimation.Success(inst,result.position)end)
         Result.Protect(result,function()
             if inst.AnimState:IsCurrentAnimation("idle") then

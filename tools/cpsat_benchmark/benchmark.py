@@ -74,8 +74,8 @@ def context(case):
     if remaining:
         raise ValueError('Requires one connected region')
     tiles = [{'x': x*4, 'z': z*4} for x, z in ordered]
-    slots = [{'x': t['x'] + (s % 3 - 1)*4/3,
-              'z': t['z'] + (s // 3 - 1)*4/3,
+    slots = [{'x': t['x'] + (s % 3 - 1)*w.grid_spacing,
+              'z': t['z'] + (s // 3 - 1)*w.grid_spacing,
               'cx': t['x'], 'cz': t['z']} for t in tiles for s in range(9)]
     if FLOAT_MODEL == 'native-float32':
         # These are positions read back from engine-owned soil entities.

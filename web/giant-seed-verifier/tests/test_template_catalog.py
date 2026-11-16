@@ -38,7 +38,7 @@ class TemplateCatalogWebTests(unittest.TestCase):
  def test_picture32_corner_holes_and_single8_center_hole_are_distinct(self):
   r=runner.run({'strategy':'GIANT_TEMPLATE','template_id':'autumn-10','width':2,'height':2,'seeds':{'tomato':16,'potato':16}})
   self.assertEqual(r['count'],32);self.assertEqual(len(r['template_modules']),1)
-  self.assertEqual({(p['x'],p['z']) for p in r['slots'] if not p['crop']},{(runner.f32(x),runner.f32(z)) for x,z in ((-4/3,-4/3),(-4/3,4+4/3),(4+4/3,-4/3),(4+4/3,4+4/3))})
+  self.assertEqual({(p['x'],p['z']) for p in r['slots'] if not p['crop']},{(runner.f32(x),runner.f32(z)) for x,z in ((-runner.grid_spacing(),-runner.grid_spacing()),(-runner.grid_spacing(),4+runner.grid_spacing()),(4+runner.grid_spacing(),-runner.grid_spacing()),(4+runner.grid_spacing(),4+runner.grid_spacing()))})
   single=runner.run({'strategy':'GIANT_TEMPLATE','template_id':'autumn-01','width':1,'height':1,'seeds':{'tomato':4,'potato':4}})
   self.assertEqual([(p['x'],p['z']) for p in single['slots'] if not p['crop']],[(0,0)])
 if __name__=='__main__':unittest.main()

@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-11-12T21:32:08.959876+08:00",
+  "version": "0.5.5",
+  "scope": "smoke-and-mount-geometry-targeted",
+  "tests": {
+    "run": 52,
+    "failures": 0,
+    "errors": 0
+  },
+  "equipment_views_checked": 30,
+  "animation_archives_crc_checked": 8,
+  "animation_hash_reports_match": true,
+  "full_regression_rerun": false,
+  "release_archive_updated": false,
+  "installed_to_game": false,
+  "preview": "outputs/mount-geometry/all-equipment.png"
+}

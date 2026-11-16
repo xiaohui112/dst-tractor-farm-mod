@@ -8,7 +8,7 @@ class SupplyFeedbackTests(unittest.TestCase):
     setUp=world.WorldEquipmentTests.setUp
     run_lua=world.WorldEquipmentTests.run_lua
 
-    def test_real_seeder_stops_at_one_hundred_uses_and_preserves_remaining_cargo(self):
+    def test_real_seeder_stops_after_one_hundred_completed_tiles_and_preserves_remaining_cargo(self):
         self.run_lua(r'''
 local item=equipment('aom_seeder');assert(item.components.finiteuses.total==100)
 assert(t:AttachAttachment(nil,item));ride()
@@ -18,16 +18,16 @@ for slot=1,9 do
 end
 assert(t._cargo_count_net:value()==360 and t._seedcount_net:value()==360)
 local Drive=require('aom_drive')
-for tile=0,11 do
+for tile=0,100 do
  local x=tile*4;player.Transform:SetPosition(x,0,0)
- for row=-1,1 do for col=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x+col*4/3,0,row*4/3)end end
+ for col=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x+col*1.3125,0,0)end
  Drive.WorkTile(t,x,0)
 end
 assert(item:IsValid() and t:GetAttachment()==nil and Durability.GetUses(item)==0)
-assert(t._fuel:value()==300 and t.components.finiteuses:GetUses()==900)
-assert(t._cargo_count_net:value()==260 and t._seedcount_net:value()==260)
+assert(t._fuel:value()==100 and t.components.finiteuses:GetUses()==700)
+assert(t._cargo_count_net:value()==60 and t._seedcount_net:value()==60)
 local planted=0;for _,e in ipairs(ENTITIES)do if e:IsValid() and e.prefab=='farm_plant_tomato' then planted=planted+1 end end
-assert(planted==100)
+assert(planted==300)
 ''')
 
     def test_cargo_counts_all_stacks_and_updates_from_native_source_events_and_removal(self):

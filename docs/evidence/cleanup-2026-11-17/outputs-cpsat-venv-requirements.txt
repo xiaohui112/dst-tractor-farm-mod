@@ -1,0 +1,12 @@
+absl-py==2.5.1
+immutabledict==4.3.1
+lupa==2.8
+numpy==2.4.6
+ortools==9.14.6206
+pandas==3.1.1
+pip==25.3
+protobuf==6.31.1
+python-dateutil==4.0.0
+setuptools==80.9.0
+typing_extensions==4.16.0
+tzdata==2026.6

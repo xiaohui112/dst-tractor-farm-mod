@@ -1,0 +1,6 @@
+test_binary_grid_fills_both_autumn_5_by_5_cases (test_verifier.NativeParity) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.203s
+
+OK
