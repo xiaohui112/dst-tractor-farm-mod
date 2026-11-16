@@ -1,0 +1,69 @@
+{
+  "basis": "process_cpu",
+  "cases": 1162,
+  "passed": 1162,
+  "incomplete": 0,
+  "failed": 0,
+  "source_sha256": {
+    "aom_seed_templates.lua": "60da7eaf413227dd8ab0189a185f5dc62498e6ffec2ff8088185475657ae98c0",
+    "aom_seed_regions.lua": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+    "aom_dynamic_farm.lua": "4693717bea821facc1afe3bfbcde56f645731d13612faf80142e2a5e12f315a1",
+    "aom_seed_layout.lua": "9d5172a78089acc1f8988ceb7f8d5a1e137861614ad8b61fabadd8fb026c0fcd",
+    "aom_seed_packing.lua": "75d72eb128bc6c43e96d5a1b9b424cc83684f6423650872257be06459a7398ed",
+    "aom_seed_balance.lua": "55d0a0a55a5249c893d641e4b43e463d5ad4a4df92f6d5f7885eac3d420bffd9",
+    "aom_seed_exact.lua": "657ece00eb94d6cf2bc33fda5aeb89f8b21f177a02ec4290ae2fd5dbc595e371",
+    "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+    "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f"
+  },
+  "run_complete": true,
+  "incomplete_by_phase": {},
+  "all_completed": {
+    "quantity_seconds": {
+      "samples": 1162,
+      "total_seconds": 530.6703560000002,
+      "p50_seconds": 0.012854000000004362,
+      "p95_seconds": 1.411907250000004,
+      "max_seconds": 24.810215
+    },
+    "arrangement_seconds": {
+      "samples": 1162,
+      "total_seconds": 118.46953300000004,
+      "p50_seconds": 0.03795150000000547,
+      "p95_seconds": 0.3666198500000015,
+      "max_seconds": 1.2093530000000214
+    }
+  },
+  "positive_completed": {
+    "quantity_seconds": {
+      "samples": 711,
+      "total_seconds": 529.8179610000001,
+      "p50_seconds": 0.14612599999999887,
+      "p95_seconds": 3.717545000000001,
+      "max_seconds": 24.810215
+    },
+    "arrangement_seconds": {
+      "samples": 711,
+      "total_seconds": 118.46953300000004,
+      "p50_seconds": 0.10162000000002536,
+      "p95_seconds": 0.4650059999999989,
+      "max_seconds": 1.2093530000000214
+    }
+  },
+  "each_completed_phase": {
+    "quantity_seconds": {
+      "samples": 1162,
+      "total_seconds": 530.6703560000002,
+      "p50_seconds": 0.012854000000004362,
+      "p95_seconds": 1.411907250000004,
+      "max_seconds": 24.810215
+    },
+    "arrangement_seconds": {
+      "samples": 1162,
+      "total_seconds": 118.46953300000004,
+      "p50_seconds": 0.03795150000000547,
+      "p95_seconds": 0.3666198500000015,
+      "max_seconds": 1.2093530000000214
+    }
+  },
+  "incomplete_cases": []
+}

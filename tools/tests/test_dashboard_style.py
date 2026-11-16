@@ -89,9 +89,9 @@ local button=hud.badges.tool;button:OnGainFocus()
 assert(button:OnControl(CONTROL_PRIMARY,true) and button.down)
 local x,y=button.position[1],button.position[2]
 for _=1,20 do
- hud:Refresh(t);assert(button.down and button.position[1]==x and button.position[2]==y and t._seed_strategy=='GIANT')
+ hud:Refresh(t);assert(button.down and button.position[1]==x and button.position[2]==y and t._seed_strategy=='GIANT_TEMPLATE')
 end
-assert(button:OnControl(CONTROL_PRIMARY,false));assert(t._seed_strategy=='SEQUENTIAL')
+assert(button:OnControl(CONTROL_PRIMARY,false));assert(t._seed_strategy=='GIANT')
 ''')
 
 

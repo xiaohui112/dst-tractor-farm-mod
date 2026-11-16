@@ -1,0 +1,7 @@
+{
+  "observed_at": "2026-11-16T17:48:44.982965+08:00",
+  "cpu": "Apple M4, 10 logical CPUs",
+  "observation": "复测期间其他任务并行运行 web unittest、release selfcheck、3-worker seed audit 和 large-template audit；多条进程各约占用一个 CPU。",
+  "effect": "墙钟延迟和 10 秒内证明率受系统负载影响；复测绝对时间不能视为独占机器基准。",
+  "action": "未干预其他任务；记录原始墙钟、进程CPU和全部超时。"
+}

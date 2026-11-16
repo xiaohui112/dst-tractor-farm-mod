@@ -6,6 +6,7 @@ runtime file download is needed. Original imagegen sheets remain untouched.
 """
 import copy
 import hashlib
+import gzip
 import io
 import json
 import math
@@ -201,7 +202,7 @@ def y_scale(index):return 1.
 
 def build_chassis(sprites,wheels):
     # Use the supplied wreck image at normal vehicle width; packed art alone is half size.
-    source=ROOT/'美术交付/2026-11-11-v1/originals/death.png'
+    source=ROOT/'assets/images/source-art/death.png'
     wreck=SOURCE/'sprites/tractor/death.png'
     with Image.open(source) as im:
         box=im.getchannel('A').point(lambda n:255 if n>128 else 0).getbbox()
@@ -281,11 +282,9 @@ def main():
                               'aom_tractor_driver_125':3.125,'aom_tractor_driver_150':3.75},
             'views':{v:{'neck':[-35 if v=='side' else -25 if v=='downside' else 0,-174]} for v,_ in VIEWS}}
     (SOURCE/'seat-layout.json').write_text(json.dumps(config,indent=2)+'\n')
-    # Reuse every native character timeline from the checked-in Windows result.
-    # Undo the old character-only .24 scale relative to its original seat anchor.
-    with ZipFile(ROOT/'Driver-Results.zip') as archive:
-        name=next(n for n in archive.namelist() if n.replace('\\','/').endswith('anim/aom_tractor_driver.zip'))
-        with ZipFile(io.BytesIO(archive.read(name))) as z:old=parse_anim(z.read('anim.bin'))
+    # 只保留构建所需的原始人物时间线，不依赖已清理的整套Windows交付ZIP。
+    source=ROOT/'assets/driver/build/windows-2026-11-11/native-riding-source.anim.bin.gz'
+    old=parse_anim(gzip.decompress(source.read_bytes()))
     owned={name_hash(s) for s in ['aom_cabin_front','aom_cabin_back','aom_driver_attachment_rear','aom_driver_attachment_front']}
     output=copy.deepcopy(old);output['strings'].update(cabin['strings'])
     # Vanilla running only supplies six-facing poses. Straight front/back use
@@ -351,14 +350,14 @@ def main():
         digest[bankname]=save(bankname,b,output,t)
         previous_scale=world_scale
     report={'schema':2,'views':[v for v,_ in VIEWS],'facing_masks':[m for _,m in VIEWS],
-            'native_source':'Driver-Results.zip','driver_scale':config['driver_scale'],
+            'native_source':'assets/driver/build/windows-2026-11-11/native-riding-source.anim.bin.gz','driver_scale':config['driver_scale'],
             'driver_animations':len(output['animations']),'driving_phases':12,
             'world_scale':2.5,'driver_world_scale':1,'vehicle_scales':config['vehicle_scales'],
             'driver_motion':'fixed_seated_pose_with_vehicle_suspension',
             'driver_facing':'directional_side_pose_and_rear_pose_with_upright_head',
             'side_pose_source':'player_idles.zip/idle_loop/5/frame0',
             'rear_attachments_front_view':'occluded_in_mounted_banks_only',
-            'wreck_source':'美术交付/2026-11-11-v1/originals/death.png',
+            'wreck_source':'assets/images/source-art/death.png',
             'sha256':digest,'game_validation':False}
     (SOURCE/'build.json').write_text(json.dumps(report,indent=2)+'\n')
     (MOD/'Driver-Build-Report.json').write_text(json.dumps(report,indent=2)+'\n')

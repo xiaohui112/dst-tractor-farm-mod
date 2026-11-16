@@ -1,6 +1,7 @@
 -- 网络只传稳定原因码和参数；语言、文案不参与业务判断。
 local L=require("aom_locale").Text
 local PLAN_MESSAGES = {
+    PLAN_READY="规划完成，开始播种；绿色坑位为计划预览",
     PLANNING="正在规划巨大化布局，请稍候",
     FARM_TOO_LARGE="连通农田超过64块，请分区播种",
     MISSING_SEEDS="配比种子不足，请补齐当前方案所需种子后按 F 继续",

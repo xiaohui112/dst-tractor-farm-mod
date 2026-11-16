@@ -75,7 +75,7 @@ assert(changed and why=='CARGO_FULL' and not t._working)
 assert(skip:IsValid() and skip.components.pickable:CanBePicked())
 assert(quantity(t,'tomato')==40 and quantity(t,'corn')==40)
 assert(quantity(nil,'tomato_seeds')==2 and quantity(nil,'corn_seeds')==3)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==39)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_unaccepted_ground_item_does_not_block_existing_crop_stack(self):

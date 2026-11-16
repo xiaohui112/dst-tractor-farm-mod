@@ -1,9 +1,10 @@
 --[[
 	Tractor —— 播种策略
 
-	两种策略：
+	三种策略：
 	  1. SEQUENTIAL 按种子顺序播种
-	  2. GIANT      巨大化播种
+	  2. GIANT_TEMPLATE 巨大化·模版
+	  3. GIANT          巨大化·最优（保留旧存档标识）
 
 	自动规划由 aom_auto_seeding 管理。
 ]]
@@ -18,8 +19,10 @@ local PLANT_PREFIX = "farm_plant_"
 
 -- 从种子的 farmplantable 读出它会长成哪种作物；读不出返回 nil
 function AOMSeedStrategy.Normalize(mode)
-    return mode == "GIANT" and "GIANT" or "SEQUENTIAL"
+    return (mode == "GIANT" or mode == "GIANT_TEMPLATE") and mode or "SEQUENTIAL"
 end
+
+function AOMSeedStrategy.IsGiant(mode)return mode == "GIANT" or mode == "GIANT_TEMPLATE" end
 
 function AOMSeedStrategy.GetCropOfSeedItem(item)
 	if item == nil or item.components.farmplantable == nil then

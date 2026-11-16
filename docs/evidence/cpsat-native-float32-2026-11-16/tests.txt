@@ -1,0 +1,19 @@
+test_cross_tile_family_allowed (test_model.ModelTests.test_cross_tile_family_allowed) ... ok
+test_empty_stock_offseason_unknown_and_under_minimum (test_model.ModelTests.test_empty_stock_offseason_unknown_and_under_minimum) ... ok
+test_exhaustive_pair_feasible_set (test_model.ModelTests.test_exhaustive_pair_feasible_set) ... ok
+test_family_is_spatial_not_just_global_stock (test_model.ModelTests.test_family_is_spatial_not_just_global_stock) ... ok
+test_nutrient_balance_is_per_tile (test_model.ModelTests.test_nutrient_balance_is_per_tile) ... ok
+test_reject_shifted_center_hole (test_model.ModelTests.test_reject_shifted_center_hole) ... ok
+test_spacing_conflict_is_enforced (test_model.ModelTests.test_spacing_conflict_is_enforced) ... ok
+test_stock_limit (test_model.ModelTests.test_stock_limit) ... ok
+test_boundary_has_no_epsilon_and_includes_equality (test_native_float.NativeFloatTests.test_boundary_has_no_epsilon_and_includes_equality) ... ok
+test_known_engine_example (test_native_float.NativeFloatTests.test_known_engine_example) ... ok
+test_matrix_matches_scalar_operations (test_native_float.NativeFloatTests.test_matrix_matches_scalar_operations) ... ok
+test_planner_double_math_is_not_silently_patched (test_native_float.NativeFloatTests.test_planner_double_math_is_not_silently_patched) ... ok
+test_transform_readback_and_input_quantization (test_native_float.NativeFloatTests.test_transform_readback_and_input_quantization) ... ok
+test_y_and_tags_and_radius_conversion (test_native_float.NativeFloatTests.test_y_and_tags_and_radius_conversion) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.269s
+
+OK

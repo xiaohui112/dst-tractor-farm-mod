@@ -1,0 +1,83 @@
+{
+  "version": "0.5.17",
+  "runtime": "Lua 5.1",
+  "files": [
+    {
+      "path": "scripts/aom_seed_regions.lua",
+      "sha256": "7d6cc1e6df20641121356172c09292fddbb942c643d8bbd3aed9142bf10f7da1",
+      "bytes": 3745
+    },
+    {
+      "path": "scripts/aom_planner_build.lua",
+      "sha256": "6c2348a75ef859d38d292ce396577b04509504c70df13910a5d51e952ddb95ad",
+      "bytes": 158
+    },
+    {
+      "path": "scripts/aom_dynamic_farm.lua",
+      "sha256": "298676a35ff5ca241ef6d599ff5b0d8d31c334346ebeb4e71aacd1020df224d6",
+      "bytes": 16700
+    },
+    {
+      "path": "scripts/aom_seed_layout.lua",
+      "sha256": "e4ffca3814d0ada7e174928ab44ba0ba2906f50eea24ec5c5330325637bc6673",
+      "bytes": 19612
+    },
+    {
+      "path": "scripts/aom_seed_packing.lua",
+      "sha256": "27f5d43ac763be3102e5e92ba9755f18edc7de6aa20d607bdb0c6d491798c210",
+      "bytes": 8367
+    },
+    {
+      "path": "scripts/aom_seed_exact.lua",
+      "sha256": "1a67cd52bf47ddf28501ab59c461cbdc1195b381008057f097151a227ddd7299",
+      "bytes": 62125
+    },
+    {
+      "path": "scripts/aom_seed_heuristic.lua",
+      "sha256": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+      "bytes": 35437
+    },
+    {
+      "path": "scripts/aom_seed_feasible.lua",
+      "sha256": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+      "bytes": 6632
+    },
+    {
+      "path": "scripts/aom_seed_balance.lua",
+      "sha256": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+      "bytes": 11345
+    },
+    {
+      "path": "scripts/aom_seed_strategy.lua",
+      "sha256": "4906064358bd76c38569ca78028a43cc841c19741d002f803fd63dce5c737b76",
+      "bytes": 2022
+    },
+    {
+      "path": "scripts/aom_farm_registry.lua",
+      "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+      "bytes": 1387
+    },
+    {
+      "path": "scripts/aom_crop_state.lua",
+      "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+      "bytes": 1667
+    },
+    {
+      "path": "scripts/components/aom_attachment_store.lua",
+      "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+      "bytes": 8377
+    }
+  ],
+  "fingerprint": "008e4e77f2ede58aaf6e413b1af2d59e366a9247f41867a1021eacfe022412ad",
+  "installed_match": true,
+  "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+  "constants": {
+    "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+    "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+    "FARM_TILL_SPACING": 1.25,
+    "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+    "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+  }
+}

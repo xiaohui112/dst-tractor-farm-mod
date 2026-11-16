@@ -1,5 +1,10 @@
 -- 界面和反馈统一在显示时翻译，避免模块缓存固定语言。
 local EN={
+ ["巨大化规划：已用时%d秒"]="Giant planning: %d seconds elapsed",
+ ["巨大化规划完成：用时%d秒，开始播种"]="Giant plan complete in %d seconds; starting sowing",
+ ["巨大化规划已取消：用时%d秒"]="Giant planning cancelled after %d seconds",
+ ["巨大化规划未完成：用时%d秒"]="Giant planning stopped after %d seconds",
+ ["（规划日志写入失败）"]=" (planning log write failed)",
  ["配件已损坏，请用燧石维修后挂载"]="Equipment broken: repair with flint before attaching",
  ["挂件需要用燧石修理。"]="Use flint to repair equipment.",
  ["底盘耐久已耗尽，拿起齿轮点击底盘图标修理后按 F 继续"]="Chassis worn out: pick up gears, click the chassis icon to repair, then press F",
@@ -65,6 +70,7 @@ local EN={
  ["点击切换音乐和植物安抚；洒水持续进行"]="Click to toggle music and plant tending; watering continues",
  ["点击切换为：%s"]="Click to switch to: %s",
  ["切换策略后按 F 重新开始作业"]="Press F to restart work after changing seed mode",
+ ["规划完成，开始播种；绿色坑位为计划预览"]="Planning complete, starting sowing; green mounds show the plan",
  ["车速 %.0f%%"]="Speed %.0f%%",
  ["铺农田、清杂物、整理九宫格；掉落自动入仓"]="Clear farmland, remove debris and prepare 3x3 pits; collect drops",
  ["播种空坑；切换策略后按 F 重新开始"]="Plant empty pits; press F after changing seed mode",
@@ -104,6 +110,7 @@ local EN={
  ["动态巨大化 %d/%d"]="Dynamic giant crops %d/%d",
  ["正在规划巨大化布局，请稍候"]="Planning giant crops, please wait",
  ["连通农田超过64块，请分区播种"]="More than 64 connected tiles; divide the farm into regions",
+ ["巨大化·模版"]="Giant · Templates",["巨大化·最优"]="Giant · Optimal",
  ["顺序"]="Sequential",["巨大化"]="Giant",["配比"]="Layout",
  ["顺序播种"]="Sequential",["随机播种"]="Random",["巨大化配比"]="Giant crop layout",
  ["播种策略：%s"]="Seed mode: %s",["水箱 %d/%d 次水壶用量"]="Water %d/%d watering-can uses",

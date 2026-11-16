@@ -125,7 +125,7 @@ assert(not string.find(hud.badges.tool:GetTooltip(),'F'))
 assert(string.find(hud.badges.tool:GetTooltip(),'播种策略：顺序',1,true))
 press_f(p);release_f(p);hud:Refresh(t)
 assert(t._working and not p.attacks)
-hud.badges.tool.onclick();assert(t._seed_strategy=='GIANT')
+hud.badges.tool.onclick();assert(t._seed_strategy=='GIANT_TEMPLATE')
 t._attachment:set(nil);t._atttype_net:set('');hud:Refresh(t);assert(hud.seedcontrols==nil)
 hud:Refresh(nil);assert(not hud.visible)
 ''')
@@ -242,10 +242,10 @@ ACTIONS.MOUNT.fn({doer=p,target=t});assert(not t._working)
 p.replica.rider.classified={riderrunspeed=net(0)}
 ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
 t._attachment_type='plow';press_f(p);release_f(p)
-assert(math.abs(t.components.locomotor.runspeed-6*3.75/7)<1e-8)
+assert(math.abs(t.components.locomotor.runspeed-3)<1e-8)
 assert(p.replica.rider.classified.riderrunspeed:value()==t.components.locomotor.runspeed)
 press_f(p);release_f(p)
-assert(t.components.locomotor.runspeed==6 and p.replica.rider.classified.riderrunspeed:value()==6)
+assert(t.components.locomotor.runspeed==3 and p.replica.rider.classified.riderrunspeed:value()==3)
 ''')
 
     def test_ridden_tractor_is_in_native_player_save(self):
@@ -288,7 +288,7 @@ assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
 ''')
 
     def test_detached_plow_flint_repair_caps_and_vehicle_rejects_flint(self):
-        self.check_detached_flint_repair('aom_landclearer',58,60)
+        self.check_detached_flint_repair('aom_landclearer',98,100)
 
     def test_flint_does_not_repair_water_or_other_attachments(self):
         self.run_lua('''
@@ -302,8 +302,8 @@ local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==0 and not t:TryRepair(p,flint))
 ''')
 
-    def test_detached_weeder_repairs_at_zero_and_caps_at_fifty(self):
-        self.check_detached_flint_repair('aom_weeder',1,50)
+    def test_detached_weeder_repairs_at_zero_and_caps_at_one_hundred(self):
+        self.check_detached_flint_repair('aom_weeder',1,100)
 
     def test_water_load_prompt_action_sync_and_hud(self):
         self.run_lua('''
@@ -327,8 +327,8 @@ actions={};SCENE_HOOKS.inventoryitem(wrong,p,t,actions,true);assert(#actions==0)
 assert(not ACTION_DEFS.AOM_LOAD.fn({doer=p,target=t,invobject=wrong}))
 ''')
 
-    def test_detached_harvester_flint_repair_caps_at_forty(self):
-        self.check_detached_flint_repair('aom_harvester',1,40)
+    def test_detached_harvester_flint_repair_caps_at_one_hundred(self):
+        self.check_detached_flint_repair('aom_harvester',1,100)
 
     def test_swap_same_type_tank_stops_and_detaches_old_water_listener(self):
         self.run_lua('''

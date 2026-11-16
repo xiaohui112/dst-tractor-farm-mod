@@ -161,7 +161,10 @@ def all_balanced_cases():
 def upper_bound(stock,season,capacity):
  return _balanced_upper(tuple(sorted(stock.items())),season,capacity//9)['upper'],0
 
-def independent_check(case,points):
+def independent_check(case,points,native_float=False):
+ from farm_native_math import distance_squared,radius_squared
+ def distance(p,q):
+  return distance_squared(p['x'],p.get('y',0),p['z'],q['x'],q.get('y',0),q['z']) if native_float else (p['x']-q['x'])**2+(p['z']-q['z'])**2
  errors=[];counts=Counter(p['crop'] for p in points if p['crop']);planted=[p for p in points if p['crop']]
  tiles=set(map(tuple,case['tiles']))
  for k,n in counts.items():
@@ -173,12 +176,13 @@ def independent_check(case,points):
  family_cost=0.;components=0
  for p in planted:
   if (p['cx']/4,p['cz']/4) not in tiles:errors.append('outside')
-  distances=[(p['x']-q['x'])**2+(p['z']-q['z'])**2 for q in planted if p['crop']==q['crop']]
-  if sum(d<=RULES[p['crop']]['radius']**2+1e-8 for d in distances)<RULES[p['crop']]['minimum']:errors.append('family')
+  distances=[distance(p,q) for q in planted if p['crop']==q['crop']]
+  limit=radius_squared(RULES[p['crop']]['radius']) if native_float else RULES[p['crop']]['radius']**2+1e-8
+  if sum(d<=limit for d in distances)<RULES[p['crop']]['minimum']:errors.append('family')
   ds=sorted(d for d in distances if d>1e-10);family_cost+=sum(ds[:3])
  for i,p in enumerate(planted):
   for q in planted[:i]:
-   if (p['x']-q['x'])**2+(p['z']-q['z'])**2<=CONSTANTS['FARM_TILL_SPACING']**2:errors.append('spacing')
+   if distance(p,q)<=(radius_squared(CONSTANTS['FARM_TILL_SPACING']) if native_float else CONSTANTS['FARM_TILL_SPACING']**2):errors.append('spacing')
  for k in counts:
   remaining={i for i,p in enumerate(planted) if p['crop']==k}
   while remaining:
@@ -188,8 +192,13 @@ def independent_check(case,points):
     remaining.difference_update(near);todo.extend(near)
  return sorted(set(errors)),{'count':len(planted),'kinds':len(counts),'used':dict(counts),'nearest_three_distance_sum':family_cost,'family_components':components}
 
-def run_case(case,source_dir=None,recheck=False,case_seconds=None):
- w=world(source_dir);L=w.lua;L.globals().inst=w.make(case['stock'],case['season'])
+def run_case(case,source_dir=None,recheck=False,case_seconds=None,native_float=False):
+ w=world(source_dir)
+ if native_float:
+  sys.path.insert(0,str(ROOT/'tools/cpsat_benchmark'))
+  from native_float import install
+  install(w)
+ L=w.lua;L.globals().inst=w.make(case['stock'],case['season']);L.globals().inst._seed_strategy=case.get('strategy','GIANT')
  L.execute("inst.components.container.numslots=15;inst._attachment_type='seeder';TheWorld.components.farming_manager.GetTileNutrients=function()error('unexpected nutrient read')end;D=require('aom_dynamic_farm')")
  for x,z in case['tiles']:
   for dx in (-1,0,1):
@@ -201,24 +210,24 @@ def run_case(case,source_dir=None,recheck=False,case_seconds=None):
   L.globals().D._yield=guard
  try:result=L.globals().D.Build(L.globals().inst,x*4,z*4)
  except TimeoutError:
-  packing=L.eval("require('aom_seed_packing')");timings=packing.Timings();proof=packing.last_report
+  packing=L.eval("require('aom_seed_packing')");task=L.globals().inst._aom_planning_task;timings=packing.Timings(task);proof=task.last_report
   proven=bool(proof and proof.optimal)
   progress=L.eval("package.loaded.aom_seed_exact and package.loaded.aom_seed_exact.progress")
-  return {**case,'errors':['timeout'],'elapsed_seconds':round(time.perf_counter()-start,5),'count':None,'upper':None,'incomplete':True,'incomplete_phase':packing.phase or 'scan','maximum_proven':proven,'maximum_quantity_count':proof.total if proven else None,'proven_upper':proof.upper if proven else None,'runtime_progress':dict(progress.items()) if progress else None,'timings':{k:timings[k] for k in ('quantity_seconds','arrangement_seconds','quantity_complete','arrangement_complete','basis')}}
+  return {**case,'errors':['timeout'],'elapsed_seconds':round(time.perf_counter()-start,5),'count':None,'upper':None,'incomplete':True,'incomplete_phase':task.phase or 'scan','maximum_proven':proven,'maximum_quantity_count':proof.total if proven else None,'proven_upper':proof.upper if proven else None,'runtime_progress':dict(progress.items()) if progress else None,'timings':{k:timings[k] for k in ('quantity_seconds','arrangement_seconds','quantity_complete','arrangement_complete','basis')}}
  finally:L.globals().D._yield=None
  b,why=result if isinstance(result,tuple) else (result,None)
  elapsed=time.perf_counter()-start
  points=[{k:p[k] for k in ('x','z','cx','cz','crop')} for p in b.slots.values()] if b else []
- errors,metrics=independent_check(case,points)
+ errors,metrics=independent_check(case,points,native_float=native_float)
  upper,kinds=upper_bound(case['stock'],case['season'],len(case['tiles'])*9)
  oracle=_balanced_upper(tuple(sorted(case['stock'].items())),case['season'],len(case['tiles']))
  row={**case,**metrics,'upper':upper,'composition_oracle':oracle,'kinds_upper':kinds,'errors':errors,'reason':why,'elapsed_seconds':round(elapsed,5),'points':points}
- construction=L.eval("require('aom_seed_packing').last_report")
+ construction=L.globals().inst._aom_planning_task.last_report
  if construction:
   if not b and (construction.total or 0)>0:row['errors'].append('valid-plan-missing')
-  if b and (not construction.optimal or construction.upper!=b.total):row['errors'].append('maximum-not-proved')
+  if b and case.get('strategy','GIANT')=='GIANT' and (not construction.optimal or construction.upper!=b.total):row['errors'].append('maximum-not-proved')
   row['timings']={'quantity_seconds':construction.quantity_seconds,'arrangement_seconds':construction.arrangement_seconds,'quantity_complete':True,'arrangement_complete':True,'basis':'process_cpu'}
-  row['maximum_proven']=bool(construction.optimal);row['maximum_quantity_count']=construction.total;row['proven_upper']=construction.upper;row['quantity_nodes']=construction.nodes
+  row['maximum_proven']=bool(construction.optimal);row['maximum_quantity_count']=construction.total if construction.optimal else None;row['proven_upper']=construction.upper if construction.optimal else None;row['search_upper']=construction.upper;row['quantity_nodes']=construction.nodes
  if b:
   if b.total!=row['count']:row['errors'].append('reported-count')
   row['arrangement']={k:b.arrangement[k] for k in ('trials','moves','passes','limited')}
@@ -231,7 +240,7 @@ def run_case(case,source_dir=None,recheck=False,case_seconds=None):
 
 def write_timing_artifacts(report,output):
  """Separate successful timings from interrupted lower bounds; never count a timeout as zero."""
- rows=report['rows'];complete=[r for r in rows if not r.get('incomplete') and not r['errors'] and r.get('maximum_proven')]
+ rows=report['rows'];complete=[r for r in rows if not r.get('incomplete') and not r['errors'] and (r.get('maximum_proven') or r.get('strategy')=='GIANT_TEMPLATE')]
  def stats(subset,key):
   values=sorted(r['timings'][key] for r in subset if r.get('timings') and r['timings'].get(key) is not None)
   if not values:return {'samples':0}
@@ -248,9 +257,9 @@ def write_timing_artifacts(report,output):
  summary['incomplete_cases']=[{'id':r['id'],'phase':r.get('incomplete_phase'),'timings':r.get('timings'),'elapsed_seconds':r['elapsed_seconds']} for r in rows if r.get('incomplete')]
  report['timing_summary']=summary
  with output.with_suffix('.timings.csv').open('w',newline='',encoding='utf-8-sig') as f:
-  writer=csv.writer(f);writer.writerow(['case','season','tiles','status','maximum_plants','proven_upper','maximum_quantity_seconds','arrangement_seconds','quantity_complete','arrangement_complete','wall_seconds','timing_basis','case_wall_budget_seconds'])
+  writer=csv.writer(f);writer.writerow(['case','season','tiles','status','maximum_plants','proven_upper','maximum_quantity_seconds','arrangement_seconds','quantity_complete','arrangement_complete','wall_seconds','timing_basis','case_wall_budget_seconds','strategy','planted_count'])
   for r in rows:
-   t=r.get('timings',{});writer.writerow([r['id'],r['season'],len(r['tiles']),'incomplete' if r.get('incomplete') else 'failed' if r['errors'] else 'passed',r.get('maximum_quantity_count',r.get('count')),r.get('proven_upper'),t.get('quantity_seconds'),t.get('arrangement_seconds'),t.get('quantity_complete'),t.get('arrangement_complete'),r['elapsed_seconds'],t.get('basis'),r.get('case_wall_budget_seconds',report.get('case_wall_budget_seconds'))])
+   t=r.get('timings',{});writer.writerow([r['id'],r['season'],len(r['tiles']),'incomplete' if r.get('incomplete') else 'failed' if r['errors'] else 'passed',r.get('maximum_quantity_count',r.get('count')),r.get('proven_upper'),t.get('quantity_seconds'),t.get('arrangement_seconds'),t.get('quantity_complete'),t.get('arrangement_complete'),r['elapsed_seconds'],t.get('basis'),r.get('case_wall_budget_seconds',report.get('case_wall_budget_seconds')),r.get('strategy','GIANT'),r.get('count')])
  output.with_suffix('.timing-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
 
 def exact_oracle(case,time_limit=2):
@@ -295,7 +304,7 @@ def main():
  selected=[c for c in {'structured':cases,'holdout':holdout_cases,'symmetry':symmetry_cases,'large':large_cases,'all':all_balanced_cases}[args.suite]() if not args.only or args.only in c['id']]
  if args.limit:selected=selected[:args.limit]
  source=args.source or ROOT/'mod/Tractor/scripts'
- def hashes():return {name:hashlib.sha256((source/name).read_bytes()).hexdigest() for name in ('aom_dynamic_farm.lua','aom_seed_layout.lua','aom_seed_packing.lua','aom_seed_balance.lua','aom_seed_exact.lua','aom_seed_heuristic.lua','aom_seed_feasible.lua') if (source/name).exists()}
+ def hashes():return {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(source.glob('aom_seed_*.lua'))|{source/'aom_dynamic_farm.lua',source/'aom_template_preview.lua'}) if p.exists()}
  initial=hashes()
  report={'source_sha256':initial,'native_rules_sha256':hashlib.sha256(NATIVE.encode()).hexdigest(),'native_constants':CONSTANTS,'rules':RULES,'started_at':datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),'source':str(source),'case_wall_budget_seconds':args.case_seconds,'rows':[]}
  args.output.parent.mkdir(parents=True,exist_ok=True)

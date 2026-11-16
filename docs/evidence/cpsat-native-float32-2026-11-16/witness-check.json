@@ -1,0 +1,65 @@
+{
+  "type": "offline scalar FindEntities emulation, not live engine",
+  "cases": [
+    {
+      "case_id": "autumn/L-3/user-tails",
+      "cp_count": 27,
+      "queried_plants": 27,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    },
+    {
+      "case_id": "winter/L-3/user-tails",
+      "cp_count": 21,
+      "queried_plants": 21,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    },
+    {
+      "case_id": "spring/L-3/user-tails",
+      "cp_count": 27,
+      "queried_plants": 27,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    },
+    {
+      "case_id": "holdout-006/spring",
+      "cp_count": 18,
+      "queried_plants": 18,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    },
+    {
+      "case_id": "autumn/square-3/all-40/GIANT",
+      "cp_count": 81,
+      "queried_plants": 81,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    },
+    {
+      "case_id": "winter/square-3/all-40/GIANT",
+      "cp_count": 81,
+      "queried_plants": 81,
+      "family_failures": 0,
+      "original_lua_validation_errors": [
+        "lua-layout-invalid",
+        "lua-plan-invalid"
+      ]
+    }
+  ]
+}

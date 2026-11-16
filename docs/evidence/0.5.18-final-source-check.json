@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "syntax",
+    "local_functions_defined",
+    "planner_fingerprint"
+  ],
+  "failures": [],
+  "warnings": [],
+  "success": true
+}

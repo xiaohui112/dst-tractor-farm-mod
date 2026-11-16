@@ -1,0 +1,298 @@
+{
+  "cases": 1162,
+  "changed": [
+    {
+      "id": "autumn/horizontal-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/vertical-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/U-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/ring-8/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/notch-8/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/bridge-7/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/comb-9/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "autumn/square-9/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/horizontal-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/vertical-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/T-4/all-six",
+      "before": 34,
+      "after": 28
+    },
+    {
+      "id": "spring/S-4/all-six",
+      "before": 34,
+      "after": 30
+    },
+    {
+      "id": "spring/U-5/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/plus-5/all-six",
+      "before": 34,
+      "after": 28
+    },
+    {
+      "id": "spring/ring-8/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/notch-8/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/bridge-7/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/comb-9/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "spring/square-9/all-six",
+      "before": 44,
+      "after": 38
+    },
+    {
+      "id": "summer/horizontal-2/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/horizontal-2/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/vertical-2/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/vertical-2/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/horizontal-5/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/horizontal-5/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/vertical-5/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/vertical-5/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/L-3/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/L-3/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/T-4/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/T-4/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/S-4/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/S-4/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/U-5/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/U-5/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/plus-5/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/plus-5/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/ring-8/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/ring-8/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/notch-8/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/notch-8/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/bridge-7/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/bridge-7/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/snake-7/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/snake-7/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/comb-9/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/comb-9/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/square-9/six-seven",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "summer/square-9/all-six",
+      "before": 18,
+      "after": 12
+    },
+    {
+      "id": "holdout-027/summer",
+      "before": 18,
+      "after": 16
+    },
+    {
+      "id": "holdout-047/summer",
+      "before": 34,
+      "after": 28
+    },
+    {
+      "id": "holdout-098/spring",
+      "before": 24,
+      "after": 18
+    },
+    {
+      "id": "holdout-099/summer",
+      "before": 36,
+      "after": 24
+    },
+    {
+      "id": "holdout-111/summer",
+      "before": 18,
+      "after": 16
+    },
+    {
+      "id": "holdout-116/autumn",
+      "before": 18,
+      "after": 16
+    },
+    {
+      "id": "large/autumn-63",
+      "before": 546,
+      "after": 552
+    },
+    {
+      "id": "large/summer-64",
+      "before": 564,
+      "after": 384
+    },
+    {
+      "id": "large/inner-hole-63",
+      "before": 546,
+      "after": 552
+    }
+  ],
+  "lower": 56,
+  "higher": 2,
+  "errors": []
+}

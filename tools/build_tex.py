@@ -2,9 +2,9 @@
 """
 Tractor —— 美术接入流水线
 
-把"美术交付包"里的 PNG 编译成 DST 能直接加载的 .tex + .xml：
+把 assets/images 的 PNG 编译成 DST 能直接加载的 .tex + .xml：
 
-1. 按美术包 atlases/*.xml 的元素顺序，把单张图标重新拼成图集 PNG
+1. 按代码中的图元顺序，把单张图标重新拼成图集 PNG
 2. 用 ktech 把 PNG 转成 Klei 的 KTEX（DXT5，带 alpha）
 3. modicon 由 512x512 封面单独转
 4. 校验：图集尺寸、元素 UV 与代码里的 imagename 对得上
@@ -50,16 +50,29 @@ ATLASES = [
 ]
 
 
-def build_atlas(name, elements):
+def build_atlas(name, elements, craft=False):
     """横排拼图集，返回元素 UV 表。"""
     ims = [Image.open(os.path.join(SRC, p)).convert("RGBA") for _, p in elements]
+    if craft:
+        # 建造栏使用128像素图元，从原始手绘稿编译，避免放大64像素库存缩略图。
+        originals = ["tractor", "plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"]
+        ims = []
+        for original in originals:
+            im = Image.open(os.path.join(SRC, "source-art", original + ".png")).convert("RGBA")
+            im = im.crop(im.getbbox())
+            im.thumbnail((116, 116), Image.Resampling.LANCZOS)
+            cell = Image.new("RGBA", (128, 128))
+            cell.paste(im, ((128-im.width)//2, (128-im.height)//2))
+            ims.append(cell)
     h = max(i.height for i in ims)
-    w = sum(i.width for i in ims)
+    used_width = sum(i.width for i in ims)
+    w = 1 << (used_width - 1).bit_length() if craft else used_width
     sheet = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     x = 0
     uv = []
     for (elem, _), im in zip(elements, ims):
-        sheet.paste(im, (x, 0), im)
+        # 直接复制RGBA，不能再以alpha当mask，否则半透明描边会被重复衰减。
+        sheet.paste(im, (x, 0))
         uv.append((elem, x / w, (x + im.width) / w, im.width, im.height))
         x += im.width
     os.makedirs(BUILD, exist_ok=True)
@@ -118,7 +131,7 @@ def main():
         ("aom_weeder.tex", "aom_weeder.png"),
         ("aom_harvester.tex", "aom_harvester.png"),
     ]
-    size, uv = build_atlas("aom_tractor_icons", craft)
+    size, uv = build_atlas("aom_tractor_icons", craft, craft=True)
     tex_size = to_tex(os.path.join(BUILD, "aom_tractor_icons.png"),
                       os.path.join(IMG, "aom_tractor_icons.tex"))
     report["atlases"].append({

@@ -30,8 +30,8 @@
     {
       "name": "aom_tractor_icons",
       "size": [
-        448,
-        64
+        1024,
+        128
       ],
       "elements": [
         "aom_tractor_chassis.tex",
@@ -42,7 +42,7 @@
         "aom_weeder.tex",
         "aom_harvester.tex"
       ],
-      "tex_bytes": 38418
+      "tex_bytes": 174982
     }
   ],
   "modicon": 349660

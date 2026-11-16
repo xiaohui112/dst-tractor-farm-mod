@@ -135,6 +135,7 @@ function SpawnPrefab(name)
    if name=='charcoal' or name=='flint' or name=='rocks' or name=='twigs' or name=='gears' or name=='poop' or string.sub(name,-6)=='_seeds' then e:AddComponent('stackable')end
   end
  end
+ if PREFAB_POST_FNS[name] then PREFAB_POST_FNS[name](e)end
  return e
 end
 function SpawnSaveRecord(record,newents)

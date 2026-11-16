@@ -16,7 +16,7 @@ function M.Find(crops,stock,tiles,slots,defs,target,yieldfn,budget)
  end
  local function Copy(a)local b={};for i,v in ipairs(a) do b[i]=v end;return b end
  local neighbors={}
- for c,k in ipairs(crops) do neighbors[c]={};for i=1,N do local a={};for _,q in ipairs(geometry.near[i]) do if q.d<=(defs[k].family_check_dist or 4)^2 then a[#a+1]=q.j end end;neighbors[c][i]=a end end
+ for c,k in ipairs(crops) do neighbors[c]={};for i=1,N do local a={};for _,q in ipairs(geometry.near[i]) do if Layout.InRange(geometry,i,q.j,(defs[k].family_check_dist or 4)^2) then a[#a+1]=q.j end end;neighbors[c][i]=a end end
  local stopped=false;local nodes,work=0,0
  local function Step(n)
   work=work+(n or 1)

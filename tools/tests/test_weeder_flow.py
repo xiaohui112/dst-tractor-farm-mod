@@ -33,7 +33,7 @@ end
 function assert_cost(n)
  assert(inst._fuel:value()==800-n)
  assert(inst.components.finiteuses.used==n)
- assert(tool.components.finiteuses:GetUses()==50-n)
+ assert(tool.components.finiteuses:GetUses()==100-n)
 end
 ''')
 
@@ -191,7 +191,7 @@ assert(not changed and reason=='NO_WORKER' and ready==false and v.valid);assert_
 inst._fuel:set(0)
 changed,reason=Drive.WorkTile(inst,0,0)
 assert(not changed and reason=='NO_FUEL' and not inst._working and v.valid)
-assert(tool.components.finiteuses:GetUses()==50 and inst.components.finiteuses.used==0)
+assert(tool.components.finiteuses:GetUses()==100 and inst.components.finiteuses.used==0)
 ''')
 
     def test_last_use_breaks_and_replacement_can_resume(self):
@@ -206,9 +206,9 @@ assert(not Drive.WorkTile(inst,4,0) and next.valid and inst._fuel:value()==799)
 local repair=require('aom_weeder_tool')
 assert(not repair.Repair(inst))
 tool=SpawnPrefab('aom_weeder');inst.components.container.slots[1]=tool;inst._attachment_type='weeder'
-assert(Drive.WorkTile(inst,4,0) and not next.valid and tool.components.finiteuses:GetUses()==49)
-tool.components.finiteuses:SetUses(49)
-assert(repair.Repair(inst) and tool.components.finiteuses:GetUses()==50)
+assert(Drive.WorkTile(inst,4,0) and not next.valid and tool.components.finiteuses:GetUses()==99)
+tool.components.finiteuses:SetUses(99)
+assert(repair.Repair(inst) and tool.components.finiteuses:GetUses()==100)
 assert(not repair.Repair(inst))
 ''')
 

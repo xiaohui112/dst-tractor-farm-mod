@@ -35,6 +35,7 @@ for z=0,height-1 do for x=0,width-1 do
  tiles[#tiles+1]={x=x*4,z=z*4}
  for s=0,8 do slots[#slots+1]={x=x*4+(s%3-1)*4/3,z=z*4+(math.floor(s/3)-1)*4/3} end
 end end
+for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end
 geometry=Layout.Geometry(tiles,slots,DEFS);metrics=Layout.Metrics(board,geometry)
 assert(Layout.LowerBound(board,geometry)<=metrics.score+.000001)
 ''')
@@ -75,6 +76,7 @@ assert(Layout.LowerBound(board,geometry)<=metrics.score+.000001)
  def test_single_tile_alignment_reaches_webpage_reference_cost(self):
   self.lua.execute('''board={'potato','tomato','potato','tomato',false,'tomato','potato','potato','tomato'}
 tiles={{x=0,z=0}};slots={};for s=0,8 do slots[#slots+1]={x=(s%3-1)*4/3,z=(math.floor(s/3)-1)*4/3} end
+for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end
 local geometry=Layout.Geometry(tiles,slots,DEFS);geometry.balanced=true
 local result,report=Layout.Regularize(board,geometry)
 assert(report.after.score<=-392 and Layout.Valid(result,geometry))

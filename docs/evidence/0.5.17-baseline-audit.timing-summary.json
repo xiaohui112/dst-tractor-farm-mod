@@ -1,0 +1,63 @@
+{
+  "basis": "process_cpu",
+  "cases": 1162,
+  "passed": 1162,
+  "incomplete": 0,
+  "failed": 0,
+  "source_sha256": {
+    "aom_dynamic_farm.lua": "ca51bd298667a8f7b1e2ab93a21b4743435fbce7ded8a4942df35d184f32422e",
+    "aom_seed_layout.lua": "4a77bf1ac6a3e7fdc8eec1dbae97a0b7fdc5c4c0ddac0430b8627027435190df",
+    "aom_seed_packing.lua": "8caa9786ce3a07813d236849bdf0c8b3985bfc91e4fb76716bfb73136dc11127"
+  },
+  "run_complete": true,
+  "incomplete_by_phase": {},
+  "all_completed": {
+    "quantity_seconds": {
+      "samples": 1162,
+      "total_seconds": 560.1943970000007,
+      "p50_seconds": 0.12966750000000005,
+      "p95_seconds": 2.0539827999999947,
+      "max_seconds": 16.859086999999995
+    },
+    "arrangement_seconds": {
+      "samples": 1162,
+      "total_seconds": 96.93516700000006,
+      "p50_seconds": 0.05890850000000003,
+      "p95_seconds": 0.2895171999999903,
+      "max_seconds": 1.0276329999999803
+    }
+  },
+  "positive_completed": {
+    "quantity_seconds": {
+      "samples": 711,
+      "total_seconds": 559.8570240000004,
+      "p50_seconds": 0.31804699999999997,
+      "p95_seconds": 3.309720500000001,
+      "max_seconds": 16.859086999999995
+    },
+    "arrangement_seconds": {
+      "samples": 711,
+      "total_seconds": 96.93516700000006,
+      "p50_seconds": 0.07624299999999806,
+      "p95_seconds": 0.36405649999999135,
+      "max_seconds": 1.0276329999999803
+    }
+  },
+  "each_completed_phase": {
+    "quantity_seconds": {
+      "samples": 1162,
+      "total_seconds": 560.1943970000007,
+      "p50_seconds": 0.12966750000000005,
+      "p95_seconds": 2.0539827999999947,
+      "max_seconds": 16.859086999999995
+    },
+    "arrangement_seconds": {
+      "samples": 1162,
+      "total_seconds": 96.93516700000006,
+      "p50_seconds": 0.05890850000000003,
+      "p95_seconds": 0.2895171999999903,
+      "max_seconds": 1.0276329999999803
+    }
+  },
+  "incomplete_cases": []
+}

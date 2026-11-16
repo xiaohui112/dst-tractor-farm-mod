@@ -1,5 +1,4 @@
 """驾驶八向、音效状态与已编译资源；不替代 DST 实机视听验收。"""
-import io
 import json
 from pathlib import Path
 import struct
@@ -71,14 +70,14 @@ class VehicleAssetTests(unittest.TestCase):
                         self.assertAlmostEqual(first[5],current[5],delta=.0001)
 
     def test_native_character_world_size_is_preserved_for_every_vehicle_size(self):
-        with ZipFile(ROOT/'Driver-Results.zip') as outer:
-            name=next(n for n in outer.namelist() if n.replace('\\','/').endswith('anim/aom_tractor_driver.zip'))
-            with ZipFile(io.BytesIO(outer.read(name))) as z:old=parse_anim(z.read('anim.bin'))
+        # 历史Windows交付包已清理；直接以已安装游戏的原版角色头部为尺寸基准。
+        game=Path.home()/"Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents"
+        with ZipFile(game/'data/anim/player_idles.zip') as z:old=parse_anim(z.read('anim.bin'))
         def head(bank):
             a=next(a for a in bank['animations'] if a['name']=='idle_loop' and a['facing']==5)
             return next(e['matrix'] for e in a['frames'][0]['elements'] if bank['strings'].get(e['symbol'])=='headbase')
         before=head(old)
-        keys={(a['name'],a['facing']) for a in old['animations']}
+        keys={(name,facing) for name in ['mount','dismount','idle_loop','run_pre','run_loop','run_pst'] for facing in [5,48,192,2,8]}
         del old
         config=json.loads((ROOT/'assets/directional-v2/seat-layout.json').read_text())
         for name,vehicle_scale in config['vehicle_scales'].items():
@@ -86,7 +85,7 @@ class VehicleAssetTests(unittest.TestCase):
                 self.assertIsNone(z.testzip());new=parse_anim(z.read('anim.bin'))
                 after=head(new)
                 for i in range(4):
-                    self.assertAlmostEqual(after[i]*vehicle_scale,before[i]/.24,places=5)
+                    self.assertAlmostEqual(after[i]*vehicle_scale,before[i],places=5)
                 self.assertTrue(all(a['bank']==name_hash(name) for a in new['animations']))
                 self.assertTrue(keys.issubset({(a['name'],a['facing']) for a in new['animations']}))
                 del new

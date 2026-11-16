@@ -156,7 +156,7 @@ local give,spawn=inv.GiveItem,a.components.lootdropper.SpawnLootPrefab
 a.components.pickable.onpickedfn=function()error('injected callback failure')end
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='WORK_ERROR' and not t._working)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==39)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 assert(inv.GiveItem==give and a.components.lootdropper.SpawnLootPrefab==spawn)
 assert(quantity(nil,'tomato')==1 and t._workstate_net:value()=='WORK_ERROR')
 assert(not t._aom_work_result and not t:HasTag('NOBLOCK'))
@@ -171,7 +171,7 @@ local saved=a.components.pickable:OnSave();assert(saved.picked==true)
 Farm.Harvest=function()error('before work')end
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(not changed and why=='WORK_ERROR' and not t._working)
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==40)
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
 ''')
 
     def test_workable_error_after_dig_is_billed_and_does_not_escape_sampling(self):
@@ -180,7 +180,7 @@ tool('aom_weeder');local e=weed(0,0)
 e.components.workable:SetOnFinishCallback(function()e:Remove();error('after dig')end)
 t:SetWorking(true);Drive.TrackMovement(t)
 assert(not t._working and not e:IsValid() and t._fuel:value()==399)
-assert(t:GetAttachment().components.finiteuses:GetUses()==49)
+assert(t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
 class PloughRegressionTests(unittest.TestCase):
@@ -209,7 +209,7 @@ TheWorld.Map.CanTillSoilAtPoint=function(self,...)
 end
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='WORK_ERROR' and not t._working and not t:HasTag('NOBLOCK'))
-assert(t._fuel:value()==399 and tool.components.finiteuses:GetUses()==59)
+assert(t._fuel:value()==399 and tool.components.finiteuses:GetUses()==99)
 ''')
 
 if __name__=='__main__':unittest.main()

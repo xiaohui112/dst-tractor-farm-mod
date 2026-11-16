@@ -1,7 +1,6 @@
--- 速度依据及选值理由见 docs/28-行驶作业与速度依据.md。
--- mph 用于保留现实作业速度比例；世界单位/秒是游戏尺度，不是物理换算。
+-- 行驶和所有配件作业统一为原版人物初始跑速的50%，不继承人物临时加速。
 local M = {}
-M.BASE_SPEED = 6
+M.BASE_SPEED = (TUNING.WILSON_RUN_SPEED or 6) * .5
 M.SAMPLE_INTERVAL = .1
 M.TILE_SIZE = 4
 M.DRIVE_FUEL_PER_UNIT = 1 / M.TILE_SIZE -- 每行驶一格另扣1燃料，与农业成本分开。
@@ -9,7 +8,7 @@ M.MAX_SWEEP_DISTANCE = 16 -- 超出正常短时移动视为传送，不耕种沿
 M.REFERENCE_MPH = {}
 for kind,def in pairs(require("aom_equipment_defs")) do M.REFERENCE_MPH[kind]=def.mph end
 function M.Speed(attachment, working)
-    return M.BASE_SPEED * (working and (M.REFERENCE_MPH[attachment] or 7) / 7 or 1)
+    return M.BASE_SPEED
 end
 
 -- 网格射线遍历：补上两次采样之间真正经过的地块；对角穿过角点时只进对角格。

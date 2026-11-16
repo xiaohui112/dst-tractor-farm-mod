@@ -1,0 +1,92 @@
+[
+  {
+    "side": 3,
+    "strategy": "GIANT_TEMPLATE",
+    "count": 80,
+    "upper": 81,
+    "optimal": false,
+    "timings": {
+      "quantity_ms": 111.776,
+      "arrangement_ms": 1.899,
+      "basis": "process_cpu",
+      "template_prepare_ms": 54.151,
+      "template_select_ms": 57.625
+    },
+    "elapsed_ms": 121
+  },
+  {
+    "side": 3,
+    "strategy": "GIANT",
+    "count": 81,
+    "upper": 81,
+    "optimal": true,
+    "timings": {
+      "quantity_ms": 693.34,
+      "arrangement_ms": 654.865,
+      "basis": "process_cpu",
+      "template_prepare_ms": 0,
+      "template_select_ms": 0
+    },
+    "elapsed_ms": 1371
+  },
+  {
+    "side": 7,
+    "strategy": "GIANT_TEMPLATE",
+    "count": 396,
+    "upper": 400,
+    "optimal": false,
+    "timings": {
+      "quantity_ms": 798.767,
+      "arrangement_ms": 18.291,
+      "basis": "process_cpu",
+      "template_prepare_ms": 484.28,
+      "template_select_ms": 314.487
+    },
+    "elapsed_ms": 881
+  },
+  {
+    "side": 7,
+    "strategy": "GIANT",
+    "count": 400,
+    "upper": 400,
+    "optimal": true,
+    "timings": {
+      "quantity_ms": 2570.693,
+      "arrangement_ms": 673.981,
+      "basis": "process_cpu",
+      "template_prepare_ms": 0,
+      "template_select_ms": 0
+    },
+    "elapsed_ms": 3336
+  },
+  {
+    "side": 8,
+    "strategy": "GIANT_TEMPLATE",
+    "count": 400,
+    "upper": 400,
+    "optimal": true,
+    "timings": {
+      "quantity_ms": 669.628,
+      "arrangement_ms": 25.208,
+      "basis": "process_cpu",
+      "template_prepare_ms": 638.036,
+      "template_select_ms": 31.592
+    },
+    "elapsed_ms": 755
+  },
+  {
+    "side": 8,
+    "strategy": "GIANT",
+    "count": 400,
+    "upper": 400,
+    "optimal": true,
+    "timings": {
+      "quantity_ms": 813.171,
+      "arrangement_ms": 664.841,
+      "basis": "process_cpu",
+      "template_prepare_ms": 0,
+      "template_select_ms": 0
+    },
+    "elapsed_ms": 1540
+  }
+]

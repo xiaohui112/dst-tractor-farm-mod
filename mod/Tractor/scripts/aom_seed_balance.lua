@@ -30,10 +30,11 @@ function M.Shape(cells)
  end
  return true
 end
-function M.Board(board,defs)
+function M.Board(board,defs,nutrients_only,yieldfn)
  for t=1,#board/9 do
   local cells={};for s=1,9 do cells[s]=board[(t-1)*9+s] end
-  if not M.Tile(cells,defs) or not M.Shape(cells) then return false end
+  if not M.Tile(cells,defs) or (not nutrients_only and not M.Shape(cells)) then return false end
+  if t%16==0 and yieldfn then yieldfn()end
  end
  return true
 end

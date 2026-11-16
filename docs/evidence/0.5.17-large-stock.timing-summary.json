@@ -1,0 +1,68 @@
+{
+  "basis": "process_cpu",
+  "cases": 12,
+  "passed": 12,
+  "incomplete": 0,
+  "failed": 0,
+  "source_sha256": {
+    "aom_dynamic_farm.lua": "298676a35ff5ca241ef6d599ff5b0d8d31c334346ebeb4e71aacd1020df224d6",
+    "aom_seed_layout.lua": "e4ffca3814d0ada7e174928ab44ba0ba2906f50eea24ec5c5330325637bc6673",
+    "aom_seed_packing.lua": "27f5d43ac763be3102e5e92ba9755f18edc7de6aa20d607bdb0c6d491798c210",
+    "aom_seed_balance.lua": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+    "aom_seed_exact.lua": "1a67cd52bf47ddf28501ab59c461cbdc1195b381008057f097151a227ddd7299",
+    "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+    "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+    "aom_seed_regions.lua": "7d6cc1e6df20641121356172c09292fddbb942c643d8bbd3aed9142bf10f7da1"
+  },
+  "run_complete": false,
+  "incomplete_by_phase": {},
+  "all_completed": {
+    "quantity_seconds": {
+      "samples": 12,
+      "total_seconds": 48.955476999999995,
+      "p50_seconds": 2.669052500000001,
+      "p95_seconds": 9.3428194,
+      "max_seconds": 9.349294
+    },
+    "arrangement_seconds": {
+      "samples": 12,
+      "total_seconds": 5.586500000000001,
+      "p50_seconds": 0.45736549999999987,
+      "p95_seconds": 0.6285454999999978,
+      "max_seconds": 0.6327089999999984
+    }
+  },
+  "positive_completed": {
+    "quantity_seconds": {
+      "samples": 12,
+      "total_seconds": 48.955476999999995,
+      "p50_seconds": 2.669052500000001,
+      "p95_seconds": 9.3428194,
+      "max_seconds": 9.349294
+    },
+    "arrangement_seconds": {
+      "samples": 12,
+      "total_seconds": 5.586500000000001,
+      "p50_seconds": 0.45736549999999987,
+      "p95_seconds": 0.6285454999999978,
+      "max_seconds": 0.6327089999999984
+    }
+  },
+  "each_completed_phase": {
+    "quantity_seconds": {
+      "samples": 12,
+      "total_seconds": 48.955476999999995,
+      "p50_seconds": 2.669052500000001,
+      "p95_seconds": 9.3428194,
+      "max_seconds": 9.349294
+    },
+    "arrangement_seconds": {
+      "samples": 12,
+      "total_seconds": 5.586500000000001,
+      "p50_seconds": 0.45736549999999987,
+      "p95_seconds": 0.6285454999999978,
+      "max_seconds": 0.6327089999999984
+    }
+  },
+  "incomplete_cases": []
+}

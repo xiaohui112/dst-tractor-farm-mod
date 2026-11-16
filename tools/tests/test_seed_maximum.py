@@ -48,7 +48,7 @@ class MaximumSeedTests(unittest.TestCase):
   w=audit.world();L=w.lua;g=L.globals();g.inst=w.make(stock,season)
   L.execute("inst.components.container.numslots=15;D=require('aom_dynamic_farm');P=require('aom_seed_packing');A=require('aom_seed_layout');TheWorld.components.farming_manager.GetTileNutrients=function()error('soil must not be read')end")
   if inspect:
-   L.execute("arrangements=0;local old=A.Regularize;A.Regularize=function(...)assert(P.last_report and P.last_report.optimal==true);arrangements=arrangements+1;return old(...)end")
+   L.execute("arrangements=0;local old=A.Regularize;A.Regularize=function(...)assert(inst._aom_planning_task.last_report and inst._aom_planning_task.last_report.optimal==true);arrangements=arrangements+1;return old(...)end")
   for x,z in tiles:
    for dx in (-1,0,1):
     for dz in (-1,0,1):g.SpawnPrefab('farm_soil').Transform.SetPosition(None,x*4+dx*4/3,0,z*4+dz*4/3)
@@ -86,7 +86,7 @@ class MaximumSeedTests(unittest.TestCase):
      best=max(best,n)
     w,b=self.build(((0,0),),stock,season)
     self.assertEqual(b.total if b else 0,best,(season,stock))
-    self.assertTrue(w.lua.globals().P.last_report.optimal)
+    self.assertTrue(w.lua.globals().inst._aom_planning_task.last_report.optimal)
 
  def test_unattainable_relaxed_upper_is_proved_before_arranging(self):
   # 五格狭长田的全局净变化可容纳45；逐株同族几何只容纳43。
@@ -104,12 +104,12 @@ class MaximumSeedTests(unittest.TestCase):
 
  def test_raw_spacing_conflicts_are_part_of_search_and_arrangement_validity(self):
   w=audit.world();L=w.lua
-  L.execute("A=require('aom_seed_layout');local defs=require('prefabs/farm_plant_defs').PLANT_DEFS;G=A.Geometry({{x=0,z=0}},{{x=0,z=0},{x=.5,z=0},{x=0,z=1.5},{x=1.5,z=1.5}},defs);assert(not A.Valid({'potato','potato','potato','potato'},G))")
+  L.execute("A=require('aom_seed_layout');local defs=require('prefabs/farm_plant_defs').PLANT_DEFS;local slots={{x=0,z=0},{x=.5,z=0},{x=0,z=1.5},{x=1.5,z=1.5}};for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end;G=A.Geometry({{x=0,z=0}},slots,defs);assert(G.complete and #G.conflicts[1]>0);assert(not A.Valid({'potato','potato','potato','potato'},G))")
 
  def test_arrangement_timeout_preserves_completed_quantity_timing_and_proof(self):
   w=audit.world()
   def clock():
-   return 100 if w.lua.eval("package.loaded.aom_seed_packing and package.loaded.aom_seed_packing.phase")=='arrangement' else 0
+   return 100 if w.lua.eval("inst and inst._aom_planning_task and inst._aom_planning_task.phase")=='arrangement' else 0
   case={'id':'phase-interruption','tiles':[(0,0),(1,0),(1,1),(2,0),(2,1)],'season':'autumn','stock':{'potato':16,'tomato':16,'eggplant':4,'garlic':8,'onion':8,'pepper':8}}
   with patch.object(audit,'world',return_value=w),patch.object(audit.time,'perf_counter',side_effect=clock):
    row=audit.run_case(case,case_seconds=5)

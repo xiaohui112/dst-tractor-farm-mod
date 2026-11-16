@@ -28,7 +28,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
  -- 差量维护同族支持数；拒绝试探后的回滚也在下一次差量中校正。
  local lastboard,lastcopy,family,missing,lastbad=nil,{}, {}, {},0
  local neighbors={}
- for _,k in ipairs(crops) do neighbors[k]={};for i=1,#slots do local a={};for _,q in ipairs(geometry.near[i]) do if q.d<=(defs[k].family_check_dist or 4)^2 then a[#a+1]=q.j end end;neighbors[k][i]=a end end
+ for _,k in ipairs(crops) do neighbors[k]={};for i=1,#slots do local a={};for _,q in ipairs(geometry.near[i]) do if Layout.InRange(geometry,i,q.j,(defs[k].family_check_dist or 4)^2) then a[#a+1]=q.j end end;neighbors[k][i]=a end end
  local function Penalty(k,n)
   if not k then return 0 end
   local missing=math.max(0,(defs[k].family_min_count or 4)-n)
@@ -80,7 +80,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
     if left==0 then Generate(at+1,1,requirements[at+1] and requirements[at+1].n or 0);return end
     for s=position,10-left do local i=(r.t-1)*9+s
      if available[i] then
-      local ok=true;for _,j in ipairs(group) do if (slots[i].x-slots[j].x)^2+(slots[i].z-slots[j].z)^2>radius then ok=false;break end end
+      local ok=true;for _,j in ipairs(group) do if not Layout.InRange(geometry,i,j,radius) then ok=false;break end end
       if ok then group[#group+1]=i;Generate(at,s+1,left-1);group[#group]=nil end
      end
     end
@@ -161,7 +161,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
        local signature=table.concat(selected,',');if seen[signature] then return end;seen[signature]=true
        local cost=0
        for _,i in ipairs(selected) do
-        local family=0;for _,j in ipairs(selected) do local d=(slots[i].x-slots[j].x)^2+(slots[i].z-slots[j].z)^2;if d<=radius then family=family+1 end;cost=cost+d end
+        local family=0;for _,j in ipairs(selected) do local d=(slots[i].x-slots[j].x)^2+(slots[i].z-slots[j].z)^2;if Layout.InRange(geometry,i,j,radius)then family=family+1 end;cost=cost+d end
         if family<4 then return end
        end
        local points={};for i,p in ipairs(selected) do points[i]=p end;out[#out+1]={points=points,cost=cost}
@@ -178,7 +178,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
      local nearby,available={},{}
      for i=first+1,#slots do if free[i] then
       available[#available+1]=i
-      if (slots[i].x-slots[first].x)^2+(slots[i].z-slots[first].z)^2<=radius then nearby[#nearby+1]=i end
+      if Layout.InRange(geometry,i,first,radius) then nearby[#nearby+1]=i end
      end end
      local selected,inside={first},{[first]=true};local generated=0
      local function Complete(at,left)
@@ -186,7 +186,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
       if not Budget() then return end
       if effort%256==0 and yieldfn then yieldfn() end
       for _,i in ipairs(selected) do
-       local family=0;for _,j in ipairs(selected) do if (slots[i].x-slots[j].x)^2+(slots[i].z-slots[j].z)^2<=radius then family=family+1 end end
+       local family=0;for _,j in ipairs(selected) do if Layout.InRange(geometry,i,j,radius) then family=family+1 end end
        if family+left<4 then return end
       end
       if left==0 then
@@ -235,13 +235,13 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
     end
     table.sort(out,function(a,b)return a.cost<b.cost end);return out
    end
-   local neighbors={};for _,q in ipairs(geometry.near[first]) do if q.j>first and q.d<=radius then neighbors[#neighbors+1]=q.j end end
+   local neighbors={};for _,q in ipairs(geometry.near[first]) do if q.j>first and Layout.InRange(geometry,first,q.j,radius) then neighbors[#neighbors+1]=q.j end end
    local out={}
    for a=1,#neighbors-2 do local i=neighbors[a]
     for b=a+1,#neighbors-1 do local j=neighbors[b]
-     if (slots[i].x-slots[j].x)^2+(slots[i].z-slots[j].z)^2<=radius then
+     if Layout.InRange(geometry,i,j,radius) then
       for c=b+1,#neighbors do local k=neighbors[c]
-       if (slots[i].x-slots[k].x)^2+(slots[i].z-slots[k].z)^2<=radius and (slots[j].x-slots[k].x)^2+(slots[j].z-slots[k].z)^2<=radius then
+       if Layout.InRange(geometry,i,k,radius) and Layout.InRange(geometry,j,k,radius) then
         local points={first,i,j,k};local cost=0
         for x=1,4 do for y=1,x-1 do cost=cost+(slots[points[x]].x-slots[points[y]].x)^2+(slots[points[x]].z-slots[points[y]].z)^2 end end
         out[#out+1]={points=points,cost=cost}
@@ -387,8 +387,9 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
     local a,b=bins[order[i]],bins[order[j]];local shared=0
     for k=1,#crops do
      if used[k]==4 and a.counts[k]>0 and b.counts[k]>0 then
-      local dx=math.max(0,math.abs(tiles[i].x-tiles[j].x)-8/3);local dz=math.max(0,math.abs(tiles[i].z-tiles[j].z)-8/3)
-      if dx*dx+dz*dz>(defs[crops[k]].family_check_dist or 4)^2 then return math.huge end
+      local connected=false;local radius=(defs[crops[k]].family_check_dist or 4)^2
+      for p=(i-1)*9+1,i*9 do for q=(j-1)*9+1,j*9 do if Layout.InRange(geometry,p,q,radius)then connected=true;break end end;if connected then break end end
+      if not connected then return math.huge end
      end
      shared=shared+math.min(a.counts[k],b.counts[k])
     end

@@ -1,0 +1,162 @@
+{
+  "numeric_chain": [
+    "9.3333333333333339",
+    "5.333333333333333",
+    "4.0000000000000009",
+    "16.000000000000007",
+    false
+  ],
+  "patched_geometry_only": true,
+  "quantity": 81,
+  "optimal": true,
+  "mode": "upper-bound-witness",
+  "quantity_cpu": 0.154424,
+  "arrangement_cpu": 0.35869399999999996,
+  "wall": 0.5332695420365781,
+  "stages": [
+    {
+      "stage": "patterns",
+      "wall": 0.001351584040094167,
+      "cpu": 0.0013290000000000246
+    },
+    {
+      "stage": "geometry",
+      "wall": 0.013200666988268495,
+      "cpu": 0.013174000000000019
+    },
+    {
+      "stage": "upper_bound",
+      "wall": 0.015176374989096075,
+      "cpu": 0.015149000000000024
+    },
+    {
+      "stage": "initial_layout",
+      "wall": 0.015213542035780847,
+      "cpu": 0.015187000000000006
+    },
+    {
+      "stage": "template_witness",
+      "wall": 0.015214417013339698,
+      "cpu": 0.015187000000000006
+    },
+    {
+      "stage": "region_probe",
+      "wall": 0.1340902920346707,
+      "cpu": 0.11599599999999999
+    },
+    {
+      "stage": "initial_layout",
+      "wall": 0.17388604203006253,
+      "cpu": 0.15574
+    },
+    {
+      "stage": "arrangement",
+      "wall": 0.17389745899708942,
+      "cpu": 0.15575099999999997
+    },
+    {
+      "stage": "arrange_candidates",
+      "wall": 0.1741481670178473,
+      "cpu": 0.15600100000000006
+    },
+    {
+      "stage": "arrange_group_bank",
+      "wall": 0.178280292020645,
+      "cpu": 0.16009799999999996
+    },
+    {
+      "stage": "arrange_search",
+      "wall": 0.18057787499856204,
+      "cpu": 0.16239499999999996
+    },
+    {
+      "stage": "arrange_finalize",
+      "wall": 0.532994959037751,
+      "cpu": 0.514191
+    }
+  ],
+  "patched_pair_occurrences": 822,
+  "board": [
+    "carrot",
+    "carrot",
+    "carrot",
+    "corn",
+    "corn",
+    "corn",
+    "potato",
+    "potato",
+    "potato",
+    "carrot",
+    "carrot",
+    "carrot",
+    "corn",
+    "corn",
+    "corn",
+    "potato",
+    "potato",
+    "potato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "pepper",
+    "pepper",
+    "pepper",
+    "carrot",
+    "carrot",
+    "carrot",
+    "corn",
+    "corn",
+    "corn",
+    "potato",
+    "potato",
+    "potato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "garlic",
+    "garlic",
+    "garlic",
+    "onion",
+    "onion",
+    "onion",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "tomato",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "pepper",
+    "garlic",
+    "garlic",
+    "garlic",
+    "onion",
+    "onion",
+    "onion",
+    "garlic",
+    "garlic",
+    "pepper",
+    "garlic",
+    "onion",
+    "pepper",
+    "onion",
+    "onion",
+    "pepper"
+  ]
+}

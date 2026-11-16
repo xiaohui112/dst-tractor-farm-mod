@@ -1,0 +1,497 @@
+Transform.SetPosition
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+0000000100172314 <__ZN17TransformLuaProxy11SetPositionEP9lua_State>:
+100172314:     	pushq	%r15
+100172316:     	pushq	%r14
+100172318:     	pushq	%r12
+10017231a:     	pushq	%rbx
+10017231b:     	subq	$0x58, %rsp
+10017231f:     	movq	%rsi, %rbx
+100172322:     	movq	%rdi, %r14
+100172325:     	movq	%rsi, %rdi
+100172328:     	movl	$0x1, %esi
+10017232d:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+100172332:     	cvtsd2ss	%xmm0, %xmm0
+100172336:     	movaps	%xmm0, 0x40(%rsp)
+10017233b:     	movq	%rbx, %rdi
+10017233e:     	movl	$0x2, %esi
+100172343:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+100172348:     	cvtsd2ss	%xmm0, %xmm0
+10017234c:     	movaps	%xmm0, 0x30(%rsp)
+100172351:     	movq	%rbx, %rdi
+100172354:     	movl	$0x3, %esi
+100172359:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+10017235e:     	movaps	0x30(%rsp), %xmm3
+100172363:     	cvtsd2ss	%xmm0, %xmm0
+100172367:     	movaps	0x40(%rsp), %xmm2
+10017236c:     	movss	%xmm2, 0x8(%rsp)
+100172372:     	movss	%xmm3, 0xc(%rsp)
+100172378:     	movss	%xmm0, 0x10(%rsp)
+10017237e:     	movaps	0x31b34b(%rip), %xmm1   ## 0x10048d6d0 <__ZTSSt9bad_alloc+0xbc8>
+100172385:     	andps	%xmm1, %xmm2
+100172388:     	ucomiss	0x31a849(%rip), %xmm2   ## 0x10048cbd8 <__ZTSSt9bad_alloc+0xd0>
+10017238f:     	je	0x1001723a9 <__ZN17TransformLuaProxy11SetPositionEP9lua_State+0x95>
+100172391:     	andps	%xmm1, %xmm3
+100172394:     	ucomiss	0x31a83d(%rip), %xmm3   ## 0x10048cbd8 <__ZTSSt9bad_alloc+0xd0>
+10017239b:     	je	0x1001723a9 <__ZN17TransformLuaProxy11SetPositionEP9lua_State+0x95>
+10017239d:     	andps	%xmm1, %xmm0
+
+Transform.GetWorldPosition
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001724fc <__ZN17TransformLuaProxy16GetWorldPositionEP9lua_State>:
+1001724fc:     	pushq	%r14
+1001724fe:     	pushq	%rbx
+1001724ff:     	pushq	%rax
+100172500:     	movq	%rsi, %r14
+100172503:     	movq	%rdi, %rbx
+100172506:     	callq	0x100172b92 <__ZN17TransformLuaProxy14GetHistoryDataEP9lua_State+0xea>
+10017250b:     	movl	%eax, %ecx
+10017250d:     	xorl	%eax, %eax
+10017250f:     	testb	%cl, %cl
+100172511:     	je	0x10017256b <__ZN17TransformLuaProxy16GetWorldPositionEP9lua_State+0x6f>
+100172513:     	movq	0x8(%rbx), %rdi
+100172517:     	movq	(%rdi), %rax
+10017251a:     	callq	*0xf8(%rax)
+100172520:     	cvtss2sd	(%rax), %xmm0
+100172524:     	movq	%r14, %rdi
+100172527:     	callq	0x1004419c4 <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3cde6>
+10017252c:     	movq	0x8(%rbx), %rdi
+100172530:     	movq	(%rdi), %rax
+100172533:     	callq	*0xf8(%rax)
+100172539:     	xorps	%xmm0, %xmm0
+10017253c:     	cvtss2sd	0x4(%rax), %xmm0
+100172541:     	movq	%r14, %rdi
+100172544:     	callq	0x1004419c4 <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3cde6>
+100172549:     	movq	0x8(%rbx), %rdi
+10017254d:     	movq	(%rdi), %rax
+100172550:     	callq	*0xf8(%rax)
+100172556:     	xorps	%xmm0, %xmm0
+100172559:     	cvtss2sd	0x8(%rax), %xmm0
+10017255e:     	movq	%r14, %rdi
+100172561:     	callq	0x1004419c4 <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3cde6>
+100172566:     	movl	$0x3, %eax
+10017256b:     	addq	$0x8, %rsp
+10017256f:     	popq	%rbx
+100172570:     	popq	%r14
+100172572:     	retq
+100172573:     	nop
+
+0000000100172574 <__ZN17TransformLuaProxy16GetLocalPositionEP9lua_State>:
+100172574:     	pushq	%r14
+100172576:     	pushq	%rbx
+100172577:     	pushq	%rax
+100172578:     	movq	%rsi, %r14
+10017257b:     	movq	%rdi, %rbx
+10017257e:     	callq	0x100172b92 <__ZN17TransformLuaProxy14GetHistoryDataEP9lua_State+0xea>
+
+FindEntities Lua wrapper
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001e2a3c <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State>:
+1001ebd10:     	pushq	%rbp
+1001ebd11:     	pushq	%r15
+1001ebd13:     	pushq	%r14
+1001ebd15:     	pushq	%r13
+1001ebd17:     	pushq	%r12
+1001ebd19:     	pushq	%rbx
+1001ebd1a:     	subq	$0x158, %rsp            ## imm = 0x158
+1001ebd21:     	movq	%rsi, %r13
+1001ebd24:     	movq	%rdi, %r15
+1001ebd27:     	movq	%rsi, %rdi
+1001ebd2a:     	callq	0x10044136e <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3c790>
+1001ebd2f:     	movl	%eax, %ebp
+1001ebd31:     	leaq	0xd8(%rsp), %rdi
+1001ebd39:     	callq	0x1003aca80 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x12fc4>
+1001ebd3e:     	leaq	0x88(%rsp), %r14
+1001ebd46:     	movq	%r14, %rdi
+1001ebd49:     	callq	0x1003aca80 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x12fc4>
+1001ebd4e:     	leaq	0x38(%rsp), %r12
+1001ebd53:     	movq	%r12, %rdi
+1001ebd56:     	callq	0x1003aca80 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x12fc4>
+1001ebd5b:     	movq	%r13, %rdi
+1001ebd5e:     	movl	$0x1, %esi
+1001ebd63:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+1001ebd68:     	movsd	%xmm0, 0x18(%rsp)
+1001ebd6e:     	movq	%r13, %rdi
+1001ebd71:     	movl	$0x2, %esi
+1001ebd76:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+1001ebd7b:     	movsd	%xmm0, 0x30(%rsp)
+1001ebd81:     	movq	%r13, %rdi
+1001ebd84:     	movl	$0x3, %esi
+1001ebd89:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+1001ebd8e:     	cvtsd2ss	0x18(%rsp), %xmm1
+1001ebd94:     	cvtsd2ss	0x30(%rsp), %xmm2
+1001ebd9a:     	cvtsd2ss	%xmm0, %xmm0
+1001ebd9e:     	movss	%xmm1, 0x20(%rsp)
+1001ebda4:     	movss	%xmm2, 0x24(%rsp)
+1001ebdaa:     	movss	%xmm0, 0x28(%rsp)
+1001ebdb0:     	movq	%r13, %rdi
+1001ebdb3:     	movl	$0x4, %esi
+1001ebdb8:     	callq	0x100442c9d <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3e0bf>
+1001ebdbd:     	movsd	%xmm0, 0x18(%rsp)
+1001ebdc3:     	cmpl	$0x5, %ebp
+1001ebdc6:     	jl	0x1001ebe26 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x93ea>
+1001ebdc8:     	movq	%r13, %rdi
+1001ebdcb:     	movl	$0x5, %esi
+1001ebdd0:     	callq	0x10044159e <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3c9c0>
+1001ebdd5:     	leaq	0xd8(%rsp), %rsi
+1001ebddd:     	movq	%r13, %rdi
+1001ebde0:     	callq	0x1001eb540 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x8b04>
+1001ebde5:     	cmpl	$0x6, %ebp
+1001ebde8:     	jb	0x1001ebe26 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x93ea>
+1001ebdea:     	movq	%r13, %rdi
+1001ebded:     	movl	$0x6, %esi
+1001ebdf2:     	callq	0x10044159e <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3c9c0>
+1001ebdf7:     	leaq	0x88(%rsp), %rsi
+1001ebdff:     	movq	%r13, %rdi
+1001ebe02:     	callq	0x1001eb540 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x8b04>
+1001ebe07:     	cmpl	$0x7, %ebp
+1001ebe0a:     	jb	0x1001ebe26 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x93ea>
+1001ebe0c:     	movq	%r13, %rdi
+1001ebe0f:     	movl	$0x7, %esi
+1001ebe14:     	callq	0x10044159e <__ZN5LunarI24TileGroupManagerLuaProxyE5thunkEP9lua_State+0x3c9c0>
+1001ebe19:     	leaq	0x38(%rsp), %rsi
+1001ebe1e:     	movq	%r13, %rdi
+1001ebe21:     	callq	0x1001eb540 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x8b04>
+1001ebe26:     	leaq	0x148(%rsp), %rsi
+1001ebe2e:     	movl	$0x321a0c13, (%rsi)     ## imm = 0x321A0C13
+1001ebe34:     	movq	$0x0, 0x8(%rsi)
+1001ebe3c:     	leaq	0xd8(%rsp), %rbp
+1001ebe44:     	movq	%rbp, %rdi
+1001ebe47:     	callq	0x1003acdaa <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x132ee>
+1001ebe4c:     	testb	%al, %al
+1001ebe4e:     	jne	0x1001ebe97 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x945b>
+1001ebe50:     	leaq	0x138(%rsp), %rsi
+1001ebe58:     	movl	$0x321a0c13, (%rsi)     ## imm = 0x321A0C13
+1001ebe5e:     	movq	$0x0, 0x8(%rsi)
+1001ebe66:     	leaq	0x38(%rsp), %rdi
+1001ebe6b:     	callq	0x1003acdaa <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x132ee>
+1001ebe70:     	testb	%al, %al
+1001ebe72:     	jne	0x1001ebe97 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x945b>
+1001ebe74:     	leaq	0x128(%rsp), %rsi
+1001ebe7c:     	movl	$0x321a0c13, (%rsi)     ## imm = 0x321A0C13
+1001ebe82:     	movq	$0x0, 0x8(%rsi)
+1001ebe8a:     	leaq	0x88(%rsp), %rdi
+1001ebe92:     	callq	0x1003acc64 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x131a8>
+1001ebe97:     	xorps	%xmm0, %xmm0
+1001ebe9a:     	movq	%rsp, %rdi
+1001ebe9d:     	movaps	%xmm0, (%rdi)
+1001ebea0:     	movq	$0x0, 0x10(%rdi)
+1001ebea8:     	movl	$0x14, %esi
+1001ebead:     	callq	0x1001ebc82 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x9246>
+1001ebeb2:     	xorps	%xmm0, %xmm0
+1001ebeb5:     	cvtsd2ss	0x18(%rsp), %xmm0
+1001ebebb:     	movq	(%r15), %rax
+1001ebebe:     	movq	0x68(%rax), %rdi
+1001ebec2:     	xorl	%eax, %eax
+1001ebec4:     	cmpl	$0x0, 0x118(%rsp)
+1001ebecc:     	cmoveq	%rax, %rbp
+1001ebed0:     	cmpl	$0x0, 0xc8(%rsp)
+1001ebed8:     	cmoveq	%rax, %r14
+1001ebedc:     	cmpl	$0x0, 0x78(%rsp)
+1001ebee1:     	cmoveq	%rax, %r12
+1001ebee5:     	leaq	0x20(%rsp), %rsi
+1001ebeea:     	movq	%rsp, %r9
+1001ebeed:     	movq	%rbp, %rdx
+1001ebef0:     	movq	%r14, %rcx
+1001ebef3:     	movq	%r12, %r8
+1001ebef6:     	callq	0x1001c570c <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bbec>
+1001ebefb:     	leaq	0x2cf4f6(%rip), %rdx    ## 0x1004bb3f8 <dyld_stub_binder+0x1004bb3f8>
+1001ebf02:     	movq	%r13, %rdi
+
+Query context / radius squared
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001a9b20 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State>:
+1001c570c:     	pushq	%rbp
+1001c570d:     	pushq	%r15
+1001c570f:     	pushq	%r14
+1001c5711:     	pushq	%r13
+1001c5713:     	pushq	%r12
+1001c5715:     	pushq	%rbx
+1001c5716:     	subq	$0x88, %rsp
+1001c571d:     	movq	0x10(%rdi), %rax
+1001c5721:     	movl	0x80(%rax), %ebp
+1001c5727:     	cvtsi2ss	%rbp, %xmm1
+1001c572c:     	movq	%r8, %rbp
+1001c572f:     	movq	%rcx, %r8
+1001c5732:     	movq	%rdx, %r14
+1001c5735:     	mulss	0x2c8387(%rip), %xmm1   ## 0x10048dac4 <__ZTSSt9bad_alloc+0xfbc>
+1001c573d:     	addss	0x84(%rax), %xmm1
+1001c5745:     	cvttss2si	%xmm1, %eax
+1001c5749:     	cltq
+1001c574b:     	imulq	$-0x77777777, %rax, %rcx ## imm = 0x88888889
+1001c5752:     	shrq	$0x20, %rcx
+1001c5756:     	addl	%ecx, %eax
+1001c5758:     	movl	%eax, %ecx
+1001c575a:     	shrl	$0x1f, %ecx
+1001c575d:     	shrl	$0x5, %eax
+1001c5760:     	addl	%ecx, %eax
+1001c5762:     	movq	%r9, 0x48(%rsp)
+1001c5767:     	movq	%rdx, 0x50(%rsp)
+1001c576c:     	movq	%rbp, 0x58(%rsp)
+1001c5771:     	movq	%r8, 0x60(%rsp)
+1001c5776:     	movss	%xmm0, 0x4(%rsp)
+1001c577c:     	mulss	%xmm0, %xmm0
+1001c5780:     	movss	%xmm0, 0x68(%rsp)
+1001c5786:     	movq	%rsi, 0x70(%rsp)
+1001c578b:     	movb	%al, 0x80(%rsp)
+1001c5792:     	testq	%rdx, %rdx
+1001c5795:     	movq	%rsi, 0x30(%rsp)
+1001c579a:     	movq	%rdi, 0x28(%rsp)
+1001c579f:     	movq	%r9, 0x18(%rsp)
+1001c57a4:     	je	0x1001c57dd <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bcbd>
+1001c57a6:     	xorl	%r15d, %r15d
+1001c57a9:     	cmpl	$0x0, 0x40(%r14)
+1001c57ae:     	je	0x1001c57e0 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bcc0>
+
+Query context / grid call
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001a9b20 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State>:
+1001c5880:     	xorl	%ebp, %ebx
+1001c5882:     	movl	%ebx, %r13d
+1001c5885:     	shlq	$0x10, %r12
+1001c5889:     	xorq	%r15, %r12
+1001c588c:     	xorq	%rbp, %r12
+1001c588f:     	movzwl	%r13w, %esi
+1001c5893:     	shlq	$0x30, %rsi
+1001c5897:     	orq	%r12, %rsi
+1001c589a:     	leaq	0x48(%rsp), %rbx
+1001c589f:     	movq	%rsi, 0x30(%rbx)
+1001c58a3:     	leaq	0x3f0946(%rip), %rdi    ## 0x1005b61f0 <dyld_stub_binder+0x1005b61f0>
+1001c58aa:     	movq	%r14, %rdx
+1001c58ad:     	movq	%r8, %rcx
+1001c58b0:     	movq	0x20(%rsp), %r8
+1001c58b5:     	callq	0x1001c9138 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1f618>
+1001c58ba:     	movw	%ax, 0x3a(%rbx)
+1001c58be:     	movq	0x28(%rsp), %rax
+1001c58c3:     	movq	0x1d0(%rax), %rdi
+1001c58ca:     	movq	0x30(%rsp), %rbp
+1001c58cf:     	movss	(%rbp), %xmm0
+1001c58d4:     	movss	0x8(%rbp), %xmm1
+1001c58d9:     	leaq	0x40(%rsp), %rsi
+1001c58de:     	movss	%xmm0, (%rsi)
+1001c58e2:     	movss	%xmm1, 0x4(%rsi)
+1001c58e7:     	movss	0x4(%rsp), %xmm0
+1001c58ed:     	movq	%rbx, %rdx
+1001c58f0:     	callq	0x1001c5942 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1be22>
+1001c58f5:     	movq	0x18(%rsp), %rax
+1001c58fa:     	movq	(%rax), %rdi
+1001c58fd:     	movq	0x8(%rax), %rsi
+1001c5901:     	movq	%rbp, 0x38(%rsp)
+1001c5906:     	movq	%rsi, %rax
+1001c5909:     	subq	%rdi, %rax
+1001c590c:     	je	0x1001c5923 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1be03>
+1001c590e:     	sarq	$0x3, %rax
+1001c5912:     	bsrq	%rax, %rcx
+1001c5916:     	xorq	$0x3f, %rcx
+1001c591a:     	addq	%rcx, %rcx
+1001c591d:     	xorq	$0x7e, %rcx
+1001c5921:     	jmp	0x1001c5925 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1be05>
+1001c5923:     	xorl	%ecx, %ecx
+1001c5925:     	leaq	0x38(%rsp), %rdx
+1001c592a:     	callq	0x1001ca659 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x20b39>
+1001c592f:     	addq	$0x88, %rsp
+1001c5936:     	popq	%rbx
+1001c5937:     	popq	%r12
+1001c5939:     	popq	%r13
+1001c593b:     	popq	%r14
+1001c593d:     	popq	%r15
+1001c593f:     	popq	%rbp
+1001c5940:     	retq
+1001c5941:     	nop
+
+Grid candidate loop
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001a9b20 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State>:
+1001c5a90:     	addl	%ebp, %eax
+1001c5a92:     	movq	%rax, %rbp
+1001c5a95:     	testq	%rax, %rax
+1001c5a98:     	jne	0x1001c5a62 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bf42>
+1001c5a9a:     	cmpq	%r8, %rsi
+1001c5a9d:     	movq	%r15, %rbx
+1001c5aa0:     	je	0x1001c5b17 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bff7>
+1001c5aa2:     	cmpl	%edx, (%rsi)
+1001c5aa4:     	jne	0x1001c5b17 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bff7>
+1001c5aa6:     	cmpl	%r9d, 0x4(%rsi)
+1001c5aaa:     	jne	0x1001c5b17 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bff7>
+1001c5aac:     	movq	%r12, %rbx
+1001c5aaf:     	addq	$0x8, %rsi
+1001c5ab3:     	leaq	0x20(%rsp), %rdi
+1001c5ab8:     	callq	0x1002f2ac8 <__ZN5LunarI19cItemServerLuaProxyE5thunkEP9lua_State+0x24a5e>
+1001c5abd:     	movq	0x20(%rsp), %rbp
+1001c5ac2:     	cmpq	0x28(%rsp), %rbp
+1001c5ac7:     	je	0x1001c5af7 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bfd7>
+1001c5ac9:     	addq	$0x8, %rbp
+1001c5acd:     	movq	-0x8(%rbp), %rsi
+1001c5ad1:     	movq	0x38(%rsp), %rdi
+1001c5ad6:     	callq	0x1001cbdce <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x222ae>
+1001c5adb:     	movl	%eax, %r12d
+1001c5ade:     	testb	%al, %al
+1001c5ae0:     	je	0x1001c5af0 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bfd0>
+1001c5ae2:     	leaq	0x8(%rbp), %rax
+1001c5ae6:     	cmpq	0x28(%rsp), %rbp
+1001c5aeb:     	movq	%rax, %rbp
+1001c5aee:     	jne	0x1001c5acd <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bfad>
+1001c5af0:     	movq	0x20(%rsp), %rbp
+1001c5af5:     	jmp	0x1001c5afa <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bfda>
+1001c5af7:     	movb	$0x1, %r12b
+1001c5afa:     	testq	%rbp, %rbp
+1001c5afd:     	je	0x1001c5b0c <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1bfec>
+1001c5aff:     	movq	%rbp, 0x28(%rsp)
+1001c5b04:     	movq	%rbp, %rdi
+1001c5b07:     	callq	0x10029a597 <__ZN5LunarI23ManifestManagerLuaProxyE5thunkEP9lua_State+0x52d>
+1001c5b0c:     	testb	%r12b, %r12b
+1001c5b0f:     	movq	%rbx, %r12
+
+Candidate distance, tags, append
+
+/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer:	file format mach-o 64-bit x86-64
+
+Disassembly of section __TEXT,__text:
+
+00000001001a9b20 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State>:
+1001cbdce:     	pushq	%r15
+1001cbdd0:     	pushq	%r14
+1001cbdd2:     	pushq	%r13
+1001cbdd4:     	pushq	%r12
+1001cbdd6:     	pushq	%rbx
+1001cbdd7:     	subq	$0x10, %rsp
+1001cbddb:     	cmpb	$0x0, 0x1cc(%rsi)
+1001cbde2:     	jne	0x1001cbf81 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22461>
+1001cbde8:     	movq	%rsi, %r14
+1001cbdeb:     	movq	%rdi, %rbx
+1001cbdee:     	movq	0x28(%rdi), %rax
+1001cbdf2:     	movss	(%rax), %xmm0
+1001cbdf6:     	movss	0x4(%rax), %xmm1
+1001cbdfb:     	subss	0x1c0(%rsi), %xmm0
+1001cbe03:     	subss	0x1c4(%rsi), %xmm1
+1001cbe0b:     	movss	0x8(%rax), %xmm2
+1001cbe10:     	subss	0x1c8(%rsi), %xmm2
+1001cbe18:     	mulss	%xmm1, %xmm1
+1001cbe1c:     	mulss	%xmm0, %xmm0
+1001cbe20:     	addss	%xmm1, %xmm0
+1001cbe24:     	mulss	%xmm2, %xmm2
+1001cbe28:     	addss	%xmm0, %xmm2
+1001cbe2c:     	ucomiss	0x20(%rdi), %xmm2
+1001cbe30:     	ja	0x1001cbf81 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22461>
+1001cbe36:     	movzwl	0x3a(%rbx), %eax
+1001cbe3a:     	cmpw	$-0x1, %ax
+1001cbe3e:     	je	0x1001cbe58 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22338>
+1001cbe40:     	movzbl	0x38(%rbx), %edx
+1001cbe44:     	movzwl	%ax, %esi
+1001cbe47:     	leaq	0xf(%rsp), %rcx
+1001cbe4c:     	movq	%r14, %rdi
+1001cbe4f:     	callq	0x1001be0ae <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x1458e>
+1001cbe54:     	testb	%al, %al
+1001cbe56:     	jne	0x1001cbec0 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x223a0>
+1001cbe58:     	movq	0x10(%rbx), %rsi
+1001cbe5c:     	testq	%rsi, %rsi
+1001cbe5f:     	je	0x1001cbe71 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22351>
+1001cbe61:     	leaq	0x110(%r14), %rdi
+1001cbe68:     	callq	0x1003ace84 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x133c8>
+1001cbe6d:     	testb	%al, %al
+1001cbe6f:     	je	0x1001cbea3 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22383>
+1001cbe71:     	movq	0x8(%rbx), %rsi
+1001cbe75:     	testq	%rsi, %rsi
+1001cbe78:     	je	0x1001cbe8a <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x2236a>
+1001cbe7a:     	leaq	0x110(%r14), %rdi
+1001cbe81:     	callq	0x1003acdfc <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x13340>
+1001cbe86:     	testb	%al, %al
+1001cbe88:     	je	0x1001cbea3 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22383>
+1001cbe8a:     	movq	0x18(%rbx), %rsi
+1001cbe8e:     	testq	%rsi, %rsi
+1001cbe91:     	je	0x1001cbea7 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22387>
+1001cbe93:     	leaq	0x110(%r14), %rdi
+1001cbe9a:     	callq	0x1003ace84 <__ZN14DataStructures3MapIiPN6RakNet19HuffmanEncodingTreeEXadL_ZNS_23defaultMapKeyComparisonIiEEiRKT_S7_EEE18NodeComparisonFuncERKiRKNS8_7MapNodeE+0x133c8>
+1001cbe9f:     	xorb	$0x1, %al
+1001cbea1:     	jmp	0x1001cbea9 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22389>
+1001cbea3:     	xorl	%eax, %eax
+1001cbea5:     	jmp	0x1001cbea9 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22389>
+1001cbea7:     	movb	$0x1, %al
+1001cbea9:     	movb	%al, 0xf(%rsp)
+1001cbead:     	movzwl	0x3a(%rbx), %esi
+1001cbeb1:     	movzbl	0x38(%rbx), %edx
+1001cbeb5:     	movzbl	%al, %ecx
+1001cbeb8:     	movq	%r14, %rdi
+1001cbebb:     	callq	0x1001be0fc <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x145dc>
+1001cbec0:     	cmpb	$0x0, 0xf(%rsp)
+1001cbec5:     	je	0x1001cbf81 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22461>
+1001cbecb:     	movq	(%rbx), %rbx
+1001cbece:     	movq	0x8(%rbx), %rax
+1001cbed2:     	cmpq	0x10(%rbx), %rax
+1001cbed6:     	je	0x1001cbee8 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x223c8>
+1001cbed8:     	movq	%r14, (%rax)
+1001cbedb:     	addq	$0x8, %rax
+1001cbedf:     	movq	%rax, 0x8(%rbx)
+1001cbee3:     	jmp	0x1001cbf81 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22461>
+1001cbee8:     	subq	(%rbx), %rax
+1001cbeeb:     	movq	%rax, %r12
+1001cbeee:     	sarq	$0x3, %r12
+1001cbef2:     	leaq	0x1(%r12), %rcx
+1001cbef7:     	movq	%rcx, %rdx
+1001cbefa:     	shrq	$0x3d, %rdx
+1001cbefe:     	jne	0x1001cbf91 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22471>
+1001cbf04:     	movabsq	$0x1fffffffffffffff, %rdx ## imm = 0x1FFFFFFFFFFFFFFF
+1001cbf0e:     	movq	%rax, %rsi
+1001cbf11:     	sarq	$0x2, %rsi
+1001cbf15:     	cmpq	%rcx, %rsi
+1001cbf18:     	cmovbeq	%rcx, %rsi
+1001cbf1c:     	movabsq	$0x7ffffffffffffff8, %rcx ## imm = 0x7FFFFFFFFFFFFFF8
+1001cbf26:     	cmpq	%rcx, %rax
+1001cbf29:     	cmovaeq	%rdx, %rsi
+1001cbf2d:     	testq	%rsi, %rsi
+1001cbf30:     	je	0x1001cbf3d <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x2241d>
+1001cbf32:     	leaq	0x10(%rbx), %rdi
+1001cbf36:     	callq	0x1001f42a7 <__ZN5LunarI24cLuaNetworkVariableArrayItEE5thunkEP9lua_State+0x1186b>
+1001cbf3b:     	jmp	0x1001cbf41 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22421>
+1001cbf3d:     	xorl	%eax, %eax
+1001cbf3f:     	xorl	%edx, %edx
+1001cbf41:     	leaq	(%rax,%r12,8), %r15
+1001cbf45:     	leaq	(%rax,%rdx,8), %r13
+1001cbf49:     	movq	%r14, (%r15)
+1001cbf4c:     	leaq	(%rax,%r12,8), %r14
+1001cbf50:     	addq	$0x8, %r14
+1001cbf54:     	movq	(%rbx), %rsi
+1001cbf57:     	movq	0x8(%rbx), %rdx
+1001cbf5b:     	subq	%rsi, %rdx
+1001cbf5e:     	subq	%rdx, %r15
+1001cbf61:     	movq	%r15, %rdi
+1001cbf64:     	callq	0x100464944 <dyld_stub_binder+0x100464944>
+1001cbf69:     	movq	(%rbx), %rdi
+1001cbf6c:     	movq	%r15, (%rbx)
+1001cbf6f:     	movq	%r14, 0x8(%rbx)
+1001cbf73:     	movq	%r13, 0x10(%rbx)
+1001cbf77:     	testq	%rdi, %rdi
+1001cbf7a:     	je	0x1001cbf81 <__ZN5LunarI21ShadeRendererLuaProxyE5thunkEP9lua_State+0x22461>
+1001cbf7c:     	callq	0x10029a597 <__ZN5LunarI23ManifestManagerLuaProxyE5thunkEP9lua_State+0x52d>
+1001cbf81:     	movb	$0x1, %al
+1001cbf83:     	addq	$0x10, %rsp
+1001cbf87:     	popq	%rbx
+1001cbf88:     	popq	%r12
+1001cbf8a:     	popq	%r13
+1001cbf8c:     	popq	%r14
+1001cbf8e:     	popq	%r15
+1001cbf90:     	retq

@@ -20,12 +20,33 @@ class NativeParity(unittest.TestCase):
    with self.subTest(case=case['id']):
     coords=[list(t) for t in case['tiles']]
     data={'season':case['season'],'width':max(x for x,z in coords)+1,'height':max(z for x,z in coords)+1,'tiles':coords,'start':coords[0],'seeds':case['stock']}
-    actual=runner.run(data);expected=audit.run_case(case)
+    actual=runner.run(data);expected=audit.run_case(case,native_float=True)
     points=[{k:p[k] for k in ('x','z','cx','cz','crop')} for p in actual['slots']]
     self.assertEqual(points,expected['points'])
     self.assertEqual(actual['count'],expected['count'])
     self.assertFalse(expected['errors'])
   self.assertEqual(len(chosen),76)
+
+ def test_template_point_parity_and_strategy_roundtrip(self):
+  cases=audit.cases()
+  chosen=[]
+  for season in ('autumn','winter','spring','summer'):
+   for i,shape in enumerate(audit.SHAPES):
+    options=[c for c in cases if c['season']==season and c['shape']==shape]
+    chosen.append(options[i%12])
+  for case in chosen:
+   case={**case,'strategy':'GIANT_TEMPLATE'}
+   coords=[list(t) for t in case['tiles']]
+   data={'strategy':'GIANT_TEMPLATE','season':case['season'],'width':max(x for x,z in coords)+1,'height':max(z for x,z in coords)+1,'tiles':coords,'start':coords[0],'seeds':case['stock']}
+   with self.subTest(case=case['id']):
+    actual=runner.run(data);expected=audit.run_case(case,native_float=True)
+    self.assertEqual([{k:p[k] for k in ('x','z','cx','cz','crop')} for p in actual['slots']],expected['points'])
+    self.assertEqual(actual['strategy'],'GIANT_TEMPLATE')
+    self.assertFalse(expected['errors'])
+    self.assertEqual(runner.normalize(data)['strategy'],'GIANT_TEMPLATE')
+  self.assertEqual(len(chosen),64)
+  self.assertEqual(runner.normalize({})['strategy'],'GIANT')
+  with self.assertRaises(ValueError):runner.normalize({'strategy':'invalid'})
 
  def test_inventory_boundary_and_disconnected_start(self):
   for count in (0,1,3,4,7,9,10):
@@ -45,7 +66,7 @@ class NativeParity(unittest.TestCase):
  def test_source_reread_and_manifest(self):
   import shutil
   original=runner.manifest()
-  self.assertEqual(original['runtime'],'Lua 5.1');self.assertEqual(len(original['files']),11)
+  self.assertEqual(original['runtime'],'Lua 5.1');self.assertEqual(len(original['files']),len(runner.MODULES));self.assertIn('aom_seed_regions.lua',runner.MODULES)
   with tempfile.TemporaryDirectory() as directory:
    mod=Path(directory)/'Tractor';shutil.copytree(runner.MOD,mod,ignore=shutil.ignore_patterns('anim','images','sound','minimap','bigportraits'))
    file=mod/'scripts/aom_seed_layout.lua';file.write_text(file.read_text()+'\n-- live-source-test\n')
@@ -81,7 +102,7 @@ class HTTPTests(unittest.TestCase):
    with self.subTest(path=path),self.request(path) as response:
     html=response.read().decode()
     data=json.loads(re.search(r'<script id="bootstrap-meta" type="application/json">(.*?)</script>',html,re.S).group(1))
-    self.assertEqual(data['verifier_schema'],3)
+    self.assertEqual(data['verifier_schema'],4)
     self.assertEqual(len(data['crops']),14)
     self.assertEqual(data['crops'],runner.metadata()['crops'])
  def test_page_keeps_retry_ui_when_native_metadata_unavailable(self):

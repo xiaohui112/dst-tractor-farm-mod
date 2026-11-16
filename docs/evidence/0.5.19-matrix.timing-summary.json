@@ -1,0 +1,268 @@
+{
+  "basis": "process_cpu",
+  "cases": 264,
+  "passed": 248,
+  "incomplete": 16,
+  "failed": 0,
+  "source_sha256": {
+    "aom_dynamic_farm.lua": "cfd211d3966ae0f669ed0a6db7c763825ab90500017b8e6d6af80d5dd0abc6ec",
+    "aom_seed_balance.lua": "7b768b89b9bac4fb4b7780e0fbd573715e01883c68f47414d0034bdff61ba007",
+    "aom_seed_catalog.lua": "6e471ff4253e94f5f70f54831a6ae21cbfdeeee3b8a9cc1a7ca2b1f1da1dc9ff",
+    "aom_seed_exact.lua": "657ece00eb94d6cf2bc33fda5aeb89f8b21f177a02ec4290ae2fd5dbc595e371",
+    "aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+    "aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+    "aom_seed_initial.lua": "51fb9588394e9313a4210a6a3e1d6df564f3d4e88f25db0becdc01488a529098",
+    "aom_seed_layout.lua": "0339e9a3bb0c8ffe3c1dd652040487c7d66452a6e4cc7c5eeeda10101b473947",
+    "aom_seed_packing.lua": "75d72eb128bc6c43e96d5a1b9b424cc83684f6423650872257be06459a7398ed",
+    "aom_seed_regions.lua": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+    "aom_seed_strategy.lua": "a49889673ede68b6b521eeef3c361693d3025243ac54c6c272d7c3953f6d4a51",
+    "aom_seed_template_data.lua": "73a2706aa87e58e8475a33219c1d55e1e2ce0ef0e68e28260e540c638f6ed1a7",
+    "aom_seed_templates.lua": "25bfe922ec7fcc172982b356a4fe78bc4d849ec5881142f5bafb48f731044fcb"
+  },
+  "run_complete": true,
+  "incomplete_by_phase": {
+    "quantity": 16
+  },
+  "all_completed": {
+    "quantity_seconds": {
+      "samples": 248,
+      "total_seconds": 304.53046100000006,
+      "p50_seconds": 0.28486850000000885,
+      "p95_seconds": 6.999054099999998,
+      "max_seconds": 19.76315600000001
+    },
+    "arrangement_seconds": {
+      "samples": 248,
+      "total_seconds": 53.776395999999835,
+      "p50_seconds": 0.003783999999981802,
+      "p95_seconds": 1.054122350000001,
+      "max_seconds": 1.5897819999999996
+    }
+  },
+  "positive_completed": {
+    "quantity_seconds": {
+      "samples": 228,
+      "total_seconds": 304.4121540000001,
+      "p50_seconds": 0.30321249999999367,
+      "p95_seconds": 7.081224800000003,
+      "max_seconds": 19.76315600000001
+    },
+    "arrangement_seconds": {
+      "samples": 228,
+      "total_seconds": 53.77634999999984,
+      "p50_seconds": 0.005800999999998169,
+      "p95_seconds": 1.0632734000000006,
+      "max_seconds": 1.5897819999999996
+    }
+  },
+  "each_completed_phase": {
+    "quantity_seconds": {
+      "samples": 248,
+      "total_seconds": 304.53046100000006,
+      "p50_seconds": 0.28486850000000885,
+      "p95_seconds": 6.999054099999998,
+      "max_seconds": 19.76315600000001
+    },
+    "arrangement_seconds": {
+      "samples": 248,
+      "total_seconds": 53.776395999999835,
+      "p50_seconds": 0.003783999999981802,
+      "p95_seconds": 1.054122350000001,
+      "max_seconds": 1.5897819999999996
+    }
+  },
+  "incomplete_cases": [
+    {
+      "id": "autumn/square-3/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 19.243696,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00511
+    },
+    {
+      "id": "autumn/square-3/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 19.100168,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00148
+    },
+    {
+      "id": "autumn/square-3/all-40/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 19.270649,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.02609
+    },
+    {
+      "id": "autumn/square-5/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 21.166580000000003,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.05121
+    },
+    {
+      "id": "autumn/square-7/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 22.076946999999997,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.01689
+    },
+    {
+      "id": "autumn/square-8/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 24.048170999999996,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00066
+    },
+    {
+      "id": "autumn/ring-7/all-40/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 26.087774999999993,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00722
+    },
+    {
+      "id": "spring/square-3/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 27.655450000000016,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00602
+    },
+    {
+      "id": "spring/square-3/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 27.586573,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00494
+    },
+    {
+      "id": "spring/square-5/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.43117699999999,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.13689
+    },
+    {
+      "id": "spring/square-7/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.12357,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.19201
+    },
+    {
+      "id": "spring/square-8/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.862291999999997,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.4334
+    },
+    {
+      "id": "summer/square-3/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.838076,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.0027
+    },
+    {
+      "id": "summer/square-5/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.751993999999996,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00856
+    },
+    {
+      "id": "summer/square-7/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.856301000000002,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.04776
+    },
+    {
+      "id": "summer/square-8/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.018689999999992,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00038
+    }
+  ]
+}

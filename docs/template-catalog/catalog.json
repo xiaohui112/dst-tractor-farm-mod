@@ -1,0 +1,1149 @@
+{
+  "schema": 1,
+  "templates": [
+    {
+      "id": "autumn-01",
+      "version": 1,
+      "size": [
+        1,
+        1
+      ],
+      "rows": [
+        "AAA",
+        "A_B",
+        "BBB"
+      ],
+      "roles": {
+        "A": [
+          "tomato"
+        ],
+        "B": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-02",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "garlic"
+        ],
+        "B": [
+          "onion"
+        ],
+        "C": [
+          "pepper"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-03",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "pepper"
+        ],
+        "B": [
+          "corn"
+        ],
+        "C": [
+          "carrot",
+          "pumpkin"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "autumn-04",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "corn"
+        ],
+        "B": [
+          "carrot",
+          "pumpkin"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-05",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "pepper"
+        ],
+        "B": [
+          "tomato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-06",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "garlic"
+        ],
+        "B": [
+          "carrot"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "autumn-07",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "pepper"
+        ],
+        "B": [
+          "garlic"
+        ],
+        "C": [
+          "carrot",
+          "pumpkin"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-08",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "onion"
+        ],
+        "B": [
+          "pepper"
+        ],
+        "C": [
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-09",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "garlic"
+        ],
+        "B": [
+          "onion"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "pair-detail.png提供同图放大细节",
+      "enabled": true
+    },
+    {
+      "id": "autumn-10",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_AAAA_",
+        "BBAABB",
+        "BBAABB",
+        "BBAABB",
+        "BBAABB",
+        "_AAAA_"
+      ],
+      "roles": {
+        "A": [
+          "tomato"
+        ],
+        "B": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "autumn-11",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "onion"
+        ],
+        "B": [
+          "corn"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "autumn.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "winter-01",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "asparagus"
+        ],
+        "B": [
+          "carrot",
+          "pumpkin"
+        ],
+        "C": [
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "winter.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "winter-02",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "asparagus"
+        ],
+        "B": [
+          "potato"
+        ],
+        "C": [
+          "carrot",
+          "pumpkin"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "winter.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株，原图芦笋4；同时养分不平衡，不纠正原图",
+      "enabled": false
+    },
+    {
+      "id": "spring-01",
+      "version": 1,
+      "size": [
+        1,
+        1
+      ],
+      "rows": [
+        "AAA",
+        "A_B",
+        "BBB"
+      ],
+      "roles": {
+        "A": [
+          "carrot"
+        ],
+        "B": [
+          "watermelon"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-02",
+      "version": 1,
+      "size": [
+        1,
+        1
+      ],
+      "rows": [
+        "AAA",
+        "A_B",
+        "BBB"
+      ],
+      "roles": {
+        "A": [
+          "eggplant",
+          "potato"
+        ],
+        "B": [
+          "tomato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "与秋季1的作物方向相反",
+      "enabled": true
+    },
+    {
+      "id": "spring-03",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "asparagus",
+          "corn"
+        ],
+        "B": [
+          "carrot"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-04",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_BBBB_",
+        "DCAACD",
+        "DCAACD",
+        "DCAACD",
+        "DCAACD",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "watermelon"
+        ],
+        "B": [
+          "eggplant",
+          "potato"
+        ],
+        "C": [
+          "pomegranate",
+          "onion"
+        ],
+        "D": [
+          "asparagus",
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-05",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "durian",
+          "garlic"
+        ],
+        "C": [
+          "pomegranate",
+          "onion"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-06",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "tomato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-07",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "pomegranate",
+          "onion"
+        ],
+        "B": [
+          "watermelon"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-08",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_BBBB_",
+        "BACCAB",
+        "BACCAB",
+        "BACCAB",
+        "BACCAB",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "carrot"
+        ],
+        "C": [
+          "durian",
+          "garlic"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-09",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "pomegranate",
+          "onion"
+        ],
+        "C": [
+          "asparagus",
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-10",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "durian",
+          "garlic"
+        ],
+        "C": [
+          "carrot"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-11",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "durian",
+          "garlic"
+        ],
+        "B": [
+          "pomegranate",
+          "onion"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-12",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_CCCC_",
+        "ACBBCA",
+        "ACBBCA",
+        "ACBBCA",
+        "ACBBCA",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "durian",
+          "garlic"
+        ],
+        "B": [
+          "pomegranate",
+          "onion"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "原图与spring-15重复，仍分别登记",
+      "enabled": true
+    },
+    {
+      "id": "spring-13",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_AAAA_",
+        "DCBBCD",
+        "DCBBCD",
+        "DCBBCD",
+        "DCBBCD",
+        "_AAAA_"
+      ],
+      "roles": {
+        "A": [
+          "carrot"
+        ],
+        "B": [
+          "tomato"
+        ],
+        "C": [
+          "dragonfruit"
+        ],
+        "D": [
+          "asparagus",
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-14",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_AAAA_",
+        "ABCCBA",
+        "ABCCBA",
+        "ABCCBA",
+        "ABCCBA",
+        "_AAAA_"
+      ],
+      "roles": {
+        "A": [
+          "asparagus"
+        ],
+        "B": [
+          "dragonfruit"
+        ],
+        "C": [
+          "pomegranate",
+          "onion"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "spring-15",
+      "version": 1,
+      "size": [
+        2,
+        2
+      ],
+      "rows": [
+        "_CCCC_",
+        "ACBBCA",
+        "ACBBCA",
+        "ACBBCA",
+        "ACBBCA",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "durian",
+          "garlic"
+        ],
+        "B": [
+          "pomegranate",
+          "onion"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "原图与spring-12重复，仍分别登记",
+      "enabled": true
+    },
+    {
+      "id": "spring-16",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "dragonfruit"
+        ],
+        "B": [
+          "carrot"
+        ],
+        "C": [
+          "asparagus",
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "spring-17",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "pomegranate",
+          "onion"
+        ],
+        "B": [
+          "eggplant",
+          "potato"
+        ],
+        "C": [
+          "asparagus",
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "spring-18",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "watermelon"
+        ],
+        "B": [
+          "carrot"
+        ],
+        "C": [
+          "asparagus",
+          "corn"
+        ],
+        "D": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "spring.png",
+      "classification": "staggered",
+      "review": "已核对并排除",
+      "note": "20株六角错位",
+      "enabled": false
+    },
+    {
+      "id": "summer-01",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_CCCC_"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit",
+          "pepper"
+        ],
+        "B": [
+          "garlic"
+        ],
+        "C": [
+          "pomegranate",
+          "onion"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "summer.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "summer-02",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit",
+          "pepper"
+        ],
+        "B": [
+          "tomato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "summer.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "summer-03",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "_AAAA_",
+        "_BBBB_",
+        "_BBBB_"
+      ],
+      "roles": {
+        "A": [
+          "pomegranate",
+          "onion"
+        ],
+        "B": [
+          "watermelon"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "summer.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "summer-04",
+      "version": 1,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "CAAAAC",
+        "CBBBBC",
+        "CC__CC"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit",
+          "pepper"
+        ],
+        "B": [
+          "pomegranate",
+          "onion"
+        ],
+        "C": [
+          "corn"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "summer.png",
+      "classification": "grid",
+      "review": "逐格人工核对原图",
+      "note": "",
+      "enabled": true
+    },
+    {
+      "id": "summer-05",
+      "version": 1,
+      "size": null,
+      "rows": [],
+      "roles": {
+        "A": [
+          "tomato"
+        ],
+        "B": [
+          "corn"
+        ],
+        "C": [
+          "watermelon"
+        ],
+        "D": [
+          "dragonfruit"
+        ],
+        "E": [
+          "pomegranate",
+          "onion"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "summer.png",
+      "classification": "non_giant",
+      "review": "已核对并排除",
+      "note": "40株错位图，另含8石榴或洋葱；番茄明确标为Not Giant",
+      "enabled": false
+    },
+    {
+      "id": "program-18-ratio",
+      "version": 2,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "BBAABB",
+        "BBAABB",
+        "BBAABB"
+      ],
+      "roles": {
+        "A": [
+          "dragonfruit",
+          "pepper"
+        ],
+        "B": [
+          "tomato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "program",
+      "classification": "grid",
+      "review": "程序定义，坐标及合法性自动验收",
+      "note": "程序定义，非原图；6+12；构建时覆盖所有共同应季且逐地皮养分平衡的原版组合，角色不拆分",
+      "enabled": true,
+      "recipe_policy": "balanced_vanilla"
+    },
+    {
+      "id": "program-18-equal",
+      "version": 2,
+      "size": [
+        2,
+        1
+      ],
+      "rows": [
+        "AAAAAA",
+        "BBBBBB",
+        "CCCCCC"
+      ],
+      "roles": {
+        "A": [
+          "carrot",
+          "pumpkin"
+        ],
+        "B": [
+          "asparagus",
+          "corn"
+        ],
+        "C": [
+          "eggplant",
+          "potato"
+        ]
+      },
+      "transforms": "rotate_mirror",
+      "source": "program",
+      "classification": "grid",
+      "review": "程序定义，坐标及合法性自动验收",
+      "note": "程序定义，非原图；6+6+6；构建时覆盖所有共同应季且逐地皮养分平衡的原版组合，角色不拆分",
+      "enabled": true,
+      "recipe_policy": "balanced_vanilla"
+    }
+  ]
+}

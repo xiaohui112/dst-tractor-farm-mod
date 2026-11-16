@@ -4,7 +4,7 @@ local Dial=require("widgets/aom_badge")
 local L=require("aom_locale").Text
 local ATT={}
 for kind,def in pairs(require("aom_equipment_defs")) do ATT[kind]=def.prefab end
-local MODE={SEQUENTIAL="顺序",GIANT="巨大化"}
+local MODE={SEQUENTIAL="顺序",GIANT_TEMPLATE="巨大化·模版",GIANT="巨大化·最优"}
 local function Value(inst,key,default)
     local net=inst and inst[key]
     if net then return net:value() end
@@ -74,7 +74,7 @@ function AOMHud:Send(rpc,...)
     end
 end
 function AOMHud:Refresh(tractor)
-    require("aom_plan_preview").Clear(self)
+    require("aom_plan_preview").Refresh(self,tractor)
     if not tractor or not tractor:IsValid() or self.owner:HasTag("playerghost")then
         self.tractor=nil;self:Hide();return
     end

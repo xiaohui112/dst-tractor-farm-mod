@@ -1,0 +1,5 @@
+178: local function FamilyStressTest(inst, currentstress, apply)
+179:     local x, y, z = inst.Transform:GetWorldPosition()
+180:     local num_plants = inst.plant_def.family_min_count > 0 and #TheSim:FindEntities(x, y, z, inst.plant_def.family_check_dist, {inst.plant_def.plant_type_tag}, POLLEN_SOURCE_NOT_TAGS) or 0   -- family_min_count includes self
+181:     return num_plants < inst.plant_def.family_min_count
+182: end

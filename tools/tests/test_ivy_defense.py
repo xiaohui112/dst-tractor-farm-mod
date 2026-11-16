@@ -86,7 +86,7 @@ local harvester=attach('aom_harvester');local ivy=mature_ivy(1,0);local plant=cr
 local worked,reason=Drive.WorkTile(t,0,0)
 assert(not worked and reason=='IVY_THREAT' and not t._working and #ROOTS==0)
 assert(plant.components.pickable:CanBePicked() and ivy:IsValid())
-assert(t._fuel:value()==400 and t.components.finiteuses:GetUses()==1000 and harvester.components.finiteuses:GetUses()==40)
+assert(t._fuel:value()==400 and t.components.finiteuses:GetUses()==1000 and harvester.components.finiteuses:GetUses()==100)
 assert(string.find(require('aom_work_status').Describe(t),'除草机',1,true))
 attach('aom_weeder');assert(Drive.WorkTile(t,0,0) and not ivy:IsValid())
 attach('aom_harvester');assert(Drive.WorkTile(t,0,0) and not plant.components.pickable:CanBePicked())
@@ -121,7 +121,7 @@ for _,working in ipairs({false,true,false})do
   assert(not root.components.health:IsDead() and root.physics_active)
  end
 end
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==40)
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
 attach('aom_weeder');require('aom_vehicle_motion').Update(t)
 assert(own.components.health:IsDead() and not own.physics_active)
 assert(vehicle_root.components.health:IsDead() and not vehicle_root.physics_active)
@@ -182,7 +182,7 @@ assert(Drive.WorkTile(t,0,0))
 assert(not boundary:IsValid() and not weed:IsValid() and beyond:IsValid())
 assert(neighbor:IsValid() and plant.components.pickable:CanBePicked())
 assert(DIG_ORDER[1]=='weed_ivy' and DIG_ORDER[2]=='weed_tillweed')
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==49)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_overlapping_searches_clear_remote_mutual_defenders_once_before_weeds(self):
@@ -353,7 +353,7 @@ fertilizer.components.fertilizer={nutrients={0,0,8}};fertilizer:AddTag('fertiliz
 assert(t.components.container:GiveItem(fertilizer,1));hud:Refresh(t)
 assert(hud.badges.cargo:GetText()=='1')
 assert(t._fertilizeruses_net:value()==3 and not string.find(hud.badges.cargo:GetTooltip(),'肥料剩余',1,true))
-assert(hud.badges.tool:GetText()=='60' and hud.seedcontrols==nil)
+assert(hud.badges.tool:GetText()=='100' and hud.seedcontrols==nil)
 fertilizer.PushEvent=function(self,event,data)
  local callbacks={};for _,cb in ipairs(self.events[event] or {})do callbacks[#callbacks+1]=cb.fn end
  for _,fn in ipairs(callbacks)do fn(self,data)end

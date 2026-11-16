@@ -1,0 +1,102 @@
+{
+  "version": "0.5.17",
+  "behavior_suite": {
+    "tests": 657,
+    "failures": 0,
+    "skipped": 0
+  },
+  "final_lifecycle_and_timing": {
+    "tests": 28,
+    "failures": 0,
+    "additional_unique_cases": 4
+  },
+  "web": {
+    "tests": 13,
+    "exact_point_parity_scenarios": 76,
+    "failures": 0
+  },
+  "web_display": {
+    "tests": 9,
+    "failures": 0
+  },
+  "final_static_checks": 17,
+  "frozen_runtime": {
+    "version": "0.5.17",
+    "files": {
+      "modinfo.lua": "e7b6b854e1dc3088798288dca497d1995ad98dd859a64a40f77122802560d3b5",
+      "modmain.lua": "1585bbc42d55930b1b02be29a0877cf562a3af00351af00b0390044e7a12a7bf",
+      "scripts/aom_attachment_animation.lua": "4d5eb2b574690fcd57fbfd5205309f91cf605842430fb6b38de7d0cb0fdf55f0",
+      "scripts/aom_attachment_mount.lua": "74a7bd09660b80a463199c1ff153f2adda75b764184a706c84b44ce9a8902af8",
+      "scripts/aom_auto_seeding.lua": "4257d02d582060f70c0bf6ac50de328af89aa14e06d27fa4c902787b2790c76b",
+      "scripts/aom_block_plan.lua": "a62437a18205f30e89af4966d15940b64834d63241cda25b2438455a1c62dad7",
+      "scripts/aom_cargo.lua": "e844a9b7848c477823be2ac81075c76db3139ced9cbd69e6e8d4e284ad980567",
+      "scripts/aom_common.lua": "a90bbf164ff942782c69ce2356487fb0d0a53d4c2d37dbf72ed3946d4e3fc43c",
+      "scripts/aom_crop_state.lua": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+      "scripts/aom_dashboard_actions.lua": "eebad100c4403ae4c06ba8c8b9b5e9be5a3b12075ed7e64ff1251e3d8dca5ecd",
+      "scripts/aom_drive.lua": "afb9c8aedcee83818e19214ff749cc6b0a5530b5cc5a1ec8609b1013e7e218b8",
+      "scripts/aom_driver_speech.lua": "d5343f58bab4330a6eb937d6667e0d8ab4515f356522432ce99d6ad65c429855",
+      "scripts/aom_driver_visual.lua": "707b0154d386dd57b545f3fc6c4b9d7e02321a68ebeb005ff4a7b44683114548",
+      "scripts/aom_driver_visual_bank.lua": "e36fc15290b75fec9d8e827d7ef4c51a827b8b78f67ba491ecfc852cce28fdd8",
+      "scripts/aom_durability.lua": "ab79973cf252ad93967a0e2b106d415a181a3472588f60c02dbbfd878a7d91cb",
+      "scripts/aom_dynamic_farm.lua": "298676a35ff5ca241ef6d599ff5b0d8d31c334346ebeb4e71aacd1020df224d6",
+      "scripts/aom_equipment_defs.lua": "ba7753bb3cea0c765a27528231695b53f6e621f818f109d8d333e563ee1bc39b",
+      "scripts/aom_farm_registry.lua": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+      "scripts/aom_farm_work.lua": "dc075645e6ef58f83e891dda7064f9b7a60fe8a7a53633ebdaddfcffada6c41e",
+      "scripts/aom_feedback.lua": "801c4c9fe6b35c44c734df901d50aa6ddd276567a88475d7d81520d8d24d42d4",
+      "scripts/aom_fertilizer.lua": "96ea6e3242de193714e817868c7e1bad02a0ea33081d8dde6dbd959f05302890",
+      "scripts/aom_giant_layouts.lua": "8ab6722f7ceb39f0a33c2bdc64a4d7401555ce3271bb0251e8bfcf8e6994c09e",
+      "scripts/aom_harvester_tool.lua": "12341102fb05df93b3c1e07d663f97e7088bfe84379f9f4cc1e2493840c475f8",
+      "scripts/aom_irrigator.lua": "ca350c2b17e7f7b7f79409f278d57ddf785b11074fdd23e1aa33c0c6e44932e4",
+      "scripts/aom_irrigator_music.lua": "08e41504716e98a7f1d936844a7bd974390eb219d6b287fb3b46b6fa2464c09a",
+      "scripts/aom_irrigator_music_bank.lua": "da61bbc1888eac45f470994aca67de548babb6cf5b254f7f322f3082800c2b86",
+      "scripts/aom_landclearer_tool.lua": "31822bd5427f69bd6ca93969dc05244b44f35d32d6753e1a24e08c9ca8327895",
+      "scripts/aom_locale.lua": "0eb12766a85a3a3415f161e6adc9e77043e26b40c2073b8192463e8db94959d6",
+      "scripts/aom_machine_info.lua": "b293f5e0ee179cb635de2d5daa0bc49619b978952028c265611de290d11070bc",
+      "scripts/aom_model_scale.lua": "86bf5312e9bfe1acf82b65dfd2183e9da2a64bcd9af47452684eb6b98a2a9a46",
+      "scripts/aom_mouse_input.lua": "6ef7e2cbd594fac6d785f73514522433d96f19a2baa712f2e15a047f08a588c2",
+      "scripts/aom_plan_log.lua": "b7320114f362bc121812d533ddb3387d283739c48a98ae3b8062f469328165e2",
+      "scripts/aom_plan_preview.lua": "51c9aca9f230258662aa38ab4bbb47f7a245219fd4d151a42bb8f548ff9d1c2b",
+      "scripts/aom_plan_timing.lua": "74e2d3e7869fe39dbfc8a36476ed10662b73ca19361e5e9f894851ef69d7e2ca",
+      "scripts/aom_planner_build.lua": "6c2348a75ef859d38d292ce396577b04509504c70df13910a5d51e952ddb95ad",
+      "scripts/aom_pond_refill.lua": "6693c0271b1344499e2f45b72c94261f667e2f59bfd42bb6b6c37993209727f7",
+      "scripts/aom_seed_balance.lua": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+      "scripts/aom_seed_exact.lua": "1a67cd52bf47ddf28501ab59c461cbdc1195b381008057f097151a227ddd7299",
+      "scripts/aom_seed_feasible.lua": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+      "scripts/aom_seed_heuristic.lua": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+      "scripts/aom_seed_layout.lua": "e4ffca3814d0ada7e174928ab44ba0ba2906f50eea24ec5c5330325637bc6673",
+      "scripts/aom_seed_packing.lua": "27f5d43ac763be3102e5e92ba9755f18edc7de6aa20d607bdb0c6d491798c210",
+      "scripts/aom_seed_regions.lua": "7d6cc1e6df20641121356172c09292fddbb942c643d8bbd3aed9142bf10f7da1",
+      "scripts/aom_seed_strategy.lua": "4906064358bd76c38569ca78028a43cc841c19741d002f803fd63dce5c737b76",
+      "scripts/aom_seeder_tool.lua": "e29825987823c7d6561324e1a118c525d03de7909c058b40de3ee8ef73fe79b2",
+      "scripts/aom_soil_moisture.lua": "93c52ca6501241b7d0abe6917d2ee8d5cfbbac1c43db53db677d7d7ec4361239",
+      "scripts/aom_soil_visual.lua": "4d18a29c79353fd634a4f94f145d25353b8aa07c40bd60985c97f5dfaadf6b39",
+      "scripts/aom_vehicle_motion.lua": "b95cf7f179cb29c4a5bfdb2c3c0a76c101a5bcb1a9449286310ae680fa5ac904",
+      "scripts/aom_weed_defense.lua": "0616c3466df5bc30857ae1f09c489a487450da2020b1aa5efb91b5afef98d69e",
+      "scripts/aom_weeder_tool.lua": "a15847e169059cc4dea73638308791ea858e6a0e9113fce9a699df9afc5ff178",
+      "scripts/aom_work_input.lua": "4603ce0fb68b1996c25d7d071abc69952fff6f226d641f41d2b2d4949ad61e8a",
+      "scripts/aom_work_profile.lua": "d73723331b0a874b9c0eeac07517c6436d677656d934f4b44d061a89547d812d",
+      "scripts/aom_work_result.lua": "efd9acfdc283f314fda5dc2db92dfbcbcd4390407bced7109b0cc6c4c34bf85c",
+      "scripts/aom_work_status.lua": "f0f97497f465fa94e51136adbe4e62cc838a65006ef90c6d98df54ccc9e109c9",
+      "scripts/components/aom_attachment_store.lua": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+      "scripts/prefabs/aom_attachment_work_fx.lua": "c24d92cabae25c2bbb334f8febfc4ad6c55fdedeb798c51f6db24a18628b6928",
+      "scripts/prefabs/aom_attachments.lua": "8ac326784d54da6b88c6ca0e2f95148c8f1a90a2d673af843f8f52718f2eff95",
+      "scripts/prefabs/aom_exhaust_puff.lua": "20c9ff31f3afd3f4d01ff25c08cc778ee86452dbd0d99b88f9dfda452f111c28",
+      "scripts/prefabs/aom_refill_hose.lua": "2cab9acda092d6e49d8d5f367efc616fd0c903842f86bdca462b3230a280bc1e",
+      "scripts/prefabs/aom_tractor_chassis.lua": "edebcb4121a065f4e217325f27505080065de09650209ebd03e4f2726807d170",
+      "scripts/stategraphs/SGaom_tractor.lua": "581abe52c71ae62bbd2f18398994b54e59d88f8931ac31e12b101b029e6e6fdc",
+      "scripts/widgets/aom_badge.lua": "19e184599bceae499f34debaad2e22bbc8d66e68fd2bf326687d1cd55c167bc3",
+      "scripts/widgets/aom_cargo_widget.lua": "c201f95d45658181d53ead68b8ccdb2e1f8938def6f3289bf51424a09ac3b082",
+      "scripts/widgets/aom_hud.lua": "204b1573a61f8888ac1cfc8c8ab334b7bc3cf2c17c685657eccad85b9600feb4"
+    }
+  },
+  "notes": [
+    "全量行为回归完成后，以最终源码补测计时、后台接管和现场/库存变化；28项含与全量套件重叠的测试。",
+    "最大数量和排列的最终全量场景计时另存seed-audit文件，12例大田另存large-stock文件。"
+  ],
+  "logs": {
+    "selfcheck-release.log": "行为回归：657 项通过（Lua 5.1）\n============================================================\n============================================================\n自检通过：0 个失败，0 个警告\n[Tractor] Work failed: [string \"<python>\"]:6: native plant failed after spawning crop\n[Tractor] Work failed: [string \"<python>\"]:5: remote native callback failed\n",
+    "lifecycle-release.log": "............................\n----------------------------------------------------------------------\nRan 28 tests in 1.476s\n\nOK\n",
+    "web-release.log": "test_cancel (test_verifier.HTTPTests) ... ok\ntest_embedded_metadata_cannot_terminate_script (test_verifier.HTTPTests) ... ok\ntest_invalid_and_origin (test_verifier.HTTPTests) ... ok\ntest_job_roundtrip (test_verifier.HTTPTests) ... ok\ntest_page_bootstraps_live_crop_data (test_verifier.HTTPTests) ... ok\ntest_page_keeps_retry_ui_when_native_metadata_unavailable (test_verifier.HTTPTests) ... ok\ntest_stale_service_is_not_reused (test_verifier.HTTPTests) ... ok\ntest_static_and_meta (test_verifier.HTTPTests) ... ok\ntest_bad_inputs (test_verifier.NativeParity) ... ok\ntest_full_point_parity (test_verifier.NativeParity) ... ok\ntest_inventory_boundary_and_disconnected_start (test_verifier.NativeParity) ... ok\ntest_large_and_cancel (test_verifier.NativeParity) ... ok\ntest_source_reread_and_manifest (test_verifier.NativeParity) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 58.819s\n\nOK\n",
+    "web-display-release.log": "✔ 同族恰好4株且每地皮10株可显示巨大化原版图标 (1.467792ms)\n✔ 同族仅3株使用成熟图标 (0.2065ms)\n✔ 同一地皮11株触发原版拥挤规则 (0.097334ms)\n✔ 相邻地皮的作物不计入本地皮拥挤数量，空坑也不计入 (0.109584ms)\n✔ 不应季作物显示成熟 (0.762167ms)\n✔ 养分不互补或未知时不标巨大化 (0.197209ms)\n✔ 缺失原版阈值、作物定义或检查数据时使用成熟图标 (0.233625ms)\n✔ 多个条件不满足时保留全部原因 (0.104709ms)\n✔ 十四种作物均有成熟及巨大化PNG资源 (6.577542ms)\nℹ tests 9\nℹ suites 0\nℹ pass 9\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 86.091792\n"
+  }
+}

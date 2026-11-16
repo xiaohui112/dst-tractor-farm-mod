@@ -1,4 +1,4 @@
-"""400耐久/水量、堆叠货物总数、播种设置与补给悬停信息。"""
+"""100耐久/400水量、堆叠货物总数、播种设置与补给悬停信息。"""
 import unittest
 import test_world_equipment as world
 import test_dashboard as dashboard
@@ -8,9 +8,9 @@ class SupplyFeedbackTests(unittest.TestCase):
     setUp=world.WorldEquipmentTests.setUp
     run_lua=world.WorldEquipmentTests.run_lua
 
-    def test_real_seeder_plants_all_nine_stacks_of_forty_and_retains_forty_uses(self):
+    def test_real_seeder_stops_at_one_hundred_uses_and_preserves_remaining_cargo(self):
         self.run_lua(r'''
-local item=equipment('aom_seeder');assert(item.components.finiteuses.total==400)
+local item=equipment('aom_seeder');assert(item.components.finiteuses.total==100)
 assert(t:AttachAttachment(nil,item));ride()
 for slot=1,9 do
  local seed=SpawnPrefab('tomato_seeds');seed.components.stackable:SetStackSize(40)
@@ -18,16 +18,16 @@ for slot=1,9 do
 end
 assert(t._cargo_count_net:value()==360 and t._seedcount_net:value()==360)
 local Drive=require('aom_drive')
-for tile=0,39 do
+for tile=0,11 do
  local x=tile*4;player.Transform:SetPosition(x,0,0)
  for row=-1,1 do for col=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x+col*4/3,0,row*4/3)end end
- assert(Drive.WorkTile(t,x,0))
+ Drive.WorkTile(t,x,0)
 end
-assert(item:IsValid() and t:GetAttachment()==item and Durability.GetUses(item)==40)
-assert(t._fuel:value()==40 and t.components.finiteuses:GetUses()==640)
-assert(t._cargo_count_net:value()==0 and t._cargo_used_net:value()==0 and t._seedcount_net:value()==0)
+assert(item:IsValid() and t:GetAttachment()==nil and Durability.GetUses(item)==0)
+assert(t._fuel:value()==300 and t.components.finiteuses:GetUses()==900)
+assert(t._cargo_count_net:value()==260 and t._seedcount_net:value()==260)
 local planted=0;for _,e in ipairs(ENTITIES)do if e:IsValid() and e.prefab=='farm_plant_tomato' then planted=planted+1 end end
-assert(planted==360)
+assert(planted==100)
 ''')
 
     def test_cargo_counts_all_stacks_and_updates_from_native_source_events_and_removal(self):
@@ -73,7 +73,7 @@ assert(item:HasTag('hide_percentage') and item.components.finiteuses.total==400)
 assert(t:AttachAttachment(nil,item));item._aom_machine_uses=23;item._durability_net:set(23)
 assert(t.components.aom_attachment_store:AddWater(999)==400)
 assert(item._aom_water_net:value()==400 and t._water_net:value()==400 and t._watermax_net:value()==400)
-assert(Info.Describe(item)=='机械耐久 23/60\n水量 400/400')
+assert(Info.Describe(item)=='机械耐久 23/100\n水量 400/400')
 t.components.aom_attachment_store:TakeWater();assert(item._aom_water_net:value()==399 and Durability.GetUses(item)==23)
 for _,water in ipairs({0,40,400})do
  item.components.finiteuses:SetUses(water)
@@ -88,7 +88,7 @@ end
         self.run_lua(r'''
 local seeder=equipment('aom_seeder');seeder.components.finiteuses:SetUses(21)
 local old=clone(seeder:GetSaveRecord());local loaded=SpawnSaveRecord(old)
-assert(loaded.components.finiteuses.total==400 and Durability.GetUses(loaded)==21)
+assert(loaded.components.finiteuses.total==100 and Durability.GetUses(loaded)==21)
 local tank=equipment('aom_irrigator');tank.components.finiteuses:SetUses(40)
 old=clone(tank:GetSaveRecord());loaded=SpawnSaveRecord(old)
 assert(loaded.components.finiteuses.total==400 and loaded.components.finiteuses:GetUses()==40)
@@ -107,7 +107,7 @@ for _,action in ipairs({'存放','检查','修理','加油'})do
 end
 hover.text:SetString(hover.text.value);assert(select(2,hover.text.value:gsub('燃料',''))==1)
 target=equipment('aom_irrigator');target.components={};target._aom_water_net:set(312);target._durability_net:set(45)
-hover.text:SetString('检查 洒水机');assert(hover.text.value=='检查 洒水机\n机械耐久 45/60\n水量 312/400')
+hover.text:SetString('检查 洒水机');assert(hover.text.value=='检查 洒水机\n机械耐久 45/100\n水量 312/400')
 target=SpawnPrefab('rocks');hover.text:SetString('检查 岩石');assert(hover.text.value=='检查 岩石')
 target=t;TheInput.GetHUDEntityUnderMouse=function()return {}end
 hover.text:SetString('界面提示');assert(hover.text.value=='界面提示')
@@ -148,8 +148,8 @@ assert(hud.order[4]=='cargo' and hud.order[5]=='tool')
 assert(hud.badges.cargo:GetText()=='360' and hud.badges.cargo.meter.percent==9/15)
 assert(string.find(hud.badges.cargo:GetTooltip(),'9/15格',1,true))
 assert(hud.strip==nil and hud.seedcontrols==nil and hud.seedbutton==nil)
-click(hud.badges.tool);assert(t._seed_strategy=='GIANT' and hud.seedcontrols==nil)
-click(hud.badges.tool);assert(t._seed_strategy=='SEQUENTIAL' and hud.planbutton==nil)
+click(hud.badges.tool);assert(t._seed_strategy=='GIANT_TEMPLATE' and hud.seedcontrols==nil)
+click(hud.badges.tool);assert(t._seed_strategy=='GIANT' and hud.planbutton==nil)
 assert(hud.seedbackground==nil and hud.seedcontrols==nil)
 click(hud.badges.tool);assert(hud.seedcontrols==nil)
 attach('aom_irrigator');assert(hud.strip==nil and hud.badges.water:IsVisible() and hud.seedcontrols==nil)

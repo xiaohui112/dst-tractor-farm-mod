@@ -1,0 +1,128 @@
+{
+  "source": {
+    "version": "0.5.18",
+    "runtime": "Lua 5.1",
+    "files": [
+      {
+        "path": "scripts/aom_seed_catalog.lua",
+        "sha256": "6e471ff4253e94f5f70f54831a6ae21cbfdeeee3b8a9cc1a7ca2b1f1da1dc9ff",
+        "bytes": 105005
+      },
+      {
+        "path": "scripts/aom_seed_template_data.lua",
+        "sha256": "9905ace7c321a7b4d1922af9c164b3e561b5ae7b7d83c88c65bd8808f1a14e92",
+        "bytes": 4397
+      },
+      {
+        "path": "scripts/aom_seed_initial.lua",
+        "sha256": "51fb9588394e9313a4210a6a3e1d6df564f3d4e88f25db0becdc01488a529098",
+        "bytes": 12212
+      },
+      {
+        "path": "scripts/aom_seed_templates.lua",
+        "sha256": "60da7eaf413227dd8ab0189a185f5dc62498e6ffec2ff8088185475657ae98c0",
+        "bytes": 6309
+      },
+      {
+        "path": "scripts/aom_seed_regions.lua",
+        "sha256": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+        "bytes": 3836
+      },
+      {
+        "path": "scripts/aom_planner_build.lua",
+        "sha256": "dc5f4918b0a64a8fc6a01e3e7c038b0847719887e7b0db0fa9e8530153735e13",
+        "bytes": 158
+      },
+      {
+        "path": "scripts/aom_dynamic_farm.lua",
+        "sha256": "4693717bea821facc1afe3bfbcde56f645731d13612faf80142e2a5e12f315a1",
+        "bytes": 18245
+      },
+      {
+        "path": "scripts/aom_seed_layout.lua",
+        "sha256": "9d5172a78089acc1f8988ceb7f8d5a1e137861614ad8b61fabadd8fb026c0fcd",
+        "bytes": 19636
+      },
+      {
+        "path": "scripts/aom_seed_packing.lua",
+        "sha256": "75d72eb128bc6c43e96d5a1b9b424cc83684f6423650872257be06459a7398ed",
+        "bytes": 9177
+      },
+      {
+        "path": "scripts/aom_seed_exact.lua",
+        "sha256": "657ece00eb94d6cf2bc33fda5aeb89f8b21f177a02ec4290ae2fd5dbc595e371",
+        "bytes": 62425
+      },
+      {
+        "path": "scripts/aom_seed_heuristic.lua",
+        "sha256": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+        "bytes": 35437
+      },
+      {
+        "path": "scripts/aom_seed_feasible.lua",
+        "sha256": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+        "bytes": 6632
+      },
+      {
+        "path": "scripts/aom_seed_balance.lua",
+        "sha256": "55d0a0a55a5249c893d641e4b43e463d5ad4a4df92f6d5f7885eac3d420bffd9",
+        "bytes": 11385
+      },
+      {
+        "path": "scripts/aom_seed_strategy.lua",
+        "sha256": "a49889673ede68b6b521eeef3c361693d3025243ac54c6c272d7c3953f6d4a51",
+        "bytes": 2215
+      },
+      {
+        "path": "scripts/aom_farm_registry.lua",
+        "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+        "bytes": 1387
+      },
+      {
+        "path": "scripts/aom_crop_state.lua",
+        "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+        "bytes": 1667
+      },
+      {
+        "path": "scripts/components/aom_attachment_store.lua",
+        "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+        "bytes": 8377
+      }
+    ],
+    "fingerprint": "e333e1d4b682e20d0328acb69590ac11052f6d399b04acc1f65c812c8773f714",
+    "installed_match": false,
+    "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+    "constants": {
+      "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+      "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+      "FARM_TILL_SPACING": 1.25,
+      "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+    }
+  },
+  "web_unittest": {
+    "count": 18,
+    "failures": 0,
+    "note": "完整网页回归在最后两项任务内缓存优化前完成；最终源码另跑4项目录/锁定测试，1162模版逐坑结果与缓存前完全一致。"
+  },
+  "final_catalog_web_tests": {
+    "count": 4,
+    "failures": 0
+  },
+  "crop_display_tests": {
+    "count": 9,
+    "failures": 0
+  },
+  "targeted_final_lua_tests": {
+    "count": 20,
+    "failures": 0
+  },
+  "coordinate_fixture_cases": 336,
+  "browser_cases": [
+    "autumn-09: 4garlic+4onion+8potato，两个指定空坑",
+    "autumn-10: 16tomato+16potato，四角空坑"
+  ],
+  "installed_or_packaged": false
+}

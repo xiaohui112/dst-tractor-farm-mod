@@ -42,7 +42,7 @@ local other=make_inst({},'autumn');other.components.aom_attachment_store=inst.co
 Block.OnLoad(other,data);assert(other._block and other._block.done==1)
 inst=other;inst._attachment_type='seeder'
 local value='';inst._plan_net={set=function(_,v)value=v end};Block.Sync(inst)
-assert(string.sub(value,1,3)=='D4;' and string.find(Block.DescribeProgress(inst),'1/12'))
+assert(string.sub(value,1,3)=='D5;' and string.find(Block.DescribeProgress(inst),'1/12'))
 local view=Block.Decode(value);assert(view and view.dynamic and view.done==1 and view.total==12 and #view.slots>0)
 assert(Block.Decode('D4;9999;0;autumn;0;0;0,0,potato')==nil)
 assert(finish_dynamic().done==12)

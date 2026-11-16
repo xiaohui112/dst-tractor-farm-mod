@@ -1,0 +1,10 @@
+{
+  "same_snapshot_all_runs": true,
+  "live_mod_still_matches_snapshot": true,
+  "snapshot_still_unchanged": true,
+  "same_benchmark_code_all_runs": true,
+  "formal_comparison_runs": 216,
+  "legacy_control_runs": 48,
+  "all_formal_rule_checks_pass": true,
+  "clock_anomalies_excluded_and_remeasured": true
+}
