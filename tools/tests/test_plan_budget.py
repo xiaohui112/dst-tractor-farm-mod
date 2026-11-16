@@ -20,13 +20,13 @@ class PlanBudgetTests(unittest.TestCase):
             lua.execute((MOD / 'modinfo.lua').read_text())
             option = next(o for o in lua.globals().configuration_options.values()
                           if o.name == 'PLAN_CPU_BUDGET_MS')
-            self.assertEqual(option.default, 4)
+            self.assertEqual(option.default, 16)
             self.assertEqual([o.data for o in option.options.values()],
                              [2, 4, 8, 12, 16, 24, 32])
             self.assertIn('规划' if locale == 'zh' else 'planning', option.label)
             self.assertIn('卡顿' if locale == 'zh' else 'stutter', option.hover)
 
-    def test_missing_or_invalid_configuration_falls_back_to_four_ms(self):
+    def test_missing_or_invalid_configuration_falls_back_to_sixteen_ms(self):
         self.lua.execute('''
 local budget=require('aom_plan_budget')
 for _,config in ipairs({false,'bad',{},
@@ -35,10 +35,10 @@ for _,config in ipairs({false,'bad',{},
  {PLAN_CPU_BUDGET_MS=-8},{PLAN_CPU_BUDGET_MS=1000},
  {PLAN_CPU_BUDGET_MS=8.5},{PLAN_CPU_BUDGET_MS=math.huge},
  {PLAN_CPU_BUDGET_MS=0/0}})do
- AOM_CONFIG=config;assert(budget.Milliseconds(false)==4)
+ AOM_CONFIG=config;assert(budget.Milliseconds(false)==16)
  assert(budget.Milliseconds(true)==1)
 end
-AOM_CONFIG=nil;assert(budget.Milliseconds(false)==4)
+AOM_CONFIG=nil;assert(budget.Milliseconds(false)==16)
 AOM_CONFIG={PLAN_CPU_BUDGET_MS='12'};assert(budget.Milliseconds(false)==12)
 ''')
 

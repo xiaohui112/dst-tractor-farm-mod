@@ -7,6 +7,7 @@ class PlanStopwatchTests(unittest.TestCase):
     def setUp(self):
         self.lua = World().lua
         self.lua.execute('''
+AOM_CONFIG={PLAN_CPU_BUDGET_MS=4}
 console={};print=function(text)console[#console+1]=text end
 io.open=function()error('planning must not open files')end
 package.preload.aom_plan_log=function()error('planning logger must not load')end

@@ -60,14 +60,14 @@ configuration_options =
             or "Soft CPU budget for foreground optimal/template planning. Larger values usually shorten waits but may cause stutter. Background stays at 1 ms. Host/server setting; reload the world to apply.",
         options = {
             { description = chinese and "2毫秒" or "2 ms", data = 2 },
-            { description = chinese and "4毫秒（默认）" or "4 ms (default)", data = 4 },
+            { description = chinese and "4毫秒" or "4 ms", data = 4 },
             { description = chinese and "8毫秒" or "8 ms", data = 8 },
             { description = chinese and "12毫秒" or "12 ms", data = 12 },
-            { description = chinese and "16毫秒" or "16 ms", data = 16 },
+            { description = chinese and "16毫秒（默认）" or "16 ms (default)", data = 16 },
             { description = chinese and "24毫秒" or "24 ms", data = 24 },
             { description = chinese and "32毫秒" or "32 ms", data = 32 },
         },
-        default = 4,
+        default = 16,
     },
     {
         name = "IRRIGATOR_MUSIC",

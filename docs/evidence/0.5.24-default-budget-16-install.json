@@ -1,0 +1,13 @@
+{
+  "version": "0.5.24",
+  "default_foreground_budget_ms": 16,
+  "background_budget_ms": 1,
+  "tests_run": false,
+  "reason": "User requested no version bump and no tests.",
+  "archive_sha256": "9d035b2a26bcdd524241e587110ff9318379b989a2de91df36c1457de8f34c5f",
+  "source_files": 99,
+  "all_source_archive_installed_bytes_match": true,
+  "backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/default-plan-budget-16/backup-xdz2zyij",
+  "installed_path": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+  "game_restarted": false
+}

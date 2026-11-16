@@ -5,6 +5,6 @@ function M.Milliseconds(background)
  if background then return 1 end
  local config=rawget(_G,'AOM_CONFIG')
  local value=type(config)=='table' and tonumber(config.PLAN_CPU_BUDGET_MS) or nil
- return allowed[value] and value or 4
+ return allowed[value] and value or 16
 end
 return M

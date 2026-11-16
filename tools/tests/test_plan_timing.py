@@ -7,6 +7,7 @@ class PlanTimingTests(unittest.TestCase):
     def setUp(self):
         self.w=World();self.lua=self.w.lua
         self.lua.execute('''
+AOM_CONFIG={PLAN_CPU_BUDGET_MS=4}
 planning_console={};print=function(text)planning_console[#planning_console+1]=text end
 io.open=function()error('planning must not write files')end
 Timing=require('aom_plan_timing');D=require('aom_dynamic_farm')
