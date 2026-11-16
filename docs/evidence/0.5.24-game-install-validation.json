@@ -1,0 +1,137 @@
+{
+  "version": "0.5.24",
+  "source_files": 99,
+  "archive": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/Tractor.zip",
+  "archive_sha256": "b0c110aa6966632ee459aa92c701f5fe689123a96a14286084a8b361c0878512",
+  "installed_path": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+  "all_source_archive_installed_bytes_match": true,
+  "backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/plan-budget-0.5.24/install-backup-0.5.23",
+  "backup_scope": "Only overwritten files; changes.json lists newly added files for rollback.",
+  "changed_installed_files": [
+    "modinfo.lua",
+    "modmain.lua",
+    "scripts/aom_dynamic_farm.lua",
+    "scripts/aom_locale.lua",
+    "scripts/aom_plan_timing.lua",
+    "scripts/aom_planner_build.lua",
+    "INSTALL-MANIFEST.json"
+  ],
+  "added_installed_files": [
+    "scripts/aom_plan_budget.lua"
+  ],
+  "selfcheck": {
+    "mode": "release",
+    "success": true,
+    "game": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents",
+    "checks": [
+      {
+        "name": "check_syntax",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_modinfo",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_no_source_png",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_animation_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_driver_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_music_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_common_module",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_mod_environment",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_script_modules",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_paths",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_globals",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_recipe_ingredients",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_cross_refs",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_local_functions_defined",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_bad_patterns",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_planner_fingerprint",
+        "status": "passed",
+        "details": {
+          "source_fingerprint_current": true
+        }
+      },
+      {
+        "name": "check_giant_farming",
+        "status": "passed",
+        "details": {
+          "run": 708,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "failures": [],
+    "warnings": []
+  },
+  "targeted_tests": {
+    "timing_planning": 38,
+    "lifecycle": 28,
+    "failures": 0,
+    "errors": 0
+  },
+  "game_restarted": false,
+  "real_client_verified": false,
+  "github_pushed": false
+}

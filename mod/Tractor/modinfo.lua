@@ -33,7 +33,7 @@ Mount original farming tools on a tractor.
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.5.23"
+version = "0.5.24"
 api_version = 10
 priority = 0
 
@@ -53,6 +53,22 @@ icon = "modicon.tex"
 -- 收获进背包、巨大化作物保留、调试日志）已从菜单移除，避免玩家误以为可调而实际无效。
 configuration_options =
 {
+    {
+        name = "PLAN_CPU_BUDGET_MS",
+        label = chinese and "巨大化规划每帧额度" or "Giant planning budget per tick",
+        hover = chinese and "前台最优/模版规划的计算软额度。越大通常等待越短，但更容易卡顿；后台预计算固定1毫秒。由房主/服务器设置，重新载入世界后生效。"
+            or "Soft CPU budget for foreground optimal/template planning. Larger values usually shorten waits but may cause stutter. Background stays at 1 ms. Host/server setting; reload the world to apply.",
+        options = {
+            { description = chinese and "2毫秒" or "2 ms", data = 2 },
+            { description = chinese and "4毫秒（默认）" or "4 ms (default)", data = 4 },
+            { description = chinese and "8毫秒" or "8 ms", data = 8 },
+            { description = chinese and "12毫秒" or "12 ms", data = 12 },
+            { description = chinese and "16毫秒" or "16 ms", data = 16 },
+            { description = chinese and "24毫秒" or "24 ms", data = 24 },
+            { description = chinese and "32毫秒" or "32 ms", data = 32 },
+        },
+        default = 4,
+    },
     {
         name = "IRRIGATOR_MUSIC",
         label = chinese and "洒水机音乐《兰花草》" or "Irrigator music: Orchid Grass",

@@ -1,7 +1,8 @@
--- 游戏异步规划计时：仅保留内存统计和人物进度，不写文件或游戏日志。
+-- 游戏异步规划计时：保留内存统计、人物进度和一次控制台结果，不创建日志文件。
 -- os.clock是进程CPU；只累计本任务执行区间，排除跨帧间隔，但仍可能包含并行引擎线程CPU。
 local M={}
 local L=require("aom_locale").Text
+local Budget=require('aom_plan_budget')
 local serial=0
 -- 原版 mainfunctions.GetTimeRealSeconds 将 TheSim:GetRealTime 毫秒转换为秒。
 local function Real()return GetTimeRealSeconds and GetTimeRealSeconds()or os.time()end
@@ -96,6 +97,23 @@ function Trace:Progress(force)
  local text=self:Text();self:Say(text,3)
  if not self.quiet and self.vehicle and self.vehicle._planprogress_net then self.vehicle._planprogress_net:set(text)end
 end
+function Trace:Console(plan)
+ if self.quiet or self.console_printed then return end
+ self.console_printed=true
+ local text='[Tractor][plan '..self.id..'] '..self.completed_text
+  ..L('；实际用时%.3f秒，计算%.3f秒，每帧额度%d毫秒',self.planning.wall,self.planning.cpu,self.context.tick_cpu_budget_ms)
+ local details=plan and plan.construction
+ if details then
+  text=text..L('；数量阶段计算%.3f秒，排列阶段计算%.3f秒',details.quantity_seconds or 0,details.arrangement_seconds or 0)
+ end
+ if self.reason then text=text..' ['..tostring(self.reason)..']'end
+ print(text)
+ -- 服务端 print 不会自动进入远端玩家的控制台；定向发给本次规划的驾驶者。
+ local player=self.player
+ if player and player.userid and player~=ThePlayer then
+  SendModRPCToClient(GetClientModRPC('aom_rpc','AOM_PLAN_RESULT'),player.userid,text)
+ end
+end
 function Trace:Complete(status,reason,plan)
  if self.finished then return end
  self:RunEnd();local s=self:Snapshot();self:CloseStep(status=='complete' and 'done' or status,reason,s)
@@ -106,8 +124,13 @@ function Trace:Complete(status,reason,plan)
   self:Say(self.completed_text,4)
   if not self.quiet and self.vehicle and self.vehicle._planprogress_net then self.vehicle._planprogress_net:set(self.completed_text)end
  elseif status=='cancelled' then
-  self:Say(L('巨大化规划已取消：用时%d秒',self.completed_seconds),3)
- else self:Say(L('巨大化规划未完成：用时%d秒',self.completed_seconds),3)end
+  self.completed_text=L('巨大化规划已取消：用时%d秒',self.completed_seconds)
+  self:Say(self.completed_text,3)
+ else
+  self.completed_text=L('巨大化规划未完成：用时%d秒',self.completed_seconds)
+  self:Say(self.completed_text,3)
+ end
+ self:Console(plan)
  self.awaiting_first=status=='complete' and plan~=nil
  self.finished=not self.awaiting_first
 end
@@ -136,8 +159,8 @@ function M.New(inst,cx,cz,quiet)
  serial=serial+1
  local request=inst._aom_plan_request;inst._aom_plan_request=nil
  local start_cpu,start_wall,start_game=os.clock(),Real(),Game()
- local trace=setmetatable({quiet=quiet,id=tostring(inst.GUID or 'vehicle')..'-'..serial,vehicle=inst,steps={},context={x=cx,z=cz,
-  season=TheWorld.state.season,request_season=TheWorld.state.season,frame_seconds=FRAMES or 1/30,execution_mode="world_serial_sliced",tick_cpu_budget_ms=quiet and 1 or 4,max_resumes_per_tick=1024,strategy=inst._seed_strategy or "GIANT"},
+ local trace=setmetatable({quiet=quiet,id=tostring(inst.GUID or 'vehicle')..'-'..serial,vehicle=inst,player=inst._rider,steps={},context={x=cx,z=cz,
+  season=TheWorld.state.season,request_season=TheWorld.state.season,frame_seconds=FRAMES or 1/30,execution_mode="world_serial_sliced",tick_cpu_budget_ms=Budget.Milliseconds(quiet),max_resumes_per_tick=1024,strategy=inst._seed_strategy or "GIANT"},
   slice_bins={0,0,0,0,0},cpu=0,active_wall=0,ticks=0,resumes=0,cpu_budget_hits=0,resume_limit_hits=0,
   max_resume_cpu=0,max_tick_cpu=0,long_resumes=0,max_gap=0,
   request_wall=request and request.wall or start_wall,started_cpu=start_cpu,started_wall=start_wall,started_game=start_game,

@@ -61,11 +61,16 @@ end
 GLOBAL.AOM_CONFIG = {
 	LANGUAGE = GetModConfigData("LANGUAGE"),
 	MODEL_SCALE = GetModConfigData("MODEL_SCALE"),
+	PLAN_CPU_BUDGET_MS = GetModConfigData("PLAN_CPU_BUDGET_MS"),
 }
 local AOM=require("aom_common")
 if AOM.SetLanguage then AOM.SetLanguage(GetModConfigData("LANGUAGE")) end
 local L=require("aom_locale").Text
 local Feedback=require("aom_feedback")
+
+AddClientModRPCHandler("aom_rpc", "AOM_PLAN_RESULT", function(text)
+    if type(text)=="string" then print(text) end
+end)
 
 local DriverVisual=require("aom_driver_visual")
 if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then

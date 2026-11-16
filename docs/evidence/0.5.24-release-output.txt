@@ -1,0 +1,15 @@
+行为回归：708 项通过（Lua 5.1）
+============================================================
+============================================================
+自检通过：0 个失败，0 个警告
+[Tractor] Work failed: [string "<python>"]:6: native plant failed after spawning crop
+[Tractor][plan vehicle-1] 巨大化规划完成：用时0秒，开始播种；实际用时0.000秒，计算0.043秒，每帧额度4毫秒；数量阶段计算0.007秒，排列阶段计算0.033秒
+[Tractor][plan vehicle-1] 巨大化规划已取消：用时0秒；实际用时0.000秒，计算0.000秒，每帧额度4毫秒 [PLAN_RESET]
+[Tractor][plan vehicle-2] 巨大化规划未完成：用时0秒；实际用时0.000秒，计算0.000秒，每帧额度4毫秒 [FOREIGN_CROP]
+[Tractor][plan 3-1] 巨大化规划完成：用时0秒，开始播种；实际用时0.000秒，计算0.006秒，每帧额度4毫秒；数量阶段计算0.003秒，排列阶段计算0.000秒
+[Tractor] Work failed: [string "<python>"]:5: remote native callback failed
+[Tractor][plan 3-1] 巨大化规划完成：用时0秒，开始播种；实际用时0.000秒，计算0.006秒，每帧额度4毫秒；数量阶段计算0.003秒，排列阶段计算0.000秒
+[Tractor] Work failed: [string "<python>"]:7: after final seed
+[Tractor][plan vehicle-1] 巨大化规划已取消：用时0秒；实际用时0.000秒，计算0.000秒，每帧额度4毫秒 [PLAN_RESET]
+[Tractor][plan vehicle-1] 巨大化规划完成：用时2秒，开始播种；实际用时2.000秒，计算1.170秒，每帧额度4毫秒；数量阶段计算-0.000秒，排列阶段计算0.000秒
+安装包校验通过：99个源文件逐字节一致；/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/Tractor.zip

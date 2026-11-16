@@ -116,7 +116,7 @@ for _,task in ipairs(queue)do if task.delay<1 then task.fn();break end end
 assert(built==2 and second._block)
 ''')
 
- def test_planning_keeps_high_resolution_timing_without_log_output(self):
+ def test_planning_keeps_high_resolution_timing_and_one_console_result_per_job(self):
   self.lua.execute('''
 prepare();local now=123.125;GetTimeRealSeconds=function()return now end
 local trace=Timing.New(inst,0,0);trace:TickBegin();now=now+.004
@@ -125,6 +125,7 @@ assert(trace.wall_basis=='engine_realtime_seconds' and math.abs(trace.planning.w
 D.Start(inst,0,0);run_planning()
 assert(inst._block and inst._aom_plan_trace.status=='complete')
 assert(inst._aom_plan_trace.context.seed_stock and inst._aom_plan_trace.batch==nil)
+assert(#planning_console==2)
 ''')
 
  def test_spatial_buckets_match_exhaustive_distances_with_offset_pits(self):

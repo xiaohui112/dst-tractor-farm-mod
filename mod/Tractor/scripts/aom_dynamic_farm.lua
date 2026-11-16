@@ -11,6 +11,7 @@ local Layout=require('aom_seed_layout')
 local Packing=require('aom_seed_packing')
 local Neighbors=require('aom_farm_neighbors')
 local Grid=require('aom_farm_grid')
+local Budget=require('aom_plan_budget')
 local function Key(x,z)return string.format('%.3f:%.3f',x,z)end
 local function Number(x)return type(x)=='number' and x==x and math.abs(x)<1000000 end
 local function Defs()return require('prefabs/farm_plant_defs').PLANT_DEFS end
@@ -244,7 +245,7 @@ function M.Start(inst,cx,cz,background)
    if inst._aom_plan_trace then inst._aom_plan_trace.request_wall=inst._aom_plan_request.wall end
    inst._aom_plan_request=nil
   end
-  if inst._aom_plan_trace then inst._aom_plan_trace.quiet=background;inst._aom_plan_trace:Context({tick_cpu_budget_ms=background and 1 or 4})end
+  if inst._aom_plan_trace then inst._aom_plan_trace.quiet=background;inst._aom_plan_trace:Context({tick_cpu_budget_ms=Budget.Milliseconds(background)})end
   if not inst._aom_job_scheduled then inst._aom_job_scheduled=true;inst:DoTaskInTime(FRAMES or 1/30,inst._aom_job_tick)end
   return
  end
@@ -268,7 +269,7 @@ function M.Start(inst,cx,cz,background)
   if owner and owner~=inst then inst._aom_job_scheduled=true;inst:DoTaskInTime(FRAMES or 1/30,Tick);return end
   local frame=GetTick and GetTick()or nil
   if frame~=budgetFrame then budgetFrame,budgetSpent=frame,0 end
-  local allowance=inst._aom_background and .001 or .004
+  local allowance=Budget.Milliseconds(inst._aom_background)/1000
   if frame and budgetSpent>=allowance then inst._aom_job_scheduled=true;inst:DoTaskInTime(FRAMES or 1/30,Tick);return end
   local available=frame and allowance-budgetSpent or allowance
   owner=inst

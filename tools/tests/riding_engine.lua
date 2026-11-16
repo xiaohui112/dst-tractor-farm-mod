@@ -167,6 +167,10 @@ function AddAction(id,label,fn)local a={id=id,label=label,fn=fn};ACTION_DEFS[id]
 function AddComponentAction(kind,name,fn)SCENE_HOOKS[name]=fn end
 function AddModRPCHandler(ns,name,fn)RPCS[name]=fn end
 function GetModRPC(ns,name)return name end
+CLIENT_RPCS={};CLIENT_RPC_SENT={}
+function AddClientModRPCHandler(ns,name,fn)CLIENT_RPCS[name]=fn end
+function GetClientModRPC(ns,name)return name end
+function SendModRPCToClient(id,userid,text)CLIENT_RPC_SENT[#CLIENT_RPC_SENT+1]={id=id,userid=userid,text=text}end
 function State(data)return data end
 SG_STATES={}
 function AddStategraphState(sg,state)SG_STATES[sg]=SG_STATES[sg] or {};SG_STATES[sg][state.name]=state end

@@ -1,4 +1,4 @@
-"""规划计时：CPU口径、连续计算、阶段不重叠、取消与首种。"""
+"""规划计时：CPU口径、分帧计算、阶段不重叠、取消与首种。"""
 import unittest
 from test_giant_farming import World
 
@@ -7,7 +7,7 @@ class PlanTimingTests(unittest.TestCase):
     def setUp(self):
         self.w=World();self.lua=self.w.lua
         self.lua.execute('''
-print=function()error('planning records must not go to the master log')end
+planning_console={};print=function(text)planning_console[#planning_console+1]=text end
 io.open=function()error('planning must not write files')end
 Timing=require('aom_plan_timing');D=require('aom_dynamic_farm')
 function field()

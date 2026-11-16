@@ -69,6 +69,23 @@ local t=deploy_kit(kit,0,0,player)
 assert(t.components.container and t.components.rideable)
 ''')
 
+    def test_host_planning_budget_reaches_modules_through_modmain(self):
+        self.run_lua('''
+GetModConfigData=function(name)if name=='PLAN_CPU_BUDGET_MS' then return 16 end end
+dofile(MOD..'/modmain.lua')
+assert(AOM_CONFIG.PLAN_CPU_BUDGET_MS==16)
+local budget=require('aom_plan_budget')
+assert(budget.Milliseconds(false)==16 and budget.Milliseconds(true)==1)
+''')
+
+    def test_planning_result_rpc_prints_on_the_client_console(self):
+        self.run_lua('''
+local messages={};print=function(text)messages[#messages+1]=text end
+CLIENT_RPCS.AOM_PLAN_RESULT('[Tractor] planning complete in 55 seconds')
+CLIENT_RPCS.AOM_PLAN_RESULT(nil);CLIENT_RPCS.AOM_PLAN_RESULT({})
+assert(#messages==1 and string.find(messages[1],'55 seconds',1,true))
+''')
+
     def test_refuel_action_consumes_one_stack_unit_even_when_capped(self):
         self.run_lua('''
 local t=deploy_kit(kit,0,0,player);t:SetFuel(799)
