@@ -54,7 +54,7 @@ assert(store:AddWater(999)==398 and store:ReturnWater()==0)
 inst.components.container.slots[1]=SpawnPrefab('aom_landclearer')
 assert(store:GetWater()==0 and store:GetWaterMax()==0 and store:AddWater(3)==0)
 assert(not store:TakeWater() and store:ReturnWater()==0)
-assert(inst.components.container.slots[1].components.finiteuses:GetUses()==60)
+assert(inst.components.container.slots[1].components.finiteuses:GetUses()==100)
 ''')
 
     def test_empty_partial_and_full_save_roundtrip_uses_native_lifecycle(self):

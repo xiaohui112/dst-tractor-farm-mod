@@ -40,6 +40,10 @@ Assets = {
 
 }
 
+-- 活跃土坑原本按世界坐标与整台挂件排序，会盖住较长的播种机模型。
+-- 与原版塌陷土坑使用同一背景层；保留原版动画、标签、交互和农业组件。
+AddPrefabPostInit("farm_soil",function(inst)require("aom_soil_visual").Ground(inst)end)
+
 -- 音乐可选接入：模块、资源、播放任一失败都不会进入洒水作业调用链。
 local Music
 local music_ok,music_module=pcall(require,"aom_irrigator_music")
@@ -62,6 +66,7 @@ local AOM=require("aom_common")
 if AOM.SetLanguage then AOM.SetLanguage(GetModConfigData("LANGUAGE")) end
 local L=require("aom_locale").Text
 local Feedback=require("aom_feedback")
+require("aom_plan_log").Configure(MODROOT)
 
 local DriverVisual=require("aom_driver_visual")
 if DriverVisual.Configure(MODROOT,GLOBAL.kleifileexists) then
@@ -195,13 +200,27 @@ AOM_ATTACH.strfn=function(act)
     return owner and "DETACH" or "GENERIC"
 end
 GLOBAL.STRINGS.ACTIONS.AOM_ATTACH={GENERIC=L("挂载"),DETACH=L("卸载")}
+local AOM_DETACH=AddAction("AOM_DETACH",L("卸载"),function(act)
+    local rider=act.doer and act.doer.components.rider
+    local vehicle=rider and rider:IsRiding() and rider:GetMount()
+    if not vehicle or not act.target or require("aom_attachment_mount").Owner(act.target)~=vehicle then
+        return false,"NOT_DRIVING"
+    end
+    return AOM_ATTACH.fn(act)
+end)
+AOM_DETACH.distance=5
+AOM_DETACH.priority=3
+AOM_DETACH.mount_valid=true
+AOM_DETACH.do_not_locomote=true
+
 AddComponentAction("SCENE","inspectable",function(item,doer,actions,right)
     if not right or not item:HasTag(AOM_TAG.ATTACHMENT) then return end
     local rider=doer.replica and doer.replica.rider
     local vehicle=rider and rider:IsRiding() and rider:GetMount()
     if not vehicle or not vehicle:HasTag(AOM_TAG.TRACTOR) then return end
     local owner=item._aom_vehicle and item._aom_vehicle:value()
-    if not owner or owner==vehicle then table.insert(actions,AOM_ATTACH) end
+    if not owner then table.insert(actions,AOM_ATTACH)
+    elseif owner==vehicle then table.insert(actions,AOM_DETACH) end
 end)
 
 -- 客户端只用 prefab/tag 和已同步挂件判断提示，执行时仍由服务端校验组件和余量。
@@ -366,7 +385,7 @@ AOM_STORAGE.strfn=function(act)
     return container and container:IsOpenedBy(act.doer) and "CLOSE" or "GENERIC"
 end
 GLOBAL.STRINGS.ACTIONS.AOM_STORAGE={GENERIC=L("打开仓库"),CLOSE=L("关闭仓库")}
-Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_POND_REFILL,AOM_STORAGE})
+Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_DETACH,AOM_POND_REFILL,AOM_STORAGE})
 local MouseInput=require("aom_mouse_input")
 AddClassPostConstruct("components/playeractionpicker",function(self)MouseInput.WrapPicker(self,AOM_STORAGE)end)
 
@@ -495,6 +514,19 @@ local SHORT_ACTION_ACTIONS = {
 	AOM_ATTACH,       -- 装挂件
 	AOM_POND_REFILL,  -- 骑乘时在池塘边补满洒水机
 }
+
+-- 卸载不进入会 FacePoint(target) 的 doshortaction，保留驾驶朝向并立即执行。
+for _,sgname in ipairs({"wilson","wilson_client"}) do
+    local client=sgname=="wilson_client"
+    AddStategraphState(sgname,GLOBAL.State{
+        name="aom_detach",tags={"idle","canrotate"},
+        onenter=function(inst)
+            if client then inst:PerformPreviewBufferedAction() else inst:PerformBufferedAction() end
+            inst.sg:GoToState("idle")
+        end,
+    })
+    AddStategraphActionHandler(sgname,ActionHandler(AOM_DETACH,"aom_detach"))
+end
 
 -- 原版角色状态图同时负责步行和骑乘。
 for _, sgname in ipairs({ "wilson", "wilson_client" }) do

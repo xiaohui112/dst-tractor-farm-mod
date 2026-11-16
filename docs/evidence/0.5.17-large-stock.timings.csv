@@ -1,0 +1,13 @@
+﻿case,season,tiles,status,maximum_plants,proven_upper,maximum_quantity_seconds,arrangement_seconds,quantity_complete,arrangement_complete,wall_seconds,timing_basis,case_wall_budget_seconds
+square-36/autumn/all-99,autumn,36,passed,324,324,2.418744,0.32312699999999994,True,True,2.76932,process_cpu,
+square-36/winter/all-99,winter,36,passed,297,297,0.22068699999999986,0.2752290000000004,True,True,0.51834,process_cpu,
+square-36/spring/all-99,spring,36,passed,324,324,3.814363,0.34604000000000035,True,True,4.18429,process_cpu,
+square-36/summer/all-99,summer,36,passed,324,324,2.475003000000001,0.3369180000000007,True,True,2.84266,process_cpu,
+square-64/autumn/all-99,autumn,64,passed,576,576,9.337521999999998,0.5563779999999987,True,True,9.96925,process_cpu,
+square-64/winter/all-99,winter,64,passed,297,297,0.20657699999999934,0.35835300000000103,True,True,0.61721,process_cpu,
+square-64/spring/all-99,spring,64,passed,576,576,7.812884,0.6162689999999991,True,True,8.49934,process_cpu,
+square-64/summer/all-99,summer,64,passed,576,576,2.8631020000000014,0.6327089999999984,True,True,3.56659,process_cpu,
+notch-63/autumn/all-99,autumn,63,passed,567,567,9.349294,0.565767000000001,True,True,9.99605,process_cpu,
+notch-63/winter/all-99,winter,63,passed,297,297,0.20686199999999388,0.3533880000000025,True,True,0.6118,process_cpu,
+notch-63/spring/all-99,spring,63,passed,567,567,7.822822000000002,0.5971830000000011,True,True,8.49548,process_cpu,
+notch-63/summer/all-99,summer,63,passed,567,567,2.427616999999998,0.6251389999999972,True,True,3.12422,process_cpu,

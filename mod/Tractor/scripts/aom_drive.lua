@@ -109,7 +109,7 @@ local function TakePayload(inst)
 		local strategy = inst._seed_strategy or "SEQUENTIAL"
 		local item
 
-        if strategy == "GIANT" then
+        if AOMSeed.IsGiant(strategy) then
             -- 巨大化模式由坐标分支处理，禁止回退到任意种子。
             return {}, false
         else
@@ -138,18 +138,32 @@ local function SetPlanMessage(inst,reason,force)
 end
 local function GiantWorkHere(inst,cx,y,cz)
     local store=inst.components.aom_attachment_store
+    local trace=inst._aom_plan_trace
+    local measuring=trace and trace.awaiting_first and not trace.finished and not inst._aom_preview_plan
+    if measuring then trace:RunBegin();trace:Stage("pre_sow_check")end
     local targets,reason=AutoSeed.GetTargets(inst,cx,cz)
     if not targets then
-        if reason=='PLANNING' then
-            Status.Report(inst,reason)
-            if inst._planprogress_net then inst._planprogress_net:set(L('正在规划巨大化布局，请稍候')) end
+        if reason=='PLANNING' or reason=='PLAN_READY' then
+            local planning=reason=='PLANNING' and inst._aom_plan_trace
+            if planning then
+                Status.Set(inst,reason);planning:Progress()
+                if inst._planprogress_net then inst._planprogress_net:set(planning:Text())end
+            else
+                Status.Report(inst,reason)
+                if inst._planprogress_net then inst._planprogress_net:set(Status.Text(reason))end
+            end
             return false,reason,true
         end
         local idle=reason=="NEXT_TILE" or reason=="NOTHING_TO_DO" or reason=="PLANNING"
         if idle then SetPlanMessage(inst,nil) else SetPlanMessage(inst,reason) end
+        if measuring then
+            if not trace.finished then trace:Stage("await_sow_tile")end
+            trace:RunEnd()
+        end
         return false,reason,idle
     end
     local target=targets[1]
+    if trace and trace.awaiting_first then trace:Stage("first_seed")end
     local item=store:TakeSeedOfCrop(target.crop,AOMSeed.GetCropOfSeedItem)
     if not item then SetPlanMessage(inst,"MISSING_SEEDS");return false,"MISSING_SEEDS" end
     local safe,ok=pcall(AOMFarmWork.SeedAt,target,inst._rider,item,inst)
@@ -162,6 +176,8 @@ local function GiantWorkHere(inst,cx,y,cz)
     -- 种子在 Plant 内会被 Remove，所以作物类型使用预先选定的 target；只在成功后提交。
     AOMBlock.RecordPlanted(inst,target)
     SetPlanMessage(inst,nil)
+    if trace and trace.awaiting_first then trace:FirstSeed(target)end
+    if measuring then trace:RunEnd()end
     return true,nil,nil,{x=target.x,z=target.z}
 end
 
@@ -184,7 +200,7 @@ local function PerformWork(inst, workx, workz)
 	local cx, _, cz = AOMFarmWork.GetTileCenter(x, y, z)
 
     local worked,work_reason,ready,fxposition
-    local coordinate_mode=inst._seed_strategy=="GIANT" and att==AOM.TYPE.SEEDER
+    local coordinate_mode=AOMSeed.IsGiant(inst._seed_strategy) and att==AOM.TYPE.SEEDER
     if att==AOM.TYPE.PLOW then
         worked,work_reason,ready=AOMFarmWork.Plough(cx,y,cz,driver,AOMFarmWork.GetTerraformer(inst),nil,inst)
         if ready then require("aom_farm_registry").Record(TheWorld,cx,cz) end
@@ -247,14 +263,14 @@ end
 ---------------------------------------------------------------------------
 
 StopForReason=function(inst,reason,message,force)
-    if reason=="EMPTY" and inst._attachment_type==AOM.TYPE.SEEDER and inst._seed_strategy=="GIANT" then
+    if reason=="EMPTY" and inst._attachment_type==AOM.TYPE.SEEDER and AOMSeed.IsGiant(inst._seed_strategy) then
         reason="MISSING_SEEDS"
     end
     local code=message and "DETACH_BLOCKED" or reason
     local detail=reason=="EMPTY" and inst._attachment_type
         or reason=="FERTILIZER_MISSING" and inst._fertilizer_missing_channels or ""
     local active=inst._working
-    AOMDrive.SetWorking(inst,false)
+    AOMDrive.SetWorking(inst,false,reason)
     Status.Report(inst,code,detail,nil,force or active)
 end
 AOMDrive.StopForReason=StopForReason
@@ -317,7 +333,9 @@ end
 -- 仅主模拟端的骑乘事件创建任务，按骑手位置计量（骑乘时车体是隐藏子实体）。
 function AOMDrive.TrackTravel(inst)
     if not inst._rider then return end
+    require("aom_dynamic_farm").PrepareNearby(inst)
     local x,_,z=WorkPosition(inst)
+    AOMBlock.RefreshNearby(inst)
     local ox,oz=inst._last_drive_x or x,inst._last_drive_z or z
     inst._last_drive_x,inst._last_drive_z=x,z
     local distance=math.sqrt((x-ox)^2+(z-oz)^2)
@@ -359,7 +377,7 @@ function AOMDrive.TrackMovement(inst)
     else inst._smoke_elapsed=0 end
 end
 
-function AOMDrive.SetWorking(inst, on)
+function AOMDrive.SetWorking(inst, on, stop_reason)
     if on and inst._aom_pond_refill then return end
     inst._working=on and true or false
     inst._workstatus:set(inst._working)
@@ -376,18 +394,23 @@ function AOMDrive.SetWorking(inst, on)
         if print then print("[Tractor] Work animation failed: "..tostring(err)) end
     end
     inst:PushEvent("aom_work_changed")
-    if not inst._working then inst._aom_dynamic_job=nil;return end
+    if not inst._working then require('aom_dynamic_farm').Cancel(inst,stop_reason or 'WORK_STOPPED');inst._aom_plan_request=nil;return end
+    if inst._attachment_type=='seeder' and AOMSeed.IsGiant(inst._seed_strategy)
+        and (not inst._block or inst._block.dynamic and inst._block.done>=inst._block.total)then
+        require('aom_plan_timing').Request(inst)
+    end
     Status.Set(inst,nil)
     local x,_,z=WorkPosition(inst)
     inst._last_work_x,inst._last_work_z=x,z
     inst._worktask=inst:DoPeriodicTask(Profile.SAMPLE_INTERVAL,AOMDrive.TrackMovement)
 end
 
--- 播种策略循环切换：顺序 -> 巨大化 -> 顺序
-local STRATEGY_ORDER = { "SEQUENTIAL", "GIANT" }
+-- 播种策略循环切换：顺序 -> 巨大化·模版 -> 巨大化·最优 -> 顺序
+local STRATEGY_ORDER = { "SEQUENTIAL", "GIANT_TEMPLATE", "GIANT" }
 local STRATEGY_NAME = {
 	SEQUENTIAL = "顺序播种",
-	GIANT = "巨大化",
+	GIANT_TEMPLATE = "巨大化·模版",
+	GIANT = "巨大化·最优",
 }
 
 function AOMDrive.GetSeedStrategyName(inst)

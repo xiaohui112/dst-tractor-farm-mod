@@ -64,7 +64,7 @@ t:SetWorking(true);assert(Drive.WorkTile(t,0,0))
 for _,v in ipairs(plants)do assert(not v:IsValid())end
 assert(picker==player and quantity(t,'spoiled_food')==9)
 assert(quantity(t,'tomato')==0 and quantity(t,'tomato_seeds')==0)
-assert(t._working and t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==39)
+assert(t._working and t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 assert(not Drive.WorkTile(t,0,0) and quantity(t,'spoiled_food')==9 and t._fuel:value()==399)
 ''')
 
@@ -96,7 +96,7 @@ local healthy=crop('tomato',0,1,false);healthy.components.pickable:MakeEmpty()
 local calls=0;remains:ListenForEvent('worked',function()calls=calls+1 end)
 t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not remains:IsValid())
 assert(collectable:IsValid() and healthy:IsValid() and quantity(t,'spoiled_food')==1)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==49)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 assert(not Drive.WorkTile(t,0,0) and t._working and t._fuel:value()==399)
 tool('aom_harvester');assert(Drive.WorkTile(t,0,0) and not collectable:IsValid() and healthy:IsValid())
 assert(quantity(t,'spoiled_food')==2)
@@ -131,7 +131,7 @@ a.components.workable:SetOnFinishCallback(function(v,worker)
 end)
 assert(Drive.WorkTile(t,0,0) and not a:IsValid() and b:IsValid())
 assert(b.components.workable:GetWorkLeft()==1 and quantity(t,'spoiled_food')==1)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==49)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_temporarily_disabled_or_stuck_rotten_crop_is_never_dug(self):
@@ -141,7 +141,7 @@ plant.components.pickable:MakeEmpty();plant.components.pickable.caninteractwith=
 assert(not Crops.CanClearRemains(plant) and not Drive.WorkTile(t,0,0) and plant:IsValid())
 plant.components.pickable.caninteractwith=true;plant.components.pickable.stuck=true
 assert(not Crops.CanClearRemains(plant) and not Drive.WorkTile(t,0,0) and plant:IsValid())
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==50)
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
 ''')
 
     def test_healthy_crop_with_weed_tag_and_nonfarm_dead_plants_are_preserved(self):
@@ -165,7 +165,7 @@ assert(not changed and why=='UNCLEARABLE_WEED' and remains:IsValid() and not t._
 remains.components.workable:SetWorkAction(ACTIONS.DIG)
 local worked,reason=Farm.Weed(0,0,0,nil,t)
 assert(not worked and reason=='NO_WORKER' and remains:IsValid())
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==50)
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
 ''')
 
     def test_full_cargo_after_dig_leaves_real_loot_and_retry_does_not_duplicate(self):

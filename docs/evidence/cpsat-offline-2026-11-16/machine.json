@@ -1,0 +1,7 @@
+{
+  "cpu": "Apple M4",
+  "logical_cpus": 10,
+  "platform": "macOS-15.5-arm64-arm-64bit",
+  "snapshot_tests": "8 tests passed",
+  "note": "固定快照；工作区有其他并行改动。初次非冻结测速因源码漂移作废，未纳入统计。"
+}

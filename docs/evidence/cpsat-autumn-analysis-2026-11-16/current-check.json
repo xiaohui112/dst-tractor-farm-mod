@@ -1,0 +1,7 @@
+{
+  "current_warm_total": 80,
+  "current_warm_cpu": 0.06418099999999999,
+  "warm_identical_to_frozen": true,
+  "frozen_repair_valid_in_current": [],
+  "current_unchanged_during_check": true
+}

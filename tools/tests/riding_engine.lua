@@ -29,6 +29,7 @@ TheInput={down={},keydown={},keyup={},IsKeyDown=function(self,k)return self.down
     AddKeyUpHandler=function(self,k,fn)self.keyup[k]=fn end}
 TheFrontEnd={};PAUSED=false
 function IsPaused()return PAUSED end
+LAYER_BACKGROUND=1;LAYER_WORLD=2
 TUNING={};STRINGS={NAMES={},RECIPE_DESC={}};TECH={SCIENCE_ONE=1,SCIENCE_TWO=2}
 ACTIONS={MOUNT={},DISMOUNT={},RUMMAGE={},HAMMER={}}
 Asset=noop;MakeObstaclePhysics=noop;SetPhysicsAttacker=noop;MakeInventoryPhysics=noop
@@ -87,6 +88,7 @@ function CreateEntity()
     e.AnimState={SetBank=function(_,name)e.bank=name end,SetBuild=function(_,name)e.build=name end,OverrideSymbol=noop,ClearOverrideSymbol=noop,HideSymbol=noop,ShowSymbol=noop,
         SetScale=function(_,x,y,z)e.anim_scale={x,y,z}end,GetScale=function()return unpack(e.anim_scale or {1,1,1})end,
         SetMultColour=function(_,r,g,b,a)e.tint={r,g,b,a}end,
+        SetLayer=function(_,v)e.layer=v end,SetSortOrder=function(_,v)e.sort_order=v end,
         PlayAnimation=function(_,name,loop)e.animation=name;e.animation_loop=loop;e.animation_queue={} end,
         PushAnimation=function(_,name,loop)table.insert(e.animation_queue,{name=name,loop=loop})end,
         IsCurrentAnimation=function(_,name)return e.animation==name end,
@@ -158,11 +160,16 @@ function make_player()
 end
 -- 装配层与面板 RPC，客户端不提供可伪造的目标参数。
 RPCS={};ACTION_HANDLERS={};SCENE_HOOKS={}
+PREFAB_POST_FNS={}
+function AddPrefabPostInit(name,fn)PREFAB_POST_FNS[name]=fn end
 ACTION_DEFS={}
 function AddAction(id,label,fn)local a={id=id,label=label,fn=fn};ACTION_DEFS[id]=a;return a end
 function AddComponentAction(kind,name,fn)SCENE_HOOKS[name]=fn end
 function AddModRPCHandler(ns,name,fn)RPCS[name]=fn end
 function GetModRPC(ns,name)return name end
+function State(data)return data end
+SG_STATES={}
+function AddStategraphState(sg,state)SG_STATES[sg]=SG_STATES[sg] or {};SG_STATES[sg][state.name]=state end
 function ActionHandler(action,state)return {action=action,state=state}end
 function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,handler)end
 SG_POST_FNS={}

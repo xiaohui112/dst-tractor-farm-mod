@@ -1,0 +1,13 @@
+test_cross_tile_family_allowed (test_model.ModelTests.test_cross_tile_family_allowed) ... ok
+test_empty_stock_offseason_unknown_and_under_minimum (test_model.ModelTests.test_empty_stock_offseason_unknown_and_under_minimum) ... ok
+test_exhaustive_pair_feasible_set (test_model.ModelTests.test_exhaustive_pair_feasible_set) ... ok
+test_family_is_spatial_not_just_global_stock (test_model.ModelTests.test_family_is_spatial_not_just_global_stock) ... ok
+test_nutrient_balance_is_per_tile (test_model.ModelTests.test_nutrient_balance_is_per_tile) ... ok
+test_reject_shifted_center_hole (test_model.ModelTests.test_reject_shifted_center_hole) ... ok
+test_spacing_conflict_is_enforced (test_model.ModelTests.test_spacing_conflict_is_enforced) ... ok
+test_stock_limit (test_model.ModelTests.test_stock_limit) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.233s
+
+OK

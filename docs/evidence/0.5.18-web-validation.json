@@ -1,0 +1,125 @@
+{
+  "version": "0.5.18",
+  "python_http_and_native_tests": {
+    "run": 14,
+    "failures": 0,
+    "log": "outputs/upgrade-0.5.18/web-tests-final.log"
+  },
+  "native_point_parity": {
+    "optimal": 76,
+    "template": 64
+  },
+  "crop_display_tests": {
+    "run": 9,
+    "failures": 0
+  },
+  "template_reference_and_cache_tests": {
+    "run": 6,
+    "failures": 0
+  },
+  "timing_tests": {
+    "run": 10,
+    "failures": 0
+  },
+  "browser_verified": [
+    "strategy_switch",
+    "auto_rectangle_on_input",
+    "manual_irregular_tile_edit",
+    "hide_zero_stock_usage",
+    "click_to_replace_quantity",
+    "empty_quantity_while_editing",
+    "same_crop_deselect",
+    "blank_deselect",
+    "escape_deselect",
+    "18_pits_full_template",
+    "32_plant_reference_square"
+  ],
+  "source": {
+    "version": "0.5.18",
+    "runtime": "Lua 5.1",
+    "files": [
+      {
+        "path": "scripts/aom_seed_templates.lua",
+        "sha256": "487e7ee942f536977f4fd78a09d2dbce0108f40bf8f18f2297c833222a5bc4d8",
+        "bytes": 10512
+      },
+      {
+        "path": "scripts/aom_seed_regions.lua",
+        "sha256": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+        "bytes": 3836
+      },
+      {
+        "path": "scripts/aom_planner_build.lua",
+        "sha256": "49aeb2b589eb49986894bb48e89abc1b5d30072f1592974c6e46c9e13fe5e0a7",
+        "bytes": 158
+      },
+      {
+        "path": "scripts/aom_dynamic_farm.lua",
+        "sha256": "34c7fbe1bd45ff2def5664d284c29176a8633149e0923d4a866cde7134a36dd7",
+        "bytes": 17350
+      },
+      {
+        "path": "scripts/aom_seed_layout.lua",
+        "sha256": "e4ffca3814d0ada7e174928ab44ba0ba2906f50eea24ec5c5330325637bc6673",
+        "bytes": 19612
+      },
+      {
+        "path": "scripts/aom_seed_packing.lua",
+        "sha256": "3e4ec3e459ec55de63eeb88abef9ce4bf4b8a96a85adbe75a317b8f526e7658e",
+        "bytes": 9132
+      },
+      {
+        "path": "scripts/aom_seed_exact.lua",
+        "sha256": "657ece00eb94d6cf2bc33fda5aeb89f8b21f177a02ec4290ae2fd5dbc595e371",
+        "bytes": 62425
+      },
+      {
+        "path": "scripts/aom_seed_heuristic.lua",
+        "sha256": "33e4f89aac2b2863804565c13753b05b0b1c9df4cdc2c0c25e48b2ee64f52db1",
+        "bytes": 35437
+      },
+      {
+        "path": "scripts/aom_seed_feasible.lua",
+        "sha256": "b95009b54d50cab086edbefc80534902ff1d6696df783ad2fecdcae7e031486f",
+        "bytes": 6632
+      },
+      {
+        "path": "scripts/aom_seed_balance.lua",
+        "sha256": "6cddd29845e589c8554256e10cc18dcf58d52adf9e44cf84b84664d2cc9d82c5",
+        "bytes": 11345
+      },
+      {
+        "path": "scripts/aom_seed_strategy.lua",
+        "sha256": "a49889673ede68b6b521eeef3c361693d3025243ac54c6c272d7c3953f6d4a51",
+        "bytes": 2215
+      },
+      {
+        "path": "scripts/aom_farm_registry.lua",
+        "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+        "bytes": 1387
+      },
+      {
+        "path": "scripts/aom_crop_state.lua",
+        "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+        "bytes": 1667
+      },
+      {
+        "path": "scripts/components/aom_attachment_store.lua",
+        "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+        "bytes": 8377
+      }
+    ],
+    "fingerprint": "d41db6da2c2b3595501731bd1b9e405780d0c59eb9a71a1905e531e92269f903",
+    "installed_match": true,
+    "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+    "constants": {
+      "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+      "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+      "FARM_TILL_SPACING": 1.25,
+      "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+    }
+  }
+}

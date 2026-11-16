@@ -31,3 +31,5 @@ dialog{border:2px solid #997b51;background:#40352a;border-radius:4px;box-shadow:
 .connection-note button{display:block;margin-top:4px;font-size:11px;text-decoration:underline}
 @media(max-width:1100px) and (min-width:761px){.workspace{grid-template-columns:244px minmax(0,1fr)}}
 @media(max-width:480px){.usage{grid-template-columns:repeat(2,minmax(0,1fr))}.canvas-panels .inspect-panel{align-items:flex-start;gap:10px}}
+
+#template-modules summary{cursor:pointer;padding:5px 0}#template-modules .module-list{max-height:8rem;overflow:auto;line-height:1.7;margin-bottom:6px}

@@ -40,14 +40,14 @@ function M.Reason(text)
     for code,value in pairs(REASONS)do if text==L(value) then return code end end
     return "GENERIC"
 end
-function M.Say(player,text)
+function M.Say(player,text,duration,noanim)
     if TheWorld and TheWorld.ismastersim==false or not player
         or player.IsValid and not player:IsValid()
         or player.HasTag and (player:HasTag("playerghost") or player:HasTag("mime"))
         or player.components and player.components.health and player.components.health:IsDead() then return false end
     local talker=player.components and player.components.talker
     if not talker or type(text)~="string" or text=="" then return false end
-    talker:Say(text)
+    talker:Say(text,duration,noanim)
     return true
 end
 local function Register(character,action)

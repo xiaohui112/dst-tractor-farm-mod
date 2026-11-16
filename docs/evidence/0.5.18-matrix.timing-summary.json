@@ -1,0 +1,236 @@
+{
+  "basis": "process_cpu",
+  "cases": 264,
+  "passed": 250,
+  "incomplete": 14,
+  "failed": 0,
+  "source_sha256": {
+    "aom_dynamic_farm.lua": "34c7fbe1bd45ff2def5664d284c29176a8633149e0923d4a866cde7134a36dd7",
+    "aom_seed_templates.lua": "487e7ee942f536977f4fd78a09d2dbce0108f40bf8f18f2297c833222a5bc4d8",
+    "aom_seed_packing.lua": "3e4ec3e459ec55de63eeb88abef9ce4bf4b8a96a85adbe75a317b8f526e7658e",
+    "aom_seed_exact.lua": "657ece00eb94d6cf2bc33fda5aeb89f8b21f177a02ec4290ae2fd5dbc595e371",
+    "aom_seed_regions.lua": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b"
+  },
+  "run_complete": true,
+  "incomplete_by_phase": {
+    "quantity": 14
+  },
+  "all_completed": {
+    "quantity_seconds": {
+      "samples": 250,
+      "total_seconds": 257.082536,
+      "p50_seconds": 0.1513465000000025,
+      "p95_seconds": 5.362110050000003,
+      "max_seconds": 18.91610399999999
+    },
+    "arrangement_seconds": {
+      "samples": 250,
+      "total_seconds": 44.452983000000046,
+      "p50_seconds": 0.01931599999999989,
+      "p95_seconds": 0.9342888000000059,
+      "max_seconds": 1.523428999999993
+    }
+  },
+  "positive_completed": {
+    "quantity_seconds": {
+      "samples": 230,
+      "total_seconds": 256.969373,
+      "p50_seconds": 0.17715200000000308,
+      "p95_seconds": 5.77991474999999,
+      "max_seconds": 18.91610399999999
+    },
+    "arrangement_seconds": {
+      "samples": 230,
+      "total_seconds": 44.45177400000007,
+      "p50_seconds": 0.0238800000000019,
+      "p95_seconds": 0.9570092500000065,
+      "max_seconds": 1.523428999999993
+    }
+  },
+  "each_completed_phase": {
+    "quantity_seconds": {
+      "samples": 250,
+      "total_seconds": 257.082536,
+      "p50_seconds": 0.1513465000000025,
+      "p95_seconds": 5.362110050000003,
+      "max_seconds": 18.91610399999999
+    },
+    "arrangement_seconds": {
+      "samples": 250,
+      "total_seconds": 44.452983000000046,
+      "p50_seconds": 0.01931599999999989,
+      "p95_seconds": 0.9342888000000059,
+      "max_seconds": 1.523428999999993
+    }
+  },
+  "incomplete_cases": [
+    {
+      "id": "autumn/square-3/all-40/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 27.803214,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00482
+    },
+    {
+      "id": "autumn/square-5/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.075245000000002,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.02325
+    },
+    {
+      "id": "autumn/square-7/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.885853000000004,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00766
+    },
+    {
+      "id": "autumn/square-8/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.010512000000006,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00015
+    },
+    {
+      "id": "autumn/ring-7/all-40/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 28.570648999999996,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.0034
+    },
+    {
+      "id": "spring/square-3/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.297485999999992,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00928
+    },
+    {
+      "id": "spring/square-3/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.403203000000005,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.00095
+    },
+    {
+      "id": "spring/square-5/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.601699999999994,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.03702
+    },
+    {
+      "id": "spring/square-7/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.184878999999995,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.09157
+    },
+    {
+      "id": "spring/square-8/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.713704000000007,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.29498
+    },
+    {
+      "id": "summer/square-3/all-10/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 25.762162000000018,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.01084
+    },
+    {
+      "id": "summer/square-5/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 25.734058000000005,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.001
+    },
+    {
+      "id": "summer/square-7/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 26.864562000000006,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.02468
+    },
+    {
+      "id": "summer/square-8/all-20/GIANT",
+      "phase": "quantity",
+      "timings": {
+        "quantity_seconds": 29.488585,
+        "arrangement_seconds": 0,
+        "quantity_complete": false,
+        "arrangement_complete": false,
+        "basis": "process_cpu"
+      },
+      "elapsed_seconds": 30.01366
+    }
+  ]
+}

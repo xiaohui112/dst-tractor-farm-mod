@@ -1,0 +1,117 @@
+{
+  "version": "0.5.20",
+  "source_files": 97,
+  "archive": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/Tractor.zip",
+  "archive_sha256": "df313e55b2390625764c1486f96daddd3eb1d79b0cef202a2bedcf51afbaf31d",
+  "installed_path": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+  "all_source_archive_installed_bytes_match": true,
+  "backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/template-18-coverage/install-backup",
+  "selfcheck": {
+    "mode": "release",
+    "success": true,
+    "game": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents",
+    "checks": [
+      {
+        "name": "check_syntax",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_modinfo",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_no_source_png",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_animation_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_driver_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_music_assets",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_common_module",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_mod_environment",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_script_modules",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_paths",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_game_globals",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_recipe_ingredients",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_cross_refs",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_local_functions_defined",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_bad_patterns",
+        "status": "passed",
+        "details": null
+      },
+      {
+        "name": "check_planner_fingerprint",
+        "status": "passed",
+        "details": {
+          "source_fingerprint_current": true
+        }
+      },
+      {
+        "name": "check_giant_farming",
+        "status": "passed",
+        "details": {
+          "run": 684,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "failures": [],
+    "warnings": []
+  },
+  "game_restarted": false,
+  "github_pushed": false
+}

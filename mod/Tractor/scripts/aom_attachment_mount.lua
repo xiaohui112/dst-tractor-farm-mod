@@ -52,10 +52,12 @@ end
 function M.FreePosition(vehicle,item)
     local source=Source(vehicle)
     local x,y,z=source.Transform:GetWorldPosition()
+    -- DST 朝向为 x=cos(a)、z=-sin(a)。收割机从车头卸载，其余配件从车尾卸载。
+    local direction=(source.Transform:GetRotation()+(item.attachment_type=="harvester" and 0 or 180))*math.pi/180
     for _,radius in ipairs({3,4,5,6,8,10,14,18}) do
-        for i=0,15 do
-            local a=i*math.pi/8
-            local px,pz=x+radius*math.cos(a),z+radius*math.sin(a)
+        for _,offset in ipairs({0,1,-1,2,-2,3,-3}) do
+            local a=direction+offset*math.pi/8
+            local px,pz=x+radius*math.cos(a),z-radius*math.sin(a)
             if TheWorld.Map:IsPassableAtPoint(px,0,pz) then
                 local free=true
                 for _,v in ipairs(TheSim:FindEntities(px,0,pz,.8,nil,{"INLIMBO","NOCLICK","FX","NOBLOCK"})) do

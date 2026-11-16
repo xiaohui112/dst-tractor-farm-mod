@@ -1,0 +1,102 @@
+{
+  "status": "budget",
+  "cpu_seconds": 20.054579,
+  "wall_seconds": 20.189658666029572,
+  "snapshot_unchanged": true,
+  "stage_cpu": [
+    {
+      "stage": "patterns",
+      "cpu_seconds": 0.012504000000000015
+    },
+    {
+      "stage": "geometry",
+      "cpu_seconds": 0.0011950000000000016
+    },
+    {
+      "stage": "upper_bound",
+      "cpu_seconds": 4.799999999999249e-05
+    },
+    {
+      "stage": "initial_layout",
+      "cpu_seconds": 6.999999999979245e-06
+    },
+    {
+      "stage": "template_witness",
+      "cpu_seconds": 0.06730999999999998
+    },
+    {
+      "stage": "region_probe",
+      "cpu_seconds": 0.679722
+    },
+    {
+      "stage": "initial_layout",
+      "cpu_seconds": 0.3069569999999999
+    },
+    {
+      "stage": "quota_prepare",
+      "cpu_seconds": 0.7181849999999999
+    },
+    {
+      "stage": "quantity_portfolio",
+      "cpu_seconds": 18.268641000000002
+    }
+  ],
+  "method_cpu": {
+    "exact_proof": 1.334986999999991,
+    "constructive_search": 16.88179399999993
+  },
+  "context": {
+    "patterns": 457,
+    "relaxed_upper": 81,
+    "active_method": "exact_proof",
+    "target": 81,
+    "proof_upper": 81,
+    "best_legal": 80,
+    "proof_nodes": 342
+  },
+  "full_field_searches": [
+    {
+      "name": "aom_seed_exact.Maximize",
+      "progress": {
+        "total_profiles": 174,
+        "direction": 0,
+        "method": "patterns",
+        "allocation": "8,8,5,39,0,0,0,0,21",
+        "profile": 4,
+        "preparation_limited": true,
+        "profiles": 523,
+        "upper": 81,
+        "target": 81,
+        "nodes": 342,
+        "work": 250112,
+        "lower": 80
+      },
+      "target": 81,
+      "start": 2.258049,
+      "tile_count": 9,
+      "lower": 80
+    },
+    {
+      "name": "aom_seed_exact.Maximize",
+      "progress": {
+        "total_profiles": 174,
+        "direction": 2,
+        "method": "hybrid",
+        "allocation": "4,4,17,39,8,0,0,0,9",
+        "profile": 91,
+        "preparation_limited": true,
+        "profiles": 523,
+        "upper": 81,
+        "target": 81,
+        "nodes": 6452,
+        "work": 1547904,
+        "lower": 80
+      },
+      "target": 81,
+      "start": 3.468326,
+      "tile_count": 9,
+      "lower": 80
+    }
+  ],
+  "standalone_region_calls": 56
+}

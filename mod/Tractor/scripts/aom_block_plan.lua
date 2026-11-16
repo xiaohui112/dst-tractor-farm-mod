@@ -147,7 +147,7 @@ end
 local function NewBlock(combo,season,x,z,r)
     return {version=VERSION,combo_id=combo.id,season=season,x=x,z=z,rotation=r,confirmed=false,completed={},done=0}
 end
-function AOMBlock.ResetBlock(inst) inst._block=nil;inst._aom_plan_outdated=nil;inst._aom_dynamic_job=nil;inst._aom_dynamic_reason=nil end
+function AOMBlock.ResetBlock(inst) require('aom_dynamic_farm').Cancel(inst,'PLAN_RESET');inst._aom_plan_request=nil;inst._block=nil;inst._aom_plan_outdated=nil;inst._aom_dynamic_job=nil;inst._aom_dynamic_reason=nil end
 
 -- 先检查整套余料及真实场地，再返回本格目标；调用方不得降级为顺序播种。
 function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
@@ -185,12 +185,15 @@ function AOMBlock.GetTargets(inst,season,seed_counts,cx,cz,preparing)
         local defs=require("prefabs/farm_plant_defs").PLANT_DEFS
         local exempt={}
         for _,crop in ipairs(combo.not_giant) do exempt[crop]=true end
-        for _,p in pairs(positions) do
+        local points={};for _,p in pairs(positions)do points[#points+1]=p end
+        local ranges,complete=require('aom_farm_neighbors').Build(points,defs)
+        if not complete then return nil,'NO_FAMILY' end
+        for i,p in ipairs(points) do
             if not exempt[p.crop] then
                 local family=0
                 local def=defs[p.crop]
-                for _,q in pairs(positions) do
-                    if q.crop==p.crop and (p.x-q.x)^2+(p.z-q.z)^2<=(def.family_check_dist or 4)^2 then family=family+1 end
+                for j,q in ipairs(points) do
+                    if q.crop==p.crop and ranges[(def.family_check_dist or 4)^2][i][j]then family=family+1 end
                 end
                 if family<(def.family_min_count or 4) then return nil,"NO_FAMILY" end
             end
@@ -213,7 +216,9 @@ function AOMBlock.RecordPlanted(inst,target)
     if not block or not target or block.completed[target.index] then return false end
     local expected=AOMBlock.WorldSlots(block)[target.index]
     if not expected or expected.crop~=target.crop or not Near(expected,target) then return false end
-    block.completed[target.index]=true;block.done=block.done+1
+    if block.strategy=='GIANT_TEMPLATE' then require('aom_template_preview').Complete(block,target.index)
+    else block.completed[target.index]=true;block.done=block.done+1 end
+    if inst._aom_plan_trace then inst._aom_plan_trace:Sown(target,block)end
     return true
 end
 function AOMBlock.OnSave(inst)
@@ -225,8 +230,8 @@ function AOMBlock.OnSave(inst)
     if b.dynamic then
         local tiles,slots={},{}
         for i,t in ipairs(b.tiles) do tiles[i]={x=t.x,z=t.z} end
-        for i,p in ipairs(b.slots) do slots[i]={x=p.x,z=p.z,cx=p.cx,cz=p.cz,crop=p.crop or false,index=i} end
-        return {version=4,dynamic=true,season=b.season,tiles=tiles,slots=slots,completed=completed,total=b.total,upper=b.upper,optimal=b.optimal,nutrient_balanced=b.nutrient_balanced}
+        for i,p in ipairs(b.slots) do slots[i]={x=p.x,y=p.y or 0,z=p.z,cx=p.cx,cz=p.cz,crop=p.crop or false,index=i} end
+        return {version=4,dynamic=true,strategy=b.strategy or "GIANT",season=b.season,tiles=tiles,slots=slots,completed=completed,total=b.total,upper=b.upper,optimal=b.optimal,nutrient_balanced=b.nutrient_balanced,construction=b.strategy=="GIANT_TEMPLATE" and {modules=b.construction and b.construction.modules,catalog_version=b.construction and b.construction.catalog_version}or nil}
     end
     return {version=VERSION,combo_id=b.combo_id,season=b.season,x=b.x,z=b.z,rotation=b.rotation,
         confirmed=b.confirmed==true,completed=completed,automatic=b.automatic,positions=b.positions}
@@ -235,15 +240,16 @@ function AOMBlock.OnLoad(inst,data)
     -- 旧版只有总株数，无法推断真实位置；不把旧计数迁移进新地图。
     if not data then return end
     if data.version==4 and data.dynamic then
-        local ok,total=require('aom_dynamic_farm').Validate(data)
+        local ok,total=require('aom_dynamic_farm').Validate(data,nil,true)
         if not ok or type(data.completed)~='table' then return end
-        local b={dynamic=true,version=4,season=data.season,tiles=data.tiles,slots=data.slots,total=total,upper=total,optimal=false,completed={},done=0,automatic=true,confirmed=true,nutrient_balanced=data.nutrient_balanced==true}
+        local b={dynamic=true,version=4,strategy=data.strategy=="GIANT_TEMPLATE" and "GIANT_TEMPLATE" or "GIANT",season=data.season,tiles=data.tiles,slots=data.slots,total=total,upper=total,optimal=false,completed={},done=0,automatic=true,confirmed=true,nutrient_balanced=data.nutrient_balanced==true,construction=data.construction}
         for _,i in ipairs(data.completed) do
             if type(i)~='number' or i%1~=0 or not b.slots[i] or not b.slots[i].crop or b.completed[i] then return end
             b.completed[i]=true;b.done=b.done+1
         end
         for i,p in ipairs(b.slots) do p.index=i end
         inst._block=b
+        b._native_needs_validation=true
         for _,t in ipairs(b.tiles) do require('aom_farm_registry').Record(TheWorld,t.x,t.z) end
         return
     end
@@ -340,6 +346,11 @@ function AOMBlock.NextTile(inst)
     local b=inst._block
     if not b then return end
     local slots=AOMBlock.WorldSlots(b)
+    if b.strategy=='GIANT_TEMPLATE' then
+        local i=b._aom_next_slot or 1
+        while slots[i]do local p=slots[i];if p.crop and not b.completed[i]then b._aom_next_slot=i;return p.cx,p.cz end;i=i+1 end
+        b._aom_next_slot=i;return
+    end
     if b.dynamic then for _,p in ipairs(slots) do if p.crop and not b.completed[p.index] then return p.cx,p.cz end end;return end
     if inst._attachment_type=="plow" then
         local ordered,seen={},{}
@@ -356,18 +367,29 @@ function AOMBlock.NextTile(inst)
     end
     for _,p in ipairs(slots) do if p.crop and not b.completed[p.index] then return p.cx,p.cz end end
 end
-function AOMBlock.Sync(inst)
-    if not inst._plan_net then return end
+function AOMBlock.Sync(inst,trace)
+    if not inst._plan_net then
+        if trace then trace:Skip("plan_encode","no_network_variable");trace:Skip("net_publish","no_network_variable")end
+        return
+    end
+    if trace then trace:Stage("plan_encode")end
     local b=inst._block
     if not b then inst._plan_net:set("");return end
     if b.dynamic then
         local nx,nz=AOMBlock.NextTile(inst)
-        -- HUD needs progress and the next tile; complete layouts stay server-side.
+        if b.strategy=='GIANT_TEMPLATE' then
+            local payload=require('aom_template_preview').Encode(inst,nx,nz)
+            if trace then trace:Stage('net_publish')end
+            inst._plan_net:set(payload);return
+        end
+        -- 同步整片剩余实际坑位，预览跨地皮布局；不发送代码或重新推算坐标。
         local points={}
-        for _,p in ipairs(b.slots) do if p.crop and not b.completed[p.index] and p.cx==nx and p.cz==nz then
-            points[#points+1]=table.concat({string.format('%.4f',p.x),string.format('%.4f',p.z),p.crop},',')
+        for _,p in ipairs(b.slots) do if p.crop and not b.completed[p.index] then
+            points[#points+1]=table.concat({string.format('%.4f',p.x),string.format('%.4f',p.z),p.crop,p.cx,p.cz},',')
         end end
-        inst._plan_net:set(table.concat({'D4',b.total,b.done,b.season,nx or '',nz or '',table.concat(points,'|')},';'))
+        local payload=table.concat({'D5',b.total,b.done,b.season,nx or '',nz or '',table.concat(points,'|')},';')
+        if trace then trace:Stage("net_publish")end
+        inst._plan_net:set(payload)
         return
     end
     local completed={}
@@ -376,9 +398,49 @@ function AOMBlock.Sync(inst)
     local nx,nz=AOMBlock.NextTile(inst)
     inst._plan_net:set(table.concat({b.combo_id,b.x,b.z,b.rotation,b.confirmed==true and "1" or "0",table.concat(completed,","),nx or "",nz or ""},";"))
 end
+-- 骑乘跨地皮时刷新附近窗口，离开旧窗口的客户端标记随下一包移除。
+function AOMBlock.RefreshNearby(inst)
+    local b=inst._block
+    if not b or b.strategy~='GIANT_TEMPLATE' or not inst._plan_net then return end
+    local x,_,z=require('aom_template_preview').Position(inst)
+    x,_,z=TheWorld.Map:GetTileCenterPoint(x,0,z)
+    if inst._aom_template_preview_center~=x..':'..z then AOMBlock.Sync(inst)end
+end
 -- 严格解析数据，客户端从同版本模板还原预览，不接受可执行字符串。
 function AOMBlock.Decode(text)
     if type(text)~="string" then return end
+    if string.sub(text,1,3)=='D6;' then return require('aom_template_preview').Decode(text)end
+    if string.sub(text,1,3)=='D5;' then
+        if #text>60000 then return end
+        local total,done,season,x,z,raw=string.match(text,'^D5;(%d+);(%d+);([a-z]+);([^;]*);([^;]*);([^;]*)$')
+        total,done=tonumber(total),tonumber(done)
+        if not total or total<1 or total>576 or not done or done>total or not BLOCKS[season] then return end
+        local b={dynamic=true,total=total,done=done,season=season,confirmed=true,completed={},tiles={},slots={}}
+        if x=='' and z=='' and raw=='' and done==total then return b end
+        x,z=tonumber(x),tonumber(z)
+        if not ValidNumber(x) or not ValidNumber(z) then return end
+        b.next_x,b.next_z=x,z
+        local tiles,seen={},{}
+        for part in string.gmatch(raw,'[^|]+') do
+            local px,pz,crop,cx,cz=string.match(part,'^([^,]+),([^,]+),([a-z]+),([^,]+),([^,]+)$')
+            px,pz,cx,cz=tonumber(px),tonumber(pz),tonumber(cx),tonumber(cz)
+            local def=crop and require('prefabs/farm_plant_defs').PLANT_DEFS[crop]
+            if not ValidNumber(px) or not ValidNumber(pz) or not ValidNumber(cx) or not ValidNumber(cz)
+                or not def or not def.good_seasons[season] or math.abs(px-cx)>=2 or math.abs(pz-cz)>=2 then return end
+            local tilekey=Key(cx,cz);local pointkey=Key(px,pz)
+            if seen[pointkey] then return end
+            seen[pointkey]=true
+            if not tiles[tilekey] then
+                if #b.tiles>=64 then return end
+                b.tiles[#b.tiles+1]={x=cx,z=cz};tiles[tilekey]=0
+            end
+            tiles[tilekey]=tiles[tilekey]+1
+            if tiles[tilekey]>9 or #b.slots>=total-done then return end
+            b.slots[#b.slots+1]={x=px,z=pz,cx=cx,cz=cz,crop=crop,index=#b.slots+1}
+        end
+        if #b.slots~=total-done then return end
+        return b
+    end
     if string.sub(text,1,3)=='D4;' then
         if #text>2048 then return end
         local total,done,season,x,z,raw=string.match(text,'^D4;(%d+);(%d+);([a-z]+);([^;]*);([^;]*);([^;]*)$')

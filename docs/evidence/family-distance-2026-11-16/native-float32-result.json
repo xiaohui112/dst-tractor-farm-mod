@@ -1,0 +1,53 @@
+{
+  "evidence_type": "static binary inspection plus IEEE-754 float32 emulation; no successful live query",
+  "binary": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/MacOS/dontstarve_dedicated_server_nullrenderer",
+  "sha256": "566b604a19eda2716a5711ff5f7a8c12f73033d945aea0290760e7968b9206f0",
+  "version_from_startup_log": "762172",
+  "registration": [
+    {
+      "file_offset": "0x5809d0",
+      "function_vm": "0x1001ebd10"
+    }
+  ],
+  "example": {
+    "lua_x1": 9.333333333333334,
+    "lua_x2": 5.333333333333333,
+    "lua_double_d2": 16.000000000000007,
+    "stored_x1": 9.333333015441895,
+    "stored_x2": 5.333333492279053,
+    "float32_delta": 3.999999523162842,
+    "float32_d2": 15.999996185302734
+  },
+  "boundary_cases": [
+    {
+      "input_x": 4,
+      "stored_x": 4.0,
+      "d2": 16.0,
+      "passes_distance_filter": true
+    },
+    {
+      "input_x": 4.000000000000001,
+      "stored_x": 4.0,
+      "d2": 16.0,
+      "passes_distance_filter": true
+    },
+    {
+      "input_x": 4.0000001,
+      "stored_x": 4.0,
+      "d2": 16.0,
+      "passes_distance_filter": true
+    },
+    {
+      "input_x": 4.000000476837158,
+      "stored_x": 4.000000476837158,
+      "d2": 16.000003814697266,
+      "passes_distance_filter": false
+    }
+  ],
+  "autumn_3x3_origin_grid": {
+    "missing_directed_edges_vs_ideal": 0,
+    "extra_directed_edges_vs_ideal": 0,
+    "changed_directed_edges_vs_double": 36,
+    "prior_81_candidate_family_failures": []
+  }
+}

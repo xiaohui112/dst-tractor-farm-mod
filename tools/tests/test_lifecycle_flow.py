@@ -433,7 +433,7 @@ local record=clone(t:GetSaveRecord());t:Remove();tank:Remove()
 local next=SpawnSaveRecord(record,{})
 assert(next.components.container:GetItemInSlot(2)==nil)
 assert(next.components.container:GetItemInSlot(9).components.stackable:StackSize()==9)
-assert(next._water_net:value()==0 and next._toolmax_net:value()==60)
+assert(next._water_net:value()==0 and next._toolmax_net:value()==100)
 ''')
 
     def test_death_drops_everything_once_and_preserves_repairable_wreck(self):

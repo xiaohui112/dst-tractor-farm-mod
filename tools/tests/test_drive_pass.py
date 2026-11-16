@@ -231,14 +231,12 @@ for i=1,6 do inst.x=1+i*.1;Drive.TrackMovement(inst)end
 assert(smoke_count()==4)
 ''')
 
-    def test_speed_order_matches_requested_work_groups(self):
+    def test_all_work_and_travel_speeds_equal_half_initial_character_speed(self):
         self.run_lua('''
-assert(Profile.Speed('plow',true)<Profile.Speed('weeder',true))
-assert(Profile.Speed('weeder',true)==Profile.Speed('harvester',true))
-assert(Profile.Speed('weeder',true)<Profile.Speed('seeder',true))
-assert(Profile.Speed('seeder',true)<Profile.Speed('irrigator',true))
-assert(Profile.Speed('irrigator',true)<=Profile.Speed('fertilizer',true))
-for attachment in pairs(Profile.REFERENCE_MPH)do assert(Profile.Speed(attachment,false)==6)end
+for attachment in pairs(Profile.REFERENCE_MPH)do
+ assert(Profile.Speed(attachment,false)==3)
+ assert(Profile.Speed(attachment,true)==3)
+end
 ''')
 
 

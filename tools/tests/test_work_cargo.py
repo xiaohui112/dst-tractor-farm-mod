@@ -71,7 +71,7 @@ assert(quantity(player,'tomato')==10 and old.components.stackable:StackSize()==1
 assert(actual_picker==player and give==player.components.inventory.GiveItem)
 assert(not plant.valid and nextplant.valid and t._working)
 assert(Drive.WorkTile(t,4,0) and quantity(t,'tomato')==2 and not nextplant.valid)
-assert(t._fuel:value()==398 and t:GetAttachment().components.finiteuses:GetUses()==38)
+assert(t._fuel:value()==398 and t:GetAttachment().components.finiteuses:GetUses()==98)
 ''')
 
     def test_giant_and_rotten_giant_drops_are_collected_with_native_yields(self):
@@ -80,7 +80,7 @@ local first=crop('tomato',0,0,true);local rotten=giant('carrot',1,0,'_rotten')
 assert(Drive.WorkTile(t,0,0) and not first.valid and not rotten.valid)
 assert(quantity(t,'tomato')+quantity(t,'tomato_seeds')==5)
 assert(quantity(t,'spoiled_food')==1 and quantity(player,'tomato')==0)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==39)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_weeding_collects_old_ground_items_and_new_drops_then_continues(self):
@@ -91,7 +91,7 @@ t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not a.valid and b.valid)
 assert(quantity(t,'twigs')==1 and quantity(t,'rocks')==1 and quantity(t,'flint')==3)
 assert(Drive.WorkTile(t,4,0) and not b.valid and t._working)
 assert(quantity(t,'twigs')==2 and quantity(t,'rocks')==2 and t._fuel:value()==398)
-assert(e.components.finiteuses:GetUses()==48)
+assert(e.components.finiteuses:GetUses()==98)
 ''')
 
     def test_fully_stacked_cargo_stops_before_harvest_and_resumes_after_freeing_space(self):
@@ -113,7 +113,7 @@ assert(quantity(nil,'tomato')==0 and t._fuel:value()==399)
 tool('aom_weeder');fill();local a=weed(0,0);local loot=SpawnPrefab('flint')
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(not changed and why=='CARGO_FULL' and a.valid and loot.valid and not t._working)
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==50)
+assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
 ''')
 
     def test_new_loot_scattered_across_tile_border_is_collected_without_sweeping_neighbor(self):
@@ -134,7 +134,7 @@ tool('aom_weeder');fill();local a=weed(0,0);local b=weed(1,0)
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='CARGO_FULL' and not t._working and not a.valid and b.valid)
 assert(quantity(nil,'twigs')==1 and quantity(nil,'rocks')==1)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==49)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_full_slots_accept_matching_produce_and_partial_stack_keeps_remainder(self):
@@ -150,7 +150,7 @@ assert(t._fuel:value()==399)
 t.components.container:RemoveItemBySlot(2):Remove()
 t:SetWorking(true);local again=Drive.WorkTile(t,0,0)
 assert(not again and t._working and quantity(t,'tomato')==41 and quantity(nil,'tomato')==0)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==39)
+assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
 ''')
 
     def test_harvest_callback_error_restores_inventory_and_loot_functions(self):

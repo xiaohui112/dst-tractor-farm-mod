@@ -115,7 +115,7 @@ class Handler(SimpleHTTPRequestHandler):
 def current_service(port):
  try:
   with urllib.request.urlopen(f'http://127.0.0.1:{port}/api/meta',timeout=2) as response:metadata=json.load(response)
-  return metadata.get('app_id')=='tractor-native-seed-verifier' and metadata.get('server_build')==BUILD_SIGNATURE and metadata.get('verifier_schema')==3
+  return metadata.get('app_id')=='tractor-native-seed-verifier' and metadata.get('server_build')==BUILD_SIGNATURE and metadata.get('verifier_schema')==4
  except Exception:return False
 
 

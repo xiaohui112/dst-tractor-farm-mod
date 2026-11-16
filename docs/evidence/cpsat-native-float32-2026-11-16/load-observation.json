@@ -1,0 +1,10 @@
+{
+  "time": "2026-11-16T19:10:27.933281+08:00",
+  "load_average": [
+    10.84423828125,
+    10.46875,
+    7.76513671875
+  ],
+  "logical_cpus": 10,
+  "note": "Shared desktop; no other processes stopped. Wall-clock budget outcomes and timing comparisons are load-sensitive."
+}

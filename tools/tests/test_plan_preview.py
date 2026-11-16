@@ -24,7 +24,7 @@ assert(AOM_RPC.PLAN==nil and AOM_RPC.PLAN_ROTATE==nil)
 attach('aom_seeder');local seed=SpawnPrefab('tomato_seeds')
 seed.components.stackable:SetStackSize(20);assert(t.components.container:GiveItem(seed))
 t:CycleSeedStrategy(player)
-assert(t._seed_strategy=='GIANT' and t._block==nil)
+assert(t._seed_strategy=='GIANT_TEMPLATE' and t._block==nil)
 RPCS.AOM_TOGGLE_WORK(player)
 assert(t._working and t._worktask and t._workstate_net:value()~='PLAN_PENDING')
 ''')
@@ -50,17 +50,17 @@ local count=0
 for _,v in ipairs(ENTITIES)do if v:IsValid() and v:HasTag('farm_plant')then count=count+1 end end
 assert(count==8 and t._block.automatic and t._block.done==8 and t._working)
 assert(t.components.aom_attachment_store:GetSeedCount()==8 and t._fuel:value()==392)
-hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 392/400',1,true))
+hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 92/100',1,true))
 ''')
 
     def test_seeder_hover_has_exact_three_lines_from_synchronized_values(self):
         self.run_lua('''
-local seeder=attach('aom_seeder');seeder.components.finiteuses:SetUses(161)
+local seeder=attach('aom_seeder');seeder.components.finiteuses:SetUses(61)
 t:CycleSeedStrategy(player);hud:Refresh(t)
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 161/400'..string.char(10)..'播种策略：巨大化')
-assert(hud.badges.tool:GetText()=='161')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/100'..string.char(10)..'播种策略：巨大化·模版')
+assert(hud.badges.tool:GetText()=='61')
 local old=t.components;t.components={};hud:Refresh(t)
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 161/400'..string.char(10)..'播种策略：巨大化')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/100'..string.char(10)..'播种策略：巨大化·模版')
 t.components=old
 ''')
 
@@ -76,7 +76,7 @@ assert(not marker:IsValid() and hud._plan_markers==nil and hud._plan_marker_key=
         self.run_lua('''
 attach('aom_seeder');t:CycleSeedStrategy(player)
 player.components.rider:ActualDismount();hud.badges.tool.onclick()
-assert(t._seed_strategy=='GIANT')
+assert(t._seed_strategy=='GIANT_TEMPLATE')
 hud:Refresh(nil);assert(not hud:IsVisible())
 ''')
 

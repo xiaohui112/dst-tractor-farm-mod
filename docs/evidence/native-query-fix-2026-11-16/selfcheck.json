@@ -1,0 +1,106 @@
+{
+  "mode": "development",
+  "success": true,
+  "game": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents",
+  "checks": [
+    {
+      "name": "check_syntax",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_modinfo",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_no_source_png",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_assets",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_animation_assets",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_driver_assets",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_music_assets",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_common_module",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_mod_environment",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_script_modules",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_game_paths",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_game_globals",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_recipe_ingredients",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_cross_refs",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_local_functions_defined",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_bad_patterns",
+      "status": "passed",
+      "details": null
+    },
+    {
+      "name": "check_planner_fingerprint",
+      "status": "passed",
+      "details": {
+        "source_fingerprint_current": true
+      }
+    },
+    {
+      "name": "check_giant_farming",
+      "status": "passed",
+      "details": {
+        "run": 690,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "failures": [],
+  "warnings": []
+}

@@ -59,6 +59,10 @@ local function MakeAttachment(name,kind)
             if data and data.aom_machine_uses~=nil then
                 item._aom_machine_uses=math.max(0,math.min(Durability.TOOLS[kind],data.aom_machine_uses))
             end
+            -- finiteuses 先加载旧绝对值；降上限时保留剩余值并封顶，防止旧播种机超过100。
+            if kind~="irrigator" and kind~="fertilizer" then
+                item.components.finiteuses:SetUses(math.min(Durability.TOOLS[kind],Durability.GetUses(item)))
+            end
             item._durability_net:set(Durability.GetUses(item))
         end
         return inst

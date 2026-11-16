@@ -25,10 +25,10 @@ Drive.SetWorking(inst,true);Drive.TrackMovement(inst)
 assert(count_entities('farm_plant_tomato')==0 and count_entities('tomato_oversized')==0)
 assert(count_entities('tomato')+count_entities('tomato_seeds')==45)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
-assert(tool.components.finiteuses:GetUses()==39)
+assert(tool.components.finiteuses:GetUses()==99)
 for i=1,20 do Drive.TrackMovement(inst)end
 assert(inst._fuel:value()==799 and count_entities('tomato')+count_entities('tomato_seeds')==45)
-assert(tool.components.finiteuses:GetUses()==39)
+assert(tool.components.finiteuses:GetUses()==99)
 ''')
 
     def test_continuous_driving_passes_empty_tile_and_harvests_next_tile(self):
@@ -37,10 +37,10 @@ local first=crop('tomato',0,0,false);local next=crop('pumpkin',8,0,true)
 Drive.SetWorking(inst,true);Drive.TrackMovement(inst)
 assert(not first.valid and next.valid and inst._working)
 for i=1,10 do Drive.TrackMovement(inst)end
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==39)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
 inst.x=8;Drive.TrackMovement(inst)
 assert(not next.valid and count_entities('pumpkin_oversized')==0 and inst._working)
-assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==38)
+assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==98)
 Drive.SetWorking(inst,false);assert(not inst._working and not inst._worktask)
 ''')
 
@@ -142,7 +142,7 @@ v.components.pickable.''' + field + ('=false' if field == 'caninteractwith' else
 local worked,reason=Drive.WorkTile(inst,0,0)
 assert(not worked and reason=='HARVEST_INCOMPLETE' and v.valid and not inst._working)
 assert(inst._fuel:value()==800 and inst.components.finiteuses.used==0)
-assert(tool.components.finiteuses:GetUses()==40)
+assert(tool.components.finiteuses:GetUses()==100)
 ''')
 
     def test_failed_hammer_preserves_giant_and_can_resume(self):
@@ -219,16 +219,16 @@ assert(not require('aom_harvester_tool').Repair(inst))
 tool=SpawnPrefab('aom_harvester');inst.components.container.slots[1]=tool;inst._attachment_type='harvester'
 Drive.SetWorking(inst,true)
 assert(Drive.WorkTile(inst,4,0) and not next.valid)
-assert(tool.components.finiteuses:GetUses()==39 and inst._fuel:value()==798)
+assert(tool.components.finiteuses:GetUses()==99 and inst._fuel:value()==798)
 ''')
 
     def test_empty_field_and_repeated_pass_do_not_consume_durability(self):
         self.run_lua('''
 assert(not Drive.WorkTile(inst,0,0))
-assert(tool.components.finiteuses:GetUses()==40 and inst._fuel:value()==800)
+assert(tool.components.finiteuses:GetUses()==100 and inst._fuel:value()==800)
 crop('tomato');assert(Drive.WorkTile(inst,0,0))
 assert(not Drive.WorkTile(inst,0,0))
-assert(tool.components.finiteuses:GetUses()==39 and inst._fuel:value()==799)
+assert(tool.components.finiteuses:GetUses()==99 and inst._fuel:value()==799)
 ''')
 
     def test_partial_work_consumes_one_use_and_zero_use_retry_cannot_work(self):

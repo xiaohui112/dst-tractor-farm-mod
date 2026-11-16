@@ -173,6 +173,7 @@ function M.SubsetWitness(crops,stock,tiles,slots,defs,target,yieldfn,prepared,pa
 end
 function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,options)
  local progress={lower=lower,upper=upper,nodes=0,work=0};M.progress=progress
+ if options and options.observe then options.observe(progress)end
  local Balance=require('aom_seed_balance')
  local Layout=require('aom_seed_layout')
  local patterns=options and options.patterns or Balance.Patterns(crops,stock,defs,yieldfn)
@@ -193,11 +194,11 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
  local spacing=(GetFarmTillSpacing and GetFarmTillSpacing() or 1.25)^2
  for i,p in ipairs(slots) do
   conflicts[i]={}
-  for j,q in ipairs(slots) do if j~=i and (p.x-q.x)^2+(p.z-q.z)^2<=spacing then conflicts[i][#conflicts[i]+1]=j end end
+  for _,j in ipairs(geometry.conflicts[i])do conflicts[i][#conflicts[i]+1]=j end
  end
  for c,k in ipairs(crops) do
   neighbors[c]={}
-  for i=1,N do local a={};for _,q in ipairs(geometry.near[i]) do if q.d<=(defs[k].family_check_dist or 4)^2 then a[#a+1]=q.j end end;neighbors[c][i]=a end
+  for i=1,N do local a={};for _,q in ipairs(geometry.near[i]) do if Layout.InRange(geometry,i,q.j,(defs[k].family_check_dist or 4)^2) then a[#a+1]=q.j end end;neighbors[c][i]=a end
  end
  local caps={};for c,k in ipairs(crops) do caps[c]=stock[k] end
  local reachCache,commonCache,mapCache={}, {},{}
@@ -228,6 +229,9 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
  local aborted=false
  local cooperative=false
  local function Step()
+  if options and options.incumbent and work%128==0 then
+   local candidate,n=options.incumbent();if candidate and n>lower then seed,lower=candidate,n;progress.lower=lower end
+  end
   work=work+1;if options and options.work_limit and work>options.work_limit then aborted=true end;if work%128==0 then progress.nodes=nodes;progress.work=work;if cooperative then coroutine.yield() elseif yieldfn then yieldfn() end end
  end
  local function Copy(a)local b={};for i,v in ipairs(a) do b[i]=v end;return b end
@@ -328,6 +332,7 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
   if not any then return nil end
   return outlo,outhi
  end
+ local boundsCache=setmetatable({},{__mode="k"})
  local function Propagate(domains,lists,target)
   local changed=true;local limits,lowerlimits={},{};for c,k in ipairs(crops) do limits[c]=caps[c];lowerlimits[c]=0 end
   while changed do
@@ -359,21 +364,27 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
      elseif force then if not Set(i,powers[c]) then return false end end
     end end
    end
-   local tilemin,tilemax={},{}
+   local tilemin,tilemax,totalmin={}, {},{}
+   for c=1,K do totalmin[c]=0 end
    for t=1,T do
-    tilemin[t]={};tilemax[t]={}
-    for c=1,K do tilemin[t][c]=9;tilemax[t][c]=0 end
-    for _,pattern in ipairs(lists[t]) do for c=1,K do tilemin[t][c]=math.min(tilemin[t][c],pattern.counts[c]);tilemax[t][c]=math.max(tilemax[t][c],pattern.counts[c]) end end
+    local bounds=boundsCache[lists[t]]
+    if not bounds then
+     local lo,hi={},{};for c=1,K do lo[c]=9;hi[c]=0 end
+     for _,pattern in ipairs(lists[t])do for c=1,K do lo[c]=math.min(lo[c],pattern.counts[c]);hi[c]=math.max(hi[c],pattern.counts[c])end end
+     bounds={lo,hi};boundsCache[lists[t]]=bounds
+    end
+    tilemin[t],tilemax[t]=bounds[1],bounds[2]
+    for c=1,K do totalmin[c]=totalmin[c]+tilemin[t][c]end
    end
    -- 原版同族条件是“每株至少三个邻居”，允许五株以上非团状支持。
    for c=1,K do
     for i,mask in ipairs(domains) do if Has(mask,c) then
      local support,n={},0
      for _,j in ipairs(neighbors[c][i]) do if Has(domains[j],c) then n=n+1;support[n]=j end end
-     local bytile={};for t=1,T do bytile[t]=0 end
-     for _,j in ipairs(support) do local t=math.floor((j-1)/9)+1;bytile[t]=bytile[t]+1 end
-     local supportmax,outside=0,0;local capacity={}
-     for t=1,T do capacity[t]=math.min(bytile[t],tilemax[t][c]);supportmax=supportmax+capacity[t];outside=outside+math.max(0,tilemin[t][c]-bytile[t]) end
+     local bytile={}
+     for _,j in ipairs(support)do local t=math.floor((j-1)/9)+1;bytile[t]=(bytile[t]or 0)+1 end
+     local supportmax,outside=0,totalmin[c];local capacity={}
+     for t,n in pairs(bytile)do capacity[t]=math.min(n,tilemax[t][c]);supportmax=supportmax+capacity[t];outside=outside-math.min(tilemin[t][c],n)end
      local sumcapacity=supportmax
      supportmax=math.min(supportmax,limits[c]-outside)
      if supportmax<minimum[c] then if not Set(i,domains[i]-powers[c]) then return false end
@@ -422,7 +433,7 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
      Step()
     end
     if #allowed==0 then return false end
-    lists[t]=allowed;mins[t],maxs[t]=lo,hi;summin=summin+lo;summax=summax+hi
+    if #allowed~=#lists[t]then lists[t]=allowed end;mins[t],maxs[t]=lo,hi;summin=summin+lo;summax=summax+hi
    end
    if target<summin or target>summax then return false end
    local globalmin,globalmax={},{};for c=1,K do globalmin[c]=0;globalmax[c]=0 end
@@ -434,7 +445,7 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
      allowed[#allowed+1]=p;gap=gap and p.center_gap
      for c=0,K do local n=c==0 and 9-p.n or p.counts[c];mincount[c]=math.min(mincount[c],n);maxcount[c]=math.max(maxcount[c],n) end
     end end
-    if #allowed==0 then return false end;lists[t]=allowed
+    if #allowed==0 then return false end;if #allowed~=#lists[t]then lists[t]=allowed end
     if gap and not Set((t-1)*9+5,Has(domains[(t-1)*9+5],0) and 1 or 0) then return false end
     for c=1,K do globalmin[c]=globalmin[c]+mincount[c];globalmax[c]=globalmax[c]+maxcount[c] end
     for c=0,K do
@@ -1133,6 +1144,11 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
  local allocations,globalupper,limited=preparedData.allocations,preparedData.upper,preparedData.limited
  if not limited then upper=math.min(upper,globalupper) end
  for target=upper,lower+1,-1 do
+  if options and options.incumbent then
+   local candidate,n=options.incumbent()
+   if candidate and n>lower then seed,lower=candidate,n end
+   if target<=lower then return seed,{total=lower,upper=lower,optimal=true,nodes=nodes,propagations=propagations,mode='shared-incumbent-proof'}end
+  end
   local entry=preparedData.Get(target);limited=entry.limited
   progress.preparation_limited=limited;progress.total_profiles=#entry.allocations
   if limited or #entry.allocations>0 then

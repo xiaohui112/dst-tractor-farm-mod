@@ -21,7 +21,7 @@ TheWorld={state={season=INPUT.season},components={},Map={}}
 for _,tile in ipairs(INPUT.tiles) do
  local cx,cz=tile[1]*4,tile[2]*4;local entities={};scene[Key(cx,cz)]=entities
  for row=0,2 do for col=0,2 do
-  local x,z=cx+(col-1)*4/3,cz+(row-1)*4/3
+  local x,z=PY_F32(cx+(col-1)*4/3),PY_F32(cz+(row-1)*4/3)
   local soil={prefab='farm_soil',components={}}
   function soil:IsValid()return true end
   function soil:HasTag(tag)return tag=='soil' end
@@ -29,6 +29,21 @@ for _,tile in ipairs(INPUT.tiles) do
   entities[#entities+1]=soil
  end end
 end
+TheSim={FindEntities=function(_,x,y,z,r,must,exclude)
+ local out={};local radius=PY_F32(r);local r2=PY_RADIUS_SQ(r)
+ local cx,cz=math.floor((x+2)/4)*4,math.floor((z+2)/4)*4
+ local reach=math.ceil(radius/4)+1
+ for dx=-reach,reach do for dz=-reach,reach do
+  for _,v in ipairs(scene[Key(cx+dx*4,cz+dz*4)]or {})do
+   local px,py,pz=v.Transform:GetWorldPosition()
+   local ok=PY_DISTANCE_SQ(x,y,z,px,py,pz)<=r2
+   for _,tag in ipairs(must or {})do if not v:HasTag(tag)then ok=false end end
+   for _,tag in ipairs(exclude or {})do if v:HasTag(tag)then ok=false end end
+   if ok then out[#out+1]=v end
+  end
+ end end
+ return out
+end}
 function TheWorld.Map:GetTileAtPoint(x,_,z)return scene[Key(x,z)] and WORLD_TILES.FARMING_SOIL or 0 end
 function TheWorld.Map:IsPassableAtPoint(x,_,z)return scene[Key(x,z)]~=nil end
 function TheWorld.Map:GetEntitiesOnTileAtPoint(x,_,z)return scene[Key(x,z)] or {} end
@@ -45,7 +60,7 @@ for _,crop in ipairs(INPUT.crop_order) do
   container.slots[#container.slots+1]=item
  end
 end
-local inst={components={}}
+local inst={components={},_seed_strategy=INPUT.strategy or 'GIANT',_aom_template_id=INPUT.template_id}
 inst.components.aom_attachment_store=require('components/aom_attachment_store')(inst)
 inst.components.aom_attachment_store:SetMaterialContainer(container)
 local Dynamic=require('aom_dynamic_farm')
@@ -67,7 +82,7 @@ Dynamic._yield=function()
 end
 PY_PHASE('正在扫描连通农田')
 local plan,reason=Dynamic.Build(inst,INPUT.start[1]*4,INPUT.start[2]*4)
-Dynamic._yield=nil
 local valid,total=false,0
-if plan then valid,total=Dynamic.Validate(plan) end
-return {plan=plan,reason=reason,valid=valid,total=total,defs=defs,ticks=ticks,construction=Packing.last_report}
+if plan then valid,total=Dynamic.Validate(plan,Dynamic._yield) end
+Dynamic._yield=nil
+return {plan=plan,reason=reason,valid=valid,total=total,defs=defs,ticks=ticks,construction=inst._aom_planning_task.last_report,catalog=require('aom_seed_catalog')}

@@ -1,0 +1,17 @@
+{
+  "version": "0.5.14",
+  "completed_at": "2026-11-15T21:45:25.037706+08:00",
+  "archive": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/Tractor.zip",
+  "source_files": 87,
+  "sha256": "a1297b5e472c993d190b6dd8e8c08b535d6730b1f0c9d593ece97da098e7fb59",
+  "zip_crc": true,
+  "all_source_bytes_match": true,
+  "all_installed_bytes_match": true,
+  "archive_backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/release-backups/Tractor-before-front-detach-20261115-213336.zip",
+  "game_backup": "/Users/tal/Documents/deepseek-harness/default-workspace/dst-tractor-farm-mod/outputs/game-mod-backups/20261115-212156/Tractor",
+  "target": "/Users/tal/Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/mods/Tractor",
+  "game_restarted": false,
+  "saves_modified": false,
+  "pushed": false,
+  "correction": "harvester_detaches_at_front_other_equipment_at_rear"
+}

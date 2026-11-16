@@ -27,7 +27,7 @@ assert(TILE_WRITES==1 and TURF_DROPS==0)
 assert(count_trace('debris')==4 and count_entities('farm_soil_debris')==0)
 assert(count_trace('loot_roll')==4 and count_entities('flint')==4)
 assert(count_entities('farm_soil')==9)
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==59)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
 assert(inst.components.finiteuses.used==1)
 local first_mound,last_roll
 for i,event in ipairs(TRACE)do
@@ -43,11 +43,11 @@ function inst:DoPeriodicTask(_,fn)return {fn=fn,Cancel=function(self)self.cancel
 Drive.SetWorking(inst,true);local task=inst._worktask
 task.fn(inst);assert(Farm.IsFieldReady(0,0,0) and inst._working)
 for i=1,10 do task.fn(inst)end
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==59)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
 inst.x=8;task.fn(inst)
 assert(Farm.IsFieldReady(4,0,0) and Farm.IsFieldReady(8,0,0))
 assert(inst._working and inst._worktask==task and not task.cancelled)
-assert(inst._fuel:value()==797 and tool.components.finiteuses:GetUses()==57)
+assert(inst._fuel:value()==797 and tool.components.finiteuses:GetUses()==97)
 Drive.SetWorking(inst,false);assert(task.cancelled and not inst._worktask)
 ''')
 
@@ -149,7 +149,7 @@ assert(Drive.WorkTile(inst,0,0))
 local spawned=count_trace('debris');local loot=count_trace('loot_roll')
 for i=1,5 do assert(not Drive.WorkTile(inst,0,0))end
 assert(TILE_WRITES==1 and count_trace('debris')==spawned and count_trace('loot_roll')==loot)
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==59)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
 ''')
 
     def test_existing_farm_clears_corner_debris_without_generating_more(self):
@@ -179,7 +179,7 @@ inst._working=true
 local worked,reason=Drive.WorkTile(inst,0,0)
 assert(not worked and reason=='PROTECTED_CROP' and inst._working)
 assert(crop.valid and soil.valid and TILE_WRITES==0 and count_trace('debris')==0)
-assert(inst._fuel:value()==800 and tool.components.finiteuses:GetUses()==60)
+assert(inst._fuel:value()==800 and tool.components.finiteuses:GetUses()==100)
 ''')
 
     def test_extra_duplicate_mound_is_removed_and_field_becomes_ready(self):
@@ -215,7 +215,7 @@ inst._working=true
 local changed,reason=Drive.WorkTile(inst,0,0)
 assert(changed and reason=='CLEARING_INCOMPLETE' and not inst._working)
 assert(soil.valid and count_entities('farm_soil')==1 and d.valid)
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==59)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
 assert(count_trace('loot_roll')==0)
 ''')
 
@@ -236,7 +236,7 @@ TheWorld.Map.CanTillSoilAtPoint=original;inst._working=true
 assert(Drive.WorkTile(inst,0,0))
 assert(Farm.IsFieldReady(0,0,0) and TILE_WRITES==1)
 assert(count_trace('debris')==spawned and count_trace('loot_roll')==loot)
-assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==58)
+assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==98)
 ''')
 
     def test_uncultivable_land_has_no_side_effects(self):
@@ -245,7 +245,7 @@ TILES[tkey(0,0)]=-1;inst._working=true
 local worked,reason=Drive.WorkTile(inst,0,0)
 assert(not worked and reason=='CANNOT_PLOW' and inst._working)
 assert(TILE_WRITES==0 and count_trace('debris')==0 and count_entities('farm_soil')==0)
-assert(tool.components.finiteuses:GetUses()==60 and inst._fuel:value()==800)
+assert(tool.components.finiteuses:GetUses()==100 and inst._fuel:value()==800)
 ''')
 
     def test_last_use_completes_tile_then_breaks_and_requires_new_tool(self):
@@ -260,7 +260,7 @@ local changed2,why2=Drive.WorkTile(inst,4,0)
 assert(not changed2 and why2=='NO_ATTACHMENT' and inst._fuel:value()==fuel)
 assert(not require('aom_landclearer_tool').Repair(inst))
 tool=SpawnPrefab('aom_landclearer');inst.components.container.slots[1]=tool;inst._attachment_type='plow'
-assert(Drive.WorkTile(inst,4,0) and tool.components.finiteuses:GetUses()==59)
+assert(Drive.WorkTile(inst,4,0) and tool.components.finiteuses:GetUses()==99)
 ''')
 
     def test_legacy_prefab_restores_durability_and_uses_new_icon(self):
@@ -271,10 +271,10 @@ old.components.finiteuses:Use(7)
 local save=old.components.finiteuses:OnSave()
 local loaded=SpawnPrefab('aom_plow');loaded.components.finiteuses:OnLoad(save)
 assert(old.prefab=='aom_plow' and loaded.prefab=='aom_plow')
-assert(loaded.components.finiteuses:GetUses()==53)
+assert(loaded.components.finiteuses:GetUses()==93)
 old:Remove();loaded:AddTag('NOBLOCK')
 inst.components.container.slots[1]=loaded
-assert(Drive.WorkTile(inst,0,0) and loaded.components.finiteuses:GetUses()==52)
+assert(Drive.WorkTile(inst,0,0) and loaded.components.finiteuses:GetUses()==92)
 ''')
 
     def test_missing_worker_cannot_generate_debris_that_cannot_be_worked(self):

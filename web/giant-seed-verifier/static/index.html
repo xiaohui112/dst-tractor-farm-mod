@@ -4,7 +4,10 @@
 <aside class="controls">
  <section class="panel season-panel"><div class="section-heading"><h2>01 <span>选择季节</span></h2><span class="muted">按游戏当前季节</span></div><div id="seasons" class="seasons"><span class="muted">正在读取季节…</span></div></section>
  <section class="panel farm-panel"><div class="section-heading"><h2>02 <span>准备农田</span></h2><span id="farm-count" class="muted"></span></div>
-  <div class="field-line"><label>宽 <input id="width" type="number" min="1" max="32" value="2" aria-label="农田宽度"></label><span class="times">×</span><label>高 <input id="height" type="number" min="1" max="32" value="2" aria-label="农田高度"></label><span class="muted">块地皮</span></div>
+  <div class="field-line"><label>策略 <select id="strategy" aria-label="巨大化播种策略"><option value="GIANT_TEMPLATE">巨大化·模版</option><option value="GIANT">巨大化·最优</option></select></label></div>
+  <div class="field-line"><label>锁定模版 <select id="template-id" aria-label="锁定模版编号"><option value="">自动整块选配</option></select></label></div>
+  <div id="strategy-limit" class="micro"></div>
+  <div class="field-line"><label>宽 <input id="width" type="number" min="1" value="2" aria-label="农田宽度"></label><span class="times">×</span><label>高 <input id="height" type="number" min="1" value="2" aria-label="农田高度"></label><span class="muted">块地皮</span></div>
   <div class="shape-buttons" id="shapes"><button data-shape="rectangle">矩形</button><button data-shape="L">L形</button><button data-shape="T">T形</button><button data-shape="ring">环形</button><button data-shape="U">U形</button><button data-shape="clear">清空</button></div>
   <div class="edit-tools"><button id="edit-button" class="text-button">✎ 编辑地皮</button><button id="start-button" class="text-button">⚑ 设置起点</button></div><p id="edit-tip" class="micro">每块地皮为3×3坑。可点击编辑不规则范围。</p>
  </section>
@@ -18,6 +21,7 @@
  <div class="stats"><div class="stat"><span>计划播种</span><strong id="stat-planted">—</strong><small id="stat-bound">等待生成方案</small></div><div class="stat"><span>剩余种子</span><strong id="stat-seeds">—</strong><small>按库存总数计算</small></div><div class="stat"><span>留空坑位</span><strong id="stat-holes">—</strong><small id="stat-tiles">所选农田范围内</small></div><div class="stat"><span>同族检查</span><strong id="stat-family">—</strong><small>按原版距离逐株验证</small></div></div>
  <div class="canvas-panels"><section class="panel usage-panel"><div class="section-heading"><h2>库存使用</h2><span class="muted">用＝使用 · 余＝剩余 · 点击作物聚焦</span></div><div id="usage" class="usage"><span class="muted">生成后显示实际使用和剩余数量。</span></div></section><section class="panel inspect-panel"><div class="section-heading"><h2>坑位检查</h2><span id="checks-badge" class="muted"></span></div><div id="inspect" class="inspect"><div class="inspect-icon">⌁</div><p>选择一株作物<br><span>查看同族范围和所在坑位</span></p></div></section></div>
  <div class="map-panel"><div class="map-toolbar"><div class="toolbar-left"><span id="plan-status" class="status neutral">等待生成</span><span id="status-detail" class="muted">选择好参数后，点击生成</span></div><div class="zoom-tools"><button id="zoom-out" aria-label="缩小">−</button><button id="fit">适应画布</button><button id="zoom-in" aria-label="放大">＋</button></div></div><div id="map-stage" class="map-stage"><svg id="map" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="农田与播种布局"></svg></div><div class="map-footer"><span><i class="giant-marker"></i>巨大化预期 <i class="mature-marker"></i>成熟 <i class="empty-pit"></i>留空坑 <i class="start-marker"></i>播种起点</span><span id="map-hint">点击作物，查看同族距离与数量</span></div></div>
+ <details id="template-modules" class="micro" hidden></details>
  <div id="validation-line" class="validation-line" hidden></div>
  <div id="message" class="message" hidden role="alert"></div>
 

@@ -61,7 +61,7 @@ for i,key in ipairs(hud.order)do
  assert(badge.scale[1]==1.4 and badge.meter.circleframe:GetAnimState().SetBank_args[1]=='status_meter')
 end
 assert(hud.badges.health.meter.percent==.75 and hud.badges.fuel.meter.percent==.5)
-assert(hud.badges.tool.meter.percent==38/60 and t._cargo_used_net:value()==6)
+assert(hud.badges.tool.meter.percent==38/100 and t._cargo_used_net:value()==6)
 assert(hud.badges.water:GetText()=='20' and hud.badges.water.meter.percent==.05)
 assert(hud.seedbutton==nil and hud.musicbutton==nil and hud.strip==nil)
 assert(not hud.badges.cargo.meter.warningstarted)
@@ -79,20 +79,20 @@ player.components.rider:ActualDismount();hud:Refresh(nil)
 assert(not hud.visible and hud.tractor==nil and not player.components.rider:IsRiding())
 ''')
 
-    def test_tool_dial_click_cycles_two_modes_stops_work_and_preserves_supplies(self):
+    def test_tool_dial_click_cycles_three_modes_stops_work_and_preserves_supplies(self):
         self.run_lua('''
 local seeder=attach('aom_seeder')
 local seeds=SpawnPrefab('tomato_seeds');seeds.components.stackable:SetStackSize(20)
 assert(t.components.container:GiveItem(seeds,1))
-for _,mode in ipairs({'GIANT','SEQUENTIAL','GIANT','SEQUENTIAL'})do
+for _,mode in ipairs({'GIANT_TEMPLATE','GIANT','SEQUENTIAL','GIANT_TEMPLATE','GIANT','SEQUENTIAL'})do
  t:SetWorking(true);hud:Refresh(t)
  local fuel=t._fuel:value();local durability=seeder.components.finiteuses:GetUses()
  click(hud.badges.tool)
  assert(t._seed_strategy==mode and t._seedmode_net:value()==mode and not t._working)
  assert(t._fuel:value()==fuel and seeder.components.finiteuses:GetUses()==durability)
  assert(seeds.components.stackable:StackSize()==20 and hud.seedbutton==nil and hud.seedbackground==nil)
- local names={GIANT='巨大化',SEQUENTIAL='顺序'}
- assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 400/400'..string.char(10)..'播种策略：'..names[mode])
+ local names={GIANT_TEMPLATE='巨大化·模版',GIANT='巨大化·最优',SEQUENTIAL='顺序'}
+ assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 100/100'..string.char(10)..'播种策略：'..names[mode])
  assert(hud.seedcontrols==nil and hud.planbutton==nil and hud.rotatebutton==nil)
 end
 local saved=clone(t:GetSaveRecord());t:Remove()
@@ -115,14 +115,14 @@ end
     def test_seed_dial_hover_is_one_localized_line_and_refresh_does_not_repeat_click(self):
         self.run_lua('''
 attach('aom_seeder');require('aom_common').SetLanguage('en');hud:Refresh(t)
-assert(hud.badges.tool:GetTooltip()=='Seeder'..string.char(10)..'Durability 400/400'..string.char(10)..'Seed mode: Sequential')
+assert(hud.badges.tool:GetTooltip()=='Seeder'..string.char(10)..'Durability 100/100'..string.char(10)..'Seed mode: Sequential')
 local button=hud.badges.tool;button:OnGainFocus()
 assert(button:OnControl(CONTROL_PRIMARY,true))
 for _=1,20 do hud:Refresh(t);assert(t._seed_strategy=='SEQUENTIAL')end
 assert(button:OnControl(CONTROL_PRIMARY,false));hud:Refresh(t)
-assert(t._seed_strategy=='GIANT' and button:GetTooltip()=='Seeder'..string.char(10)..'Durability 400/400'..string.char(10)..'Seed mode: Giant')
+assert(t._seed_strategy=='GIANT_TEMPLATE' and button:GetTooltip()=='Seeder'..string.char(10)..'Durability 100/100'..string.char(10)..'Seed mode: Giant · Templates')
 for _=1,20 do hud:Refresh(t)end
-assert(t._seed_strategy=='GIANT' and hud.seedcontrols==nil)
+assert(t._seed_strategy=='GIANT_TEMPLATE' and hud.seedcontrols==nil)
 ''')
 
     def test_world_music_mode_overrides_old_saved_per_vehicle_switch(self):

@@ -1,0 +1,26 @@
+{
+  "version": "0.5.19",
+  "python_web_tests": {
+    "run": 20,
+    "failures": 0,
+    "errors": 0,
+    "log": "outputs/unbounded-template/web-tests.log"
+  },
+  "crop_display_tests": {
+    "run": 9,
+    "failures": 0
+  },
+  "lua_behavior_tests": 681,
+  "capacity_tests": 8,
+  "point_parity": {
+    "GIANT": 76,
+    "GIANT_TEMPLATE": 64
+  },
+  "large_cases": 30,
+  "browser_verified": [
+    "81 connected tiles / 648 plants",
+    "optimal 81 tiles rejected",
+    "template no fixed cap label",
+    "native module source equals installed code"
+  ]
+}

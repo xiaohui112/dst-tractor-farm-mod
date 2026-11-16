@@ -131,11 +131,11 @@ assert(gears.components.stackable:StackSize()==5 and t.components.health.current
     def test_seeder_click_cycles_strategy_but_held_flint_repairs_without_changing_it(self):
         self.run_lua('''
 attach('aom_seeder');client_item=nil;left(hud.badges.tool)
-assert(t._seed_strategy=='GIANT' and hud.seedcontrols==nil)
-hold('flint',2);t:GetAttachment().components.finiteuses:SetUses(350)
+assert(t._seed_strategy=='GIANT_TEMPLATE' and hud.seedcontrols==nil)
+hold('flint',2);t:GetAttachment().components.finiteuses:SetUses(50)
 left(hud.badges.tool)
-assert(t:GetAttachment().components.finiteuses:GetUses()==360 and t._seed_strategy=='GIANT')
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 360/400'..string.char(10)..'播种策略：巨大化' and hud.seedcontrols==nil)
+assert(t:GetAttachment().components.finiteuses:GetUses()==60 and t._seed_strategy=='GIANT_TEMPLATE')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 60/100'..string.char(10)..'播种策略：巨大化·模版' and hud.seedcontrols==nil)
 ''')
 
     def test_hover_text_has_only_requested_lines_even_during_errors_or_held_items(self):
@@ -145,7 +145,7 @@ require('aom_work_status').Set(t,'CARGO_FULL');hold('gears',2);hud:Refresh(t)
 assert(hud.badges.health:GetTooltip()=='生命 250/600')
 assert(hud.badges.chassis:GetTooltip()=='底盘 300/1000')
 assert(hud.badges.fuel:GetTooltip()=='燃料 400/800')
-assert(hud.badges.tool:GetTooltip()=='施肥机'..string.char(10)..'耐久 60/60')
+assert(hud.badges.tool:GetTooltip()=='施肥机'..string.char(10)..'耐久 100/100')
 assert(hud.badges.cargo:GetTooltip()=='货仓：0/15格'..string.char(10)..'物品总数 0（含堆叠）')
 ''')
 

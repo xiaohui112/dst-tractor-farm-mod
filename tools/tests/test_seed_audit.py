@@ -77,7 +77,7 @@ class SeedAuditTests(unittest.TestCase):
   # The quantity tests above validate larger fields; use a direct Lua pass here to
   # check the rearranger's stronger per-tile multiset invariant.
   w=giant.World();L=w.lua
-  L.execute("A=require('aom_seed_layout');tiles={{x=0,z=0},{x=4,z=0}};slots={};board={'potato','tomato','potato',false,'potato','tomato','tomato','potato','tomato','tomato','potato','tomato','potato','tomato',false,'potato','tomato','potato'};for t=1,2 do for s=0,8 do slots[#slots+1]={x=(t-1)*4+(s%3-1)*4/3,z=(math.floor(s/3)-1)*4/3} end end;geometry=A.Geometry(tiles,slots,DEFS);assert(A.Valid(board,geometry))")
+  L.execute("A=require('aom_seed_layout');tiles={{x=0,z=0},{x=4,z=0}};slots={};board={'potato','tomato','potato',false,'potato','tomato','tomato','potato','tomato','tomato','potato','tomato','potato','tomato',false,'potato','tomato','potato'};for t=1,2 do for s=0,8 do slots[#slots+1]={x=(t-1)*4+(s%3-1)*4/3,z=(math.floor(s/3)-1)*4/3} end end;for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end;geometry=A.Geometry(tiles,slots,DEFS);assert(A.Valid(board,geometry))")
   before=[Counter(L.globals().board[i] for i in range(1+t*9,10+t*9)) for t in range(2)]
   L.execute("board,report=A.Regularize(board,geometry);assert(A.Valid(board,geometry));board,second=A.Regularize(board,geometry);assert(A.Valid(board,geometry));assert(not A.Better(report.after,second.after))")
   after=[Counter(L.globals().board[i] for i in range(1+t*9,10+t*9)) for t in range(2)]

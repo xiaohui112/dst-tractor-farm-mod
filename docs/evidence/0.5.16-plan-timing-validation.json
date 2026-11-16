@@ -1,0 +1,40 @@
+{
+  "version": "0.5.16",
+  "completed_at": "2026-11-15T22:40:42.883145+08:00",
+  "stage_types": 33,
+  "focused_tests": 10,
+  "behavior_tests": 643,
+  "release_check_categories": 17,
+  "failures": 0,
+  "warnings": 0,
+  "skipped": 0,
+  "web_tests": 13,
+  "web_point_comparison_cases": 76,
+  "actual_dst_client_timings_collected": false,
+  "native_real_clock": [
+    "GetTimeRealSeconds",
+    "GetTimeReal"
+  ],
+  "cpu_basis_async": "process_cpu_during_task_slices",
+  "cpu_basis_sync_web": "process_cpu",
+  "covered": [
+    "cross_frame_external_cpu_excluded",
+    "wall_wait_retained",
+    "sequential_phase_totals",
+    "log_output_cost_separate",
+    "soft_cpu_budget_vs_resume_cap",
+    "success_failure_cancellation",
+    "fallback_proof_phases",
+    "same_plan_with_and_without_trace",
+    "preview_and_first_seed",
+    "travel_wait_before_first_seed"
+  ],
+  "source_sha256": {
+    "aom_plan_timing.lua": "f35e81a0d603576cc8edb855b21f8f5a66f1cf14d64a77d937b8e13b19b0dc08",
+    "aom_dynamic_farm.lua": "0257956a9b5a80aa0ca8f310ae4b4078a2175d41f44c092e0e49201b0035070b",
+    "aom_seed_packing.lua": "8caa9786ce3a07813d236849bdf0c8b3985bfc91e4fb76716bfb73136dc11127",
+    "aom_seed_layout.lua": "4a77bf1ac6a3e7fdc8eec1dbae97a0b7fdc5c4c0ddac0430b8627027435190df",
+    "aom_block_plan.lua": "12822f9c92dc2f16872915426ee624693ae9d55f47e4cf354819e989f9259876",
+    "aom_drive.lua": "0010812f1df82b2806aa2d6e879f82a2bfddca6a371445d6b2e8eb6318adaadf"
+  }
+}

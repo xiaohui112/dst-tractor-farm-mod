@@ -638,7 +638,7 @@ def check_local_functions_defined():
         called = set(re.findall(r"(?<![:\w.])(\w+)\s*\(", src))
         # 已知的合法全局
         ok = defined | {
-            "if","while","for","return","print","type","pairs","ipairs","tostring",
+            "if","while","for","in","return","print","type","pairs","ipairs","tostring",
             "tonumber","require","assert","error","math","table","string","Vector3",
             "pcall","xpcall","select","next","rawget","rawset","setmetatable","getmetatable",
             "CreateEntity","Prefab","MakePlacer","SpawnPrefab","GetModConfigData",
@@ -695,6 +695,14 @@ def check_giant_farming():
     return {"run":result.testsRun,"failures":len(result.failures),"errors":len(result.errors),"skipped":len(result.skipped)}
 
 
+def check_planner_fingerprint():
+    import planner_fingerprint
+    target=Path(ROOT)/'mod/Tractor/scripts/aom_planner_build.lua'
+    if not target.exists() or target.read_text()!=planner_fingerprint.content():
+        fail('规划源码指纹过期，请运行 tools/planner_fingerprint.py')
+    return {'source_fingerprint_current':target.exists() and target.read_text()==planner_fingerprint.content()}
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release',action='store_true',help='发布检查：警告或跳过也阻止打包')
@@ -705,7 +713,7 @@ def main(argv=None):
     functions=[check_syntax,check_modinfo,check_no_source_png,check_assets,check_animation_assets,
                check_driver_assets,check_music_assets,check_common_module,check_mod_environment,
                check_script_modules,check_game_paths,check_game_globals,check_recipe_ingredients,
-               check_cross_refs,check_local_functions_defined,check_bad_patterns,check_giant_farming]
+               check_cross_refs,check_local_functions_defined,check_bad_patterns,check_planner_fingerprint,check_giant_farming]
     for fn in functions:
         failures,warnings=len(FAILS),len(WARNS)
         details=None

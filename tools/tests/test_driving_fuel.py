@@ -71,7 +71,7 @@ for i=1,10 do task.fn(t) end
 assert(t._fuel:value()==0 and #messages==1)
 t:SetFuel(15)
 assert(t.components.rideable.canride and not t._working)
-assert(t.components.locomotor.runspeed==6 and p.replica.rider.classified.riderrunspeed:value()==6)
+assert(t.components.locomotor.runspeed==3 and p.replica.rider.classified.riderrunspeed:value()==3)
 p.Transform:SetPosition(5,0,0);task.fn(t);assert(t._fuel:value()==14)
 assert(ACTIONS.DISMOUNT.fn({doer=p,target=p}));p.components.rider:ActualDismount()
 assert(not p.components.rider:IsRiding())

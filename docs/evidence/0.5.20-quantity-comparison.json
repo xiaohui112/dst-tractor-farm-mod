@@ -1,0 +1,302 @@
+{
+  "optimal_cases": 1162,
+  "optimal_changed": [],
+  "template": {
+    "cases": 1162,
+    "errors": [],
+    "improved": 58,
+    "regressed": [],
+    "changes": [
+      {
+        "id": "autumn/horizontal-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/vertical-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/U-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/ring-8/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/notch-8/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/bridge-7/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/snake-7/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/comb-9/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "autumn/square-9/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/horizontal-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/vertical-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/T-4/all-six",
+        "before": 28,
+        "after": 34
+      },
+      {
+        "id": "spring/S-4/all-six",
+        "before": 30,
+        "after": 34
+      },
+      {
+        "id": "spring/U-5/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/plus-5/all-six",
+        "before": 28,
+        "after": 34
+      },
+      {
+        "id": "spring/ring-8/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/notch-8/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/bridge-7/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/snake-7/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/comb-9/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "spring/square-9/all-six",
+        "before": 38,
+        "after": 44
+      },
+      {
+        "id": "summer/horizontal-2/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/horizontal-2/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/vertical-2/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/vertical-2/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/horizontal-5/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/horizontal-5/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/vertical-5/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/vertical-5/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/L-3/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/L-3/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/T-4/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/T-4/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/S-4/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/S-4/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/U-5/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/U-5/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/plus-5/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/plus-5/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/ring-8/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/ring-8/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/notch-8/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/notch-8/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/bridge-7/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/bridge-7/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/snake-7/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/snake-7/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/comb-9/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/comb-9/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/square-9/six-seven",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "summer/square-9/all-six",
+        "before": 12,
+        "after": 18
+      },
+      {
+        "id": "holdout-027/summer",
+        "before": 16,
+        "after": 18
+      },
+      {
+        "id": "holdout-047/summer",
+        "before": 28,
+        "after": 34
+      },
+      {
+        "id": "holdout-083/summer",
+        "before": 32,
+        "after": 34
+      },
+      {
+        "id": "holdout-099/summer",
+        "before": 24,
+        "after": 36
+      },
+      {
+        "id": "holdout-111/summer",
+        "before": 16,
+        "after": 18
+      },
+      {
+        "id": "holdout-116/autumn",
+        "before": 16,
+        "after": 18
+      },
+      {
+        "id": "large/summer-64",
+        "before": 384,
+        "after": 564
+      }
+    ]
+  }
+}

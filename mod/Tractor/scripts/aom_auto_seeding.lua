@@ -102,6 +102,7 @@ function M.GetTargets(inst,cx,cz)
     local season=TheWorld.state.season
     local counts=inst.components.aom_attachment_store:CountSeedsByCrop(Seed.GetCropOfSeedItem)
     local b=inst._block
+    if b and inst._aom_preview_plan==b then return nil,"PLAN_READY" end
     local Dynamic=require('aom_dynamic_farm')
     if b and b.dynamic then
         if b.done>=b.total and Dynamic.Scan({x=cx,z=cz}) then
@@ -132,7 +133,10 @@ function M.GetTargets(inst,cx,cz)
         return Block.GetTargets(inst,season,counts,cx,cz,false)
     end
     if inst._aom_dynamic_reason then local why=inst._aom_dynamic_reason;inst._aom_dynamic_reason=nil;return nil,why end
-    if inst._aom_dynamic_job then return nil,'PLANNING' end
+    if inst._aom_dynamic_job then
+        if inst._aom_background then Dynamic.Start(inst,cx,cz)end
+        return nil,'PLANNING'
+    end
     if inst.DoTaskInTime then Dynamic.Start(inst,cx,cz);return nil,'PLANNING' end
     local plan,why=Dynamic.Build(inst,cx,cz)
     if not plan then return nil,why end

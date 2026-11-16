@@ -1,0 +1,24 @@
+[
+  {
+    "name": "check_syntax",
+    "details": null,
+    "failures": []
+  },
+  {
+    "name": "check_script_modules",
+    "details": null,
+    "failures": []
+  },
+  {
+    "name": "check_local_functions_defined",
+    "details": null,
+    "failures": []
+  },
+  {
+    "name": "check_planner_fingerprint",
+    "details": {
+      "source_fingerprint_current": true
+    },
+    "failures": []
+  }
+]

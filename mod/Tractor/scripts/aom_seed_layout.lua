@@ -1,5 +1,7 @@
 -- 数量规划与整片排列。按原版养分向量配比，不读取地皮当前肥力。
 local M={}
+local Neighbors=require('aom_farm_neighbors')
+M.InRange=Neighbors.Within
 local ORDER={'carrot','corn','potato','tomato','asparagus','eggplant','pumpkin','watermelon','dragonfruit','durian','garlic','onion','pepper','pomegranate'}
 local rank={};for i,k in ipairs(ORDER) do rank[k]=i end
 local function Key(a)return table.concat(a,',') end
@@ -149,32 +151,59 @@ function M.Candidates(a,yieldfn)
  classic=false;local before=#bank;Add(a);if #bank>before then Sort() end
  return bank
 end
-function M.Geometry(tiles,slots,defs,yieldfn)
+function M.Geometry(tiles,slots,defs,yieldfn,linear_edges)
  local near,edges,adjacent,conflicts={}, {}, {},{}
+ local ranges,complete=Neighbors.Build(slots,defs,yieldfn)
  local radius=4;for _,d in pairs(defs) do radius=math.max(radius,d.family_check_dist or 4) end
+ local spacing=GetFarmTillSpacing and GetFarmTillSpacing()or 1.25
+ local bucketSize=math.max(radius,spacing,math.sqrt(32/9))
+ local buckets={}
+ local function Bucket(x,z)return math.floor(x/bucketSize)..':'..math.floor(z/bucketSize)end
+ for i,p in ipairs(slots)do local k=Bucket(p.x,p.z);buckets[k]=buckets[k]or {};buckets[k][#buckets[k]+1]=i end
  for i,p in ipairs(slots) do
   near[i]={};adjacent[i]={};conflicts[i]={}
-  for j,q in ipairs(slots) do
+  local nearby={};local bx,bz=math.floor(p.x/bucketSize),math.floor(p.z/bucketSize)
+  for dx=-1,1 do for dz=-1,1 do for _,j in ipairs(buckets[(bx+dx)..':'..(bz+dz)]or {})do nearby[#nearby+1]=j end end end
+  -- 原版舍入可能接受落在下一个空间桶边界外的点；桶仅用于排列评分，不能裁剪原版邻接。
+  local present={};for _,j in ipairs(nearby)do present[j]=true end
+  for _,r in ipairs({radius^2,spacing^2})do for j in pairs(ranges[r][i])do if not present[j]then nearby[#nearby+1]=j;present[j]=true end end end
+  table.sort(nearby)
+  for _,j in ipairs(nearby)do local q=slots[j]
    local d=(p.x-q.x)^2+(p.z-q.z)^2
-   if i~=j and d<=(GetFarmTillSpacing and GetFarmTillSpacing() or 1.25)^2 then conflicts[i][#conflicts[i]+1]=j end
-   if d<=radius^2 then near[i][#near[i]+1]={j=j,d=d} end
+   if i~=j and ranges[spacing^2][i][j]then conflicts[i][#conflicts[i]+1]=j end
+   if ranges[radius^2][i][j]then near[i][#near[i]+1]={j=j,d=d} end
    if i~=j and d<=32/9+.000001 then adjacent[i][#adjacent[i]+1]=j end
   end
   if i%9==0 and yieldfn then yieldfn() end
  end
+ if linear_edges then
+  local lookup={};for i,t in ipairs(tiles)do lookup[t.x..':'..t.z]=i end
+  for i,a in ipairs(tiles)do
+   local neighbors={lookup[(a.x+4)..':'..a.z],lookup[(a.x-4)..':'..a.z],lookup[a.x..':'..(a.z+4)],lookup[a.x..':'..(a.z-4)]}
+   -- 显式遍历四项：边界的nil不能截断ipairs。
+   for n=1,4 do local j=neighbors[n];if j and j>i then local b=tiles[j]
+    edges[#edges+1]={a=(a.x<b.x or a.z<b.z)and i or j,b=(a.x<b.x or a.z<b.z)and j or i,horizontal=a.z==b.z,i=i,j=j}
+   end end
+   if i%16==0 and yieldfn then yieldfn()end
+  end
+  table.sort(edges,function(a,b)return a.i~=b.i and a.i<b.i or a.i==b.i and a.j<b.j end)
+ else
  for i,a in ipairs(tiles) do for j=i+1,#tiles do local b=tiles[j]
   if math.abs(a.x-b.x)==4 and a.z==b.z then edges[#edges+1]={a=a.x<b.x and i or j,b=a.x<b.x and j or i,horizontal=true}
   elseif math.abs(a.z-b.z)==4 and a.x==b.x then edges[#edges+1]={a=a.z<b.z and i or j,b=a.z<b.z and j or i,horizontal=false} end
  end end
- return {near=near,edges=edges,defs=defs,adjacent=adjacent,conflicts=conflicts}
+ end
+ return {near=near,edges=edges,defs=defs,adjacent=adjacent,conflicts=conflicts,ranges=ranges,complete=complete}
 end
-function M.Valid(board,geometry)
+function M.Valid(board,geometry,yieldfn)
+ if not geometry.complete then return false end
  if geometry.conflicts then for i,list in ipairs(geometry.conflicts) do if board[i] then for _,j in ipairs(list) do if board[j] then return false end end end end end
- if geometry.balanced and not require('aom_seed_balance').Board(board,geometry.defs) then return false end
+ if geometry.balanced and not require('aom_seed_balance').Board(board,geometry.defs,geometry.nutrients_only,yieldfn) then return false end
  for i,k in ipairs(board) do if k then
   local n=0;local def=geometry.defs[k]
-  for _,q in ipairs(geometry.near[i]) do if q.d<=(def.family_check_dist or 4)^2 and board[q.j]==k then n=n+1 end end
+  for _,q in ipairs(geometry.near[i]) do if M.InRange(geometry,i,q.j,(def.family_check_dist or 4)^2) and board[q.j]==k then n=n+1 end end
   if n<(def.family_min_count or 4) then return false end
+  if i%64==0 and yieldfn then yieldfn()end
  end end
  return true
 end
@@ -187,14 +216,15 @@ local function Signature(a)
  table.sort(keys,Less);local out={};for _,k in ipairs(keys) do out[#out+1]=k..':'..counts[k] end
  return table.concat(out,'|'),table.concat(keys,'|')
 end
-function M.Metrics(board,geometry)
+function M.Metrics(board,geometry,yieldfn)
  local localcost,family,seams,repetition,neighbors=0,0,0,0,0
  local signatures={}
- for t=1,#board/9 do local a=Tile(board,t);signatures[t]=Signature(a);localcost=localcost+TileCost(a) end
+ for t=1,#board/9 do local a=Tile(board,t);signatures[t]=Signature(a);localcost=localcost+TileCost(a);if t%16==0 and yieldfn then yieldfn()end end
  for i,k in ipairs(board) do if k then
   local distances={};local radius=(geometry.defs[k].family_check_dist or 4)^2
-  for _,q in ipairs(geometry.near[i]) do if q.j~=i and q.d<=radius and board[q.j]==k then distances[#distances+1]=q.d*9/16 end end
+  for _,q in ipairs(geometry.near[i]) do if q.j~=i and M.InRange(geometry,i,q.j,radius) and board[q.j]==k then distances[#distances+1]=q.d*9/16 end end
   table.sort(distances);for j=1,3 do family=family+(distances[j] or 16) end
+  if i%64==0 and yieldfn then yieldfn()end
  end end
  for _,e in ipairs(geometry.edges) do
   for s=1,9 do local a,b=board[(e.a-1)*9+s],board[(e.b-1)*9+s]
@@ -218,7 +248,7 @@ function M.Metrics(board,geometry)
     for _,j in ipairs(geometry.adjacent[queue[at]]) do
      if not visited[j] and board[j]==k then visited[j]=true;queue[#queue+1]=j end
     end
-    at=at+1
+    at=at+1;if at%128==0 and yieldfn then yieldfn()end
    end
   end
  end end
@@ -302,13 +332,14 @@ function M.Better(a,b)
  if math.abs(a.family-b.family)>.000001 then return a.family<b.family end
  return a.tidy<b.tidy-.000001
 end
-function M.Regularize(board,geometry,yieldfn,classic,trialbudget)
+function M.Regularize(board,geometry,yieldfn,classic,trialbudget,trace)
  local before=M.Metrics(board,geometry);local energy=before
  local saved,savedscore=nil,before.score
  local function Save()
   saved={};for i,k in ipairs(board) do saved[i]=k end
  end
  if classic then Save() end
+ if trace then trace:Stage("arrange_candidates")end
  local groups,sets,banks,active={}, {}, {}, {}
  for t=1,#board/9 do local a=Tile(board,t);local signature,set=Signature(a)
   if signature~='' then
@@ -322,6 +353,7 @@ function M.Regularize(board,geometry,yieldfn,classic,trialbudget)
    end
   end
  end
+ if trace then trace:Stage("arrange_group_bank")end
  local ordered={};for _,group in pairs(groups) do ordered[#ordered+1]=group end
  table.sort(ordered,function(a,b)return a[1]<b[1] end)
  -- 相同组成共享候选库；同族约束允许时整组同时转向，避免单格移动被卡住。
@@ -354,6 +386,7 @@ function M.Regularize(board,geometry,yieldfn,classic,trialbudget)
   for i,a in ipairs(banks[group[1]]) do if not classic and i>32 then break end;local proposal={};for j=1,#group do proposal[j]=a.cells end;changed=Choose(group,proposal) or changed end
   return changed
  end
+ if trace then trace:Stage("arrange_search")end
  local changed=true;local passes=0
  while changed and trials<limit do
   changed=false;passes=passes+1
@@ -386,6 +419,10 @@ function M.Regularize(board,geometry,yieldfn,classic,trialbudget)
    for _,a in ipairs(options[1]) do for _,b in ipairs(options[2]) do changed=Choose({e.a,e.b},{a,b}) or changed end end
    end
   end end
+ end
+ if trace then
+  trace:Context({arrangement_trials=trials,arrangement_moves=moves,arrangement_passes=passes,arrangement_trial_limit=limit})
+  trace:Stage("arrange_finalize")
  end
  if saved then for i,k in ipairs(saved) do board[i]=k end end
  return board,{before=before,after=M.Metrics(board,geometry),trials=trials,moves=moves,passes=passes,limited=trials>=limit}
