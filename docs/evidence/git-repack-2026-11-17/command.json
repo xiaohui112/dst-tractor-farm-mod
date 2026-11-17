@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "git",
+    "-c",
+    "gc.auto=0",
+    "-c",
+    "maintenance.auto=false",
+    "-c",
+    "protocol.allow=never",
+    "-c",
+    "repack.writeBitmaps=false",
+    "repack",
+    "-a",
+    "-d",
+    "--keep-unreachable",
+    "--window=50",
+    "--depth=50",
+    "--threads=2",
+    "--window-memory=256m"
+  ],
+  "network_protocols_disabled": true
+}

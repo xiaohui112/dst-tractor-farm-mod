@@ -24,8 +24,6 @@ class ModelTests(unittest.TestCase):
                 continue
             if any(0 < n < 4 for n in counts.values()):
                 continue
-            if counts['tomato'] == 4 and board[4]:
-                continue
             # Every pair of pits on a single canonical tile is within radius 4.
             expected.add(board)
 
@@ -43,7 +41,7 @@ class ModelTests(unittest.TestCase):
         solver.parameters.enumerate_all_solutions = True
         solver.parameters.num_search_workers = 1
         self.assertEqual(solver.solve(model, cb), cp_model.OPTIMAL)
-        self.assertEqual(len(expected), 71)
+        self.assertEqual(len(expected), 631)
         self.assertEqual(cb.boards, expected)
         for board in expected:
             self.assertEqual(b.validate(c, w, slots, board)[0], [])
@@ -70,7 +68,7 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(r['count'], 8)
         self.assertEqual(r['errors'], [])
 
-    def test_reject_shifted_center_hole(self):
+    def test_accept_shifted_center_hole(self):
         c = case({'tomato': 4, 'potato': 4})
         w, slots = b.context(c)
         model, x, crops = b.model_for(w, slots)
@@ -78,8 +76,8 @@ class ModelTests(unittest.TestCase):
         for i, k in enumerate(board):
             for ci, crop in enumerate(crops):
                 model.add(x[i][ci] == int(k == crop))
-        self.assertEqual(cp_model.CpSolver().solve(model), cp_model.INFEASIBLE)
-        self.assertIn('4+4-center', b.validate(c, w, slots, board)[0])
+        self.assertEqual(cp_model.CpSolver().solve(model), cp_model.OPTIMAL)
+        self.assertEqual(b.validate(c, w, slots, board)[0], [])
 
     def test_family_is_spatial_not_just_global_stock(self):
         c = case({'carrot': 6, 'corn': 6, 'potato': 6}, ((0, 0), (1, 0), (2, 0)))

@@ -1,0 +1,50 @@
+{
+  "comparison.json.gz": {
+    "bytes": 280401,
+    "sha256": "6190ecf1edc83187b7629ca215bbca791d9d539e70d6b14107176af7a3f65957"
+  },
+  "irregular-before-after.png": {
+    "bytes": 246144,
+    "sha256": "e94d6dbbf3b802ad9c5d3dbe8b44e774fc78e91bf1e16c553ea927de32c90b38"
+  },
+  "pattern-tests.log": {
+    "bytes": 675,
+    "sha256": "453a8201a79d1495561dba59ca73bf904c9378a9f8a12a79d7316d323dab486e"
+  },
+  "screenshot-before-after.png": {
+    "bytes": 147004,
+    "sha256": "172f497674908685c6da0c709fc6c3e3337df2159e922623365dbed01ccf0966"
+  },
+  "selfcheck-validation.json": {
+    "bytes": 2124,
+    "sha256": "992359fecab46cee61c5c645c44d5f26f79f93cae56740d958503840640f22c0"
+  },
+  "source-after.zip": {
+    "bytes": 201384,
+    "sha256": "0ac9810f668feb10b3a43089f69fa7dd0f601aaf06a2515aab4061fd7b455968"
+  },
+  "source-before.zip": {
+    "bytes": 199142,
+    "sha256": "b6edf5719d3aeb8493520b79de706751dab5f88f070cd0003280399951eeb0cc"
+  },
+  "summary.csv": {
+    "bytes": 1334,
+    "sha256": "8e84851b561f38b49ffeddddbc073c631ceef6310d2d74639d3d87fc77fbe45b"
+  },
+  "summary.json": {
+    "bytes": 23130,
+    "sha256": "f779c5b60457038ea4520aa4b9e169cab5e71dda4092ebf8dab1f7cf1422b109"
+  },
+  "web-js-tests.log": {
+    "bytes": 1091,
+    "sha256": "7cfc00caa8024dcc52c77aafdc341ec4d1aa63700846d3abaa76a4505b0e3eff"
+  },
+  "web-tests.log": {
+    "bytes": 1893,
+    "sha256": "58b8d83950874bc1e627639464d73faa0cd954f7165cb2bdfb69d49541ab3be7"
+  },
+  "结果.md": {
+    "bytes": 5974,
+    "sha256": "aa1d7cf60d3ee21c08bca67bdb41b877a544ffe9ccdcb96f55443c36f60ebb5b"
+  }
+}

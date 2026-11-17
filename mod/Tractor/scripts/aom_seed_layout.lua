@@ -193,7 +193,7 @@ function M.Geometry(tiles,slots,defs,yieldfn,linear_edges)
   elseif math.abs(a.z-b.z)==4 and a.x==b.x then edges[#edges+1]={a=a.z<b.z and i or j,b=a.z<b.z and j or i,horizontal=false} end
  end end
  end
- return {near=near,edges=edges,defs=defs,adjacent=adjacent,conflicts=conflicts,ranges=ranges,complete=complete}
+ return {near=near,edges=edges,defs=defs,adjacent=adjacent,conflicts=conflicts,ranges=ranges,complete=complete,tiles=tiles}
 end
 function M.Valid(board,geometry,yieldfn)
  if not geometry.complete then return false end
@@ -332,99 +332,11 @@ function M.Better(a,b)
  if math.abs(a.family-b.family)>.000001 then return a.family<b.family end
  return a.tidy<b.tidy-.000001
 end
+-- 数量构造继续使用上面的旧评分/比较器；最终排列有独立目标，避免改变证明路径。
+M.Tile=Tile
+M.Signature=Signature
+M.TileCost=TileCost
 function M.Regularize(board,geometry,yieldfn,classic,trialbudget,trace)
- local before=M.Metrics(board,geometry);local energy=before
- local saved,savedscore=nil,before.score
- local function Save()
-  saved={};for i,k in ipairs(board) do saved[i]=k end
- end
- if classic then Save() end
- if trace then trace:Stage("arrange_candidates")end
- local groups,sets,banks,active={}, {}, {}, {}
- for t=1,#board/9 do local a=Tile(board,t);local signature,set=Signature(a)
-  if signature~='' then
-   active[#active+1]=t
-   groups[signature]=groups[signature] or {};groups[signature][#groups[signature]+1]=t
-   sets[t]=set;banks[t]=M.Candidates(a,yieldfn)
-   if classic then
-    local current={}
-    for r=0,7 do local c=Transform(a,r);local sig={};for i,k in ipairs(c) do sig[i]=k or '_' end;current[Key(sig)]=true end
-    local filtered={};for _,v in ipairs(banks[t]) do if v.classic or current[v.key] then filtered[#filtered+1]=v end end;banks[t]=filtered
-   end
-  end
- end
- if trace then trace:Stage("arrange_group_bank")end
- local ordered={};for _,group in pairs(groups) do ordered[#ordered+1]=group end
- table.sort(ordered,function(a,b)return a[1]<b[1] end)
- -- 相同组成共享候选库；同族约束允许时整组同时转向，避免单格移动被卡住。
- for _,group in ipairs(ordered) do
-  local seen,bank={},{}
-  for _,t in ipairs(group) do for _,a in ipairs(banks[t]) do if not seen[a.key] then seen[a.key]=true;bank[#bank+1]=a end end end
-  table.sort(bank,function(a,b)return a.cost~=b.cost and a.cost<b.cost or a.cost==b.cost and a.key<b.key end)
-  for _,t in ipairs(group) do banks[t]=bank end
- end
- local trials,moves=0,0;local limit=classic and math.max(600,math.min(4000,#active*120)) or math.max(800,math.min(5000,#active*180))
- if trialbudget then limit=math.min(limit,trialbudget) end
- local function Choose(indices,proposal)
-  if trials>=limit then return false end
-  local different=false
-  for j,t in ipairs(indices) do for s=1,9 do if board[(t-1)*9+s]~=proposal[j][s] then different=true;break end end end
-  if not different then return false end
-  local old={};for j,t in ipairs(indices) do old[j]=Tile(board,t);for s=1,9 do board[(t-1)*9+s]=proposal[j][s] end end
-  local metrics=M.Metrics(board,geometry)
-  local value=metrics
-  local better=M.Better(value,energy) and M.Valid(board,geometry)
-  if better then
-   energy=value;moves=moves+1
-   if classic then savedscore=metrics.score;Save() end
-  else for j,t in ipairs(indices) do for s=1,9 do board[(t-1)*9+s]=old[j][s] end end end
-  trials=trials+1;if yieldfn and (trials%4==0 or #active>16) then yieldfn() end
-  return better
- end
- local function Coherent(group)
-  local changed=false
-  for i,a in ipairs(banks[group[1]]) do if not classic and i>32 then break end;local proposal={};for j=1,#group do proposal[j]=a.cells end;changed=Choose(group,proposal) or changed end
-  return changed
- end
- if trace then trace:Stage("arrange_search")end
- local changed=true;local passes=0
- while changed and trials<limit do
-  changed=false;passes=passes+1
-  for _,group in ipairs(ordered) do if #group>1 then changed=Coherent(group) or changed end end
-  -- 不同密度、相同作物集合的连通分量，共同调整行列方向。
-  local seen={}
-  for _,first in ipairs(active) do if not seen[first] then
-   local group={first};seen[first]=true;local i=1
-   while i<=#group do
-    for _,e in ipairs(geometry.edges) do local q=e.a==group[i] and e.b or e.b==group[i] and e.a
-     if q and not seen[q] and sets[q]==sets[first] then seen[q]=true;group[#group+1]=q end
-    end;i=i+1
-   end
-   if #group>1 then
-    for r=0,7 do local proposal={};for j,t in ipairs(group) do proposal[j]=Transform(banks[t][1].cells,r) end;changed=Choose(group,proposal) or changed end
-   end
-  end end
-  for _,t in ipairs(active) do for i,a in ipairs(banks[t]) do if not classic and i>48 then break end;changed=Choose({t},{a.cells}) or changed end end
-  for _,e in ipairs(geometry.edges) do if banks[e.a] and banks[e.b] then
-   local original={Tile(board,e.a),Tile(board,e.b)}
-   if classic then
-    for r=0,7 do changed=Choose({e.a,e.b},{Transform(original[1],r),Transform(original[2],r)}) or changed end
-   else
-   -- 拐角处两边往往需要朝不同方向转；只同步转向会卡在分散布局中。
-   local options={{},{}};local seen={{},{}}
-   for j=1,2 do for r=0,7 do
-    local a=Transform(original[j],r);local sig={};for i,k in ipairs(a) do sig[i]=k or '_' end;sig=Key(sig)
-    if not seen[j][sig] then seen[j][sig]=true;options[j][#options[j]+1]=a end
-   end end
-   for _,a in ipairs(options[1]) do for _,b in ipairs(options[2]) do changed=Choose({e.a,e.b},{a,b}) or changed end end
-   end
-  end end
- end
- if trace then
-  trace:Context({arrangement_trials=trials,arrangement_moves=moves,arrangement_passes=passes,arrangement_trial_limit=limit})
-  trace:Stage("arrange_finalize")
- end
- if saved then for i,k in ipairs(saved) do board[i]=k end end
- return board,{before=before,after=M.Metrics(board,geometry),trials=trials,moves=moves,passes=passes,limited=trials>=limit}
+ return require('aom_seed_arrangement').Regularize(board,geometry,yieldfn,classic,trialbudget,trace)
 end
 return M

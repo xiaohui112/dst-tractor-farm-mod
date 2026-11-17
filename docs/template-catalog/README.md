@@ -44,3 +44,5 @@
 | summer-05 | non_giant/禁用 | A=tomato；B=corn；C=watermelon；D=dragonfruit；E=pomegranate,onion |  | 40株错位图，另含8石榴或洋葱；番茄明确标为Not Giant |
 | program-18-ratio | grid/启用 | 所有原版作物，逐地皮养分平衡、共同应季；下列为原有角色首选：A=dragonfruit,pepper；B=tomato | BBAABB / BBAABB / BBAABB | 程序定义，非原图；6+12；构建时覆盖所有共同应季且逐地皮养分平衡的原版组合，角色不拆分 |
 | program-18-equal | grid/启用 | 所有原版作物，逐地皮养分平衡、共同应季；下列为原有角色首选：A=carrot,pumpkin；B=asparagus,corn；C=eggplant,potato | AAAAAA / BBBBBB / CCCCCC | 程序定义，非原图；6+6+6；构建时覆盖所有共同应季且逐地皮养分平衡的原版组合，角色不拆分 |
+
+程序18株模板另登记单地皮9株补块（不在锁定模板列表中单独选择）。只填完整模板未占用的地皮，不改原图格子或必要空坑；逐地皮养分互补，同族由整片田实际距离校验。

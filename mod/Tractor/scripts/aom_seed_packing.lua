@@ -78,11 +78,9 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,trace,task)
    local candidates=Layout.Candidates(cells,yieldfn)
    for index,candidate in ipairs(candidates) do
     if index>16 then break end
-    if Balance.Shape(candidate.cells) then
-     local board={}
-     for t=1,#tiles do for s=1,9 do board[(t-1)*9+s]=t<=occupied and candidate.cells[s] or false end end
-     if Layout.Valid(board,geometry) then best,bestn=board,occupied*pattern.n;break end
-    end
+    local board={}
+    for t=1,#tiles do for s=1,9 do board[(t-1)*9+s]=t<=occupied and candidate.cells[s] or false end end
+    if Layout.Valid(board,geometry) then best,bestn=board,occupied*pattern.n;break end
    end
   end
   if bestn==upper then break end

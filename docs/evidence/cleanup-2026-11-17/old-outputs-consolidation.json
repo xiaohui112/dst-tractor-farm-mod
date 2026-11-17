@@ -1,0 +1,18 @@
+{
+  "files_removed_from_outputs": 1343,
+  "duplicates_already_in_evidence": 79,
+  "archive": "docs/evidence/cleanup-2026-11-17/historical-outputs.zip",
+  "archive_sha256": "4d2d47964630fb731c0a60db509cfd12b4c92f05f4b6165f9c79f133fd41bcb2",
+  "index": "docs/evidence/cleanup-2026-11-17/historical-outputs-index.json",
+  "outputs_before_allocated_bytes": 268771328,
+  "outputs_after_allocated_bytes": 187715584,
+  "root_before_allocated_bytes": 5123985408,
+  "root_after_allocated_bytes": 5087961088,
+  "preserved_active_files": [
+    "outputs/0.5.13-stage-timing-audit.timings.csv",
+    "outputs/grid-spacing-0.5.22/web-server.log"
+  ],
+  "mod_unchanged": true,
+  "git_unchanged": true,
+  "new_0_5_24_work_preserved": true
+}

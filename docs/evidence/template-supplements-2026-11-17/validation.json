@@ -1,0 +1,31 @@
+{
+  "behavior_suite": {
+    "name": "check_giant_farming",
+    "status": "passed",
+    "details": {
+      "run": 719,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "template_specific": {
+    "run": 31,
+    "failures": 0,
+    "errors": 0
+  },
+  "web_python": {
+    "run": 23,
+    "failures": 0,
+    "errors": 0
+  },
+  "static_checks": {
+    "run": 17,
+    "success": true
+  },
+  "quantity_cases": 1162,
+  "quantity_regressions": 0,
+  "original_templates_unchanged": true,
+  "source_hashes_match_final": true,
+  "note": "全量自检在旧指纹刷新前启动，初始报告仅该项失败；最终指纹和全部静态项已独立复核通过。全量测试发现后新增的2项用例也已在31项模板专项中通过。"
+}

@@ -301,7 +301,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
       local extend=true;local previous={}
       for t=1,#tiles do
        previous[t]=feasible[t];local allowed={}
-       for _,p in ipairs(feasible[t]) do if p.counts[k]>=localcounts[t][k] and p.counts[k]<=localcounts[t][k]+remainingquota[k] and not (p.center_gap and board[(t-1)*9+5]) then allowed[#allowed+1]=p end end
+       for _,p in ipairs(feasible[t]) do if p.counts[k]>=localcounts[t][k] and p.counts[k]<=localcounts[t][k]+remainingquota[k] then allowed[#allowed+1]=p end end
        feasible[t]=allowed;if #allowed==0 then extend=false end
       end
       if extend then
@@ -358,10 +358,6 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
     local empty={};for s=1,9 do local i=(t-1)*9+s;if not board[i] then empty[#empty+1]=i end end
     board[empty[Rand(#empty)]]=k
    end
-   local cells={};for s=1,9 do cells[s]=board[(t-1)*9+s] end
-   if not Balance.Shape(cells) then
-    for s=1,9 do if not cells[s] then local i,j=(t-1)*9+s,(t-1)*9+5;board[i],board[j]=board[j],board[i];break end end
-   end
   end
   Remove(a,option.x.ids);Remove(b,option.y.ids);Add(a,option.y.ids);Add(b,option.x.ids)
   return old
@@ -377,7 +373,7 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
   for t,p in ipairs(bins) do
    local a={};for i,k in ipairs(crops) do for _=1,p.counts[i] do a[#a+1]=k end end
    while #a<9 do a[#a+1]=false end
-   local bank=Layout.Candidates(a,yieldfn);for _,v in ipairs(bank) do if Balance.Shape(v.cells) then cells[t]=v.cells;break end end
+   local bank=Layout.Candidates(a,yieldfn);cells[t]=bank[1].cells
   end
   -- 数量组合与物理地皮分别排列，优先让共享同族的地皮靠近。
   local orders,identity={},{};for i=1,#bins do identity[i]=i end
@@ -445,8 +441,6 @@ function M.Balanced(crops,stock,tiles,slots,defs,yieldfn,refined,initialboard,in
        local j=(t-1)*9+Rand(9)
        if board[i]~=board[j] then
         changed={[i]=board[i],[j]=board[j]};board[i],board[j]=board[j],board[i]
-        local shape={};for s=1,9 do shape[s]=board[(t-1)*9+s] end
-        if not Balance.Shape(shape) then for p,k in pairs(changed) do board[p]=k end;changed=nil end
        end
       end
       if changed then

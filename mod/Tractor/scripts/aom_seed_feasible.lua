@@ -61,7 +61,7 @@ function M.Find(crops,stock,tiles,slots,defs,target,yieldfn,budget)
     local allowed={};local lo,hi=9,0
     for _,p in ipairs(lists[t]) do
      if not Step(K) then return false end
-     local ok=9-p.n>=counts[0] and 9-p.n<=available[0] and not (p.center_gap and not Has(domains[(t-1)*9+5],0))
+     local ok=9-p.n>=counts[0] and 9-p.n<=available[0]
      if ok then for c=1,K do if p.counts[c]<counts[c] or p.counts[c]>available[c] then ok=false;break end end end
      if ok then allowed[#allowed+1]=p;lo=math.min(lo,p.n);hi=math.max(hi,p.n) end
     end
@@ -70,14 +70,13 @@ function M.Find(crops,stock,tiles,slots,defs,target,yieldfn,budget)
    end
    if target<summin or target>summax then return false end
    for t=1,T do
-    local lo,hi=target-(summax-maxs[t]),target-(summin-mins[t]);local allowed={};local mincount,maxcount={},{};local gap=true
+    local lo,hi=target-(summax-maxs[t]),target-(summin-mins[t]);local allowed={};local mincount,maxcount={},{}
     for c=0,K do mincount[c]=9;maxcount[c]=0 end
     for _,p in ipairs(lists[t]) do if p.n>=lo and p.n<=hi then
-     allowed[#allowed+1]=p;gap=gap and p.center_gap
+     allowed[#allowed+1]=p
      for c=0,K do local n=c==0 and 9-p.n or p.counts[c];mincount[c]=math.min(mincount[c],n);maxcount[c]=math.max(maxcount[c],n) end
     end end
     if #allowed==0 then return false end;lists[t]=allowed
-    if gap and not Set((t-1)*9+5,Has(domains[(t-1)*9+5],0) and 1 or 0) then return false end
     for c=0,K do
      local assigned,candidates=0,0
      for i=(t-1)*9+1,t*9 do if single[domains[i]]==c then assigned=assigned+1 end;if Has(domains[i],c) then candidates=candidates+1 end end

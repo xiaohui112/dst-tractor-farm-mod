@@ -28,7 +28,7 @@ class BalancedSeedTests(unittest.TestCase):
    patterns,_=balance.Patterns(L.table_from(crops),stocks,defs,None)
    actual={tuple(int(p.counts[i]) for i in range(1,len(crops)+1)) for p in patterns.values()}
    self.assertEqual(actual,set(expected),season)
- def test_every_native_complementary_pair_preserves_four_four_and_center(self):
+ def test_every_native_complementary_pair_preserves_four_four(self):
   cases=0
   for season in ('autumn','winter','spring','summer'):
    crops=[k for k in audit.RULES if season in audit.RULES[k]['seasons']]
@@ -36,7 +36,7 @@ class BalancedSeedTests(unittest.TestCase):
     if any(x+y for x,y in zip(audit.RULES[a]['net'],audit.RULES[b]['net'])):continue
     with self.subTest(season=season,a=a,b=b):
      _,plan=self.make({a:100,b:100},season)
-     self.assertEqual(plan.total,8);self.assertFalse(plan.slots[5].crop)
+     self.assertEqual(plan.total,8)
      self.assertEqual(Counter(p.crop for p in plan.slots.values() if p.crop),{a:4,b:4})
      cases+=1
   self.assertGreater(cases,0)
@@ -65,9 +65,14 @@ class BalancedSeedTests(unittest.TestCase):
   slots=list(b.slots.values());p=next(p for p in slots[:9] if p.crop=='potato');q=next(p for p in slots[9:] if p.crop=='tomato')
   p.crop,q.crop=q.crop,p.crop
   self.assertFalse(w.lua.globals().D.Validate(b))
- def test_reserved_center_cannot_be_filled_to_chase_nine(self):
+ def test_center_can_be_occupied_without_changing_four_four_counts(self):
   w,b=self.make({'tomato':40,'potato':40})
-  b.slots[5].crop='potato'
+  for p,k in zip(b.slots.values(),['potato','potato','potato','potato','tomato','tomato',False,'tomato','tomato']):p.crop=k
+  self.assertEqual(w.lua.globals().D.Validate(b),(True,8))
+  self.assertEqual(Counter(p.crop for p in b.slots.values() if p.crop),{'tomato':4,'potato':4})
+ def test_nutrient_balance_still_prevents_filling_a_ninth_plant(self):
+  w,b=self.make({'tomato':40,'potato':40})
+  next(p for p in b.slots.values() if not p.crop).crop='potato'
   self.assertFalse(w.lua.globals().D.Validate(b))
  def test_new_rule_marker_survives_save_and_load(self):
   w,b=self.make({'tomato':8,'potato':8},tiles=((0,0),(1,0)))
@@ -75,10 +80,11 @@ class BalancedSeedTests(unittest.TestCase):
   L.execute("Block=require('aom_block_plan');data=Block.OnSave(inst);assert(data.nutrient_balanced);other=make_inst({},'autumn');Block.OnLoad(other,data);assert(other._block.nutrient_balanced and D.Validate(other._block))")
  def test_legacy_unbalanced_plan_keeps_locked_coordinates(self):
   w,b=self.make({'tomato':40,'potato':40});L=w.lua
-  b.slots[5].crop='potato';b.nutrient_balanced=None;b.total=9
+  hole=next(i for i,p in b.slots.items() if not p.crop)
+  b.slots[hole].crop='potato';b.nutrient_balanced=None;b.total=9;L.globals().filled_hole=hole
   self.assertEqual(L.globals().D.Validate(b),(True,9))
   L.globals().inst._block=b
-  L.execute("Block=require('aom_block_plan');data=Block.OnSave(inst);other=make_inst({},'autumn');Block.OnLoad(other,data);assert(other._block and other._block.total==9 and not other._block.nutrient_balanced and other._block.slots[5].crop=='potato')")
+  L.execute("Block=require('aom_block_plan');data=Block.OnSave(inst);other=make_inst({},'autumn');Block.OnLoad(other,data);assert(other._block and other._block.total==9 and not other._block.nutrient_balanced and other._block.slots[filled_hole].crop=='potato')")
  def test_compactness_precedes_tidy_weighted_score(self):
   w=giant.World();L=w.lua
   L.execute("A=require('aom_seed_layout');assert(A.Better({fragmentation=0,family=100,tidy=100000},{fragmentation=1,family=0,tidy=-100000}));assert(A.Better({fragmentation=0,family=99,tidy=100000},{fragmentation=0,family=100,tidy=-100000}));assert(not A.Better({fragmentation=1,family=0,tidy=-100000},{fragmentation=0,family=100,tidy=100000}))")

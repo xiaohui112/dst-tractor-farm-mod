@@ -144,8 +144,6 @@ def validate(case, w, slots, board):
     for t in range(len(slots)//9):
         cells = board[t*9:t*9+9]
         counts = Counter(k for k in cells if k)
-        if sorted(counts.values()) == [4, 4] and cells[4]:
-            errors.append('4+4-center')
         if sum(counts.values()) > audit.CONSTANTS['FARM_PANT_OVERCROWDING_MAX_PLANTS']:
             errors.append('density')
     L = w.lua
@@ -209,17 +207,6 @@ def model_for(w, slots):
             model.add(sum(terms) == 0)
         total = sum(occupied[i] for i in indices)
         model.add(total <= int(audit.CONSTANTS['FARM_PANT_OVERCROWDING_MAX_PLANTS']))
-        eight = model.new_bool_var(f'eight{t}')
-        model.add(total == 8).only_enforce_if(eight)
-        model.add(total != 8).only_enforce_if(eight.Not())
-        fours = []
-        for c, count in enumerate(counts):
-            four = model.new_bool_var(f'four{t}_{c}')
-            model.add(count == 4).only_enforce_if(four)
-            model.add(count != 4).only_enforce_if(four.Not())
-            fours.append(four)
-        # With 8 plants and occupied center, forbid two species of exactly 4.
-        model.add(sum(fours) <= 1).only_enforce_if([eight, occupied[t*9+4]])
     model.maximize(sum(occupied))
     return model, x, crops
 

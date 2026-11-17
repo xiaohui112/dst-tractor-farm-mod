@@ -132,7 +132,7 @@ local rows,columns=true,true
 for z=0,h-1 do for x=1,w-1 do if cells[z*w+x+1]~=cells[z*w+1] then rows=false end end end
 for x=0,w-1 do for z=1,h-1 do if cells[z*w+x+1]~=cells[x+1] then columns=false end end end
 local actual={};for i,p in ipairs(b.slots) do actual[i]=p.crop end;assert(require('aom_seed_balance').Board(actual,DEFS))
-assert(not require('aom_seed_layout').Better(b.arrangement.before,b.arrangement.after))
+assert(not require('aom_seed_arrangement').Better(b.arrangement.before,b.arrangement.after))
 ''')
  def test_irregular_field_keeps_all_three_eligible_species_and_capacity(self):
   self.lua.execute('''dynfield(0,0);dynfield(4,0);dynfield(4,4)

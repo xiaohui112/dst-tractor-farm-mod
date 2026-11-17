@@ -117,6 +117,12 @@ function M.Build(crops,stock,tiles,slots,defs,yieldfn,options)
    attempts=attempts+expanded_attempts;budget=budget+expanded_budget
   end
  end
+ local baseline_total=bestscore and bestscore.total or 0
+ local supplementation
+ if best and baseline_total<upper then
+  best,bestmodules,supplementation=require('aom_seed_supplement').Fill(best,bestmodules,crops,stock,tiles,slots,defs,geometry,yieldfn,options)
+  bestscore.total=baseline_total+supplementation.added
+ end
  local exported={}
  for _,m in ipairs(bestmodules)do local p=m.placement;exported[#exported+1]={id=p.id,tiles=Copy(p.indices),symmetry=p.symmetry,origin=Copy(p.origin),crops=Copy(m.recipe.map)}end
  local quantity=clock()-started;task.quantity_seconds=quantity;task.phase='template_finalize'
@@ -128,7 +134,8 @@ function M.Build(crops,stock,tiles,slots,defs,yieldfn,options)
  local metrics=best and Layout.Metrics(best,geometry,yieldfn)or nil
  local details={total=total,upper=upper,optimal=total==upper,limited=total<upper,mode='templates',modules=exported,catalog_version=Data.Catalog.version,
   quantity_seconds=quantity,arrangement_seconds=clock()-started-quantity,template_prepare_seconds=prepared,template_select_seconds=quantity-prepared,
-  attempts=attempts,work_budget=budget,validations=validations,geometry_builds=geometry_builds,metrics_computed=metrics_computed,arrangement={before=metrics,after=metrics,limited=false,moves=0,trials=0}}
+  attempts=attempts+(supplementation and supplementation.attempts or 0),work_budget=budget+(supplementation and supplementation.work_budget or 0),
+  baseline_total=baseline_total,supplementation=supplementation,validations=validations,geometry_builds=geometry_builds,metrics_computed=metrics_computed,arrangement={before=metrics,after=metrics,limited=false,moves=0,trials=0}}
  task.last_report=details;task.arrangement_seconds=details.arrangement_seconds;task.phase='done'
  return best,details
 end

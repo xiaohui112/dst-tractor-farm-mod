@@ -20,7 +20,7 @@ def presets():
   return {'name':label,'scenario':{'width':w,'height':h,'tiles':tiles,'start':tiles[0],'seeds':seeds,'season':season}}
  rect=lambda w,h:[[x,z] for z in range(h) for x in range(w)]
  return [
-  case('番茄＋土豆 · 4＋4中心留空',1,1,rect(1,1),{'tomato':40,'potato':40}),
+  case('番茄＋土豆 · 4＋4互补配比',1,1,rect(1,1),{'tomato':40,'potato':40}),
   case('T形 · 九种各4颗',3,2,[[0,0],[1,0],[2,0],[1,1]],{k:4 for k in ('carrot','corn','potato','tomato','eggplant','pumpkin','garlic','onion','pepper')}),
   case('U形 · 六种各7颗',3,2,[[0,0],[0,1],[1,1],[2,1],[2,0]],{k:7 for k in ('carrot','corn','potato','tomato','eggplant','pumpkin')}),
   case('环形 · 55颗混合库存',3,3,[[x,z] for z in range(3) for x in range(3) if [x,z]!=[1,1]],{'carrot':7,'corn':7,'potato':24,'tomato':17}),

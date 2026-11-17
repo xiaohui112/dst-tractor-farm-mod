@@ -28,9 +28,9 @@ class SeedAuditTests(unittest.TestCase):
   errors,metrics=audit.independent_check(case,points)
   self.assertFalse(errors,(case['id'],errors))
   self.assertEqual(metrics['count'],b.total);self.assertLessEqual(b.total,upper)
-  # New priorities are lexicographic; weighted aesthetic score may rise as compactness improves.
+  # Final arrangement has a separate pattern objective; compactness is diagnostic only.
   before,after=b.arrangement.before,b.arrangement.after
-  self.assertLessEqual((after.fragmentation,round(after.family,6),round(after.tidy,6)),(before.fragmentation,round(before.family,6),round(before.tidy,6)))
+  self.assertLessEqual(tuple(round(after[k],6) for k in ('pattern_mismatch','line_cost','hole_cost','order_cost')),tuple(round(before[k],6) for k in ('pattern_mismatch','line_cost','hole_cost','order_cost')))
  def test_historical_inventory_and_geometry_cases_obey_balanced_policy(self):
   for case in json.loads(FIXTURES.read_text())['cases']:
    marker=audit.ROOT/'outputs/selfcheck-seed-case.txt';marker.parent.mkdir(parents=True,exist_ok=True);marker.write_text(case['id']+'\n')
@@ -79,6 +79,6 @@ class SeedAuditTests(unittest.TestCase):
   w=giant.World();L=w.lua
   L.execute("A=require('aom_seed_layout');tiles={{x=0,z=0},{x=4,z=0}};slots={};board={'potato','tomato','potato',false,'potato','tomato','tomato','potato','tomato','tomato','potato','tomato','potato','tomato',false,'potato','tomato','potato'};for t=1,2 do for s=0,8 do slots[#slots+1]={x=(t-1)*4+(s%3-1)*4/3,z=(math.floor(s/3)-1)*4/3} end end;for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end;geometry=A.Geometry(tiles,slots,DEFS);assert(A.Valid(board,geometry))")
   before=[Counter(L.globals().board[i] for i in range(1+t*9,10+t*9)) for t in range(2)]
-  L.execute("board,report=A.Regularize(board,geometry);assert(A.Valid(board,geometry));board,second=A.Regularize(board,geometry);assert(A.Valid(board,geometry));assert(not A.Better(report.after,second.after))")
+  L.execute("board,report=A.Regularize(board,geometry);assert(A.Valid(board,geometry));board,second=A.Regularize(board,geometry);assert(A.Valid(board,geometry));assert(not require('aom_seed_arrangement').Better(report.after,second.after))")
   after=[Counter(L.globals().board[i] for i in range(1+t*9,10+t*9)) for t in range(2)]
   self.assertEqual(before,after)

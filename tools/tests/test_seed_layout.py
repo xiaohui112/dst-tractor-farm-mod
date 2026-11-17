@@ -72,16 +72,17 @@ assert(Layout.LowerBound(board,geometry)<=metrics.score+.000001)
    self.assertEqual(metrics.fragmentation,fragmentation)
    if case.get('regularized'):
     self.lua.execute('after,report=Layout.Regularize(board,geometry);assert(Layout.Valid(after,geometry))')
-    self.assertLessEqual((self.lua.globals().report.after.fragmentation,self.lua.globals().report.after.family,self.lua.globals().report.after.tidy),(fragmentation,expected['spatial']['family'],corrected-expected['spatial']['family']*100-fragmentation*3000))
- def test_single_tile_alignment_reaches_webpage_reference_cost(self):
+    self.lua.execute("assert(not require('aom_seed_arrangement').Better(report.before,report.after))")
+ def test_single_tile_alignment_improves_pattern_order_without_forcing_a_hole(self):
   self.lua.execute('''board={'potato','tomato','potato','tomato',false,'tomato','potato','potato','tomato'}
 tiles={{x=0,z=0}};slots={};for s=0,8 do slots[#slots+1]={x=(s%3-1)*4/3,z=(math.floor(s/3)-1)*4/3} end
 for _,p in ipairs(slots)do SpawnPrefab('farm_soil').Transform:SetPosition(p.x,0,p.z)end
 local geometry=Layout.Geometry(tiles,slots,DEFS);geometry.balanced=true
 local result,report=Layout.Regularize(board,geometry)
-assert(report.after.score<=-392 and Layout.Valid(result,geometry))
+assert(Layout.Valid(result,geometry))
+assert(not require('aom_seed_arrangement').Better(report.before,report.after))
 local counts={};for _,k in ipairs(result) do if k then counts[k]=(counts[k] or 0)+1 end end
-assert(counts.potato==4 and counts.tomato==4 and not result[5])
+assert(counts.potato==4 and counts.tomato==4)
 ''')
  def test_single_tile_sowing_matches_independent_balanced_oracle(self):
   import seed_strategy_audit as audit
@@ -96,4 +97,3 @@ assert(counts.potato==4 and counts.tomato==4 and not result[5])
     points=[{k:p[k] for k in ('x','z','cx','cz','crop')} for p in plan.slots.values()]
     errors,_=audit.independent_check({'tiles':[(0,0)],'stock':counts,'season':'autumn'},points)
     self.assertFalse(errors)
-    self.assertFalse(plan.slots[5].crop)

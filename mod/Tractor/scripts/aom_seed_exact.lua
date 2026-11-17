@@ -1,5 +1,5 @@
 -- 完整的坑位约束搜索。启发式只提供下界；较大数量逐个排除后才交付计划。
--- 域同时满足逐格互补、库存、原版距离同族、坑距及4+4中心留空。
+-- 域同时满足逐格互补、库存、原版距离同族与坑距；空坑位置不限制可行域。
 local M={}
 function M.Prepare(crops,stock,defs,vectors,capacity,yieldfn)
  local data={allocations={},targets={},upper=capacity,limited=false,nodes=0}
@@ -427,7 +427,6 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
     local allowed={};local lo,hi=9,0
     for _,p in ipairs(lists[t]) do
      local ok=9-p.n>=fixed[0] and 9-p.n<=available[0]
-     if p.center_gap and not Has(domains[(t-1)*9+5],0) then ok=false end
      if ok then for c=1,K do if p.counts[c]<fixed[c] or p.counts[c]>available[c] then ok=false;break end end end
      if ok then allowed[#allowed+1]=p;lo=math.min(lo,p.n);hi=math.max(hi,p.n) end
      Step()
@@ -439,14 +438,13 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
    local globalmin,globalmax={},{};for c=1,K do globalmin[c]=0;globalmax[c]=0 end
    for t=1,T do
     local lo=target-(summax-maxs[t]);local hi=target-(summin-mins[t])
-    local allowed={};local mincount,maxcount={},{};local gap=true
+    local allowed={};local mincount,maxcount={},{}
     for c=0,K do mincount[c]=9;maxcount[c]=0 end
     for _,p in ipairs(lists[t]) do if p.n>=lo and p.n<=hi then
-     allowed[#allowed+1]=p;gap=gap and p.center_gap
+     allowed[#allowed+1]=p
      for c=0,K do local n=c==0 and 9-p.n or p.counts[c];mincount[c]=math.min(mincount[c],n);maxcount[c]=math.max(maxcount[c],n) end
     end end
     if #allowed==0 then return false end;if #allowed~=#lists[t]then lists[t]=allowed end
-    if gap and not Set((t-1)*9+5,Has(domains[(t-1)*9+5],0) and 1 or 0) then return false end
     for c=1,K do globalmin[c]=globalmin[c]+mincount[c];globalmax[c]=globalmax[c]+maxcount[c] end
     for c=0,K do
      local fixed,available=0,0
@@ -674,7 +672,7 @@ function M.Maximize(crops,stock,tiles,slots,defs,seed,lower,upper,yieldfn,option
     local capacity=0;for i=(t-1)*9+1,t*9 do if free[i] or board[i] then capacity=capacity+1 end end
     local allowed={};local lo,hi=9,0
     for _,p in ipairs(list) do
-     if p.n<=capacity and (not c or p.counts[c]==counts[t]) and not (p.center_gap and board[(t-1)*9+5]) then
+     if p.n<=capacity and (not c or p.counts[c]==counts[t]) then
       allowed[#allowed+1]=p;lo=math.min(lo,p.n);hi=math.max(hi,p.n)
      end
     end

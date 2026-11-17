@@ -17,7 +17,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 from farm_native_math import f32, distance_squared, radius_squared
 MOD=Path(os.environ.get('TRACTOR_MOD_SOURCE',str(ROOT/'mod/Tractor'))).resolve()
 GAME=Path(os.environ.get('DST_GAME_SCRIPTS',str(Path.home()/"Library/Application Support/Steam/steamapps/common/Don't Starve Together/dontstarve_steam.app/Contents/data/databundles/scripts.zip")))
-MODULES=('aom_farm_grid.lua','aom_farm_neighbors.lua','aom_seed_catalog.lua','aom_seed_template_data.lua','aom_seed_initial.lua','aom_seed_templates.lua','aom_template_preview.lua','aom_seed_regions.lua','aom_planner_build.lua','aom_dynamic_farm.lua','aom_seed_layout.lua','aom_seed_packing.lua','aom_seed_exact.lua','aom_seed_heuristic.lua','aom_seed_feasible.lua','aom_seed_balance.lua','aom_seed_strategy.lua','aom_farm_registry.lua','aom_crop_state.lua','components/aom_attachment_store.lua')
+MODULES=('aom_farm_grid.lua','aom_farm_neighbors.lua','aom_seed_catalog.lua','aom_seed_template_data.lua','aom_seed_initial.lua','aom_seed_templates.lua','aom_seed_supplement.lua','aom_template_preview.lua','aom_seed_regions.lua','aom_planner_build.lua','aom_dynamic_farm.lua','aom_seed_layout.lua','aom_seed_arrangement.lua','aom_seed_packing.lua','aom_seed_exact.lua','aom_seed_heuristic.lua','aom_seed_feasible.lua','aom_seed_balance.lua','aom_seed_strategy.lua','aom_farm_registry.lua','aom_crop_state.lua','components/aom_attachment_store.lua')
 NAMES={'carrot':'胡萝卜','corn':'玉米','potato':'土豆','tomato':'番茄','asparagus':'芦笋','eggplant':'茄子','pumpkin':'南瓜','watermelon':'西瓜','dragonfruit':'火龙果','durian':'榴莲','garlic':'大蒜','onion':'洋葱','pepper':'辣椒','pomegranate':'石榴'}
 CROP_ORDER=tuple(NAMES)
 REASONS={'NO_BALANCED_COMBO':'现有应季库存与农田容量无法组成逐地皮互补配比，请调整种子或农田范围。','MISSING_SEEDS':'没有能组成同族的应季种子，请增加种子或检查季节。','FARM_TOO_LARGE':'从起点连通的农田超过最优策略的64块上限；可缩小范围或切换模版策略。','NEED_PLOW':'起点需要完整的九宫格空坑。','FOREIGN_CROP':'起点存在不符合空田要求的作物或障碍。','NO_FAMILY':'本次未找到能通过同族与坑距检查的方案。'}
@@ -101,7 +101,7 @@ def metadata():
   d=r.defs[k]
   crops.append({'id':k,'name':NAMES[k],'seasons':[s for s in ('autumn','winter','spring','summer') if d.good_seasons[s]],'family_min':d.family_min_count,'family_radius':d.family_check_dist,'nutrient_net':[sum(d.nutrient_consumption.values())/sum(bool(d.nutrient_restoration[i]) for i in (1,2,3))*(1 if d.nutrient_restoration[j] else 0)-(d.nutrient_consumption[j] or 0) for j in (1,2,3)]})
  templates=[{'id':s.id,'total':s.total,'source':s.source,'size':list(s.size.values())} for s in r.catalog.templates.values()]
- return {**manifest(),'templates':templates,'catalog_version':r.catalog.version,'verifier_schema':4,'strategies':[{'id':'GIANT_TEMPLATE','name':'巨大化·模版'},{'id':'GIANT','name':'巨大化·最优'}],'crops':crops,'max_tiles':64,'strategy_limits':{'GIANT':64,'GIANT_TEMPLATE':None},'policy':['逐地皮养分互补、应季、同族和坑距','合法配比内播种数量优先','同族连片及距离','行列与整体排列']}
+ return {**manifest(),'templates':templates,'catalog_version':r.catalog.version,'verifier_schema':4,'strategies':[{'id':'GIANT_TEMPLATE','name':'巨大化·模版'},{'id':'GIANT','name':'巨大化·最优'}],'crops':crops,'max_tiles':64,'strategy_limits':{'GIANT':64,'GIANT_TEMPLATE':None},'policy':['逐地皮养分互补、应季、同族和坑距','合法配比内播种数量优先','同配比整体图案一致','完整行列与规则留空']}
 
 def run(data,phase=lambda _:None,cancelled=lambda:False):
  data=normalize(data);before=manifest();started=time.perf_counter()
@@ -151,6 +151,13 @@ def run(data,phase=lambda _:None,cancelled=lambda:False):
  quantities=all(used[k]<=data['seeds'].get(k,0) for k in used)
  seasonal=all(result.defs[k].good_seasons[data['season']] for k in used)
  arrange=b.arrangement
+ pattern=arrange.after
+ if pattern.pattern_mismatch is None and (MOD/'scripts/aom_seed_arrangement.lua').exists():
+  # Fixed templates keep their own objective; expose comparable diagnostics only.
+  board=L.table_from([p['crop'] or False for p in slots])
+  geometry=L.eval("require('aom_seed_layout').Geometry")(b.tiles,b.slots,result.defs)
+  pattern=L.eval("require('aom_seed_arrangement').Metrics")(board,geometry)
  response.update(template_modules=[{'id':m.id,'tiles':list(m.tiles.values()),'symmetry':m.symmetry,'origin':dict(m.origin.items()),'crops':dict(m.crops.items())}for m in (construction.modules.values()if construction and construction.modules else [])],count=b.total,upper=b.upper,optimal=bool(b.optimal),slots=slots,tiles=tiles,used=dict(used),remaining={k:n-used.get(k,0) for k,n in data['seeds'].items()},checks={'family_passed':family_passed,'family_total':sum(used.values()),'spacing':spacing_passed,'stock':quantities,'season':seasonal,'mod_validation':bool(result.valid),'complete_templates':data['strategy']!='GIANT_TEMPLATE' or bool(result.valid),'nutrient_balance':nutrients,'nutrient_tiles':nutrient_tiles},layout={'score':arrange.after.score,'components':arrange.after.components,'fragmentation':arrange.after.fragmentation,'limited':bool(arrange.limited),'family_distance':arrange.after.family,'tidy':arrange.after.tidy,'search_limited':bool(b.construction.limited)},used_tiles=len({(p['cx'],p['cz']) for p in slots if p['crop']}))
+ response['layout'].update(objective=arrange.objective or ('fixed-templates' if data['strategy']=='GIANT_TEMPLATE' else 'legacy-compactness'),pattern_mismatch=pattern.pattern_mismatch,line_cost=pattern.line_cost,hole_cost=pattern.hole_cost,order_cost=pattern.order_cost)
  if not(result.valid and family_passed==b.total and spacing_passed and quantities and seasonal and nutrients):raise RuntimeError('布局未通过校验，请保留场景并检查Mod。')
  return response

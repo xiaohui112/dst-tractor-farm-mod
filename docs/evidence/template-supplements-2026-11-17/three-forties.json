@@ -1,0 +1,1368 @@
+{
+  "strategy": "GIANT_TEMPLATE",
+  "input": {
+    "template_id": null,
+    "strategy": "GIANT_TEMPLATE",
+    "season": "autumn",
+    "width": 3,
+    "height": 3,
+    "tiles": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "start": [
+      0,
+      0
+    ],
+    "seeds": {
+      "carrot": 40,
+      "corn": 40,
+      "potato": 0,
+      "tomato": 0,
+      "asparagus": 0,
+      "eggplant": 40,
+      "pumpkin": 0,
+      "watermelon": 0,
+      "dragonfruit": 0,
+      "durian": 0,
+      "garlic": 0,
+      "onion": 0,
+      "pepper": 0,
+      "pomegranate": 0,
+      "randomseed": 0
+    }
+  },
+  "source": {
+    "grid_spacing": 1.3125,
+    "version": "0.5.24",
+    "runtime": "Lua 5.1",
+    "files": [
+      {
+        "path": "scripts/aom_farm_grid.lua",
+        "sha256": "61185abfe74551ab547981c9c569d0134c8c49aba46901cdc0fc3319f288e4dc",
+        "bytes": 249
+      },
+      {
+        "path": "scripts/aom_farm_neighbors.lua",
+        "sha256": "da21093617104a74aba6b4ef164a83f00a6763c3a0420ec4f505758c608e2702",
+        "bytes": 2054
+      },
+      {
+        "path": "scripts/aom_seed_catalog.lua",
+        "sha256": "05c96cd80fccffaac28a8576a182e441d52364c01bf57448e15712735adc630b",
+        "bytes": 118734
+      },
+      {
+        "path": "scripts/aom_seed_template_data.lua",
+        "sha256": "3cb5773bd347287683099ac524f1c26806c21f86188ddc8a7c3fae9ba70ccb6a",
+        "bytes": 5590
+      },
+      {
+        "path": "scripts/aom_seed_initial.lua",
+        "sha256": "51fb9588394e9313a4210a6a3e1d6df564f3d4e88f25db0becdc01488a529098",
+        "bytes": 12212
+      },
+      {
+        "path": "scripts/aom_seed_templates.lua",
+        "sha256": "184031055ae7b8e5bec033173c137717c833e9332981c7c77a880826c4cd4b3c",
+        "bytes": 8800
+      },
+      {
+        "path": "scripts/aom_seed_supplement.lua",
+        "sha256": "ab1af81d83b30f3b9f29d09e3c1d30acf29cab865b7dacf3c911f3403a17b810",
+        "bytes": 5603
+      },
+      {
+        "path": "scripts/aom_template_preview.lua",
+        "sha256": "f59c8a320ea10fae5056d362428c34c8e61e28259be1d8f860304a5e4828ff52",
+        "bytes": 6764
+      },
+      {
+        "path": "scripts/aom_seed_regions.lua",
+        "sha256": "f8f18ec108a32a51bfe8dc019445d2d6b7ee30c7d244bc09c02355d1f8079e9b",
+        "bytes": 3836
+      },
+      {
+        "path": "scripts/aom_planner_build.lua",
+        "sha256": "09c038bdbc3535b8a68ca79fbf7fcf4d576207539cff58a7907c80dddb9e8ccc",
+        "bytes": 158
+      },
+      {
+        "path": "scripts/aom_dynamic_farm.lua",
+        "sha256": "fabd5ed83c0e4fc723cc1ddb3a4dbe8c9f51132c5c15f31870d7a918419b29f7",
+        "bytes": 22051
+      },
+      {
+        "path": "scripts/aom_seed_layout.lua",
+        "sha256": "41ec5202801939b43b40954a86d25d39b3a2eccf26f88245402ea3a28580834e",
+        "bytes": 16438
+      },
+      {
+        "path": "scripts/aom_seed_arrangement.lua",
+        "sha256": "85503555c5ef17b2d02349124dd644b5a6e214026d6480ed95c1d08e319206dd",
+        "bytes": 9731
+      },
+      {
+        "path": "scripts/aom_seed_packing.lua",
+        "sha256": "ae0736fbc18839aae3409cd9912622d6e8d351f7aab98d77fb3b1a36cd681fba",
+        "bytes": 9373
+      },
+      {
+        "path": "scripts/aom_seed_exact.lua",
+        "sha256": "c4161a19524b5a3c4857e98b4e86f532ba542949fe89620805e83c8471c497cc",
+        "bytes": 62412
+      },
+      {
+        "path": "scripts/aom_seed_heuristic.lua",
+        "sha256": "c380f0ccfd7a75f914a2101a70b3f43834d930aa97dccb0c3a59cf2b87bd1fcc",
+        "bytes": 35454
+      },
+      {
+        "path": "scripts/aom_seed_feasible.lua",
+        "sha256": "19b8f9353795aa327993ff584f9752ae6bb857fbb453904699ceefad753071c4",
+        "bytes": 6658
+      },
+      {
+        "path": "scripts/aom_seed_balance.lua",
+        "sha256": "7b768b89b9bac4fb4b7780e0fbd573715e01883c68f47414d0034bdff61ba007",
+        "bytes": 11436
+      },
+      {
+        "path": "scripts/aom_seed_strategy.lua",
+        "sha256": "a49889673ede68b6b521eeef3c361693d3025243ac54c6c272d7c3953f6d4a51",
+        "bytes": 2215
+      },
+      {
+        "path": "scripts/aom_farm_registry.lua",
+        "sha256": "c30a0957f5945f19b62c4520ed3038d6cd55eb3907b76bbf71e32476f6ef88bb",
+        "bytes": 1387
+      },
+      {
+        "path": "scripts/aom_crop_state.lua",
+        "sha256": "958e4bf37bf876aa45f53339a248ccacd9adaf04f6fe3cc5e7bad36af382f44f",
+        "bytes": 1667
+      },
+      {
+        "path": "scripts/components/aom_attachment_store.lua",
+        "sha256": "83d5eb043bd12141f79f4d99e35c8cd11611271839bd6b99edec8532c4e5fd87",
+        "bytes": 8377
+      }
+    ],
+    "fingerprint": "3bfe11f0b1634db58daad6a53acf9ae0220dd52a22b33d55096851828193c70b",
+    "installed_match": false,
+    "native_sha256": "212756cc14e5e4b23afc15404000aa3740e4ee174ede04aaa82fa26eacb66363",
+    "constants": {
+      "FARM_PLANT_SAME_FAMILY_MIN": 4.0,
+      "FARM_PLANT_SAME_FAMILY_RADIUS": 4.0,
+      "FARM_TILL_SPACING": 1.25,
+      "FARM_PANT_OVERCROWDING_MAX_PLANTS": 10.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_LOW": 2.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_MED": 4.0,
+      "FARM_PLANT_CONSUME_NUTRIENT_HIGH": 8.0
+    }
+  },
+  "elapsed_ms": 256,
+  "reason": null,
+  "valid": true,
+  "ticks": 400,
+  "timings": {
+    "quantity_ms": 119.933,
+    "arrangement_ms": 0.92,
+    "basis": "process_cpu",
+    "template_prepare_ms": 68.439,
+    "template_select_ms": 51.494
+  },
+  "template_modules": [
+    {
+      "id": "program-18-equal",
+      "tiles": [
+        7,
+        9
+      ],
+      "symmetry": 3,
+      "origin": {
+        "x": 8,
+        "z": 4
+      },
+      "crops": {
+        "A": "carrot",
+        "C": "eggplant",
+        "B": "corn"
+      }
+    },
+    {
+      "id": "program-18-equal",
+      "tiles": [
+        2,
+        4
+      ],
+      "symmetry": 0,
+      "origin": {
+        "x": 4,
+        "z": 0
+      },
+      "crops": {
+        "A": "carrot",
+        "C": "eggplant",
+        "B": "corn"
+      }
+    },
+    {
+      "id": "program-18-equal",
+      "tiles": [
+        5,
+        8
+      ],
+      "symmetry": 3,
+      "origin": {
+        "x": 4,
+        "z": 4
+      },
+      "crops": {
+        "A": "carrot",
+        "C": "eggplant",
+        "B": "corn"
+      }
+    },
+    {
+      "id": "program-18-equal",
+      "tiles": [
+        3,
+        6
+      ],
+      "symmetry": 3,
+      "origin": {
+        "x": 0,
+        "z": 4
+      },
+      "crops": {
+        "A": "carrot",
+        "C": "eggplant",
+        "B": "corn"
+      }
+    },
+    {
+      "id": "program-9-equal",
+      "tiles": [
+        1
+      ],
+      "symmetry": 0,
+      "origin": {
+        "x": 0,
+        "z": 0
+      },
+      "crops": {
+        "A": "carrot",
+        "C": "eggplant",
+        "B": "corn"
+      }
+    }
+  ],
+  "count": 81,
+  "upper": 81,
+  "optimal": true,
+  "slots": [
+    {
+      "x": -1.3125,
+      "z": -1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 1,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": -1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 2,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": -1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 3,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 0,
+      "cx": 0,
+      "cz": 0,
+      "crop": "corn",
+      "index": 4,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 0,
+      "cx": 0,
+      "cz": 0,
+      "crop": "corn",
+      "index": 5,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 0,
+      "cx": 0,
+      "cz": 0,
+      "crop": "corn",
+      "index": 6,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 7,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 8,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 1.3125,
+      "cx": 0,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 9,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": -1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 10,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": -1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 11,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": -1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 12,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 0,
+      "cx": 4,
+      "cz": 0,
+      "crop": "corn",
+      "index": 13,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 0,
+      "cx": 4,
+      "cz": 0,
+      "crop": "corn",
+      "index": 14,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 0,
+      "cx": 4,
+      "cz": 0,
+      "crop": "corn",
+      "index": 15,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 16,
+      "family": 11,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 17,
+      "family": 11,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 1.3125,
+      "cx": 4,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 18,
+      "family": 10,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 2.6875,
+      "cx": 0,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 19,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 2.6875,
+      "cx": 0,
+      "cz": 4,
+      "crop": "corn",
+      "index": 20,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 2.6875,
+      "cx": 0,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 21,
+      "family": 10,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 4,
+      "cx": 0,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 22,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 4,
+      "cx": 0,
+      "cz": 4,
+      "crop": "corn",
+      "index": 23,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 4,
+      "cx": 0,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 24,
+      "family": 11,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 5.3125,
+      "cx": 0,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 25,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 5.3125,
+      "cx": 0,
+      "cz": 4,
+      "crop": "corn",
+      "index": 26,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 5.3125,
+      "cx": 0,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 27,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": -1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 28,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": -1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 29,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": -1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "carrot",
+      "index": 30,
+      "family": 4,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 0,
+      "cx": 8,
+      "cz": 0,
+      "crop": "corn",
+      "index": 31,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 0,
+      "cx": 8,
+      "cz": 0,
+      "crop": "corn",
+      "index": 32,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 0,
+      "cx": 8,
+      "cz": 0,
+      "crop": "corn",
+      "index": 33,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 34,
+      "family": 10,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 35,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 1.3125,
+      "cx": 8,
+      "cz": 0,
+      "crop": "eggplant",
+      "index": 36,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 2.6875,
+      "cx": 4,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 37,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 2.6875,
+      "cx": 4,
+      "cz": 4,
+      "crop": "corn",
+      "index": 38,
+      "family": 11,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 2.6875,
+      "cx": 4,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 39,
+      "family": 11,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 4,
+      "cx": 4,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 40,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 4,
+      "cx": 4,
+      "cz": 4,
+      "crop": "corn",
+      "index": 41,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 4,
+      "cx": 4,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 42,
+      "family": 12,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 5.3125,
+      "cx": 4,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 43,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 5.3125,
+      "cx": 4,
+      "cz": 4,
+      "crop": "corn",
+      "index": 44,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 5.3125,
+      "cx": 4,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 45,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 6.6875,
+      "cx": 0,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 46,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 6.6875,
+      "cx": 0,
+      "cz": 8,
+      "crop": "corn",
+      "index": 47,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 6.6875,
+      "cx": 0,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 48,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 8,
+      "cx": 0,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 49,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 8,
+      "cx": 0,
+      "cz": 8,
+      "crop": "corn",
+      "index": 50,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 8,
+      "cx": 0,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 51,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": -1.3125,
+      "z": 9.3125,
+      "cx": 0,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 52,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 0,
+      "z": 9.3125,
+      "cx": 0,
+      "cz": 8,
+      "crop": "corn",
+      "index": 53,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 1.3125,
+      "z": 9.3125,
+      "cx": 0,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 54,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 2.6875,
+      "cx": 8,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 55,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 2.6875,
+      "cx": 8,
+      "cz": 4,
+      "crop": "corn",
+      "index": 56,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 2.6875,
+      "cx": 8,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 57,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 4,
+      "cx": 8,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 58,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 4,
+      "cx": 8,
+      "cz": 4,
+      "crop": "corn",
+      "index": 59,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 4,
+      "cx": 8,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 60,
+      "family": 9,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 5.3125,
+      "cx": 8,
+      "cz": 4,
+      "crop": "carrot",
+      "index": 61,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 5.3125,
+      "cx": 8,
+      "cz": 4,
+      "crop": "corn",
+      "index": 62,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 5.3125,
+      "cx": 8,
+      "cz": 4,
+      "crop": "eggplant",
+      "index": 63,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 6.6875,
+      "cx": 4,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 64,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 6.6875,
+      "cx": 4,
+      "cz": 8,
+      "crop": "corn",
+      "index": 65,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 6.6875,
+      "cx": 4,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 66,
+      "family": 8,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 8,
+      "cx": 4,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 67,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 8,
+      "cx": 4,
+      "cz": 8,
+      "crop": "corn",
+      "index": 68,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 8,
+      "cx": 4,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 69,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 2.6875,
+      "z": 9.3125,
+      "cx": 4,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 70,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 4,
+      "z": 9.3125,
+      "cx": 4,
+      "cz": 8,
+      "crop": "corn",
+      "index": 71,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 5.3125,
+      "z": 9.3125,
+      "cx": 4,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 72,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 6.6875,
+      "cx": 8,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 73,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 6.6875,
+      "cx": 8,
+      "cz": 8,
+      "crop": "corn",
+      "index": 74,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 6.6875,
+      "cx": 8,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 75,
+      "family": 7,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 8,
+      "cx": 8,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 76,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 8,
+      "cx": 8,
+      "cz": 8,
+      "crop": "corn",
+      "index": 77,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 8,
+      "cx": 8,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 78,
+      "family": 6,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 6.6875,
+      "z": 9.3125,
+      "cx": 8,
+      "cz": 8,
+      "crop": "carrot",
+      "index": 79,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 8,
+      "z": 9.3125,
+      "cx": 8,
+      "cz": 8,
+      "crop": "corn",
+      "index": 80,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    },
+    {
+      "x": 9.3125,
+      "z": 9.3125,
+      "cx": 8,
+      "cz": 8,
+      "crop": "eggplant",
+      "index": 81,
+      "family": 5,
+      "family_min": 4,
+      "family_radius": 4
+    }
+  ],
+  "tiles": [
+    {
+      "x": 0,
+      "z": 0
+    },
+    {
+      "x": 4,
+      "z": 0
+    },
+    {
+      "x": 0,
+      "z": 4
+    },
+    {
+      "x": 8,
+      "z": 0
+    },
+    {
+      "x": 4,
+      "z": 4
+    },
+    {
+      "x": 0,
+      "z": 8
+    },
+    {
+      "x": 8,
+      "z": 4
+    },
+    {
+      "x": 4,
+      "z": 8
+    },
+    {
+      "x": 8,
+      "z": 8
+    }
+  ],
+  "used": {
+    "carrot": 27,
+    "corn": 27,
+    "eggplant": 27
+  },
+  "remaining": {
+    "carrot": 13,
+    "corn": 13,
+    "potato": 0,
+    "tomato": 0,
+    "asparagus": 0,
+    "eggplant": 13,
+    "pumpkin": 0,
+    "watermelon": 0,
+    "dragonfruit": 0,
+    "durian": 0,
+    "garlic": 0,
+    "onion": 0,
+    "pepper": 0,
+    "pomegranate": 0,
+    "randomseed": 0
+  },
+  "checks": {
+    "family_passed": 81,
+    "family_total": 81,
+    "spacing": true,
+    "stock": true,
+    "season": true,
+    "mod_validation": true,
+    "complete_templates": true,
+    "nutrient_balance": true,
+    "nutrient_tiles": [
+      {
+        "x": 0,
+        "z": 0,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 4,
+        "z": 0,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 0,
+        "z": 4,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 8,
+        "z": 0,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 4,
+        "z": 4,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 0,
+        "z": 8,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 8,
+        "z": 4,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 4,
+        "z": 8,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      },
+      {
+        "x": 8,
+        "z": 8,
+        "net": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "balanced": true
+      }
+    ]
+  },
+  "layout": {
+    "score": -70239.6826171875,
+    "components": 9,
+    "fragmentation": 6,
+    "limited": false,
+    "family_distance": 592.253173828125,
+    "tidy": -147465,
+    "search_limited": false,
+    "objective": "fixed-templates",
+    "pattern_mismatch": 12,
+    "line_cost": -162,
+    "hole_cost": 0,
+    "order_cost": -161919
+  },
+  "used_tiles": 9
+}

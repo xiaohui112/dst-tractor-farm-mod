@@ -23,7 +23,7 @@ outputs/cpsat-venv/bin/python tools/cpsat_benchmark/benchmark.py --output output
 - 每种作物总量不超过库存，每块地皮三个养分分量分别净变化为零；不读取当前肥力。
 - 每株在原版半径内（包含自身）达到原版同族最低数，允许同族跨地皮。
 - 原版坑距冲突和单地皮密度上限。
-- 一块地皮恰好两类各四株时中心留空，其他配比不附加该限制。
+- 最优策略不限制4＋4的空坑位置；中心留空仅参与固定数量后的整齐评分。模版策略另按目录保留固定空坑。
 - 目标只最大化合法株数；证明数量后调用与 Mod 相同的 `Layout.Regularize`、同样的尺寸相关试探预算整理排列。整理是现有启发式，不声称排列全局最优。
 
 默认 `--float-model native-float32`：输入坑位模拟原版 Transform 的 float32 存储与读回，离线 FindEntities 桩按原版单精度减/乘/加顺序计算，边界包含等号，无 epsilon。依据为本机 macOS x64 762172 原版二进制，见 `docs/evidence/family-distance-2026-11-16/原版FindEntities边界核对.md`。

@@ -92,7 +92,7 @@ local function Solve(tiles,slots,counts,season,trace,strategy,task,template_id)
   board={};for i,p in ipairs(slots)do board[i]=saved.points[PitKey(p)]or false end;details=Copy(saved.details);details.quantity_seconds=0;details.arrangement_seconds=0;details.template_prepare_seconds=0;details.template_select_seconds=0;details.cache_hit=true
   local tile_lookup={};for i,t in ipairs(tiles)do tile_lookup[t.x..':'..t.z]=i end
   for _,m in ipairs(details.modules or {})do
-   local spec;for _,s in ipairs(require('aom_seed_catalog').templates)do if s.id==m.id then spec=s end end
+   local spec=require('aom_seed_template_data').Spec(m.id)
    if spec then for _,v in ipairs(spec.variants)do if v.symmetry==m.symmetry then
     m.tiles={};for dz=0,v.h-1 do for dx=0,v.w-1 do
      m.tiles[#m.tiles+1]=tile_lookup[(m.origin.x+dx*4)..':'..(m.origin.z+dz*4)]
@@ -199,7 +199,20 @@ function M.TemplateTargets(inst,cx,cz)
  local Preview=require('aom_template_preview');local index=Preview.Prepare(b)
  local module=index.bytile[cx..':'..cz];local targets={}
  local current,tiles,board={}, {},{}
- if module then for _,ti in ipairs(module.tiles)do
+ local scan_tiles=module and module.tiles or {};local focus={}
+ if module and module.field_family then
+  -- 同族可以跨模块；只重扫覆盖同族半径的邻域，工作量不随全田扩大。
+  local radius=0;local defs=Defs()
+  for _,i in ipairs(module.indices)do local k=b.slots[i].crop
+   if k then radius=math.max(radius,defs[k].family_check_dist or 4)end
+  end
+  local reach=math.ceil((radius+2*Grid.SPACING+.4)/4);scan_tiles={}
+  for dz=-reach,reach do for dx=-reach,reach do
+   local ti=index.tiles[(cx+dx*4)..':'..(cz+dz*4)]
+   if ti then scan_tiles[#scan_tiles+1]=ti end
+  end end
+ end
+ if module then for _,ti in ipairs(scan_tiles)do
   local tile=b.tiles[ti];local expected={}
   for s=1,9 do expected[s]=b.slots[(ti-1)*9+s].crop end
   local points,why=M.Scan(tile,expected);if not points then return nil,why end
@@ -207,6 +220,7 @@ function M.TemplateTargets(inst,cx,cz)
   for s,p in ipairs(points)do local i=(ti-1)*9+s;local planned=b.slots[i]
    if (p.x-planned.x)^2+(p.z-planned.z)^2>.04 then return nil,'NO_FAMILY' end
    current[#current+1]=p;board[#board+1]=planned.crop or false
+   if tile.x==cx and tile.z==cz then focus[#focus+1]=#current end
    if planned.crop then
     if not p.soil then Preview.Complete(b,i)elseif b.completed[i]then return nil,'PLANT_MISSING' end
     if not b.completed[i] and tile.x==cx and tile.z==cz then targets[#targets+1]=planned end
@@ -214,8 +228,11 @@ function M.TemplateTargets(inst,cx,cz)
   end
  end end
  if module then
-  local geometry=Layout.Geometry(tiles,current,Defs());geometry.balanced=true;geometry.nutrients_only=true
-  if not Layout.Valid(board,geometry)then return nil,'NO_FAMILY' end
+  local geometry=Layout.Geometry(tiles,current,Defs(),nil,true);geometry.balanced=true;geometry.nutrients_only=true
+  if module.field_family then
+   local Data=require('aom_seed_template_data')
+   if not Data.StructuralValid(board,geometry)or not Data.FamilyValid(board,geometry,focus)then return nil,'NO_FAMILY' end
+  elseif not Layout.Valid(board,geometry)then return nil,'NO_FAMILY' end
  end
  local stock=inst.components.aom_attachment_store:CountSeedsByCrop(Seed.GetCropOfSeedItem)
  for k,n in pairs(index.remaining)do if (stock[k]or 0)<n then return nil,'MISSING_SEEDS' end end

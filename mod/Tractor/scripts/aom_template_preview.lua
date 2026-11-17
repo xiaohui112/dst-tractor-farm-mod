@@ -3,6 +3,7 @@ local M={RADIUS=20,MAX_POINTS=512,MAX_MODULES=64,MAX_BYTES=24000}
 local Catalog=require('aom_seed_catalog')
 local Grid=require('aom_farm_grid')
 local specs={};for _,s in ipairs(Catalog.templates)do specs[s.id]=s end
+for _,s in ipairs(Catalog.supplements or {})do specs[s.id]=s end
 local function Key(x,z)return x..':'..z end
 local function Number(v)return type(v)=='number'and v==v and math.abs(v)<1000000 end
 local function Integer(v)return type(v)=='number'and v==v and v>=0 and v%1==0 and v<=9007199254740991 end
@@ -18,7 +19,7 @@ function M.Prepare(b,yieldfn)
   local spec=specs[m.id];local variant
   for _,v in ipairs(spec and spec.variants or {})do if v.symmetry==m.symmetry then variant=v end end
   if variant then
-   local item={source=m,variant=variant,indices={},tiles={}}
+   local item={source=m,variant=variant,indices={},tiles={},field_family=spec.family_scope=='field'}
    for dz=0,variant.h-1 do for dx=0,variant.w-1 do
     local key=Key(m.origin.x+dx*4,m.origin.z+dz*4);local ti=index.tiles[key]
     if ti then

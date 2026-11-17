@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "before_allocated_bytes": 4392660992,
+  "after_allocated_bytes": 1438892032,
+  "saved_allocated_bytes": 2953768960,
+  "objects_before": 4979,
+  "objects_after": 4979,
+  "all_object_ids_types_lengths_unchanged": true,
+  "refs_reflogs_index_config_unchanged": true,
+  "physical_unique_object_ids_unchanged": true,
+  "all_local_commits_unchanged": true,
+  "all_pack_checks_passed": true,
+  "connectivity_check_passed": true,
+  "elapsed_seconds": 83.681908917,
+  "reflog_expired": false,
+  "unreachable_objects_pruned": false,
+  "history_rewritten": false,
+  "network_fetch_allowed": false
+}

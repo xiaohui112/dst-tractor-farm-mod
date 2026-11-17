@@ -1,0 +1,1111 @@
+{
+  "rounds": 3,
+  "cases": 20,
+  "optimal_cases": 19,
+  "template_control_cases": 1,
+  "basis": "quantity/arrangement: process CPU ms; elapsed: backend elapsed_ms (before independent export checks)",
+  "aggregate_optimal": {
+    "quantity_ms": {
+      "sum_case_medians_before": 7345.375,
+      "sum_case_medians_after": 7380.294999999999,
+      "reduction_percent": -0.47540118782225527
+    },
+    "arrangement_ms": {
+      "sum_case_medians_before": 4681.787000000001,
+      "sum_case_medians_after": 858.101,
+      "reduction_percent": 81.67150705489166
+    },
+    "wall_ms": {
+      "sum_case_medians_before": 15563,
+      "sum_case_medians_after": 11766,
+      "reduction_percent": 24.39760971535051
+    }
+  },
+  "results": [
+    {
+      "id": "screenshot-5x5",
+      "input": {
+        "width": 5,
+        "height": 5,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        }
+      },
+      "before": {
+        "count": 225,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 598.42,
+        "arrangement_ms": 255.325,
+        "wall_ms": 1219,
+        "mismatched_tiles": 3,
+        "pattern_mismatch": 11.96,
+        "deterministic": true
+      },
+      "after": {
+        "count": 225,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 598.066,
+        "arrangement_ms": 28.112,
+        "wall_ms": 988,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "full-8x8",
+      "input": {
+        "width": 8,
+        "height": 8,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        }
+      },
+      "before": {
+        "count": 576,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 738.354,
+        "arrangement_ms": 694.137,
+        "wall_ms": 2577,
+        "mismatched_tiles": 3,
+        "pattern_mismatch": 12.59375,
+        "deterministic": true
+      },
+      "after": {
+        "count": 576,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 739.873,
+        "arrangement_ms": 49.047,
+        "wall_ms": 1941,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "limited-equal",
+      "input": {
+        "width": 5,
+        "height": 5,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 40,
+          "corn": 40,
+          "potato": 40
+        }
+      },
+      "before": {
+        "count": 120,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 235.755,
+        "arrangement_ms": 173.111,
+        "wall_ms": 769,
+        "mismatched_tiles": 2,
+        "pattern_mismatch": 8.5,
+        "deterministic": true
+      },
+      "after": {
+        "count": 120,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 234.811,
+        "arrangement_ms": 48.812,
+        "wall_ms": 648,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "unequal-tails",
+      "input": {
+        "width": 5,
+        "height": 1,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 7,
+          "corn": 7,
+          "potato": 24,
+          "tomato": 17
+        }
+      },
+      "before": {
+        "count": 43,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 188.975,
+        "arrangement_ms": 159.304,
+        "wall_ms": 375,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 43,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 189.147,
+        "arrangement_ms": 50.759,
+        "wall_ms": 269,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "mixed-nine",
+      "input": {
+        "width": 5,
+        "height": 5,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 40,
+          "corn": 40,
+          "potato": 40,
+          "tomato": 40,
+          "eggplant": 40,
+          "pumpkin": 40,
+          "garlic": 40,
+          "onion": 40,
+          "pepper": 40
+        }
+      },
+      "before": {
+        "count": 225,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 2228.517,
+        "arrangement_ms": 255.549,
+        "wall_ms": 2891,
+        "mismatched_tiles": 12,
+        "pattern_mismatch": 43.81071428571429,
+        "deterministic": true
+      },
+      "after": {
+        "count": 225,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 2233.95,
+        "arrangement_ms": 83.275,
+        "wall_ms": 2680,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "two-crops",
+      "input": {
+        "width": 5,
+        "height": 5,
+        "season": "autumn",
+        "seeds": {
+          "tomato": 100,
+          "potato": 100
+        }
+      },
+      "before": {
+        "count": 200,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 212.946,
+        "arrangement_ms": 251.247,
+        "wall_ms": 825,
+        "mismatched_tiles": 3,
+        "pattern_mismatch": 17.76,
+        "deterministic": true
+      },
+      "after": {
+        "count": 200,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 211.885,
+        "arrangement_ms": 10.193,
+        "wall_ms": 583,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "single-4+4",
+      "input": {
+        "width": 1,
+        "height": 1,
+        "season": "autumn",
+        "seeds": {
+          "tomato": 9,
+          "potato": 9
+        }
+      },
+      "before": {
+        "count": 8,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 3.263,
+        "arrangement_ms": 7.284,
+        "wall_ms": 18,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 8,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 3.371,
+        "arrangement_ms": 7.248,
+        "wall_ms": 17,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "winter-three",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "winter",
+        "seeds": {
+          "carrot": 40,
+          "asparagus": 40,
+          "potato": 40
+        }
+      },
+      "before": {
+        "count": 81,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 92.899,
+        "arrangement_ms": 495.217,
+        "wall_ms": 683,
+        "mismatched_tiles": 8,
+        "pattern_mismatch": 22.111111111111118,
+        "deterministic": true
+      },
+      "after": {
+        "count": 81,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 92.939,
+        "arrangement_ms": 28.273,
+        "wall_ms": 212,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "summer-three",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "summer",
+        "seeds": {
+          "onion": 40,
+          "garlic": 40,
+          "pepper": 40
+        }
+      },
+      "before": {
+        "count": 81,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 88.984,
+        "arrangement_ms": 475.735,
+        "wall_ms": 656,
+        "mismatched_tiles": 8,
+        "pattern_mismatch": 22.111111111111118,
+        "deterministic": true
+      },
+      "after": {
+        "count": 81,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 89.143,
+        "arrangement_ms": 26.654,
+        "wall_ms": 203,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "L-full",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ]
+        ]
+      },
+      "before": {
+        "count": 45,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 39.999,
+        "arrangement_ms": 155.918,
+        "wall_ms": 232,
+        "mismatched_tiles": 3,
+        "pattern_mismatch": 8.8,
+        "deterministic": true
+      },
+      "after": {
+        "count": 45,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 39.808,
+        "arrangement_ms": 26.255,
+        "wall_ms": 99,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "T-full",
+      "input": {
+        "width": 3,
+        "height": 2,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "before": {
+        "count": 36,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 32.777,
+        "arrangement_ms": 39.25,
+        "wall_ms": 96,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 36,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 32.54,
+        "arrangement_ms": 26.384,
+        "wall_ms": 82,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "U-full",
+      "input": {
+        "width": 3,
+        "height": 2,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      "before": {
+        "count": 45,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 39.813,
+        "arrangement_ms": 144.058,
+        "wall_ms": 217,
+        "mismatched_tiles": 2,
+        "pattern_mismatch": 8.2,
+        "deterministic": true
+      },
+      "after": {
+        "count": 45,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 40.11,
+        "arrangement_ms": 26.292,
+        "wall_ms": 99,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "ring-full",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "before": {
+        "count": 72,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 44.59,
+        "arrangement_ms": 384.092,
+        "wall_ms": 499,
+        "mismatched_tiles": 5,
+        "pattern_mismatch": 17.5,
+        "deterministic": true
+      },
+      "after": {
+        "count": 72,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 44.947,
+        "arrangement_ms": 43.104,
+        "wall_ms": 162,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "bridge-full",
+      "input": {
+        "width": 5,
+        "height": 2,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "before": {
+        "count": 63,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 56.104,
+        "arrangement_ms": 292.483,
+        "wall_ms": 392,
+        "mismatched_tiles": 2,
+        "pattern_mismatch": 9.142857142857142,
+        "deterministic": true
+      },
+      "after": {
+        "count": 63,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 55.364,
+        "arrangement_ms": 26.877,
+        "wall_ms": 127,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "notch-full",
+      "input": {
+        "width": 5,
+        "height": 5,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 192,
+          "corn": 192,
+          "potato": 192
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            4
+          ]
+        ]
+      },
+      "before": {
+        "count": 189,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 496.938,
+        "arrangement_ms": 213.643,
+        "wall_ms": 995,
+        "mismatched_tiles": 3,
+        "pattern_mismatch": 11.761904761904763,
+        "deterministic": true
+      },
+      "after": {
+        "count": 189,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 497.798,
+        "arrangement_ms": 30.014,
+        "wall_ms": 818,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "T-minimum",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 4,
+          "corn": 4,
+          "potato": 4,
+          "tomato": 4,
+          "eggplant": 4,
+          "pumpkin": 4,
+          "garlic": 4,
+          "onion": 4,
+          "pepper": 4
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "before": {
+        "count": 32,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 201.87,
+        "arrangement_ms": 87.367,
+        "wall_ms": 317,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 32,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 204.536,
+        "arrangement_ms": 20.303,
+        "wall_ms": 251,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "U-tails",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 7,
+          "corn": 7,
+          "potato": 7,
+          "tomato": 7,
+          "eggplant": 7,
+          "pumpkin": 7
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      },
+      "before": {
+        "count": 35,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 331.942,
+        "arrangement_ms": 160.145,
+        "wall_ms": 528,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 35,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 333.41,
+        "arrangement_ms": 104.038,
+        "wall_ms": 472,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "ring-scarce",
+      "input": {
+        "width": 3,
+        "height": 3,
+        "season": "autumn",
+        "seeds": {
+          "carrot": 6,
+          "corn": 6,
+          "potato": 6,
+          "tomato": 6,
+          "eggplant": 6,
+          "pumpkin": 6,
+          "garlic": 6,
+          "onion": 6,
+          "pepper": 6
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      "before": {
+        "count": 50,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 1133.977,
+        "arrangement_ms": 268.161,
+        "wall_ms": 1480,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 50,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 1158.459,
+        "arrangement_ms": 153.124,
+        "wall_ms": 1422,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "bridge-mixed",
+      "input": {
+        "width": 5,
+        "height": 2,
+        "season": "spring",
+        "seeds": {
+          "carrot": 6,
+          "corn": 6,
+          "potato": 6,
+          "tomato": 6,
+          "asparagus": 6,
+          "eggplant": 6,
+          "watermelon": 6,
+          "dragonfruit": 6,
+          "durian": 6,
+          "garlic": 6,
+          "onion": 6,
+          "pomegranate": 6
+        },
+        "tiles": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      },
+      "before": {
+        "count": 60,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 579.252,
+        "arrangement_ms": 169.761,
+        "wall_ms": 794,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 60,
+        "optimal": true,
+        "valid": true,
+        "quantity_ms": 580.138,
+        "arrangement_ms": 69.337,
+        "wall_ms": 693,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    },
+    {
+      "id": "locked-template",
+      "input": {
+        "width": 2,
+        "height": 2,
+        "season": "autumn",
+        "seeds": {
+          "tomato": 40,
+          "potato": 40
+        },
+        "strategy": "GIANT_TEMPLATE"
+      },
+      "before": {
+        "count": 32,
+        "optimal": false,
+        "valid": true,
+        "quantity_ms": 25.074,
+        "arrangement_ms": 0.202,
+        "wall_ms": 51,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "after": {
+        "count": 32,
+        "optimal": false,
+        "valid": true,
+        "quantity_ms": 24.964,
+        "arrangement_ms": 0.199,
+        "wall_ms": 50,
+        "mismatched_tiles": 0,
+        "pattern_mismatch": 0,
+        "deterministic": true
+      },
+      "quantity_unchanged": true,
+      "tile_compositions_unchanged": true
+    }
+  ]
+}

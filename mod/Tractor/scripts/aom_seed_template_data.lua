@@ -10,11 +10,33 @@ local function Fits(recipe,stock)
  return true
 end
 M.Fits=Fits
+function M.Spec(id)
+ for _,list in ipairs({Catalog.templates,Catalog.supplements or {}})do
+  for _,spec in ipairs(list)do if spec.id==id then return spec end end
+ end
+end
+-- 补块可借用别的模板的同族；结构、逐地皮养分和实际坑距仍须独立合法。
+function M.StructuralValid(board,geometry,yieldfn)
+ if not geometry.complete or not Balance.Board(board,geometry.defs,true,yieldfn)then return false end
+ for i,k in ipairs(board)do if k then for _,j in ipairs(geometry.conflicts[i])do if board[j]then return false end end end end
+ return true
+end
+function M.FamilyValid(board,geometry,indices)
+ if not geometry.complete then return false end
+ for _,i in ipairs(indices)do local k=board[i];if k then
+  local d=geometry.defs[k];local n=0
+  for _,q in ipairs(geometry.near[i])do
+   if board[q.j]==k and Layout.InRange(geometry,i,q.j,(d.family_check_dist or 4)^2)then n=n+1 end
+  end
+  if n<(d.family_min_count or 4)then return false end
+ end end
+ return true
+end
 function M.Prepare(crops,stock,tiles,slots,defs,yieldfn,options)
  options=options or {};local available={};for _,k in ipairs(crops)do available[k]=true end
  local lookup={};for i,t in ipairs(tiles)do lookup[Point(t.x,t.z)]=i end
  local banks={}
- for _,spec in ipairs(Catalog.templates)do if not options.template_id or options.template_id==spec.id then
+ for _,spec in ipairs(options.supplements and Catalog.supplements or Catalog.templates)do if not options.template_id or options.template_id==(options.supplements and spec.parent_id or spec.id)then
   local recipes={}
   for _,r in ipairs(spec.recipes)do
    local valid=Fits(r,stock)
@@ -24,7 +46,7 @@ function M.Prepare(crops,stock,tiles,slots,defs,yieldfn,options)
   if #recipes>0 then banks[#banks+1]={spec=spec,recipes=recipes}end
  end end
  local placements={};local validations=0;local geometry_builds=0
- for _,t in ipairs(tiles)do local geometries,checked={},{};for _,bank in ipairs(banks)do for _,v in ipairs(bank.spec.variants)do
+ for ti,t in ipairs(tiles)do if not options.allowed_tiles or options.allowed_tiles[ti]then local geometries,checked={},{};for _,bank in ipairs(banks)do for _,v in ipairs(bank.spec.variants)do
   local indices,subtiles,subslots={}, {},{};local fits=true
   for dz=0,v.h-1 do for dx=0,v.w-1 do
    local ti=lookup[Point(t.x+dx*4,t.z+dz*4)]
@@ -44,14 +66,15 @@ function M.Prepare(crops,stock,tiles,slots,defs,yieldfn,options)
     local key=geometry_key..':'..table.concat(v.cells)..':'..table.concat(signature,'|');local valid=checked[key]
     if valid==nil then
      local board={};for i,role in ipairs(v.cells)do board[i]=r.map[role]or false end
-     valid=Layout.Valid(board,geometry);checked[key]=valid;validations=validations+1
+     if options.supplements then valid=M.StructuralValid(board,geometry)else valid=Layout.Valid(board,geometry)end
+     checked[key]=valid;validations=validations+1
     end
     if valid then accepted[#accepted+1]=r end
    end
    if #accepted>0 then placements[#placements+1]={id=bank.spec.id,symmetry=v.symmetry,origin={x=t.x,z=t.z},indices=indices,cells=v.cells,recipes=accepted,n=bank.spec.total,area=#indices}end
   end
   if yieldfn then yieldfn()end
- end end end
+ end end end end
  table.sort(placements,function(a,b)
   if a.id~=b.id then return a.id<b.id end
   if a.symmetry~=b.symmetry then return a.symmetry<b.symmetry end
@@ -65,7 +88,7 @@ function M.Validate(board,modules,tiles,season,yieldfn)
  local expected,occupied={},{}
  for i=1,#tiles*9 do expected[i]=false end
  for _,m in ipairs(modules or {})do
-  local spec;for _,s in ipairs(Catalog.templates)do if s.id==m.id then spec=s;break end end
+  local spec=M.Spec(m.id)
   if not spec or not m.origin or type(m.crops)~='table' then return false end
   local variant;for _,v in ipairs(spec.variants)do if v.symmetry==m.symmetry then variant=v;break end end
   if not variant then return false end

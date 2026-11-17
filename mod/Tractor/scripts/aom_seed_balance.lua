@@ -20,20 +20,11 @@ function M.Tile(cells,defs)
  end end
  return math.abs(net[1])+math.abs(net[2])+math.abs(net[3])<.000001,net
 end
--- 通用4+4九宫格图案保留中心坑；与作物名称无关。
-function M.Shape(cells)
- local counts,total,types={},0,0
- for _,k in ipairs(cells) do if k then total=total+1;if not counts[k] then counts[k]=0;types=types+1 end;counts[k]=counts[k]+1 end end
- if total==8 and types==2 then
-  for _,n in pairs(counts) do if n~=4 then return true end end
-  return not cells[5]
- end
- return true
-end
+-- 空坑位置属于排列偏好，不参与逐格养分合法性；固定模版另按目录验证。
 function M.Board(board,defs,nutrients_only,yieldfn)
  for t=1,#board/9 do
   local cells={};for s=1,9 do cells[s]=board[(t-1)*9+s] end
-  if not M.Tile(cells,defs) or (not nutrients_only and not M.Shape(cells)) then return false end
+  if not M.Tile(cells,defs) then return false end
   if t%16==0 and yieldfn then yieldfn()end
  end
  return true
@@ -51,7 +42,7 @@ function M.Patterns(crops,counts,defs,yieldfn)
   nodes=nodes+1;if nodes%256==0 and yieldfn then yieldfn() end
   if i>#crops then
    if total>0 and math.abs(x)+math.abs(y)+math.abs(z)<.000001 then
-    local p={n=total,counts={}};local fours=0;for j=1,#crops do p.counts[j]=current[j];if current[j]==4 then fours=fours+1 end end;p.center_gap=total==8 and fours==2;patterns[#patterns+1]=p
+    local p={n=total,counts={}};for j=1,#crops do p.counts[j]=current[j] end;patterns[#patterns+1]=p
    end
    return
   end
