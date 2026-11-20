@@ -32,16 +32,16 @@ function maintain(part,target)RPCS.AOM_MAINTAIN(player,target or t,part)end
 
     run_lua = dashboard.DashboardTests.run_lua
 
-    def test_gears_repair_health_and_chassis_independently_without_dismounting(self):
+    def test_gears_and_boards_repair_independently_without_dismounting(self):
         self.run_lua('''
 t.components.health:SetVal(250);t.components.finiteuses:SetUses(300)
 local gears=hold('gears',4)
 left(hud.badges.health)
-assert(t.components.health.currenthealth==350 and t.components.finiteuses:GetUses()==300)
-assert(t._health_net:value()==350 and gears.components.stackable:StackSize()==3)
-left(hud.badges.chassis)
-assert(t.components.health.currenthealth==350 and t.components.finiteuses:GetUses()==400)
-assert(t._uses_net:value()==400 and gears.components.stackable:StackSize()==2)
+assert(t.components.health.currenthealth==450 and t.components.finiteuses:GetUses()==300)
+assert(t._health_net:value()==450 and gears.components.stackable:StackSize()==3)
+local boards=hold('boards',3);left(hud.badges.chassis)
+assert(t.components.health.currenthealth==450 and t.components.finiteuses:GetUses()==550)
+assert(t._uses_net:value()==550 and boards.components.stackable:StackSize()==2)
 assert(player.components.rider:GetMount()==t and #MESSAGES==2)
 ''')
 
@@ -51,8 +51,8 @@ t.components.health:SetVal(590);t.components.finiteuses:SetUses(995)
 local gears=hold('gears',4)
 left(hud.badges.health);assert(t.components.health.currenthealth==600 and t.components.finiteuses:GetUses()==995)
 left(hud.badges.health);assert(gears.components.stackable:StackSize()==3)
-left(hud.badges.chassis);assert(t.components.finiteuses:GetUses()==1000 and gears.components.stackable:StackSize()==2)
-left(hud.badges.chassis);assert(gears.components.stackable:StackSize()==2)
+local boards=hold('boards',3);left(hud.badges.chassis);assert(t.components.finiteuses:GetUses()==1000 and boards.components.stackable:StackSize()==2)
+left(hud.badges.chassis);assert(boards.components.stackable:StackSize()==2)
 assert(MESSAGES[1]=='生命 +10' and MESSAGES[3]=='底盘耐久 +5')
 ''')
 
@@ -134,8 +134,8 @@ attach('aom_seeder');client_item=nil;left(hud.badges.tool)
 assert(t._seed_strategy=='GIANT_TEMPLATE' and hud.seedcontrols==nil)
 hold('flint',2);t:GetAttachment().components.finiteuses:SetUses(50)
 left(hud.badges.tool)
-assert(t:GetAttachment().components.finiteuses:GetUses()==60 and t._seed_strategy=='GIANT_TEMPLATE')
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 60/100'..string.char(10)..'播种策略：巨大化·模版' and hud.seedcontrols==nil)
+assert(t:GetAttachment().components.finiteuses:GetUses()==100 and t._seed_strategy=='GIANT_TEMPLATE')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 100/200'..string.char(10)..'播种策略：巨大化·模版'..string.char(10)..'空手左键切换 → 巨大化·最优' and hud.seedcontrols==nil)
 ''')
 
     def test_hover_text_has_only_requested_lines_even_during_errors_or_held_items(self):
@@ -144,15 +144,15 @@ attach('aom_fertilizer');t.components.health:SetVal(250);t._health_net:set(250);
 require('aom_work_status').Set(t,'CARGO_FULL');hold('gears',2);hud:Refresh(t)
 assert(hud.badges.health:GetTooltip()=='生命 250/600')
 assert(hud.badges.chassis:GetTooltip()=='底盘 300/1000')
-assert(hud.badges.fuel:GetTooltip()=='燃料 400/800')
-assert(hud.badges.tool:GetTooltip()=='施肥机'..string.char(10)..'耐久 100/100')
+assert(hud.badges.fuel:GetTooltip()=='燃料 600/800')
+assert(hud.badges.tool:GetTooltip()=='施肥机'..string.char(10)..'耐久 200/200')
 assert(hud.badges.cargo:GetTooltip()=='货仓：0/15格'..string.char(10)..'物品总数 0（含堆叠）')
 ''')
 
     def test_single_gear_is_removed_once_and_stale_hud_buttons_send_nothing_after_dismount(self):
         self.run_lua('''
 t.components.health:SetVal(250);local gear=hold('gears',1);left(hud.badges.health)
-assert(not gear:IsValid() and t.components.health.currenthealth==350)
+assert(not gear:IsValid() and t.components.health.currenthealth==450)
 local requests=0;SendModRPCToServer=function()requests=requests+1 end
 player.components.rider:ActualDismount()
 left(hud.badges.health);right(hud.badges.tool)

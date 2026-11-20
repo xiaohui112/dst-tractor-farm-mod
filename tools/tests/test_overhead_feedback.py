@@ -39,8 +39,8 @@ fail_action('AOM_REPAIR',t,gears,'REPAIR_FULL')
 fail_action('AOM_REPAIR',t,flint,'REPAIR_GEARS')
 assert(log:IsValid() and flint:IsValid() and gears:IsValid())
 local tool=equipment('aom_irrigator');assert(t:AttachAttachment(nil,tool))
-assert(t.components.aom_attachment_store:AddWater(400)==400)
-local ice=SpawnPrefab('ice');fail_action('AOM_LOAD',t,ice,'WATER_FULL');assert(ice:IsValid())
+assert(t.components.aom_attachment_store:AddWater(400)==300)
+local ice=SpawnPrefab('ice');fail_action('AOM_LOAD',t,ice,'WRONG_LOAD');assert(ice:IsValid())
 local word=Speech.GetActionFailString('wendy','AOM_REFUEL','FUEL_FULL')
 assert(word==Feedback.Text('FUEL_FULL') and word~='wendy generic')
 assert(STRINGS.CHARACTERS.WILSON.ACTIONFAIL.MOUNT.GENERIC=='vanilla mount')
@@ -64,7 +64,7 @@ assert(#MESSAGES==1 and MESSAGES[1]==Feedback.Text('NO_DROP_SPACE'))
 require('aom_common').SetLanguage('en')
 local action=ACTION_DEFS.AOM_REPAIR;local original=action.fn
 Feedback.InstallActions({action});assert(action.fn==original)
-assert(Speech.GetActionFailString('wilson','AOM_REPAIR','REPAIR_GEARS')=='Use gears to repair the tractor.')
+assert(Speech.GetActionFailString('wilson','AOM_REPAIR','REPAIR_GEARS')=='Use gears to repair tractor health.')
 for id,action in pairs(ACTION_DEFS)do
  if string.sub(id,1,4)=='AOM_' then
   local messages=STRINGS.CHARACTERS.GENERIC.ACTIONFAIL[id]
@@ -72,7 +72,7 @@ for id,action in pairs(ACTION_DEFS)do
  end
 end
 local stranger=CreateEntity();stranger.prefab='mod_character'
-assert(Speech.GetActionFailString(stranger,'AOM_REPAIR','REPAIR_GEARS')=='Use gears to repair the tractor.')
+assert(Speech.GetActionFailString(stranger,'AOM_REPAIR','REPAIR_GEARS')=='Use gears to repair tractor health.')
 player:AddTag('mime');assert(Speech.GetActionFailString(player,'AOM_REPAIR','REPAIR_GEARS')=='')
 ''')
 
@@ -114,7 +114,7 @@ local pond=CreateEntity();pond.prefab='pond';pond:AddTag('pond');pond.Transform:
 pond.components.watersource=dofile(REF..'/watersource.lua')(pond)
 assert(require('aom_pond_refill').Start(t,player,pond,tank))
 assert(not require('aom_drive').ToggleWorking(t,player))
-assert(#MESSAGES==1 and string.find(MESSAGES[1],'5秒',1,true))
+assert(#MESSAGES==1 and string.find(MESSAGES[1],'正在补水',1,true))
 player.Transform:SetPosition(1,0,0);require('aom_pond_refill').Update(t)
 assert(#MESSAGES==2 and string.find(MESSAGES[2],'中断',1,true))
 require('aom_pond_refill').Update(t);assert(#MESSAGES==2)

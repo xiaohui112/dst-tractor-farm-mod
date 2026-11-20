@@ -14,38 +14,12 @@ class IrrigatorFlowTests(unittest.TestCase):
 
     def run_lua(self,s): self.w.lua.execute(s)
 
-    def test_new_tank_empty_and_full_capacity(self):
-        self.run_lua('assert(water_count()==0 and store:GetWaterMax()==400 and tank.components.finiteuses.doesnotstartfull)')
-
-    def test_watercan_one_use_equals_one_dose_and_fills_small_gap(self):
+    def test_new_tank_starts_with_one_hundred_out_of_four_hundred_doses(self):
         self.run_lua('''
-local can=watercan(1)
-assert(Irrigator.Load(store,can));assert(water_count()==1 and can.components.finiteuses:GetUses()==0)
-fill(384);can=watercan(20)
-assert(Irrigator.Load(store,can));assert(water_count()==400 and can.components.finiteuses:GetUses()==5)
-assert(not Irrigator.Load(store,can));assert(can.components.finiteuses:GetUses()==5)
+local fresh=SpawnPrefab('aom_irrigator')
+assert(fresh.components.finiteuses:GetUses()==100 and fresh.components.finiteuses.total==400)
+assert(fresh.components.finiteuses.doesnotstartfull)
 ''')
-
-    def test_premium_can_and_empty_can(self):
-        self.run_lua('''
-local can=watercan(160,'premiumwateringcan')
-assert(Irrigator.Load(store,can));assert(water_count()==160 and can.components.finiteuses:GetUses()==0)
-store:TakeWater();can=watercan(0)
-assert(not Irrigator.Load(store,can));assert(water_count()==159)
-''')
-
-    def test_ice_consumes_only_one_and_nothing_when_full(self):
-        self.run_lua('''
-local ice=CreateEntity();ice.prefab='ice';local n=5;local removed=0
-ice.components.stackable={StackSize=function()return n end,Get=function(_,count)n=n-count;return {Remove=function()removed=removed+1 end}end}
-assert(Irrigator.Load(store,ice));assert(n==4 and removed==1 and ice.valid and water_count()==1)
-fill(400);assert(not Irrigator.Load(store,ice));assert(n==4 and removed==1)
-local single=CreateEntity();single.prefab='ice';store:TakeWater()
-assert(Irrigator.Load(store,single));assert(not single.valid and water_count()==400)
-''')
-
-    def test_arbitrary_fillable_is_rejected_without_spending(self):
-        self.run_lua("local fake=watercan(20,'other_tool');assert(not Irrigator.Load(store,fake));assert(water_count()==0 and fake.components.finiteuses:GetUses()==20)")
 
     def test_store_operations_ignore_other_attachment_and_bound_integer_units(self):
         self.run_lua('''
@@ -54,7 +28,7 @@ assert(store:AddWater(999)==398 and store:ReturnWater()==0)
 inst.components.container.slots[1]=SpawnPrefab('aom_landclearer')
 assert(store:GetWater()==0 and store:GetWaterMax()==0 and store:AddWater(3)==0)
 assert(not store:TakeWater() and store:ReturnWater()==0)
-assert(inst.components.container.slots[1].components.finiteuses:GetUses()==100)
+assert(inst.components.container.slots[1].components.finiteuses:GetUses()==200)
 ''')
 
     def test_empty_partial_and_full_save_roundtrip_uses_native_lifecycle(self):
@@ -126,7 +100,7 @@ fill(2);start_water();Drive.TrackMovement(inst)
 assert(moisture(0,0)==50 and water_count()==0 and not inst._working)
 assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1)
 assert(string.find(require('aom_work_status').Describe(inst),'水箱已空'))
-assert(Irrigator.Load(store,watercan(5)));start_water();Drive.TrackMovement(inst)
+assert(store:AddWater(5)==5);start_water();Drive.TrackMovement(inst)
 assert(moisture(0,0)==100 and water_count()==3 and inst._fuel:value()==798 and inst.components.finiteuses.used==2)
 ''')
 
@@ -200,16 +174,8 @@ assert(#messages==1)
 ''')
 
     def test_full_lifecycle_load_save_swap_start_shortage_resume_dismount(self):
-        text=(ROOT/'mod/Tractor/modmain.lua').read_text()
-        start=text.index('local AOM_LOAD = AddAction(')
-        end=text.index('AOM_LOAD.distance',start)
-        self.run_lua('function AddAction(id,label,fn)LoadAction=fn;return {}end')
-        self.run_lua("local Feedback=require('aom_feedback')\n"+text[start:end])
         self.run_lua('''
-assert(water_count()==0)
-local can=watercan(2)
-assert(LoadAction({target=inst,invobject=can,doer=inst._rider}))
-assert(can.components.finiteuses:GetUses()==0 and water_count()==2)
+assert(water_count()==0 and store:AddWater(2)==2)
 local saved=save_water(tank);tank=reload_water(saved)
 inst.components.container.slots[1]=tank;assert(water_count()==2)
 local farmer=inst._rider
@@ -217,11 +183,11 @@ farmer.components.rider={IsRiding=function()return true end,GetMount=function()r
 function inst:DoPeriodicTask(_,fn)return {Cancel=function()end,fn=fn}end
 assert(Drive.ToggleWorking(inst,farmer));Drive.TrackMovement(inst)
 assert(not inst._working and moisture(0,0)==50 and inst._fuel:value()==799)
-assert(LoadAction({target=inst,invobject=watercan(6),doer=farmer}))
+assert(store:AddWater(6)==6)
 assert(Drive.ToggleWorking(inst,farmer));Drive.TrackMovement(inst)
 assert(inst._working and moisture(0,0)==100 and water_count()==4 and inst._fuel:value()==798)
 local new_tank=SpawnPrefab('aom_irrigator');inst.components.container.slots[1]=new_tank
-assert(store:GetWater()==0 and tank.components.finiteuses:GetUses()==4)
+assert(store:GetWater()==100 and tank.components.finiteuses:GetUses()==4)
 inst.components.container.slots[1]=reload_water(save_water(tank));assert(water_count()==4)
 Drive.OnDismounted(inst);assert(not inst._working and water_count()==4)
 ''')
@@ -232,7 +198,7 @@ TUNING.SOIL_MAX_MOISTURE_VALUE=100 -- manager captures native max at constructio
 TUNING.WATERINGCAN_WATER_AMOUNT=10
 fill(40);assert(Drive.WorkTile(inst,0,0));assert(water_count()==30 and moisture(0,0)==100)
 TUNING.WATERINGCAN_USES=60;local item=SpawnPrefab('aom_irrigator')
-assert(item.components.finiteuses.total==400 and item.components.finiteuses:GetUses()==0)
+assert(item.components.finiteuses.total==400 and item.components.finiteuses:GetUses()==100)
 ''')
 
 if __name__=='__main__': unittest.main()

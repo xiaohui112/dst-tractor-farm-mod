@@ -1,4 +1,4 @@
-"""播种机按地皮完成结算；逐颗物料、燃料和底盘成本保持原行为。"""
+"""播种机按地皮完成结算；逐颗耗种，油和底盘按地皮结算。"""
 import unittest
 import test_auto_grid_seeding as auto
 
@@ -24,10 +24,10 @@ function uses()return inst.components.container.slots[1].components.finiteuses:G
 field(0,0,3,1);seeder(%s);inst._seed_strategy='%s'
 for x=0,8,4 do assert(drive_at(x,0))end
 assert(crop_count()==%d and uses()==97)
-assert(inst._fuel:value()==800-%d and inst.components.finiteuses.used==%d)
+assert(inst._fuel:value()==797 and inst.components.finiteuses.used==3)
 for x=0,8,4 do drive_at(x,0)end
 assert(uses()==97)
-''' % (stock, strategy, expected, expected, expected))
+''' % (stock, strategy, expected))
 
     def test_partial_plan_survives_stop_save_load_and_charges_at_completion(self):
         self.lua.execute('''

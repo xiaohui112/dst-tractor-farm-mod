@@ -82,7 +82,7 @@ inst.x=8;task.fn(inst)
 assert(inst._working and inst._worktask==task and Farm.IsFieldReady(8,0,0))
 assert(plant.valid and rock.valid and TheWorld.Map:GetTileAtPoint(0,0,0)==0)
 assert(TheWorld.Map:GetTileAtPoint(4,0,0)==0 and inst._fuel:value()==799)
-assert(tool.components.finiteuses:GetUses()==99)
+assert(tool.components.finiteuses:GetUses()==199)
 ''')
 
     def test_existing_farmland_skips_occupied_pit_without_stopping_or_charging_twice(self):
@@ -91,11 +91,11 @@ local crop=SpawnPrefab('farm_plant_tomato');crop.Transform:SetPosition(0,0,0)
 inst._working=true;local changed,why=Drive.WorkTile(inst,0,0)
 assert(changed and why=='BLOCKED_MOUND' and inst._working and crop.valid)
 assert(count_entities('farm_soil')==8 and not Farm.IsFieldReady(0,0,0))
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==199)
 assert(not Drive.WorkTile(inst,0,0) and inst._working)
-assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==99)
+assert(inst._fuel:value()==799 and tool.components.finiteuses:GetUses()==199)
 crop:Remove();assert(Drive.WorkTile(inst,0,0) and Farm.IsFieldReady(0,0,0))
-assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==98)
+assert(inst._fuel:value()==798 and tool.components.finiteuses:GetUses()==198)
 ''')
 
     def test_weeds_and_wild_plants_are_preserved_at_occupied_pits(self):

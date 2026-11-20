@@ -1,5 +1,5 @@
 -- Mechanical durability is independent from water; exhausted tools detach for repair.
-local M={MAX_USES=1000}
+local M={MAX_USES=1000,HEALTH_REPAIR=200,CHASSIS_REPAIR=250}
 local Definitions=require("aom_equipment_defs")
 local TOOLS,BROKEN={},{}
 for kind,def in pairs(Definitions) do TOOLS[kind]=def.uses;BROKEN[kind]=def.broken end
@@ -57,14 +57,15 @@ function M.OnAttachmentFinished(item)
     if owner then owner:PushEvent("toolbroke",{tool=item}) end
 end
 
-function M.UseAttachment(inst,item)
+function M.UseAttachment(inst,item,amount)
     if not item then return end
+    amount=amount or 1
     item._aom_work_vehicle=inst
     local ok,err=pcall(function()
         if Definitions[item.attachment_type] and Definitions[item.attachment_type].separate_uses then
-            item._aom_machine_uses=math.max(0,M.GetUses(item)-1)
+            item._aom_machine_uses=math.max(0,M.GetUses(item)-amount)
             item:PushEvent("percentusedchange")
-        else item.components.finiteuses:Use(1) end
+        else item.components.finiteuses:Use(amount) end
         if item._durability_net then item._durability_net:set(M.GetUses(item)) end
         -- 同时支持旧挂件或不带 onfinished 的工具实现。
         if item:IsValid() and M.GetUses(item)<=0 then M.OnAttachmentFinished(item) end

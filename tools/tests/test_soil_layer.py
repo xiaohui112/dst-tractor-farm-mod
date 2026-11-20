@@ -25,7 +25,8 @@ for _,master in ipairs({true,false})do
  PREFAB_POST_FNS.farm_soil(soil)
  assert(soil.layer==LAYER_BACKGROUND and soil.sort_order==2)
  assert(soil:HasTag('soil') and not soil:HasTag('NOCLICK') and not soil:HasTag('NOBLOCK'))
- assert(soil.animation==animation and soil.OnSave==save and soil.OnLoad==load)
+ assert(soil.animation==animation)
+ if not master then assert(soil.OnSave==save and soil.OnLoad==load) end
  assert(soil.x==2 and soil.y==0 and soil.z==-3)
  assert(next(soil.components)==nil)
  if master then

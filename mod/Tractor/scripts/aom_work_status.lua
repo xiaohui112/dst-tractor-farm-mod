@@ -15,7 +15,7 @@ local PLAN_MESSAGES = {
     FAILED="播种失败，种子已退回，计划进度保持不变",
     LOW_NUTRIENTS="初始养分不足，请先给计划地块补肥",
     BLOCKED_MOUND="计划坑位被占用，请清理后重新作业",
-    CARGO_FULL="拖拉机仓库已满，请腾出空间后按 F 继续作业",
+    CARGO_FULL="车仓和随身库存空间不足，请腾出空间后按 F 继续作业",
     NO_BALANCED_COMBO="现有种子与农田无法组成互补巨大化配比，请调整种子或扩大农田",
     NO_FAMILY="现有库存和地皮未找到合适巨大化布局，请调整种子或农田范围",
 }
@@ -30,14 +30,14 @@ local WORK_MESSAGES={
     BROKEN_FERTILIZER="施肥机已损坏并卸载，请维修后重新挂载",
     BROKEN_HARVESTER="收割机已损坏并卸载，请维修后重新挂载",
     BROKEN_SEEDER="播种机已损坏并卸载，请维修后重新挂载",
-    BROKEN_CHASSIS="底盘耐久已耗尽，拿起齿轮点击底盘图标修理后按 F 继续",
+    BROKEN_CHASSIS="底盘耐久已耗尽，拿起木板点击底盘图标修理后按 F 继续",
     DESTROYED="拖拉机已损毁",
     UNCLEARABLE_WEED="本格有无法用铲子清理的杂草、残渣或枯株，已暂停除草",
     WEEDING_INCOMPLETE="本格除草尚未完成，已保留实际进度，请检查后按 F 重试",
     HARVEST_INCOMPLETE="本格收割或巨大作物拆分尚未完成，已保留实际进度，请检查后按 F 重试",
     PROTECTED_CROP="本格有作物，已保留原状；收获后再开垦",
     BLOCKED_MOUND="地块或坑位被占用，本格未完成，请清理后按 F 重试",
-    CARGO_FULL="拖拉机仓库已满，请腾出空间后按 F 继续作业",
+    CARGO_FULL="车仓和随身库存空间不足，请腾出空间后按 F 继续作业",
     UNCLEARABLE_DEBRIS="本格有无法用铲子清理的杂物，已停止开垦",
     CLEARING_INCOMPLETE="杂物尚未清理干净，保留坑位并停止开垦",
     CANNOT_PLOW="这块地无法铺成农田，请换可开垦地块",
@@ -48,7 +48,7 @@ local WORK_MESSAGES={
     WATER_FAILED="本格补水未能完成，已保留实际浇水进度，请检查后按 F 重试",
 }
 local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
-    irrigator="水箱已空：车尾靠近池塘，右键池塘补水5秒，再按 F 继续",
+    irrigator="水箱已空：停车右键池塘或近岸海面补水，再按 F 继续",
     fertilizer="肥料不足，请补充后按 F 继续作业"}
 WORK_MESSAGES.WORK_ERROR="作业回调异常，已保留实际进度并停工；检查日志后按 F 重试"
 WORK_MESSAGES.DETACH_BLOCKED="配件已损坏，附近无空地；驶到空地后右键卸载并维修"

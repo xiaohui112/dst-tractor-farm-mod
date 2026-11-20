@@ -36,24 +36,8 @@ function M.Perform(player,vehicle,part)
         Durability.Sync(vehicle)
         return true,L("挂件耐久 +%d",Durability.GetUses(tool)-before)
     end
-    if item.prefab~="gears" then return false,"REPAIR_GEARS" end
-    if part=="health" then
-        local health=vehicle.components.health
-        local before=health.currenthealth
-        local after=math.min(health.maxhealth,before+100)
-        if after<=before then return false,"REPAIR_FULL" end
-        ConsumeOne(item)
-        health:SetVal(after)
-        vehicle._health_net:set(health.currenthealth)
-        return true,L("生命 +%d",health.currenthealth-before)
-    end
-    local uses=vehicle.components.finiteuses
-    local before=uses:GetUses()
-    local after=math.min(Durability.MAX_USES,before+100)
-    if after<=before then return false,"REPAIR_FULL" end
-    ConsumeOne(item)
-    uses:SetUses(after)
-    Durability.Sync(vehicle)
-    return true,L("底盘耐久 +%d",uses:GetUses()-before)
+    local ok,reason,gain=vehicle:TryRepair(player,item,part)
+    if not ok then return false,reason end
+    return true,L(part=="health" and "生命 +%d" or "底盘耐久 +%d",gain)
 end
 return M

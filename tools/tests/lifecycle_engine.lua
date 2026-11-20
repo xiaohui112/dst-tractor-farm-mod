@@ -132,7 +132,7 @@ function SpawnPrefab(name)
    if string.sub(name,-6)=='_seeds' then
     e:AddComponent('farmplantable');e.components.farmplantable.plant='farm_plant_'..string.sub(name,1,-7);e:AddTag('farmplantable')
    elseif name=='poop' then e.components.fertilizer={nutrients={0,0,8}};e:AddTag('fertilizer')end
-   if name=='charcoal' or name=='flint' or name=='rocks' or name=='twigs' or name=='gears' or name=='poop' or string.sub(name,-6)=='_seeds' then e:AddComponent('stackable')end
+   if name=='charcoal' or name=='flint' or name=='rocks' or name=='twigs' or name=='gears' or name=='boards' or name=='poop' or string.sub(name,-6)=='_seeds' then e:AddComponent('stackable')end
   end
  end
  if PREFAB_POST_FNS[name] then PREFAB_POST_FNS[name](e)end

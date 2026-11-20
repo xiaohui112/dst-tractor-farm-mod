@@ -1,14 +1,14 @@
--- 行驶和所有配件作业统一为原版人物初始跑速的50%，不继承人物临时加速。
+-- 空驶为原版人物初始跑速，F作业时减半。
 local M = {}
-M.BASE_SPEED = (TUNING.WILSON_RUN_SPEED or 6) * .5
+M.BASE_SPEED = TUNING.WILSON_RUN_SPEED or 6
 M.SAMPLE_INTERVAL = .1
 M.TILE_SIZE = 4
-M.DRIVE_FUEL_PER_UNIT = 1 / M.TILE_SIZE -- 每行驶一格另扣1燃料，与农业成本分开。
+M.DRIVE_FUEL_PER_UNIT = 1 / 8
 M.MAX_SWEEP_DISTANCE = 16 -- 超出正常短时移动视为传送，不耕种沿途地块。
 M.REFERENCE_MPH = {}
 for kind,def in pairs(require("aom_equipment_defs")) do M.REFERENCE_MPH[kind]=def.mph end
-function M.Speed(attachment, working)
-    return M.BASE_SPEED
+function M.Speed(working)
+    return M.BASE_SPEED * (working and .5 or 1)
 end
 
 -- 网格射线遍历：补上两次采样之间真正经过的地块；对角穿过角点时只进对角格。

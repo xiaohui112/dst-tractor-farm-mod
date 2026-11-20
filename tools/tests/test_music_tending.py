@@ -46,7 +46,7 @@ assert(far.components.farmplantstress.stressors.happiness and mature.components.
 near.last_periodic.fn(near)
 local happy=0;for _,e in ipairs(ENTITIES)do if e.prefab=='farm_plant_happy' then happy=happy+1 end end
 assert(happy==1 and Music.TendPlants(t)==0)
-assert(store:GetWater()==40 and t._fuel:value()==fuel and t.components.finiteuses:GetUses()==uses)
+assert(store:GetWater()==140 and t._fuel:value()==fuel and t.components.finiteuses:GetUses()==uses)
 ''')
 
     def test_periodic_tending_repeats_only_after_native_stage_becomes_tendable_again(self):
@@ -87,10 +87,10 @@ assert(not crop.components.farmplantstress.stressors.happiness and t._working)
 assert(mode('off'));local crop=plant(0);start_music()
 local task=t._worktask
 assert(t._working and crop.components.farmplanttendable.tendable)
-assert(Music.TendPlants(t)==0 and store:GetWater()==40)
+assert(Music.TendPlants(t)==0 and store:GetWater()==140)
 assert(mode('on'))
 assert(not crop.components.farmplanttendable.tendable and not crop.components.farmplantstress.stressors.happiness)
-assert(t._working and t._worktask==task and store:GetWater()==40)
+assert(t._working and t._worktask==task and store:GetWater()==140)
 crop.components.farmplanttendable:SetTendable(true)
 assert(mode('on') and crop.components.farmplanttendable.tendable)
 assert(Music.TendPlants(t)==1)
@@ -113,7 +113,7 @@ local crop=plant(0);AllPlayers={player}
 player.SoundEmitter={PlaySound=function()error('audio unavailable')end,KillSound=function()end}
 local controller=Music.New(player);controller:Update()
 assert(controller.failed and Music.TendPlants(t)==1)
-assert(not crop.components.farmplantstress.stressors.happiness and t._working and store:GetWater()==40)
+assert(not crop.components.farmplantstress.stressors.happiness and t._working and store:GetWater()==140)
 ''')
 
     def test_bad_plant_callback_does_not_interrupt_work_or_other_plants(self):

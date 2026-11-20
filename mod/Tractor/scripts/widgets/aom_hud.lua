@@ -1,7 +1,9 @@
--- 常驻仅图标和数值；说明走原版 Hoverer。客户端仅读 netvar/replica。
+-- 仪表读 netvar/replica；播种机在原表盘显示当前模式和切换提示。
 local Widget=require("widgets/widget")
 local Dial=require("widgets/aom_badge")
+local Text=require("widgets/text")
 local L=require("aom_locale").Text
+local Seed=require("aom_seed_strategy")
 local ATT={}
 for kind,def in pairs(require("aom_equipment_defs")) do ATT[kind]=def.prefab end
 local MODE={SEQUENTIAL="顺序",GIANT_TEMPLATE="巨大化·模版",GIANT="巨大化·最优"}
@@ -30,7 +32,7 @@ local AOMHud=Class(Widget,function(self,owner)
     self.badges.water=self.root:AddChild(Dial(owner,colors.water,false))
     self.badges.water:SetIcon("images/aom_water.xml","water_drop.tex")
     self.badges.water:Hide()
-    self.badges.chassis:SetIcon(ItemImage("gears"))
+    self.badges.chassis:SetIcon(ItemImage("boards"))
     self.badges.fuel:SetIcon(ItemImage("charcoal"))
     self.badges.cargo:SetIcon(ItemImage("treasurechest"))
     self.badges.cargo.warn_low=false
@@ -48,6 +50,18 @@ local AOMHud=Class(Widget,function(self,owner)
             self:Send(AOM_RPC.SEED_MODE)
         end
     end)
+    local tool=self.badges.tool
+    self.seed_mode=tool:AddChild(Text(UIFONT,18))
+    self.seed_mode:SetPosition(0,-64,0)
+    self.seed_cycle=tool:AddChild(Text(UIFONT,19,"↻"))
+    self.seed_cycle:SetPosition(24,22,0)
+    self.seed_hint=tool:AddChild(Text(UIFONT,19))
+    self.seed_hint:SetPosition(-48,48,0)
+    for _,label in ipairs({self.seed_mode,self.seed_cycle,self.seed_hint}) do
+        label:SetColour(1,.88,.65,1)
+        label:SetClickable(false)
+        Visible(label,false)
+    end
     self:MatchStatusScale()
     self:Hide()
 end)
@@ -73,9 +87,25 @@ function AOMHud:Send(rpc,...)
         SendModRPCToServer(rpc,...)
     end
 end
+function AOMHud:RefreshSeedMode(seeder,mode)
+    Visible(self.seed_mode,seeder)
+    Visible(self.seed_cycle,seeder)
+    if not seeder then
+        Visible(self.seed_hint,false)
+        return
+    end
+    self.seed_mode:SetString(L(MODE[Seed.Normalize(mode)]))
+    if not self.owner._aom_seed_hint_seen then
+        self.owner._aom_seed_hint_seen=true
+        self.seed_hint:SetString(L("空手左键播种机图标，可切换巨大化配比"))
+        Visible(self.seed_hint,true)
+        self.inst:DoTaskInTime(4,function()Visible(self.seed_hint,false)end)
+    end
+end
 function AOMHud:Refresh(tractor)
     require("aom_plan_preview").Refresh(self,tractor)
     if not tractor or not tractor:IsValid() or self.owner:HasTag("playerghost")then
+        self:RefreshSeedMode(false)
         self.tractor=nil;self:Hide();return
     end
     self.tractor=tractor
@@ -84,6 +114,7 @@ function AOMHud:Refresh(tractor)
     self.root:SetPosition(0,166,0)
     local kind=Value(tractor,"_atttype_net","")
     local mode=Value(tractor,"_seedmode_net","SEQUENTIAL")
+    self:RefreshSeedMode(kind=="seeder",mode)
     self.order=kind=="irrigator" and {"health","chassis","fuel","cargo","tool","water"} or {"health","chassis","fuel","cargo","tool"}
     Visible(self.badges.water,kind=="irrigator")
     self:MatchStatusScale()
@@ -103,7 +134,8 @@ function AOMHud:Refresh(tractor)
     if name then self.badges.tool:SetIcon("images/aom_attachment_inventory.xml",name..".tex")else self.badges.tool:SetIcon(nil)end
     local tool_tip=max>0 and att.."\n"..L("耐久 %d/%d",tool,max) or att
     if kind=="seeder" then
-        tool_tip=att.."\n"..L("耐久 %d/%d",tool,max).."\n"..L("播种策略：%s",L(MODE[mode] or "顺序"))
+        tool_tip=tool_tip.."\n"..L("播种策略：%s",L(MODE[Seed.Normalize(mode)]))
+            .."\n"..L("空手左键切换 → %s",L(MODE[Seed.Next(mode)]))
     end
     self.badges.tool:SetValue(tool,max,tool_tip,max<=0 and "—" or nil,max>0 and tool<=0,max<=0)
     local full=code=="CARGO_FULL"

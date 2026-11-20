@@ -124,8 +124,8 @@ local corner=SpawnPrefab('farm_soil');corner.Transform:SetPosition(1.99,0,1.99)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 RPCS.AOM_TOGGLE_WORK(player);require('aom_drive').TrackMovement(t)
 assert(tool.components.finiteuses:GetUses()==0 and not t._working and not corner:IsValid())
-assert(t.components.aom_attachment_store:GetSeedCount()==1 and t._fuel:value()==398)
-assert(t._uses_net:value()==998 and t._tooluses_net:value()==0 and t._toolmax_net:value()==0)
+assert(t.components.aom_attachment_store:GetSeedCount()==1 and t._fuel:value()==599)
+assert(t._uses_net:value()==999 and t._tooluses_net:value()==0 and t._toolmax_net:value()==0)
 assert(t._seedcount_net:value()==1)
 ACTIONS.DISMOUNT.fn({doer=player,target=player});player.components.rider:ActualDismount()
 assert(tool:IsValid() and t:GetAttachment()==nil)
@@ -134,8 +134,8 @@ assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_id
 assert(t:AttachAttachment(player,replacement))
 corner=SpawnPrefab('farm_soil');corner.Transform:SetPosition(1.99,0,1.99)
 RPCS.AOM_TOGGLE_WORK(player);require('aom_drive').TrackMovement(t)
-assert(not corner:IsValid() and replacement.components.finiteuses:GetUses()==9)
-assert(t._fuel:value()==397 and t.components.aom_attachment_store:GetSeedCount()==0)
+assert(not corner:IsValid() and replacement.components.finiteuses:GetUses()==49)
+assert(t._fuel:value()==598 and t.components.aom_attachment_store:GetSeedCount()==0)
 assert(t._seedcount_net:value()==0)
 ''')
 
@@ -159,14 +159,14 @@ end
 assert(t.components.aom_attachment_store:GetSeedCount()==1 and #messages==0)
 player.Transform:SetPosition(8,0,0);task.fn(t)
 assert(not t._working and not t._worktask and task.cancelled)
-assert(t.components.aom_attachment_store:GetSeedCount()==0 and t._fuel:value()==397)
+assert(t.components.aom_attachment_store:GetSeedCount()==0 and t._fuel:value()==597)
 assert(#messages==1 and string.find(messages[1],'种子不足'))
 local extra=SpawnPrefab('tomato_seeds');extra.components.stackable:SetStackSize(2)
 local load=prompt(extra,player,t)[1]
 assert(load.id=='AOM_LOAD' and load.fn({doer=player,target=t,invobject=extra}))
 player.Transform:SetPosition(12,0,0);press_f(player);release_f(player);t._worktask.fn(t)
 assert(t._working and t.components.aom_attachment_store:GetSeedCount()==1)
-assert(t._fuel:value()==396 and not player.attacks)
+assert(t._fuel:value()==596 and not player.attacks)
 press_f(player);release_f(player);assert(not t._working and not t._worktask)
 ''')
 
@@ -336,7 +336,7 @@ press_f(player);release_f(player);assert(t._working and t:GetAttachment()==fresh
         self.run_lua('''
 local t=deploy_kit(kit,0,0,player);local tank=SpawnPrefab('aom_irrigator')
 t:AttachAttachment(nil,tank)
-local store=t.components.aom_attachment_store;assert(store:AddWater(1)==1 and store:TakeWater())
+local store=t.components.aom_attachment_store;tank.components.finiteuses:SetUses(1);assert(store:TakeWater())
 assert(tank:IsValid() and t:GetAttachment()==tank and store:GetWater()==0)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 press_f(player);release_f(player);assert(not t._working and tank:IsValid())
@@ -348,39 +348,23 @@ assert(t:GetAttachment()==spreader)
 for _,e in ipairs(ENTITIES)do assert(e.prefab~='dirt_puff')end
 ''')
 
-    def test_water_refill_prompt_consumption_and_visible_instructions(self):
+    def test_portable_water_supplies_do_not_offer_or_execute_a_truck_refill(self):
         self.run_lua('''
 local t=deploy_kit(kit,0,0,player);local tank=SpawnPrefab('aom_irrigator')
 assert(t:AttachAttachment(nil,tank))
-local can=SpawnPrefab('wateringcan');can:AddComponent('finiteuses')
-can.components.fillable={};can.components.finiteuses:SetMaxUses(40);can.components.finiteuses:SetUses(7)
-local refill=prompt(can,player,t)[1]
-assert(refill.id=='AOM_LOAD' and refill.strfn({target=t})=='REFILL')
-assert(STRINGS.ACTIONS.AOM_LOAD.REFILL=='补水' and STRINGS.ACTIONS.AOM_LOAD.GENERIC=='装料')
-assert(refill.fn({doer=player,target=t,invobject=can}))
-assert(t.components.aom_attachment_store:GetWater()==7 and can.components.finiteuses:GetUses()==0 and can:IsValid())
-local ice=SpawnPrefab('ice');refill=prompt(ice,player,t)[1]
-assert(refill and refill.strfn({target=t})=='REFILL' and refill.fn({doer=player,target=t,invobject=ice}))
-assert(not ice:IsValid() and t.components.aom_attachment_store:GetWater()==8)
-local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(hud.badges.water:GetTooltip()=='水量 8/400')
-local store=t.components.aom_attachment_store
-for i=1,8 do assert(store:TakeWater())end
+for _,name in ipairs({'wateringcan','premiumwateringcan','ice'})do
+ local item=SpawnPrefab(name)
+ item:AddComponent('finiteuses');item.components.finiteuses:SetUses(7)
+ item.components.fillable={}
+ assert(#prompt(item,player,t)==0)
+ assert(not ACTION_DEFS.AOM_LOAD.fn({doer=player,target=t,invobject=item}))
+ assert(item:IsValid() and item.components.finiteuses:GetUses()==7)
+end
+assert(t.components.aom_attachment_store:GetWater()==100)
+tank.components.finiteuses:SetUses(0)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 press_f(player);release_f(player)
-assert(not t._working and string.find(require('aom_work_status').Describe(t),'右键池塘',1,true))
-''')
-
-    def test_refill_instruction_and_action_label_are_localized(self):
-        self.run_lua('''
-GetModConfigData=function(name)if name=='LANGUAGE' then return 'en' end end
-dofile(MOD..'/modmain.lua')
-local t=deploy_kit(kit,0,0,player)
-assert(t:AttachAttachment(nil,SpawnPrefab('aom_irrigator')))
-local ice=SpawnPrefab('ice');local refill=prompt(ice,player,t)[1]
-assert(refill.strfn({target=t})=='REFILL' and STRINGS.ACTIONS.AOM_LOAD.REFILL=='Refill water')
-local HUD=require('widgets/aom_hud');local hud=HUD(player);hud:Refresh(t)
-assert(hud.badges.water:GetTooltip()=='Water 0/400')
+assert(not t._working and string.find(require('aom_work_status').Describe(t),'近岸海面',1,true))
 ''')
 
     def test_all_seven_recipes_require_alchemy_engine_for_first_unlock(self):
@@ -392,24 +376,31 @@ for _,name in ipairs({'aom_tractor_chassis','aom_landclearer','aom_seeder','aom_
  'aom_fertilizer','aom_weeder','aom_harvester'})do assert(RECIPE_TECH[name]==TECH.SCIENCE_TWO)end
 ''')
 
-    def test_chassis_last_use_stops_then_gears_resume_without_free_work(self):
+    def test_sowing_payment_persists_on_soil_and_last_chassis_point_covers_complete_tile(self):
         self.run_lua('''
-local t=deploy_kit(kit,0,0,player);local tool=SpawnPrefab('aom_seeder')
-t:AttachAttachment(nil,tool)
-local seeds=SpawnPrefab('tomato_seeds');seeds.components.stackable:SetStackSize(2)
+local t=deploy_kit(kit,0,0,player);assert(t:AttachAttachment(nil,SpawnPrefab('aom_seeder')))
+local seeds=SpawnPrefab('tomato_seeds')
 t.components.container:GiveItem(seeds,2)
-local a=SpawnPrefab('farm_soil');local b=SpawnPrefab('farm_soil');b.Transform:SetPosition(1,0,0)
+SpawnPrefab('farm_soil')
+local b=SpawnPrefab('farm_soil');b.Transform:SetPosition(1,0,0)
 t.components.finiteuses:SetUses(1);t._rider=player;t:SetWorking(true)
-local drive=require('aom_drive');local changed,why=drive.WorkTile(t,0,0)
-assert(changed and why=='BROKEN_CHASSIS' and not t._working)
-assert(t.components.aom_attachment_store:GetSeedCount()==1 and t._fuel:value()==399)
-assert(not drive.WorkTile(t,0,0) and t._fuel:value()==399)
-local gears=SpawnPrefab('gears');gears.components.stackable:SetStackSize(2)
-assert(prompt(gears,player,t)[1].fn({doer=player,target=t,invobject=gears}))
-assert(t.components.finiteuses:GetUses()==100 and gears.components.stackable:StackSize()==1)
-assert(drive.WorkTile(t,0,0) and t.components.finiteuses:GetUses()==99)
+local drive=require('aom_drive')
+assert(drive.WorkTile(t,0,0) and t._fuel:value()==599 and t.components.finiteuses:GetUses()==0)
+assert(b:IsValid() and not t._working and t:GetAttachment().components.finiteuses:GetUses()==200)
+local record=clone(b:GetSaveRecord());assert(record.data.aom_sowing_paid)
+b:Remove();b=SpawnSaveRecord(record);b.Transform:SetPosition(1,0,0)
+t.components.container:GiveItem(SpawnPrefab('tomato_seeds'),2)
+assert(drive.WorkTile(t,0,0) and not b:IsValid())
+assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
+local next_pit=SpawnPrefab('farm_soil');next_pit.Transform:SetPosition(4,0,0)
+t.components.container:GiveItem(SpawnPrefab('tomato_seeds'),2)
+assert(not drive.WorkTile(t,4,0) and next_pit:IsValid())
+local boards=SpawnPrefab('boards');boards.components.stackable:SetStackSize(2)
+assert(prompt(boards,player,t)[1].fn({doer=player,target=t,invobject=boards}))
+assert(t.components.finiteuses:GetUses()==250 and boards.components.stackable:StackSize()==1)
+assert(drive.WorkTile(t,4,0) and t._fuel:value()==598 and t.components.finiteuses:GetUses()==249)
 t.components.finiteuses:SetUses(1000)
-assert(not t:TryRepair(player,gears) and gears.components.stackable:StackSize()==1)
+assert(not t:TryRepair(player,boards) and boards.components.stackable:StackSize()==1)
 ''')
 
     def test_full_container_pack_save_reload_redeploy_preserves_all_state(self):
@@ -443,7 +434,7 @@ assert(placed._uses_net:value()==643 and placed._tooluses_net:value()==73)
     def test_sparse_container_and_empty_water_survive_packing(self):
         self.run_lua('''
 local t=deploy_kit(kit,0,0,player);local tank=SpawnPrefab('aom_irrigator')
-assert(tank.components.finiteuses:GetUses()==0)
+tank.components.finiteuses:SetUses(0)
 t:AttachAttachment(nil,tank)
 local seed=SpawnPrefab('carrot_seeds');seed.components.stackable:SetStackSize(9)
 t.components.container:GiveItem(seed,9)
@@ -451,7 +442,7 @@ local record=clone(t:GetSaveRecord());t:Remove();tank:Remove()
 local next=SpawnSaveRecord(record,{})
 assert(next.components.container:GetItemInSlot(2)==nil)
 assert(next.components.container:GetItemInSlot(9).components.stackable:StackSize()==9)
-assert(next._water_net:value()==0 and next._toolmax_net:value()==100)
+assert(next._water_net:value()==0 and next._toolmax_net:value()==200)
 ''')
 
     def test_death_drops_everything_once_and_preserves_repairable_wreck(self):

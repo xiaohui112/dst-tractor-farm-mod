@@ -46,12 +46,31 @@ function pond:CollectActions(kind,doer,actions,right)
 end
 local click=picker:GetRightClickActions(Vector3(4,0,0),pond)[1]
 assert(click.action==ACTION_DEFS.AOM_POND_REFILL and click:Do())
-assert(t.components.aom_attachment_store:GetWater()==0 and t._refilling_net:value())
+assert(t.components.aom_attachment_store:GetWater()==100 and t._refilling_net:value())
 assert(player.components.rider:IsRiding())
 local clock=GetTime;GetTime=function()return t._aom_pond_refill.started+5 end
 require('aom_pond_refill').Update(t);GetTime=clock
 assert(t.components.aom_attachment_store:GetWater()==400 and not t._refilling_net:value())
 assert(player.components.rider:IsRiding())
+''')
+
+    def test_right_click_open_sea_only_offers_filtering_from_nearby_land(self):
+        self.run_lua('''
+assert(t:AttachAttachment(nil,SpawnPrefab('aom_irrigator')))
+TheWorld.Map.IsOceanAtPoint=function(_,x)return x>1 end
+TheWorld.Map.IsPassableAtPoint=function(_,x)return x<=1 end
+function DynamicPosition(point)return {GetPosition=function()return point end}end
+local function sea(x)
+ local point=Vector3(x,0,0);point.is_a=function(_,class)return class==Vector3 end
+ return picker:GetRightClickActions(point,nil)
+end
+assert(#sea(4)==0)
+local action=sea(2)[1]
+assert(action and action.action==ACTION_DEFS.AOM_SEA_REFILL)
+assert(action:Do() and t._refilling_net:value() and #sea(2)==0)
+require('aom_pond_refill').Cancel(t)
+player.Transform:SetPosition(1.5,0,0)
+assert(#sea(2)==0)
 ''')
 
     def test_other_targets_walking_and_other_mounts_keep_original_click_handlers(self):

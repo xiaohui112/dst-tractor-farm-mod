@@ -31,7 +31,7 @@ end
 assert(drive_at(0,0));local b=finish();local counts=used()
 assert(b.dynamic and b.automatic and b.confirmed and b.done==32 and crop_count()==32)
 assert(counts.tomato==16 and counts.potato==16 and inst._working)
-assert(inst._fuel:value()==768 and inst.components.aom_attachment_store:GetSeedCount()==8)
+assert(inst._fuel:value()==796 and inst.components.aom_attachment_store:GetSeedCount()==8)
 local before=inst._fuel:value();drive_at(0,0);assert(inst._fuel:value()==before and inst._working)
 ''')
  def test_single_tile_mixes_large_and_unequal_stocks(self):
@@ -110,7 +110,7 @@ end
 local ok,reason=drive_at(0,0);assert(ok and reason=='WORK_ERROR' and not inst._working)
 assert(crop_count()==1 and inst._fuel:value()==799)
 Drive.SetWorking(inst,true);assert(drive_at(0,0))
-assert(crop_count()==8 and inst._block.done==8 and inst._fuel:value()==792)
+assert(crop_count()==8 and inst._block.done==8 and inst._fuel:value()==799)
 ''')
  def test_new_and_harvested_regions_start_new_rounds(self):
   self.run_lua('''field(0,0,1,1);field(12,0,1,1);seeder({tomato=20,potato=20})

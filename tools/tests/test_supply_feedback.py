@@ -8,26 +8,26 @@ class SupplyFeedbackTests(unittest.TestCase):
     setUp=world.WorldEquipmentTests.setUp
     run_lua=world.WorldEquipmentTests.run_lua
 
-    def test_real_seeder_stops_after_one_hundred_completed_tiles_and_preserves_remaining_cargo(self):
+    def test_real_seeder_stops_after_two_hundred_completed_tiles_and_preserves_remaining_cargo(self):
         self.run_lua(r'''
-local item=equipment('aom_seeder');assert(item.components.finiteuses.total==100)
+local item=equipment('aom_seeder');assert(item.components.finiteuses.total==200)
 assert(t:AttachAttachment(nil,item));ride()
-for slot=1,9 do
+for slot=1,11 do
  local seed=SpawnPrefab('tomato_seeds');seed.components.stackable:SetStackSize(40)
  assert(t.components.container:GiveItem(seed,slot))
 end
-assert(t._cargo_count_net:value()==360 and t._seedcount_net:value()==360)
+assert(t._cargo_count_net:value()==440 and t._seedcount_net:value()==440)
 local Drive=require('aom_drive')
-for tile=0,100 do
+for tile=0,200 do
  local x=tile*4;player.Transform:SetPosition(x,0,0)
- for col=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x+col*1.3125,0,0)end
+ for col=-1,0 do SpawnPrefab('farm_soil').Transform:SetPosition(x+col*1.3125,0,0)end
  Drive.WorkTile(t,x,0)
 end
 assert(item:IsValid() and t:GetAttachment()==nil and Durability.GetUses(item)==0)
-assert(t._fuel:value()==100 and t.components.finiteuses:GetUses()==700)
-assert(t._cargo_count_net:value()==60 and t._seedcount_net:value()==60)
+assert(t._fuel:value()==400 and t.components.finiteuses:GetUses()==800)
+assert(t._cargo_count_net:value()==40 and t._seedcount_net:value()==40)
 local planted=0;for _,e in ipairs(ENTITIES)do if e:IsValid() and e.prefab=='farm_plant_tomato' then planted=planted+1 end end
-assert(planted==300)
+assert(planted==400)
 ''')
 
     def test_cargo_counts_all_stacks_and_updates_from_native_source_events_and_removal(self):
@@ -61,9 +61,9 @@ assert(flint.components.stackable:StackSize()==3 and Durability.GetUses(item)==2
 assert(t.components.finiteuses:GetUses()==900 and t.components.health.currenthealth==500)
 assert(t:DetachAttachment(nil));player.Transform:SetPosition(item.Transform:GetWorldPosition())
 assert(ACTION_DEFS.AOM_REPAIR.fn({doer=player,target=item,invobject=flint}))
-assert(Durability.GetUses(item)==31 and flint.components.stackable:StackSize()==2)
+assert(Durability.GetUses(item)==71 and flint.components.stackable:StackSize()==2)
 local gears=SpawnPrefab('gears');assert(t:TryRepair(player,gears))
-assert(not gears:IsValid() and t.components.health.currenthealth==600 and t.components.finiteuses:GetUses()==1000)
+assert(not gears:IsValid() and t.components.health.currenthealth==600 and t.components.finiteuses:GetUses()==900)
 ''')
 
     def test_tank_capacity_and_hover_water_are_independent_from_mechanical_uses_and_survive_save(self):
@@ -71,9 +71,9 @@ assert(not gears:IsValid() and t.components.health.currenthealth==600 and t.comp
 local Info=require('aom_machine_info');local item=equipment('aom_irrigator')
 assert(item:HasTag('hide_percentage') and item.components.finiteuses.total==400)
 assert(t:AttachAttachment(nil,item));item._aom_machine_uses=23;item._durability_net:set(23)
-assert(t.components.aom_attachment_store:AddWater(999)==400)
+assert(t.components.aom_attachment_store:AddWater(999)==300)
 assert(item._aom_water_net:value()==400 and t._water_net:value()==400 and t._watermax_net:value()==400)
-assert(Info.Describe(item)=='机械耐久 23/100\n水量 400/400')
+assert(Info.Describe(item)=='机械耐久 23/200\n水量 400/400')
 t.components.aom_attachment_store:TakeWater();assert(item._aom_water_net:value()==399 and Durability.GetUses(item)==23)
 for _,water in ipairs({0,40,400})do
  item.components.finiteuses:SetUses(water)
@@ -88,7 +88,7 @@ end
         self.run_lua(r'''
 local seeder=equipment('aom_seeder');seeder.components.finiteuses:SetUses(21)
 local old=clone(seeder:GetSaveRecord());local loaded=SpawnSaveRecord(old)
-assert(loaded.components.finiteuses.total==100 and Durability.GetUses(loaded)==21)
+assert(loaded.components.finiteuses.total==200 and Durability.GetUses(loaded)==21)
 local tank=equipment('aom_irrigator');tank.components.finiteuses:SetUses(40)
 old=clone(tank:GetSaveRecord());loaded=SpawnSaveRecord(old)
 assert(loaded.components.finiteuses.total==400 and loaded.components.finiteuses:GetUses()==40)
@@ -107,7 +107,7 @@ for _,action in ipairs({'存放','检查','修理','加油'})do
 end
 hover.text:SetString(hover.text.value);assert(select(2,hover.text.value:gsub('燃料',''))==1)
 target=equipment('aom_irrigator');target.components={};target._aom_water_net:set(312);target._durability_net:set(45)
-hover.text:SetString('检查 洒水机');assert(hover.text.value=='检查 洒水机\n机械耐久 45/100\n水量 312/400')
+hover.text:SetString('检查 洒水机');assert(hover.text.value=='检查 洒水机\n机械耐久 45/200\n水量 312/400')
 target=SpawnPrefab('rocks');hover.text:SetString('检查 岩石');assert(hover.text.value=='检查 岩石')
 target=t;TheInput.GetHUDEntityUnderMouse=function()return {}end
 hover.text:SetString('界面提示');assert(hover.text.value=='界面提示')
@@ -129,7 +129,7 @@ for _,ours_first in ipairs({false,true})do
  local h={text={SetString=function(self,s)self.value=s end}}
  if ours_first then Info.Install(h);show_me(h)else show_me(h);Info.Install(h)end
  h.text:SetString('修理')
- assert(string.find(h.text.value,'燃料 400/800',1,true) and string.find(h.text.value,'耐久：900/1000',1,true))
+ assert(string.find(h.text.value,'燃料 600/800',1,true) and string.find(h.text.value,'耐久：900/1000',1,true))
  assert(h.text.cnt_lines==3)
 end
 ''')

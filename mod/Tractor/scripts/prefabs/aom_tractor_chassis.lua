@@ -51,7 +51,7 @@ local MAX_FUEL = 800
 local FUEL_PER_TICK = 1
 local MAX_HEALTH = 600
 local MAX_USES = Durability.MAX_USES
-local STARTING_FUEL = 400
+local STARTING_FUEL = 600
 
 ---------------------------------------------------------------------------
 -- 燃料
@@ -147,28 +147,39 @@ local function TryRefuel(inst, doer, item)
 	return true
 end
 
-local function TryRepair(inst, doer, item)
-	if item == nil then return false,"REPAIR_GEARS" end
+local function TryRepair(inst, doer, item, part)
+	if item == nil or not item:IsValid() then return false,"NO_ACTIVE_ITEM" end
 	local rider=doer and doer.components.rider
-	if rider and rider:IsRiding() then return false,"DISMOUNT_FIRST" end
-	-- 齿轮同时修复车体血量和作业耐久；残骸原地恢复，不重置油量或货物。
-	if item.prefab == "gears" then
-		local health,uses=inst.components.health,inst.components.finiteuses
-		if health.currenthealth>=MAX_HEALTH and uses:GetUses()>=MAX_USES then return false,"REPAIR_FULL" end
+	if not part and rider and rider:IsRiding() then return false,"DISMOUNT_FIRST" end
+	if part=="chassis" or not part and item.prefab=="boards" then
+		if item.prefab~="boards" then return false,"REPAIR_BOARDS" end
+		local uses=inst.components.finiteuses
+		local before=uses:GetUses()
+		local after=math.min(MAX_USES,before+Durability.CHASSIS_REPAIR)
+		if after<=before then return false,"REPAIR_FULL" end
 		ConsumeOne(item)
-		health:SetVal(math.min(MAX_HEALTH,math.max(0,health.currenthealth)+100))
-		uses:SetUses(math.min(MAX_USES,uses:GetUses()+100))
+		uses:SetUses(after)
+		Durability.Sync(inst)
+		return true,nil,after-before
+	end
+	if item.prefab~="gears" then return false,"REPAIR_GEARS" end
+	local health=inst.components.health
+	local before=math.max(0,health.currenthealth)
+	local after=math.min(MAX_HEALTH,before+Durability.HEALTH_REPAIR)
+	if after<=before then return false,"REPAIR_FULL" end
+	ConsumeOne(item)
+	health:SetVal(after)
+	inst._health_net:set(health.currenthealth)
+	if inst._destroyed then
 		inst._destroyed=nil
 		inst._wreck_net:set(false)
-		inst._health_net:set(health.currenthealth)
 		inst.components.workable:SetWorkable(true)
 		SetFuel(inst,GetFuel(inst))
 		inst.AnimState:SetMultColour(1,1,1,1)
 		inst.AnimState:PlayAnimation("idle",true)
 		inst.SoundEmitter:PlaySound("dontstarve/HUD/click_move")
-		return true
 	end
-	return false,"REPAIR_GEARS"
+	return true,nil,after-before
 end
 
 ---------------------------------------------------------------------------
@@ -449,7 +460,7 @@ local function fn()
         end
         AOMDrive.SetWorking(inst,false)
         inst.components.container:DropEverything()
-        for name,count in pairs({gears=2,transistor=1,boards=3,flint=4}) do
+        for name,count in pairs({gears=1,transistor=1,boards=1,flint=2}) do
             for _=1,count do
                 local loot=SpawnPrefab(name)
                 if loot then loot.Transform:SetPosition(inst.Transform:GetWorldPosition()) end

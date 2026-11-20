@@ -64,19 +64,19 @@ t:SetWorking(true);assert(Drive.WorkTile(t,0,0))
 for _,v in ipairs(plants)do assert(not v:IsValid())end
 assert(picker==player and quantity(t,'spoiled_food')==9)
 assert(quantity(t,'tomato')==0 and quantity(t,'tomato_seeds')==0)
-assert(t._working and t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
-assert(not Drive.WorkTile(t,0,0) and quantity(t,'spoiled_food')==9 and t._fuel:value()==399)
+assert(t._working and t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
+assert(not Drive.WorkTile(t,0,0) and quantity(t,'spoiled_food')==9 and t._fuel:value()==599)
 ''')
 
     def test_full_slots_merge_rot_only_into_rot_stack_and_skip_when_no_matching_stack(self):
         self.run_lua('''
 fill();stock(1,'tomato',39);local plant=rotted(0,0,true)
 t:SetWorking(true);assert(not Drive.WorkTile(t,0,0) and plant:IsValid() and t._working)
-assert(t._fuel:value()==400 and quantity(t,'tomato')==39)
+assert(t._fuel:value()==600 and quantity(t,'tomato')==39)
 stock(1,'tomato',40);stock(2,'spoiled_food',39)
 local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='CARGO_FULL' and not plant:IsValid() and not t._working)
-assert(quantity(t,'spoiled_food')==40 and quantity(t,'tomato')==40 and t._fuel:value()==399)
+assert(quantity(t,'spoiled_food')==40 and quantity(t,'tomato')==40 and t._fuel:value()==599)
 ''')
 
     def test_rotten_stage_without_native_tag_uses_rot_stack_filter(self):
@@ -96,8 +96,8 @@ local healthy=crop('tomato',0,1,false);healthy.components.pickable:MakeEmpty()
 local calls=0;remains:ListenForEvent('worked',function()calls=calls+1 end)
 t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not remains:IsValid())
 assert(collectable:IsValid() and healthy:IsValid() and quantity(t,'spoiled_food')==1)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
-assert(not Drive.WorkTile(t,0,0) and t._working and t._fuel:value()==399)
+assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
+assert(not Drive.WorkTile(t,0,0) and t._working and t._fuel:value()==599)
 tool('aom_harvester');assert(Drive.WorkTile(t,0,0) and not collectable:IsValid() and healthy:IsValid())
 assert(quantity(t,'spoiled_food')==2)
 ''')
@@ -131,7 +131,7 @@ a.components.workable:SetOnFinishCallback(function(v,worker)
 end)
 assert(Drive.WorkTile(t,0,0) and not a:IsValid() and b:IsValid())
 assert(b.components.workable:GetWorkLeft()==1 and quantity(t,'spoiled_food')==1)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
+assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
 ''')
 
     def test_temporarily_disabled_or_stuck_rotten_crop_is_never_dug(self):
@@ -141,7 +141,7 @@ plant.components.pickable:MakeEmpty();plant.components.pickable.caninteractwith=
 assert(not Crops.CanClearRemains(plant) and not Drive.WorkTile(t,0,0) and plant:IsValid())
 plant.components.pickable.caninteractwith=true;plant.components.pickable.stuck=true
 assert(not Crops.CanClearRemains(plant) and not Drive.WorkTile(t,0,0) and plant:IsValid())
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
+assert(t._fuel:value()==600 and t:GetAttachment().components.finiteuses:GetUses()==200)
 ''')
 
     def test_healthy_crop_with_weed_tag_and_nonfarm_dead_plants_are_preserved(self):
@@ -153,7 +153,7 @@ wild:AddTag('deadplant');wild:AddTag('plant')
 wild:AddComponent('workable');wild.components.workable:SetWorkAction(ACTIONS.DIG)
 wild.components.workable:SetWorkLeft(1)
 assert(not Drive.WorkTile(t,0,0) and healthy:IsValid() and wild:IsValid())
-assert(t._fuel:value()==400)
+assert(t._fuel:value()==600)
 ''')
 
     def test_no_dig_action_or_no_worker_preserves_remains_and_uses_no_resources(self):
@@ -165,7 +165,7 @@ assert(not changed and why=='UNCLEARABLE_WEED' and remains:IsValid() and not t._
 remains.components.workable:SetWorkAction(ACTIONS.DIG)
 local worked,reason=Farm.Weed(0,0,0,nil,t)
 assert(not worked and reason=='NO_WORKER' and remains:IsValid())
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
+assert(t._fuel:value()==600 and t:GetAttachment().components.finiteuses:GetUses()==200)
 ''')
 
     def test_full_cargo_after_dig_leaves_real_loot_and_retry_does_not_duplicate(self):
@@ -173,10 +173,10 @@ assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses(
 tool('aom_weeder');fill();local a=rotted(0,0,false);local b=rotted(1,0,false)
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='CARGO_FULL' and not a:IsValid() and b:IsValid() and not t._working)
-assert(quantity(nil,'spoiled_food')==1 and t._fuel:value()==399)
+assert(quantity(nil,'spoiled_food')==1 and t._fuel:value()==599)
 t.components.container:RemoveItemBySlot(1):Remove()
 t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not b:IsValid())
-assert(quantity(t,'spoiled_food')==2 and quantity(nil,'spoiled_food')==0 and t._fuel:value()==398)
+assert(quantity(t,'spoiled_food')==2 and quantity(nil,'spoiled_food')==0 and t._fuel:value()==598)
 assert(not Drive.WorkTile(t,0,0) and quantity(t,'spoiled_food')==2)
 ''')
 
@@ -222,7 +222,7 @@ end)
 local defender=mature_ivy(10,0)
 assert(Drive.WorkTile(t,0,0) and not remains:IsValid() and not defender:IsValid())
 assert(DIG_ORDER[1]=='weed_ivy' and DIG_ORDER[2]=='remains')
-run_attacks();assert(hp(t)==600 and t._fuel:value()==399)
+run_attacks();assert(hp(t)==600 and t._fuel:value()==599)
 ''')
 
 

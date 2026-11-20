@@ -55,6 +55,7 @@ inst=make_flow_inst({},'autumn')
 inst._rider_net={set=function()end}
 tank=SpawnPrefab('aom_irrigator');inst.components.container.slots[1]=tank
 inst._attachment_type='irrigator';store=inst.components.aom_attachment_store
+tank.components.finiteuses:SetUses(0)
 function fill(n)store:AddWater(n)end
 function water_count()return store:GetWater()end
 function start_water()

@@ -16,7 +16,7 @@ local function fn()
         self.Transform:SetRotation(math.atan2(-dz,dx)*180/math.pi)
         self.AnimState:SetScale(length*150/64,1,1)
     end
-    inst:DoTaskInTime(6,inst.Remove)
+    inst:DoTaskInTime(11,inst.Remove)
     return inst
 end
 return Prefab("aom_refill_hose",fn,assets)

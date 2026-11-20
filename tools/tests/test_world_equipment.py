@@ -43,19 +43,23 @@ end
     def test_all_recipes_share_native_gardening_category_and_characteristic_materials(self):
         self.run_lua('''
 local expected={
- aom_tractor_chassis={gears=4,transistor=3,boards=6,flint=8},
- aom_landclearer={boards=6,rope=4,flint=16,cutstone=4},
- aom_seeder={boards=6,rope=4,seeds=20,gears=1},
- aom_irrigator={boards=6,rope=4,waterballoon=6,ice=12},
- aom_fertilizer={boards=6,rope=4,fertilizer=1,compost=6},
- aom_weeder={boards=4,rope=4,twigs=16,flint=12},
- aom_harvester={boards=8,rope=4,flint=16,gears=2},
+ aom_tractor_chassis={boards=3,flint=4,gears=2,transistor=2},
+ aom_landclearer={boards=2,flint=2,rope=2},
+ aom_seeder={boards=2,rope=2,seeds=5},
+ aom_irrigator={boards=2,rope=2,waterballoon=3},
+ aom_fertilizer={boards=2,rope=2,fertilizer=2},
+ aom_weeder={boards=2,flint=2,rope=2},
+ aom_harvester={boards=2,flint=2,gears=1},
 }
 for name,ingredients in pairs(expected)do
  local filters=RECIPE_FILTERS[name]
  assert(#filters==1 and filters[1]=='GARDENING',name)
- local actual=RECIPE_INGREDIENTS[name];assert(#actual==4,name)
- for _,v in ipairs(actual)do assert(ingredients[v.type]==v.amount,name..':'..v.type)end
+ local actual=RECIPE_INGREDIENTS[name];assert(#actual==(name=='aom_tractor_chassis' and 4 or 3),name)
+ for _,v in ipairs(actual)do
+  assert(ingredients[v.type]==v.amount,name..':'..v.type)
+  ingredients[v.type]=nil
+ end
+ assert(not next(ingredients))
 end
 for _,v in ipairs(RECIPE_INGREDIENTS.aom_fertilizer)do
  if v.type=='fertilizer' then assert(v.deconstruct==true)end
@@ -117,7 +121,7 @@ for _,name in ipairs({'aom_landclearer','aom_seeder','aom_weeder','aom_harvester
  t:SetWorking(true);Durability.UseAttachment(t,tool)
  assert(tool:IsValid() and Durability.GetUses(tool)==0 and t:GetAttachment()==nil and not t._working)
  assert(Mount.Owner(tool)==nil and tool.persists and not act(tool))
- assert(Durability.RepairAttachment(tool) and Durability.GetUses(tool)==10)
+ assert(Durability.RepairAttachment(tool) and Durability.GetUses(tool)==50)
  player.Transform:SetPosition(tool.Transform:GetWorldPosition())
  assert(act(tool) and t:GetAttachment()==tool)
  assert(act(tool) and t:GetAttachment()==nil)
@@ -131,10 +135,10 @@ local tool=equipment('aom_weeder');tool.components.finiteuses:SetUses(0)
 local flint=SpawnPrefab('flint');flint.components.stackable:SetStackSize(3)
 local action=prompt(flint,player,tool)[1];assert(action==ACTION_DEFS.AOM_REPAIR)
 ride();assert(action.fn({doer=player,target=tool,invobject=flint}))
-assert(Durability.GetUses(tool)==10 and flint.components.stackable:StackSize()==2)
+assert(Durability.GetUses(tool)==50 and flint.components.stackable:StackSize()==2)
 player.components.rider:ActualDismount()
 assert(action.fn({doer=player,target=tool,invobject=flint}))
-assert(Durability.GetUses(tool)==20 and flint.components.stackable:StackSize()==1)
+assert(Durability.GetUses(tool)==100 and flint.components.stackable:StackSize()==1)
 ride();assert(act(tool))
 ''')
 
@@ -143,10 +147,10 @@ ride();assert(act(tool))
 local tool=equipment('aom_irrigator');ride();assert(act(tool))
 assert(t.components.aom_attachment_store:AddWater(12)==12)
 tool._aom_machine_uses=1;Durability.UseAttachment(t,tool)
-assert(tool.components.finiteuses:GetUses()==12 and Durability.GetUses(tool)==0)
-assert(Durability.RepairAttachment(tool) and tool.components.finiteuses:GetUses()==12)
+assert(tool.components.finiteuses:GetUses()==112 and Durability.GetUses(tool)==0)
+assert(Durability.RepairAttachment(tool) and tool.components.finiteuses:GetUses()==112)
 player.Transform:SetPosition(tool.Transform:GetWorldPosition());assert(act(tool))
-assert(t.components.aom_attachment_store:GetWater()==12 and Durability.GetUses(tool)==10)
+assert(t.components.aom_attachment_store:GetWater()==112 and Durability.GetUses(tool)==50)
 ''')
 
     def test_mount_visual_moves_real_independently_clickable_entity_and_body_symbols_are_empty(self):
@@ -172,7 +176,7 @@ assert(record.data.container.items[1].prefab=='tomato_seeds' and not tool.persis
 t:Remove();tool:Remove()
 local restored=SpawnSaveRecord(record)
 assert(restored:GetAttachment().prefab=='aom_irrigator' and Durability.GetUses(restored:GetAttachment())==23)
-assert(restored.components.aom_attachment_store:GetWater()==17)
+assert(restored.components.aom_attachment_store:GetWater()==117)
 assert(restored.components.container:GetItemInSlot(1).components.stackable:StackSize()==11)
 ''')
 
@@ -256,7 +260,7 @@ assert(t.components.aom_attachment_store:AddWater(13)==13)
 TheWorld.Map.IsPassableAtPoint=function()return false end
 t.components.health:SetVal(0)
 assert(tool:IsValid() and tool.persists and Mount.Owner(tool)==nil)
-assert(tool.components.finiteuses:GetUses()==13 and t:GetAttachment()==nil)
+assert(tool.components.finiteuses:GetUses()==113 and t:GetAttachment()==nil)
 ''')
 
     def test_mount_range_includes_native_action_collision_radii(self):

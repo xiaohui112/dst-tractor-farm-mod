@@ -13,7 +13,7 @@ description = chinese and [[
 
 	- 开垦机：一次作业铺农田、清残渣杂草、整出可直接播种的 3x3 坑位
 	- 播种机：对应种子播种（PLANTSEED）
-	- 洒水机：按原版水壶用量按需浇满，出厂空罐
+	- 洒水机：按需浇水，出厂100剂，可在池塘或海边补水
 	- 施肥机：按原版肥料用量，按需补齐三类农田养分
 	- 除草机：DIG 杂草、残渣及无法采收的腐烂枯株
 	- 收割机：采摘成熟或腐烂作物，并按原版锤击掉落拆开巨大作物
@@ -25,7 +25,7 @@ Mount original farming tools on a tractor.
 
 - Land Clearer: lays farm soil, clears debris and prepares a 3x3 planting grid.
 - Seeder: plants seeds in empty farm soil.
-- Irrigator: starts empty and waters soil as needed using watering-can quantities.
+- Irrigator: starts with 100 doses, waters soil as needed, and refills at ponds or the coast.
 - Fertilizer Spreader: replenishes all three soil nutrients using original fertilizer quantities.
 - Weeder: digs up weeds, detritus and unharvestable rotten or dead crop remains.
 - Harvester: harvests ripe or rotten crops and breaks giant produce using original hammering drops.
@@ -33,7 +33,7 @@ Mount original farming tools on a tractor.
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
 author = "Tractor Team"
-version = "0.5.27"
+version = "0.5.28"
 api_version = 10
 priority = 0
 

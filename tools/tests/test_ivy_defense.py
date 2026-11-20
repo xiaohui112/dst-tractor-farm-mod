@@ -86,11 +86,11 @@ local harvester=attach('aom_harvester');local ivy=mature_ivy(1,0);local plant=cr
 local worked,reason=Drive.WorkTile(t,0,0)
 assert(not worked and reason=='IVY_THREAT' and not t._working and #ROOTS==0)
 assert(plant.components.pickable:CanBePicked() and ivy:IsValid())
-assert(t._fuel:value()==400 and t.components.finiteuses:GetUses()==1000 and harvester.components.finiteuses:GetUses()==100)
+assert(t._fuel:value()==600 and t.components.finiteuses:GetUses()==1000 and harvester.components.finiteuses:GetUses()==200)
 assert(string.find(require('aom_work_status').Describe(t),'除草机',1,true))
 attach('aom_weeder');assert(Drive.WorkTile(t,0,0) and not ivy:IsValid())
 attach('aom_harvester');assert(Drive.WorkTile(t,0,0) and not plant.components.pickable:CanBePicked())
-run_attacks();assert(hp(t)==600 and #ROOTS==0 and t._fuel:value()==398)
+run_attacks();assert(hp(t)==600 and #ROOTS==0 and t._fuel:value()==598)
 ''')
 
     def test_weeder_clears_mature_ivy_before_other_weeds_and_pending_attack_dies_with_source(self):
@@ -102,7 +102,7 @@ assert(Drive.WorkTile(t,0,0))
 assert(DIG_ORDER[1]=='weed_ivy' and DIG_ORDER[2]=='weed_ivy' and DIG_ORDER[3]=='weed_tillweed')
 assert(not a:IsValid() and not b:IsValid() and not other:IsValid())
 run_attacks();require('aom_vehicle_motion').Update(t)
-assert(hp(t)==600 and t._fuel:value()==399)
+assert(hp(t)==600 and t._fuel:value()==599)
 for _,root in ipairs(ROOTS)do assert(not root.physics_active)end
 ''')
 
@@ -121,7 +121,7 @@ for _,working in ipairs({false,true,false})do
   assert(not root.components.health:IsDead() and root.physics_active)
  end
 end
-assert(t._fuel:value()==400 and t:GetAttachment().components.finiteuses:GetUses()==100)
+assert(t._fuel:value()==600 and t:GetAttachment().components.finiteuses:GetUses()==200)
 attach('aom_weeder');require('aom_vehicle_motion').Update(t)
 assert(own.components.health:IsDead() and not own.physics_active)
 assert(vehicle_root.components.health:IsDead() and not vehicle_root.physics_active)
@@ -182,7 +182,7 @@ assert(Drive.WorkTile(t,0,0))
 assert(not boundary:IsValid() and not weed:IsValid() and beyond:IsValid())
 assert(neighbor:IsValid() and plant.components.pickable:CanBePicked())
 assert(DIG_ORDER[1]=='weed_ivy' and DIG_ORDER[2]=='weed_tillweed')
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
+assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
 ''')
 
     def test_overlapping_searches_clear_remote_mutual_defenders_once_before_weeds(self):
@@ -193,7 +193,7 @@ assert(Drive.WorkTile(t,0,0));assert(#DIG_ORDER==5)
 for i=1,3 do assert(DIG_ORDER[i]=='weed_ivy')end
 assert(not a:IsValid() and not b:IsValid() and not young:IsValid())
 run_attacks();require('aom_vehicle_motion').Update(t)
-assert(hp(t)==600 and t._fuel:value()==399)
+assert(hp(t)==600 and t._fuel:value()==599)
 for _,root in ipairs(ROOTS)do assert(not root.physics_active)end
 ''')
 
@@ -201,7 +201,7 @@ for _,root in ipairs(ROOTS)do assert(not root.physics_active)end
         self.run_lua('''
 attach('aom_weeder');ride();local ivy=mature_ivy(8,0);crop(0,0)
 assert(not Drive.WorkTile(t,0,0) and ivy:IsValid() and #DIG_ORDER==0)
-assert(t._fuel:value()==400)
+assert(t._fuel:value()==600)
 ''')
 
     def test_unclearable_remote_ivy_blocks_batch_before_any_changes(self):
@@ -211,7 +211,7 @@ local a=mature_ivy(7,0);local b=mature_ivy(8,0);b.components.workable:SetWorkabl
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(not changed and reason=='UNCLEARABLE_WEED' and not t._working)
 assert(weed:IsValid() and a:IsValid() and b:IsValid() and #ROOTS==0 and #DIG_ORDER==0)
-assert(t._fuel:value()==400)
+assert(t._fuel:value()==600)
 ''')
 
     def test_incomplete_remote_ivy_stops_before_ordinary_weeds_and_can_resume(self):
@@ -222,10 +222,10 @@ ivy.components.workable:SetWorkMultiplierFn(function()return .5 end)
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(changed and reason=='WEEDING_INCOMPLETE' and not t._working)
 assert(ivy:IsValid() and weed:IsValid() and #DIG_ORDER==0 and #ROOTS==0)
-assert(t._fuel:value()==399)
+assert(t._fuel:value()==599)
 ivy.components.workable:SetWorkMultiplierFn(function()return 1 end)
 t:SetWorking(true);assert(Drive.WorkTile(t,0,0))
-assert(not ivy:IsValid() and not weed:IsValid() and t._fuel:value()==398)
+assert(not ivy:IsValid() and not weed:IsValid() and t._fuel:value()==598)
 ''')
 
     def test_remote_ivy_loot_is_collected_without_taking_neighbor_ground_items(self):
@@ -236,7 +236,7 @@ assert(Drive.WorkTile(t,0,0))
 assert(old.components.inventoryitem.owner==nil and old:IsValid())
 local stored=0
 for _,item in pairs(t.components.container.slots)do if item.prefab=='twigs' then stored=stored+1 end end
-assert(stored==1 and t._fuel:value()==399)
+assert(stored==1 and t._fuel:value()==599)
 ''')
 
     def test_full_cargo_during_remote_clear_preserves_loot_and_stops_before_other_targets(self):
@@ -250,7 +250,7 @@ assert(changed and reason=='CARGO_FULL' and not t._working)
 assert(not a:IsValid() and b:IsValid() and weed:IsValid() and #DIG_ORDER==1)
 local ground=0
 for _,e in ipairs(ENTITIES)do if e:IsValid() and e.prefab=='twigs' and e.components.inventoryitem.owner==nil then ground=ground+1 end end
-assert(ground==1 and t._fuel:value()==399)
+assert(ground==1 and t._fuel:value()==599)
 run_attacks();require('aom_vehicle_motion').Update(t)
 for _,root in ipairs(ROOTS)do assert(not root.physics_active)end
 ''')
@@ -274,7 +274,7 @@ attach('aom_weeder');ride();local weed=ordinary_weed(0,0);local born
 weed.components.workable:SetOnFinishCallback(function(v)born=mature_ivy(8,0);v:Remove()end)
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(changed and reason=='WEEDING_INCOMPLETE' and born:IsValid() and not t._working)
-assert(t._fuel:value()==399)
+assert(t._fuel:value()==599)
 ''')
 
     def test_new_defender_during_ivy_callback_stops_before_ordinary_weeding(self):
@@ -283,7 +283,7 @@ attach('aom_weeder');ride();local weed=ordinary_weed(0,0);local ivy=mature_ivy(8
 ivy.components.workable:SetOnFinishCallback(function(v)born=mature_ivy(9,0);v:Remove()end)
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(changed and reason=='WEEDING_INCOMPLETE' and not t._working)
-assert(weed:IsValid() and born:IsValid() and #ROOTS==0 and t._fuel:value()==399)
+assert(weed:IsValid() and born:IsValid() and #ROOTS==0 and t._fuel:value()==599)
 t:SetWorking(true);assert(Drive.WorkTile(t,0,0) and not born:IsValid() and not weed:IsValid())
 ''')
 
@@ -304,7 +304,7 @@ attach('aom_weeder');ride();local weed=ordinary_weed(0,0);local ivy=mature_ivy(8
 ivy.components.workable:SetShouldRecoilFn(function()return true end)
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(not changed and reason=='WEEDING_INCOMPLETE' and not t._working)
-assert(weed:IsValid() and ivy:IsValid() and #ROOTS==0 and t._fuel:value()==400)
+assert(weed:IsValid() and ivy:IsValid() and #ROOTS==0 and t._fuel:value()==600)
 ''')
 
     def test_remote_dig_error_keeps_actual_loot_and_restores_drop_callback(self):
@@ -317,7 +317,7 @@ end)
 t:SetWorking(true);local changed,reason=Drive.WorkTile(t,0,0)
 assert(changed and reason=='WORK_ERROR' and not t._working)
 assert(not ivy:IsValid() and weed:IsValid() and dropper.SpawnLootPrefab==spawn)
-assert(t._fuel:value()==399)
+assert(t._fuel:value()==599)
 local ground=0
 for _,e in ipairs(ENTITIES)do if e:IsValid() and e.prefab=='twigs' and e.components.inventoryitem.owner==nil then ground=ground+1 end end
 assert(ground==1)
@@ -353,7 +353,7 @@ fertilizer.components.fertilizer={nutrients={0,0,8}};fertilizer:AddTag('fertiliz
 assert(t.components.container:GiveItem(fertilizer,1));hud:Refresh(t)
 assert(hud.badges.cargo:GetText()=='1')
 assert(t._fertilizeruses_net:value()==3 and not string.find(hud.badges.cargo:GetTooltip(),'肥料剩余',1,true))
-assert(hud.badges.tool:GetText()=='100' and hud.seedcontrols==nil)
+assert(hud.badges.tool:GetText()=='200' and hud.seedcontrols==nil)
 fertilizer.PushEvent=function(self,event,data)
  local callbacks={};for _,cb in ipairs(self.events[event] or {})do callbacks[#callbacks+1]=cb.fn end
  for _,fn in ipairs(callbacks)do fn(self,data)end

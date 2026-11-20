@@ -8,7 +8,7 @@ local function OwnVehicle(picker,target)
         and (target==player or target==vehicle)
 end
 
-function M.WrapPicker(picker,storage_action)
+function M.WrapPicker(picker,storage_action,sea_action,can_refill_at_sea)
     if picker._aom_mouse_wrapped then return end
     picker._aom_mouse_wrapped=true
     local left=picker.GetLeftClickActions
@@ -24,7 +24,13 @@ function M.WrapPicker(picker,storage_action)
             -- target 必须是骑手，原版 DISMOUNT 才会执行正常下车动画。
             return self:SortActionList({ACTIONS.DISMOUNT},self.inst)
         end
-        return right(self,position,target,...)
+        local actions=right(self,position,target,...)
+        if not self.disable_right_click and not self.rightclickoverride and target==nil
+            and (not actions or #actions==0) and can_refill_at_sea
+            and can_refill_at_sea(self.inst,position) then
+            return self:SortActionList({sea_action},position)
+        end
+        return actions
     end
 end
 return M

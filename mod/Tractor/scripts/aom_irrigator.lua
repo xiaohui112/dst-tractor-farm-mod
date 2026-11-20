@@ -1,20 +1,23 @@
 -- 水箱单位始终为一次普通水壶用量；土壤水分点数只交给原版管理器处理。
 local Soil=require("aom_soil_moisture")
 local L=require("aom_locale").Text
-local M={POND_DISTANCE=3,WATER_CAPACITY=400}
+local M={POND_DISTANCE=3,SEA_DISTANCE=3,WATER_CAPACITY=400}
 function M.Capacity() return M.WATER_CAPACITY end
 
 function M.Setup(inst)
     local uses=inst.components.finiteuses
     uses:SetMaxUses(M.Capacity())
-    uses:SetDoesNotStartFull(true) -- 满罐也必须显式保存，否则空罐构造会吞掉满罐存档
-    uses:SetUses(0)
+    uses:SetDoesNotStartFull(true) -- 明确保存空罐和满罐，不受出厂水量影响。
+    uses:SetUses(100)
     local function SyncWater()
         if inst._aom_water_net then inst._aom_water_net:set(uses:GetUses()) end
     end
     inst:ListenForEvent("percentusedchange",SyncWater)
     SyncWater()
-    inst.OnSave=function(_,data) data.aom_water_version=1 end
+    inst.OnSave=function(item,data)
+        data.aom_water_version=1
+        data.aom_filter_remainder=item._aom_filter_remainder
+    end
     -- EntityScript 先加载组件，再调用实体 OnLoad；此处迁移不会被 finiteuses 覆盖。
     inst.OnLoad=function(item,data)
         local saved=data and data.finiteuses and data.finiteuses.uses
@@ -25,60 +28,68 @@ function M.Setup(inst)
         elseif saved==nil then saved=0 end
         if type(saved)~="number" or saved~=saved then saved=0 end
         item.components.finiteuses:SetUses(math.max(0,math.min(M.Capacity(),math.floor(saved))))
+        local remainder=data and data.aom_filter_remainder
+        if type(remainder)=="number" and remainder>=0 and remainder<20 then
+            item._aom_filter_remainder=math.floor(remainder)
+        end
     end
 end
 
-function M.IsSource(item)
-    return item~=nil and (item.prefab=="ice" or item.prefab=="wateringcan" or item.prefab=="premiumwateringcan")
-end
-
-function M.Load(store,item)
-    if not M.IsSource(item) then return false,L("需要水壶或冰块。") end
-    local room=store:GetWaterMax()-store:GetWater()
-    if room<=0 then return false,L("水箱已满。") end
-    if item.prefab=="ice" then
-        if store:AddWater(1)~=1 then return false,L("无法补水。") end
-        local stack=item.components.stackable
-        if stack and stack:StackSize()>1 then stack:Get(1):Remove() else item:Remove() end
-    else
-        local uses=item.components.finiteuses
-        if not uses or not item.components.fillable then return false,L("需要有效的水壶。") end
-        -- 普通/高级水壶原版每次均为25水分；高级壶只增加容量。
-        local count=math.min(room,math.max(0,math.floor(uses:GetUses())))
-        if count<=0 then return false,L("水壶已空，请先装水。") end
-        local added=store:AddWater(count)
-        if added<=0 then return false,L("无法补水。") end
-        uses:Use(added)
+local function RefillEquipment(doer)
+    if not TheWorld.ismastersim or not doer or not doer:IsValid() or doer:HasTag("playerghost") then
+        return nil,L("请先驾驶拖拉机。")
     end
-    return true,L("水箱：%d/%d",store:GetWater(),store:GetWaterMax())
-end
-
--- 骑乘时直接从池塘补满；服务端重新校验骑手、真实挂件、水源状态和距离。
-function M.RefillFromPond(doer,pond)
-    if not doer or not doer:IsValid() or doer:HasTag("playerghost")
-        or not pond or not pond:IsValid() or not pond:HasTag("pond")
-        or not pond:HasTag("watersource") then return false,L("池塘现在无法取水。") end
-    local source=pond.components.watersource
-    if not source or not source.available then return false,L("池塘现在无法取水。") end
     local rider=doer.components.rider
     local vehicle=rider and rider:IsRiding() and rider:GetMount() or nil
     if not vehicle or not vehicle:IsValid() or vehicle.prefab~="aom_tractor_chassis"
         or vehicle._rider~=doer or vehicle._destroyed
+        or vehicle.components.rideable:GetRider()~=doer
         or vehicle.components.health and vehicle.components.health:IsDead()
-        or doer.components.health and doer.components.health:IsDead() then return false,L("请先驾驶拖拉机。") end
+        or doer.components.health and doer.components.health:IsDead() then return nil,L("请先驾驶拖拉机。") end
     local store=vehicle.components.aom_attachment_store
     local tool=require("aom_attachment_mount").Get(vehicle)
     if not store or vehicle._attachment_type~="irrigator" or not tool
-        or not tool:IsValid() or tool.prefab~="aom_irrigator" then return false,L("请装入当前挂件需要的物料。") end
+        or not tool:IsValid() or tool.prefab~="aom_irrigator" then return nil,L("请装入当前挂件需要的物料。") end
+    if vehicle._aom_pond_refill then return nil,L("正在补水；移动或下车中止") end
+    if store:GetWater()>=store:GetWaterMax() then return nil,L("水箱已满。") end
+    return vehicle,tool
+end
+
+function M.RefillFromPond(doer,pond)
+    if not pond or not pond:IsValid() or not pond:HasTag("pond") or not pond:HasTag("watersource")
+        or not pond.components.watersource or not pond.components.watersource.available then
+        return false,L("池塘现在无法取水。")
+    end
+    local vehicle,tool=RefillEquipment(doer)
+    if not vehicle then return false,tool end
     local distance=M.POND_DISTANCE+pond:GetPhysicsRadius(0)+doer:GetPhysicsRadius(0)
     if doer:GetDistanceSqToInst(pond)>distance*distance then return false,L("请驾驶拖拉机靠近池塘。") end
-    local room=store:GetWaterMax()-store:GetWater()
-    if room<=0 then return false,L("水箱已满。") end
     if require("aom_pond_refill").Start(vehicle,doer,pond,tool) then
-        return true,L("正在补水（5秒）；移动或下车中止")
+        return true,L("正在补水；移动或下车中止")
     end
-    return false,L(vehicle._aom_pond_refill and "正在补水（5秒）；移动或下车中止" or "无法补水。")
+    return false,L("无法补水。")
+end
 
+function M.CanRefillAtSea(doer,point)
+    if not point or not TheWorld.Map.IsOceanAtPoint then return false end
+    local x,y,z=doer.Transform:GetWorldPosition()
+    local px,pz=point.x,point.z
+    local distance=M.SEA_DISTANCE+doer:GetPhysicsRadius(0)
+    local delta=(px-x)^2+(pz-z)^2
+    local map=TheWorld.Map
+    return delta<=distance*distance and map:IsPassableAtPoint(x,y,z)
+        and not map:IsOceanAtPoint(x,y,z) and map:IsOceanAtPoint(px,0,pz)
+end
+
+function M.RefillFromSea(doer,point)
+    local vehicle,tool=RefillEquipment(doer)
+    if not vehicle then return false,tool end
+    if not M.CanRefillAtSea(doer,point) then return false,L("请把拖拉机停在岸上，右键靠近岸边的海面。") end
+    if require("aom_durability").GetUses(tool)<=0 then return false,L("挂件需要用燧石修理。") end
+    if require("aom_pond_refill").Start(vehicle,doer,nil,tool,point) then
+        return true,L("正在过滤海水；移动或下车中止")
+    end
+    return false,L("无法补水。")
 end
 
 function M.Sync(inst)

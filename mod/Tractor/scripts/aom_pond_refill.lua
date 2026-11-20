@@ -1,5 +1,7 @@
--- 五秒持续吸水；保留已吸入的水，终止时回收任务、监听与软管。
-local M={DURATION=5,INTERVAL=.1}
+-- 池塘抽水与海水过滤共用软管和可中断的补水流程。
+local M={INTERVAL=.1}
+local Durability=require("aom_durability")
+local FILTER_DOSES_PER_USE=20
 local function Valid(e)return e and e:IsValid()end
 local function UpdateHoses(s)
     local sx,sy,sz,found=s.tool.AnimState:GetSymbolPosition("irrigator",0,-20,0)
@@ -23,16 +25,20 @@ function M.Cancel(vehicle,notify)
 end
 local function ValidSession(vehicle,s)
     local rider,pond,tool=s.rider,s.pond,s.tool
-    if not Valid(vehicle) or not Valid(rider) or not Valid(pond) or not Valid(tool)
+    if not Valid(vehicle) or not Valid(rider) or not Valid(tool)
         or vehicle._destroyed or rider:HasTag("playerghost")
         or vehicle._rider~=rider or not rider.components.rider
         or rider.components.rider:GetMount()~=vehicle
-        or require("aom_attachment_mount").Get(vehicle)~=tool
-        or not pond:HasTag("watersource") or not pond.components.watersource
-        or not pond.components.watersource.available then return false end
+        or require("aom_attachment_mount").Get(vehicle)~=tool then return false end
+    if s.sea then
+        if Durability.GetUses(tool)<=0 or not require("aom_irrigator").CanRefillAtSea(rider,s.sea) then return false end
+    else
+        if not Valid(pond) or not pond:HasTag("watersource") or not pond.components.watersource
+            or not pond.components.watersource.available then return false end
+        local px,_,pz=pond.Transform:GetWorldPosition()
+        if (px-s.px)^2+(pz-s.pz)^2>.01 then return false end
+    end
     local x,_,z=rider.Transform:GetWorldPosition()
-    local px,_,pz=pond.Transform:GetWorldPosition()
-    if (px-s.px)^2+(pz-s.pz)^2>.01 then return false end
     local turn=math.abs((rider.Transform:GetRotation()-s.rotation+180)%360-180)
     return (x-s.x)^2+(z-s.z)^2<=.01 and turn<=10
 end
@@ -41,31 +47,47 @@ function M.Update(vehicle)
     if not s then return end
     if not ValidSession(vehicle,s) then M.Cancel(vehicle,true);return end
     UpdateHoses(s)
-    local progress=math.clamp((GetTime()-s.started)/M.DURATION,0,1)
+    local progress=math.clamp((GetTime()-s.started)/s.duration,0,1)
     local current=s.store:GetWater()
     local target=s.initial+math.floor((s.capacity-s.initial)*progress+1e-6)
-    if target>current then s.store:AddWater(target-current)end
+    if target>current then
+        local amount=target-current
+        if s.sea then
+            local remainder=s.tool._aom_filter_remainder or 0
+            amount=math.min(amount,Durability.GetUses(s.tool)*FILTER_DOSES_PER_USE-remainder)
+            local filtered=s.store:AddWater(amount)+remainder
+            s.tool._aom_filter_remainder=filtered%FILTER_DOSES_PER_USE
+            local wear=math.floor(filtered/FILTER_DOSES_PER_USE)
+            if wear>0 then Durability.UseAttachment(vehicle,s.tool,wear) end
+        else s.store:AddWater(amount) end
+    end
     if progress>=1 then M.Cancel(vehicle)end
 end
-function M.Start(vehicle,rider,pond,tool)
+function M.Start(vehicle,rider,pond,tool,sea)
     if vehicle._aom_pond_refill then return false end
     vehicle:SetWorking(false)
     if rider.components.locomotor and rider.components.locomotor.Stop then rider.components.locomotor:Stop()end
     local x,_,z=rider.Transform:GetWorldPosition()
-    local px,_,pz=pond.Transform:GetWorldPosition()
+    local px,pz
+    if sea then px,pz=sea.x,sea.z
+    else px,_,pz=pond.Transform:GetWorldPosition() end
     local rotation=math.atan2(-(pz-z),px-x)*180/math.pi+180
-    rider.Transform:SetRotation(rotation) -- 车头背离水源，后置水箱朝向池塘。
+    rider.Transform:SetRotation(rotation) -- 车头背离水源，后置水箱朝向水面。
     local store=vehicle.components.aom_attachment_store
-    local s={rider=rider,pond=pond,tool=tool,store=store,initial=store:GetWater(),capacity=store:GetWaterMax(),
+    local initial,capacity=store:GetWater(),store:GetWaterMax()
+    local duration=sea and (capacity-initial)/40 or math.max(1,(capacity-initial)/80)
+    local s={rider=rider,pond=pond,sea=sea,tool=tool,store=store,initial=initial,capacity=capacity,duration=duration,
         started=GetTime(),x=x,z=z,px=px,pz=pz,rotation=rotation,hoses={},listeners={}}
     vehicle._aom_pond_refill=s
     if vehicle._refilling_net then vehicle._refilling_net:set(true)end
     s.cancel=function()M.Cancel(vehicle,true)end
-    for _,v in ipairs({{"onremove",vehicle},{"onremove",rider},{"dismount",rider},{"death",rider},
-        {"onremove",pond},{"onremove",tool},{"aom_attachment_changed",vehicle}})do
+    local listeners={{"onremove",vehicle},{"onremove",rider},{"dismount",rider},{"death",rider},
+        {"onremove",tool},{"aom_attachment_changed",vehicle}}
+    if pond then listeners[#listeners+1]={"onremove",pond} end
+    for _,v in ipairs(listeners)do
         vehicle:ListenForEvent(v[1],s.cancel,v[2]);s.listeners[#s.listeners+1]=v
     end
-    local ok=pcall(pond.components.watersource.Use,pond.components.watersource)
+    local ok=not pond or pcall(pond.components.watersource.Use,pond.components.watersource)
     if not ok or not ValidSession(vehicle,s)then M.Cancel(vehicle);return false end
     for i=1,2 do
         local fx=SpawnPrefab("aom_refill_hose")

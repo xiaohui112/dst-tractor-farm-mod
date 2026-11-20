@@ -53,16 +53,24 @@ local function MakeAttachment(name,kind)
         inst.OnSave=function(item,data)
             if save then save(item,data) end
             data.aom_machine_uses=item._aom_machine_uses
+            data.aom_machine_max=Durability.TOOLS[kind]
         end
         inst.OnLoad=function(item,data)
             if load then load(item,data) end
-            if data and data.aom_machine_uses~=nil then
-                item._aom_machine_uses=math.max(0,math.min(Durability.TOOLS[kind],data.aom_machine_uses))
+            local def=require("aom_equipment_defs")[kind]
+            local saved=data and (def.separate_uses and data.aom_machine_uses
+                or not def.separate_uses and data.finiteuses and data.finiteuses.uses)
+            local remaining=Durability.TOOLS[kind]
+            if type(saved)=="number" and saved==saved then
+                local previous_max=data.aom_machine_max
+                if type(previous_max)~="number" or not (previous_max>0 and previous_max<math.huge) then
+                    previous_max=100
+                end
+                local ratio=math.max(0,math.min(1,saved/previous_max))
+                remaining=math.floor(ratio*remaining+.5)
             end
-            -- finiteuses 先加载旧绝对值；降上限时保留剩余值并封顶，防止旧播种机超过100。
-            if kind~="irrigator" and kind~="fertilizer" then
-                item.components.finiteuses:SetUses(math.min(Durability.TOOLS[kind],Durability.GetUses(item)))
-            end
+            if def.separate_uses then item._aom_machine_uses=remaining
+            else item.components.finiteuses:SetUses(remaining) end
             item._durability_net:set(Durability.GetUses(item))
         end
         return inst

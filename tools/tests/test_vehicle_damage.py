@@ -92,15 +92,15 @@ assert(t:IsValid() and t.persists and t._wreck_net:value() and t.animation=='dea
 assert(t.tint[1]==.45 and not t.components.rideable.canride and not t._working)
 assert(t.components.health.nofadeout and t.erode_task==nil)
 assert(tool:IsValid() and tool.persists and require('aom_attachment_mount').Owner(tool)==nil)
-assert(tool.components.finiteuses:GetUses()==13 and cargo.components.inventoryitem.owner==nil)
+assert(tool.components.finiteuses:GetUses()==113 and cargo.components.inventoryitem.owner==nil)
 assert(cargo.components.stackable:StackSize()==7 and t:GetAttachment()==nil)
 local saved=clone(t:GetSaveRecord());t:Remove()
 local wreck=SpawnSaveRecord(saved)
 assert(wreck._wreck_net:value() and wreck.persists and wreck.components.health:IsDead())
 local gears=SpawnPrefab('gears');gears.components.stackable:SetStackSize(3)
 assert(wreck:TryRepair(player,gears))
-assert(wreck.components.health.currenthealth==100 and not wreck._wreck_net:value())
-assert(wreck.components.finiteuses:GetUses()==556 and wreck._fuel:value()==123)
+assert(wreck.components.health.currenthealth==200 and not wreck._wreck_net:value())
+assert(wreck.components.finiteuses:GetUses()==456 and wreck._fuel:value()==123)
 assert(wreck.components.container:GetItemInSlot(1)==nil and wreck:GetAttachment()==nil)
 assert(gears.components.stackable:StackSize()==2 and wreck.components.rideable.canride)
 assert(wreck.animation=='idle' and wreck.tint[1]==1)
@@ -122,7 +122,7 @@ t.components.health:Kill();assert(t.persists and t.components.workable:CanBeWork
 t.components.workable:WorkedBy(player,4);assert(not t:IsValid())
 local counts={}
 for _,v in ipairs(ENTITIES)do if v.valid and v.prefab then counts[v.prefab]=(counts[v.prefab] or 0)+1 end end
-assert(counts.gears==2 and counts.transistor==1 and counts.boards==3 and counts.flint==4)
+assert(counts.gears==1 and counts.transistor==1 and counts.boards==1 and counts.flint==2)
 assert(not counts.aom_tractor_item)
 ''')
 

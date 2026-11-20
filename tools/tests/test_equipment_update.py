@@ -11,15 +11,20 @@ class EquipmentUpdateTests(unittest.TestCase):
     setUp = world.WorldEquipmentTests.setUp
     run_lua = world.WorldEquipmentTests.run_lua
 
-    def test_every_attachment_has_one_hundred_mechanical_uses_and_old_seeder_caps_on_load(self):
+    def test_every_attachment_has_two_hundred_uses_and_preserves_old_durability_percentage(self):
         self.run_lua('''
 for kind,def in pairs(require('aom_equipment_defs'))do
  local item=equipment(def.prefab)
- assert(Durability.GetUses(item)==100 and Durability.TOOLS[kind]==100)
- local old=clone(item:GetSaveRecord())
- if not def.separate_uses then
-  old.data=old.data or {};old.data.finiteuses={uses=350}
-  local restored=SpawnSaveRecord(old);assert(Durability.GetUses(restored)==100)
+ assert(Durability.GetUses(item)==200 and def.uses==200)
+ for _,remaining in ipairs({0,60,100})do
+  local old=clone(item:GetSaveRecord())
+  old.data.aom_machine_max=nil
+  if def.separate_uses then old.data.aom_machine_uses=remaining
+  else old.data.finiteuses={uses=remaining} end
+  local restored=SpawnSaveRecord(old)
+  assert(Durability.GetUses(restored)==remaining*2)
+  assert(Durability.GetUses(SpawnSaveRecord(clone(restored:GetSaveRecord())))==remaining*2)
+  if kind=='irrigator' then assert(restored.components.finiteuses:GetUses()==100)end
  end
 end
 local water=equipment('aom_irrigator');assert(water.components.finiteuses.total==400)

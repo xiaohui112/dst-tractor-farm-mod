@@ -42,7 +42,10 @@ Assets = {
 
 -- 活跃土坑原本按世界坐标与整台挂件排序，会盖住较长的播种机模型。
 -- 与原版塌陷土坑使用同一背景层；保留原版动画、标签、交互和农业组件。
-AddPrefabPostInit("farm_soil",function(inst)require("aom_soil_visual").Ground(inst)end)
+AddPrefabPostInit("farm_soil",function(inst)
+    require("aom_soil_visual").Ground(inst)
+    require("aom_farm_work").InitSeedSoil(inst)
+end)
 
 -- 音乐可选接入：模块、资源、播放任一失败都不会进入洒水作业调用链。
 local Music
@@ -158,11 +161,6 @@ local AOM_LOAD = AddAction("AOM_LOAD", L("装料"), function(act)
             return true
 		end
 		msg = L("肥料仓已满！")
-	elseif att == AOM_ATTACHMENT_TYPE.IRRIGATOR then
-        local ok
-        ok,msg=Irrigator.Load(store,invobject)
-        if ok then Feedback.Say(doer,msg);return true end
-        return false,Feedback.Reason(msg)
 	end
 
 	return false,msg and Feedback.Reason(msg) or "WRONG_LOAD"
@@ -170,12 +168,7 @@ end)
 AOM_LOAD.distance = 3
 AOM_LOAD.priority = 2
 AOM_LOAD.mount_valid = false
-AOM_LOAD.strfn=function(act)
-    local net=act.target and act.target._atttype_net
-    return net and net:value()==AOM_ATTACHMENT_TYPE.IRRIGATOR and "REFILL" or "GENERIC"
-end
 GLOBAL.STRINGS.ACTIONS=GLOBAL.STRINGS.ACTIONS or {}
-GLOBAL.STRINGS.ACTIONS.AOM_LOAD={GENERIC=L("装料"),REFILL=L("补水")}
 
 -- 驾驶时右键地面设备挂载，右键已经挂载的设备卸载。
 local AOM_ATTACH=AddAction("AOM_ATTACH",L("挂载"),function(act)
@@ -244,16 +237,27 @@ AOM_POND_REFILL.distance=Irrigator.POND_DISTANCE
 AOM_POND_REFILL.priority=3
 AOM_POND_REFILL.mount_valid=true
 
--- 右键池塘，客户端只读同步挂件及水量；不需要拿着水壶或下车。
-AddComponentAction("SCENE","watersource",function(pond,doer,actions,right)
-    if not right or not pond:HasTag("pond") or not pond:HasTag("watersource") then return end
+local AOM_SEA_REFILL=AddAction("AOM_SEA_REFILL",L("过滤海水"),function(act)
+    local ok,msg=Irrigator.RefillFromSea(act.doer,act:GetActionPoint())
+    if ok then Feedback.Say(act.doer,msg);return true end
+    return false,Feedback.Reason(msg)
+end)
+AOM_SEA_REFILL.distance=Irrigator.SEA_DISTANCE
+AOM_SEA_REFILL.priority=3
+AOM_SEA_REFILL.mount_valid=true
+
+local function CanShowRefill(doer)
     local rider=doer.replica and doer.replica.rider
     local vehicle=rider and rider:GetMount()
-    if vehicle and vehicle:HasTag(AOM_TAG.TRACTOR)
+    return vehicle and vehicle:HasTag(AOM_TAG.TRACTOR)
         and GetClientAttachmentType(vehicle)==AOM_ATTACHMENT_TYPE.IRRIGATOR
         and vehicle._water_net and vehicle._watermax_net
         and not (vehicle._refilling_net and vehicle._refilling_net:value())
-        and vehicle._water_net:value()<vehicle._watermax_net:value() then
+        and vehicle._water_net:value()<vehicle._watermax_net:value(),vehicle
+end
+
+AddComponentAction("SCENE","watersource",function(pond,doer,actions,right)
+    if right and pond:HasTag("pond") and pond:HasTag("watersource") and CanShowRefill(doer) then
         table.insert(actions,AOM_POND_REFILL)
     end
 end)
@@ -276,10 +280,9 @@ AddComponentAction("USEITEM","inventoryitem",function(item,doer,target,actions,r
     local kind=GetClientAttachmentType(target)
     if item.HasTag ~= nil and item:HasTag(AOM_TAG.ATTACHMENT) then
         table.insert(actions,AOM_ATTACH)
-    elseif item.prefab=="gears" then
+    elseif item.prefab=="gears" or item.prefab=="boards" then
         table.insert(actions,AOM_REPAIR)
-    elseif kind==AOM_ATTACHMENT_TYPE.IRRIGATOR and Irrigator.IsSource(item)
-        or kind==AOM_ATTACHMENT_TYPE.SEEDER and IsSeedItem(item)
+    elseif kind==AOM_ATTACHMENT_TYPE.SEEDER and IsSeedItem(item)
         or kind==AOM_ATTACHMENT_TYPE.FERTILIZER and item:HasTag("fertilizer") then
         table.insert(actions,AOM_LOAD)
     elseif item:HasTag("BURNABLE_fuel") then
@@ -389,9 +392,14 @@ AOM_STORAGE.strfn=function(act)
     return container and container:IsOpenedBy(act.doer) and "CLOSE" or "GENERIC"
 end
 GLOBAL.STRINGS.ACTIONS.AOM_STORAGE={GENERIC=L("打开仓库"),CLOSE=L("关闭仓库")}
-Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_DETACH,AOM_POND_REFILL,AOM_STORAGE})
+Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_DETACH,AOM_POND_REFILL,AOM_SEA_REFILL,AOM_STORAGE})
 local MouseInput=require("aom_mouse_input")
-AddClassPostConstruct("components/playeractionpicker",function(self)MouseInput.WrapPicker(self,AOM_STORAGE)end)
+AddClassPostConstruct("components/playeractionpicker",function(self)
+    MouseInput.WrapPicker(self,AOM_STORAGE,AOM_SEA_REFILL,function(doer,point)
+        local can,vehicle=CanShowRefill(doer)
+        return can and vehicle._tooluses_net:value()>0 and Irrigator.CanRefillAtSea(doer,point)
+    end)
+end)
 
 -- 图标与左键车身共用同一个仓库入口，不增加另一套仓库。
 AddModRPCHandler("aom_rpc", "AOM_STORAGE", function(player)ToggleTractorStorage(player,true)end)
@@ -457,49 +465,41 @@ local function AddMachineRecipe(name,ingredients,tech)
 end
 
 AddMachineRecipe("aom_tractor_chassis", {
-	Ingredient("gears", 4),
-	Ingredient("transistor", 3),
-	Ingredient("boards", 6),
-	Ingredient("flint", 8),
+    Ingredient("boards", 3), Ingredient("flint", 4),
+    Ingredient("gears", 2), Ingredient("transistor", 2),
 }, TECH.SCIENCE_TWO)
 
 -- 六种挂件：首次解锁均需炼金引擎
 AddMachineRecipe("aom_landclearer", {
-    Ingredient("boards", 6), Ingredient("rope", 4),
-    Ingredient("flint", 16), Ingredient("cutstone", 4),
+    Ingredient("boards", 2), Ingredient("flint", 2), Ingredient("rope", 2),
 }, TECH.SCIENCE_TWO)
 
 AddMachineRecipe("aom_seeder", {
-    Ingredient("boards", 6), Ingredient("rope", 4),
-    Ingredient("seeds", 20), Ingredient("gears", 1),
+    Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("seeds", 5),
 }, TECH.SCIENCE_TWO)
 
 AddMachineRecipe("aom_irrigator", {
-    Ingredient("boards", 6), Ingredient("rope", 4),
-    Ingredient("waterballoon", 6), Ingredient("ice", 12),
+    Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("waterballoon", 3),
 }, TECH.SCIENCE_TWO)
 
 AddMachineRecipe("aom_fertilizer", {
-    Ingredient("boards", 6), Ingredient("rope", 4),
-    Ingredient("fertilizer", 1, nil, true), Ingredient("compost", 6),
+    Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("fertilizer", 2, nil, true),
 }, TECH.SCIENCE_TWO)
 
 AddMachineRecipe("aom_weeder", {
-    Ingredient("boards", 4), Ingredient("rope", 4),
-    Ingredient("twigs", 16), Ingredient("flint", 12),
+    Ingredient("boards", 2), Ingredient("flint", 2), Ingredient("rope", 2),
 }, TECH.SCIENCE_TWO)
 
 AddMachineRecipe("aom_harvester", {
-    Ingredient("boards", 8), Ingredient("rope", 4),
-    Ingredient("flint", 16), Ingredient("gears", 2),
+    Ingredient("boards", 2), Ingredient("flint", 2), Ingredient("gears", 1),
 }, TECH.SCIENCE_TWO)
 
 -- 拆解：把打包物品拆回材料（不可逆，只回收一半）
 AddDeconstructRecipe("aom_tractor_item", {
-	Ingredient("gears", 2),
+	Ingredient("gears", 1),
 	Ingredient("transistor", 1),
-	Ingredient("boards", 3),
-	Ingredient("flint", 4),
+	Ingredient("boards", 1),
+	Ingredient("flint", 2),
 })
 
 ---------------------------------------------------------------------------
@@ -517,6 +517,7 @@ local SHORT_ACTION_ACTIONS = {
 	AOM_LOAD,         -- 装料
 	AOM_ATTACH,       -- 装挂件
 	AOM_POND_REFILL,  -- 骑乘时在池塘边补满洒水机
+	AOM_SEA_REFILL,   -- 骑乘时在岸上过滤海水
 }
 
 -- 卸载不进入会 FacePoint(target) 的 doshortaction，保留驾驶朝向并立即执行。

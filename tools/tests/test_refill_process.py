@@ -15,21 +15,55 @@ function advance(time)clock=time;Refill.Update(t)end
 ''')
     run_lua=pond.PondRefillTests.run_lua
 
-    def test_empty_and_nearly_full_tanks_both_take_five_seconds(self):
+    def test_pond_refill_uses_eighty_per_second_with_one_second_minimum(self):
         self.run_lua('''
 for _,initial in ipairs({0,200,399})do
  clock=0;tank.components.finiteuses:SetUses(initial)
  local fuel=t._fuel:value();local uses=t.components.finiteuses:GetUses()
  assert(fill_pond() and store:GetWater()==initial and t._refilling_net:value())
  assert(not fill_pond())
- advance(2.5);assert(store:GetWater()==initial+math.floor((400-initial)/2))
- advance(4.99);assert(store:GetWater()<400 and t._refilling_net:value())
+ local duration=math.max(1,(400-initial)/80)
+ advance(duration/2);assert(store:GetWater()==initial+math.floor((400-initial)/2))
+ advance(duration-.01);assert(store:GetWater()<400 and t._refilling_net:value())
  local hoses=t._aom_pond_refill.hoses;assert(#hoses==2)
- advance(5);assert(store:GetWater()==400 and not t._aom_pond_refill and not t._refilling_net:value())
+ advance(duration);assert(store:GetWater()==400 and not t._aom_pond_refill and not t._refilling_net:value())
  for _,fx in ipairs(hoses)do assert(not fx:IsValid() and not fx.persists)end
  assert(t._fuel:value()==fuel and t.components.finiteuses:GetUses()==uses)
 end
 assert(water_uses==3 and not fill_pond())
+''')
+
+    def test_coast_filters_forty_per_second_and_costs_only_attachment_durability(self):
+        self.run_lua('''
+local Irrigator=require('aom_irrigator');local Durability=require('aom_durability')
+TheWorld.Map.IsOceanAtPoint=function(_,x) return x>1 end
+assert(not Irrigator.RefillFromSea(player,Vector3(1,0,0)))
+assert(not Irrigator.RefillFromSea(player,Vector3(4,0,0)))
+local fuel=t._fuel:value();local chassis=t.components.finiteuses:GetUses()
+assert(ACTION_DEFS.AOM_SEA_REFILL.fn({doer=player,GetActionPoint=function()return Vector3(2,0,0)end}))
+advance(.4);assert(store:GetWater()==16 and Durability.GetUses(tank)==200)
+advance(2.5);assert(store:GetWater()==100 and Durability.GetUses(tank)==195)
+advance(10);assert(store:GetWater()==400 and Durability.GetUses(tank)==180 and not t._aom_pond_refill)
+assert(t._fuel:value()==fuel and t.components.finiteuses:GetUses()==chassis)
+assert(water_uses==0)
+''')
+
+    def test_coast_filter_remainder_survives_reload_and_last_use_cannot_overdraw(self):
+        self.run_lua('''
+local Irrigator=require('aom_irrigator');local Durability=require('aom_durability')
+TheWorld.Map.IsOceanAtPoint=function(_,x) return x>1 end
+tank._aom_machine_uses=1
+assert(Irrigator.RefillFromSea(player,Vector3(2,0,0)))
+advance(.4);assert(store:GetWater()==16 and Durability.GetUses(tank)==1)
+local saved=clone(t:GetSaveRecord());player.components.rider:ActualDismount();t:Remove()
+t=SpawnSaveRecord(saved);tank=t:GetAttachment()
+store=t.components.aom_attachment_store
+assert(store:GetWater()==16 and Durability.GetUses(tank)==1)
+assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
+assert(Irrigator.RefillFromSea(player,Vector3(2,0,0)))
+advance(2)
+assert(tank.components.finiteuses:GetUses()==20 and Durability.GetUses(tank)==0)
+assert(not t._aom_pond_refill and not t._refilling_net:value())
 ''')
 
     def test_rear_faces_water_and_turn_or_move_cancels_with_partial_water(self):

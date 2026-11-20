@@ -90,10 +90,7 @@ assert(not p.components.rider:IsRiding())
     def test_running_out_of_fuel_still_allows_native_dismount(self):
         self.run_lua('''
 ACTIONS.MOUNT.fn({doer=p,target=t});p.sg:GoToState('mounted_idle')
-local drive=require('aom_drive');drive.WorkHere=function()return true end
-t:SetFuel(1);t:SetWorking(true)
-TheWorld.Map={GetTileCenterPoint=function()return 0,0,0 end}
-t.last_periodic.fn(t)
+t:SetFuel(.1);p.Transform:SetPosition(1,0,0);t._drivetask.fn(t)
 assert(t._fuel:value()==0 and not t.components.rideable.canride)
 assert(ACTIONS.DISMOUNT.fn({doer=p,target=p}))
 p.components.rider:ActualDismount()
@@ -170,7 +167,7 @@ for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvest
  tool.components.finiteuses={GetUses=function()return 100 end}
  t._aom_attachment=tool;tool._aom_vehicle=tool._aom_vehicle or net(t);tool._aom_vehicle:set(t)
  local calls={}
- drive.WorkHere=function(_,x,z)
+ drive.WorkTile=function(_,x,z)
   local key=x..':'..z
   if calls[key] then return false,'NOTHING_TO_DO',true end
   calls[key]=true;return true,nil,true
@@ -245,7 +242,7 @@ t._attachment_type='plow';press_f(p);release_f(p)
 assert(math.abs(t.components.locomotor.runspeed-3)<1e-8)
 assert(p.replica.rider.classified.riderrunspeed:value()==t.components.locomotor.runspeed)
 press_f(p);release_f(p)
-assert(t.components.locomotor.runspeed==3 and p.replica.rider.classified.riderrunspeed:value()==3)
+assert(t.components.locomotor.runspeed==6 and p.replica.rider.classified.riderrunspeed:value()==6)
 ''')
 
     def test_ridden_tractor_is_in_native_player_save(self):
@@ -253,7 +250,7 @@ assert(t.components.locomotor.runspeed==3 and p.replica.rider.classified.riderru
 ACTIONS.MOUNT.fn({doer=p,target=t})
 local data=p.components.rider:OnSave()
 assert(data.mount and data.mount.prefab=='aom_tractor_chassis')
-assert(data.mount.data.fuel==400)
+assert(data.mount.data.fuel==600)
 ''')
 
     def check_detached_flint_repair(self, name, initial, maximum):
@@ -277,18 +274,18 @@ assert(not ACTION_DEFS.AOM_REPAIR.fn({doer=p,target=t,invobject=flint}))
 SCENE_HOOKS.inventoryitem(flint,p,tool,actions,true)
 assert(#actions==1 and actions[1].id=='AOM_REPAIR')
 assert(actions[1].fn({doer=p,target=tool,invobject=flint}))
-assert(tool.components.finiteuses:GetUses()==math.min(REPAIR_MAXIMUM,REPAIR_INITIAL+10) and remaining==4)
+assert(tool.components.finiteuses:GetUses()==math.min(REPAIR_MAXIMUM,REPAIR_INITIAL+50) and remaining==4)
 tool.components.finiteuses:SetUses(REPAIR_MAXIMUM-1)
 assert(actions[1].fn({doer=p,target=tool,invobject=flint}))
 assert(tool.components.finiteuses:GetUses()==REPAIR_MAXIMUM and remaining==3)
 assert(not actions[1].fn({doer=p,target=tool,invobject=flint}) and remaining==3)
 tool.components.finiteuses:SetUses(0)
 assert(tool:IsValid() and actions[1].fn({doer=p,target=tool,invobject=flint}))
-assert(tool.components.finiteuses:GetUses()==10 and remaining==2)
+assert(tool.components.finiteuses:GetUses()==50 and remaining==2)
 ''')
 
     def test_detached_plow_flint_repair_caps_and_vehicle_rejects_flint(self):
-        self.check_detached_flint_repair('aom_landclearer',98,100)
+        self.check_detached_flint_repair('aom_landclearer',188,200)
 
     def test_flint_does_not_repair_water_or_other_attachments(self):
         self.run_lua('''
@@ -302,33 +299,11 @@ local actions={};SCENE_HOOKS.inventoryitem(flint,p,t,actions,true)
 assert(#actions==0 and not t:TryRepair(p,flint))
 ''')
 
-    def test_detached_weeder_repairs_at_zero_and_caps_at_one_hundred(self):
-        self.check_detached_flint_repair('aom_weeder',1,100)
+    def test_detached_weeder_repairs_at_zero_and_caps_at_two_hundred(self):
+        self.check_detached_flint_repair('aom_weeder',1,200)
 
-    def test_water_load_prompt_action_sync_and_hud(self):
-        self.run_lua('''
-local prefabs={dofile(SCRIPTS..'/prefabs/aom_attachments.lua')}
-local tank
-for _,prefab in ipairs(prefabs)do if prefab.name=='aom_irrigator' then tank=prefab.fn();tank.prefab=prefab.name end end
-t._aom_attachment=tank;tank._aom_vehicle=tank._aom_vehicle or net(t);tank._aom_vehicle:set(t);t:PushEvent('itemget')
-local can=CreateEntity();can.prefab='wateringcan';can:AddComponent('finiteuses');can.components.finiteuses:SetUses(15)
-can.components.fillable={}
-local actions={};SCENE_HOOKS.inventoryitem(can,p,t,actions,true)
-assert(#actions==1 and actions[1].id=='AOM_LOAD')
-assert(actions[1].fn({doer=p,target=t,invobject=can}))
-assert(t._water_net:value()==15 and t._watermax_net:value()==400 and can.components.finiteuses:GetUses()==0)
-local hud=HUD(p);hud:Refresh(t)
-assert(hud.resource_num==nil and hud.badges.water:GetText()=='15')
-assert(string.find(hud.badges.water:GetTooltip(),'15/400',1,true))
-tank.components.finiteuses:Use(1);assert(t._water_net:value()==14)
-SCENE_HOOKS.inventoryitem(can,p,t,{},false)
-local wrong=CreateEntity();wrong.prefab='other';wrong.components.fillable={};wrong:AddComponent('finiteuses')
-actions={};SCENE_HOOKS.inventoryitem(wrong,p,t,actions,true);assert(#actions==0)
-assert(not ACTION_DEFS.AOM_LOAD.fn({doer=p,target=t,invobject=wrong}))
-''')
-
-    def test_detached_harvester_flint_repair_caps_at_one_hundred(self):
-        self.check_detached_flint_repair('aom_harvester',1,100)
+    def test_detached_harvester_flint_repair_caps_at_two_hundred(self):
+        self.check_detached_flint_repair('aom_harvester',1,200)
 
     def test_swap_same_type_tank_stops_and_detaches_old_water_listener(self):
         self.run_lua('''

@@ -75,7 +75,7 @@ assert(changed and why=='CARGO_FULL' and not t._working)
 assert(skip:IsValid() and skip.components.pickable:CanBePicked())
 assert(quantity(t,'tomato')==40 and quantity(t,'corn')==40)
 assert(quantity(nil,'tomato_seeds')==2 and quantity(nil,'corn_seeds')==3)
-assert(t._fuel:value()==399 and t:GetAttachment().components.finiteuses:GetUses()==99)
+assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
 ''')
 
     def test_unaccepted_ground_item_does_not_block_existing_crop_stack(self):
@@ -94,7 +94,7 @@ assert(require('aom_work_status').Describe(t)=='')
 fill();stock(1,'corn',30);local plant=crop('tomato',0,0,false)
 t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(not changed and why==nil and t._working and plant:IsValid())
-assert(t._fuel:value()==400 and quantity(nil,'tomato')==0)
+assert(t._fuel:value()==600 and quantity(nil,'tomato')==0)
 local nextplant=crop('corn',4,0,false);assert(Drive.WorkTile(t,4,0))
 assert(not nextplant:IsValid() and t._working and quantity(t,'corn')==31)
 ''')
@@ -108,7 +108,7 @@ t:SetWorking(true);local changed,why=Drive.WorkTile(t,0,0)
 assert(changed and why=='CARGO_FULL' and quantity(t,'tomato')==80)
 assert(not a:IsValid() and not b:IsValid() and nextplant:IsValid())
 assert(#messages==1 and not t._working)
-Drive.WorkTile(t,0,0);assert(#messages==1 and t._fuel:value()==399)
+Drive.WorkTile(t,0,0);assert(#messages==1 and t._fuel:value()==599)
 ''')
 
     def test_a_free_slot_still_allows_new_crop_and_seeds_do_not_block_next_matching_crop(self):
@@ -137,7 +137,7 @@ fill();local stored=stock(1,'tomato',30);local plant=crop('tomato',0,0,false)
 stored.skinname='custom';t:SetWorking(true)
 assert(not Drive.WorkTile(t,0,0) and plant:IsValid() and t._working)
 stored.skinname=nil;stored.stackable_CanStackWithFn=function()return false end
-assert(not Drive.WorkTile(t,0,0) and plant:IsValid() and t._fuel:value()==400)
+assert(not Drive.WorkTile(t,0,0) and plant:IsValid() and t._fuel:value()==600)
 ''')
 
     def test_seed_stack_room_alone_does_not_pick_an_unstorable_fruit(self):
@@ -145,7 +145,7 @@ assert(not Drive.WorkTile(t,0,0) and plant:IsValid() and t._fuel:value()==400)
 fill();stock(1,'tomato_seeds',30);local plant=crop('tomato',0,0,false)
 t:SetWorking(true);assert(not Drive.WorkTile(t,0,0))
 assert(plant:IsValid() and quantity(t,'tomato_seeds')==30 and quantity(nil,'tomato')==0)
-assert(t._working and t._fuel:value()==400)
+assert(t._working and t._fuel:value()==600)
 ''')
 
     def test_actual_plant_definition_product_takes_precedence_over_prefab_name(self):

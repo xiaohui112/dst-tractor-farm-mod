@@ -107,6 +107,38 @@ end
 
 -- 一格4×4，半对角约2.828；先覆盖边角，再按所属地块过滤。
 local FIELD_RADIUS = 2.9
+
+-- 记在地皮剩余的真实土坑上，换车、暂停和读档都能续播。
+function AOMFarmWork.InitSeedSoil(soil)
+    if not TheWorld.ismastersim then return end
+    local original_save=soil.OnSave
+    local original_load=soil.OnLoad
+    soil.OnSave=function(inst,data)
+        data.aom_sowing_paid=inst._aom_sowing_paid or nil
+        if original_save then return original_save(inst,data) end
+    end
+    soil.OnLoad=function(inst,data,newents)
+        if original_load then original_load(inst,data,newents) end
+        inst._aom_sowing_paid=data and data.aom_sowing_paid==true or nil
+    end
+end
+
+function AOMFarmWork.SeedTilePaid(x,y,z)
+    for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do
+        if soil._aom_sowing_paid then
+            -- 上一轮的作物已清空时，旧计划刻意留出的坑也要重新结算。
+            for _,plant in ipairs(TheSim:FindEntities(x,y,z,FIELD_RADIUS,{"farm_plant"},{"INLIMBO","NOCLICK"})) do
+                if plant:IsValid() and SameTile(plant,x,z) and IsFarmPlant(plant) then return true end
+            end
+            break
+        end
+    end
+    return false
+end
+
+function AOMFarmWork.MarkSeedTilePaid(x,y,z)
+    for _,soil in ipairs(FindEmptySoil(x,y,z,FIELD_RADIUS)) do soil._aom_sowing_paid=true end
+end
 local SOIL_MATCH_SQ = .0001
 -- 规划器也用同一判定：只自动铲除原版 DIG 路径可处理的杂物。
 function AOMFarmWork.IsClearableDebris(v)
@@ -270,22 +302,8 @@ function AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,selective)
             and not (projectile and projectile:IsThrown())
             and not (item.components.container and item.components.container:IsOpen())
             and container and container:CanTakeItemInSlot(item) then
-            local stack=item.components.stackable
-            local size=stack and stack:StackSize() or 1
-            local count=math.min(size,container:CanAcceptCount(item))
-            if count<=0 and not selective then return false,"CARGO_FULL" end
-            if count>0 then
-                local pos=Vector3(item.Transform:GetWorldPosition())
-                local picked=count<size and stack:Get(count) or item
-                picked.Transform:SetPosition(pos:Get())
-                -- 保留原版拾取回调；GiveItem负责归属、隐藏和自动叠堆。
-                local consumed=picked.components.inventoryitem:OnPickup(vehicle,pos)
-                if not consumed and picked:IsValid() and not container:GiveItem(picked,nil,pos,false) then
-                    return false,"CARGO_FULL"
-                end
-                -- 开垦/除草遇到剩余物必须暂停；选择性收割可跳过它们。
-                if count<size and not selective then return false,"CARGO_FULL" end
-            end
+            -- 开垦/除草遇到剩余物暂停；收割可继续处理仍能收纳的作物。
+            if not Cargo.Collect(vehicle,item) and not selective then return false,"CARGO_FULL" end
         end
     end
     return true

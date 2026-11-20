@@ -11,6 +11,7 @@ local WaterSource=dofile(REF..'/watersource.lua')
 t=deploy_kit(kit,0,0,player)
 tank=SpawnPrefab('aom_irrigator');assert(t:AttachAttachment(nil,tank))
 store=t.components.aom_attachment_store
+tank.components.finiteuses:SetUses(0)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 function player:GetPhysicsRadius()return .5 end
 pond=CreateEntity();pond.prefab='pond';pond:AddTag('pond');pond.Transform:SetPosition(4,0,0)
@@ -22,10 +23,10 @@ function pond_actions(right)
  local actions={};SCENE_HOOKS.watersource(pond,player,actions,right~=false);return actions
 end
 function begin_pond()return refill.fn({doer=player,target=pond})end
-function fill_pond() -- 本文件校验补水完成后的权限/资源；显式推进五秒，不假定瞬时加满。
+function fill_pond() -- 本文件校验补水完成后的权限/资源；显式推进到补水完成，不假定瞬时加满。
  local ok=begin_pond()
  if ok then
-  local previous=GetTime;local finish=t._aom_pond_refill.started+5
+  local previous=GetTime;local finish=t._aom_pond_refill.started+t._aom_pond_refill.duration
   GetTime=function()return finish end;require('aom_pond_refill').Update(t);GetTime=previous
  end
  return ok
@@ -50,7 +51,7 @@ for i,name in ipairs({'pond','pond_mos','pond_cave'})do
  assert(fill_pond() and store:GetWater()==400 and t._water_net:value()==400)
  assert(player.components.rider:GetMount()==t and t._rider==player and water_uses==i)
  assert(t._fuel:value()==fuel and t.components.finiteuses:GetUses()==durability)
- assert(#messages==i and string.find(messages[i],'5秒',1,true))
+ assert(#messages==i and string.find(messages[i],'正在补水',1,true))
 end
 ''')
 

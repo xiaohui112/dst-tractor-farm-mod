@@ -49,18 +49,18 @@ require('aom_drive').TrackMovement(t)
 local count=0
 for _,v in ipairs(ENTITIES)do if v:IsValid() and v:HasTag('farm_plant')then count=count+1 end end
 assert(count==8 and t._block.automatic and t._block.done==8 and t._working)
-assert(t.components.aom_attachment_store:GetSeedCount()==8 and t._fuel:value()==392)
-hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 99/100',1,true))
+assert(t.components.aom_attachment_store:GetSeedCount()==8 and t._fuel:value()==599)
+hud:Refresh(t);assert(hud.seedcontrols==nil and string.find(hud.badges.tool:GetTooltip(),'耐久 199/200',1,true))
 ''')
 
-    def test_seeder_hover_has_exact_three_lines_from_synchronized_values(self):
+    def test_seeder_hover_has_four_lines_from_synchronized_values(self):
         self.run_lua('''
 local seeder=attach('aom_seeder');seeder.components.finiteuses:SetUses(61)
 t:CycleSeedStrategy(player);hud:Refresh(t)
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/100'..string.char(10)..'播种策略：巨大化·模版')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/200'..string.char(10)..'播种策略：巨大化·模版'..string.char(10)..'空手左键切换 → 巨大化·最优')
 assert(hud.badges.tool:GetText()=='61')
 local old=t.components;t.components={};hud:Refresh(t)
-assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/100'..string.char(10)..'播种策略：巨大化·模版')
+assert(hud.badges.tool:GetTooltip()=='播种机'..string.char(10)..'耐久 61/200'..string.char(10)..'播种策略：巨大化·模版'..string.char(10)..'空手左键切换 → 巨大化·最优')
 t.components=old
 ''')
 

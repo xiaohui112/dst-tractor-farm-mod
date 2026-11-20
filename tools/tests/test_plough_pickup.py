@@ -57,7 +57,7 @@ assert(rocks.components.stackable:StackSize()==4 and twigs.components.stackable:
 assert(not nextloot.hidden and not untouched.hidden and t:GetAttachment()==tool)
 player.Transform:SetPosition(4,0,0);Drive.TrackMovement(t)
 assert(t._working and Farm.IsFieldReady(4,0,0) and nextloot.components.inventoryitem.owner==t)
-assert(not untouched.hidden and t._fuel:value()==398 and tool.components.finiteuses:GetUses()==98)
+assert(not untouched.hidden and t._fuel:value()==598 and tool.components.finiteuses:GetUses()==198)
 ''')
 
     def test_full_slots_still_accept_matching_stack_without_stopping(self):
@@ -77,13 +77,13 @@ t._working=true;local worked,reason=Drive.WorkTile(t,0,0)
 assert(not worked and reason=='CARGO_FULL' and not t._working)
 assert(loot:IsValid() and not loot.hidden and loot.x==1 and loot.z==1)
 assert(loot.components.inventoryitem.owner==nil and loot.components.stackable:StackSize()==5)
-assert(t._fuel:value()==400 and tool.components.finiteuses:GetUses()==100)
-assert(string.find(require('aom_work_status').Describe(t),'仓库已满',1,true))
+assert(t._fuel:value()==600 and tool.components.finiteuses:GetUses()==200)
+assert(string.find(require('aom_work_status').Describe(t),'空间不足',1,true))
 -- 腾出空间后同格重试，拾取并继续开垦，不重复消耗。
 t.components.container:RemoveItemBySlot(2):Remove()
 t._working=true;assert(Drive.WorkTile(t,0,0) and t._working)
 assert(loot.components.inventoryitem.owner==t and Farm.IsFieldReady(0,0,0))
-assert(t._fuel:value()==399 and tool.components.finiteuses:GetUses()==99)
+assert(t._fuel:value()==599 and tool.components.finiteuses:GetUses()==199)
 ''')
 
     def test_partial_stack_transfer_preserves_remainder_and_retry_does_not_duplicate(self):
@@ -124,7 +124,7 @@ w:SetOnFinishCallback(function()loot=ground('flint',0,0,1);debris:Remove()end)
 t._working=true;local worked,reason=Drive.WorkTile(t,0,0)
 assert(worked and reason=='CARGO_FULL' and not t._working)
 assert(loot:IsValid() and not loot.hidden and loot.components.inventoryitem.owner==nil)
-assert(not debris:IsValid() and t._fuel:value()==399 and tool.components.finiteuses:GetUses()==99)
+assert(not debris:IsValid() and t._fuel:value()==599 and tool.components.finiteuses:GetUses()==199)
 ''')
 
     def test_owned_unpickable_burning_thrown_and_neighbor_items_are_untouched(self):
@@ -184,7 +184,7 @@ t._seed_strategy='GIANT';t._working=true
 assert(block.Preview(t) and block.Confirm(t))
 local worked,reason=Drive.WorkTile(t,0,0)
 assert(not worked and reason=='CARGO_FULL' and not t._working and t._block and t._block.done==0)
-assert(string.find(require('aom_work_status').Describe(t),'仓库已满',1,true))
+assert(string.find(require('aom_work_status').Describe(t),'空间不足',1,true))
 assert(not loot.hidden and loot.components.stackable:StackSize()==3)
 ''')
 

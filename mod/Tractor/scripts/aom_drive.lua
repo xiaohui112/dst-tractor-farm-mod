@@ -81,7 +81,7 @@ function AOMDrive.HasAttachment(inst)
 end
 
 function AOMDrive.UpdateSpeed(inst)
-    local speed=GetFuel(inst)>0 and Profile.Speed(inst._attachment_type,inst._working) or 0
+    local speed=GetFuel(inst)>0 and Profile.Speed(inst._working) or 0
     if inst.components.locomotor then
         inst.components.locomotor.runspeed=speed
         inst.components.locomotor.walkspeed=speed
@@ -184,22 +184,22 @@ local function GiantWorkHere(inst,cx,y,cz)
 end
 
 -- 在当前所在地皮上作业一次。整格工序返回 reason / ready，区分改动与完整完成。
-local function PerformWork(inst, workx, workz)
+local function PerformWork(inst,cx,y,cz,seed_paid)
 	inst._aom_broken_attachment_reason=nil
 	if inst._destroyed or (inst.components.health and inst.components.health:IsDead()) then return false,"DESTROYED",false end
-	if inst.components.finiteuses:GetUses()<=0 then return false,"BROKEN_CHASSIS",false end
+	if not seed_paid and inst.components.finiteuses:GetUses()<=0 then return false,"BROKEN_CHASSIS",false end
 	local att = inst._attachment_type
 	if att == nil then
 		return false, "NO_ATTACHMENT"
 	end
     local usable,reason=Durability.CanWork(inst)
     if not usable then return false,reason,false end
+    if att~=AOM.TYPE.IRRIGATOR and att~=AOM.TYPE.FERTILIZER then
+        local fuel=GetFuel(inst)
+        if fuel<=0 or not seed_paid and fuel<AOM.FUEL_PER_TICK then return false,"NO_FUEL",false end
+    end
 
 	local driver = inst._rider
-	local source=driver or inst
-	local x, y, z = source.Transform:GetWorldPosition()
-	if workx~=nil then x,y,z=workx,0,workz end
-	local cx, _, cz = AOMFarmWork.GetTileCenter(x, y, z)
 
     local worked,work_reason,ready,fxposition
     local coordinate_mode=AOMSeed.IsGiant(inst._seed_strategy) and att==AOM.TYPE.SEEDER
@@ -234,17 +234,30 @@ local function PerformWork(inst, workx, workz)
     return worked,work_reason,ready,fxposition
 end
 
--- 对外保留tuple接口；内部统一结果对象，异常也经过同一次实际进度结算。
-function AOMDrive.WorkHere(inst,workx,workz)
+-- 异常也经过同一次实际进度结算。
+local function WorkHere(inst,workx,workz)
     local item=require("aom_attachment_mount").Get(inst)
+    local seeding=inst._attachment_type==AOM.TYPE.SEEDER
+    local cx,y,cz,seed_paid
     local had_noblock=inst.HasTag and inst:HasTag("NOBLOCK")
-    local result=Result.Run(inst,function()return PerformWork(inst,workx,workz)end)
+    local result=Result.Run(inst,function()
+        local x,z=workx,workz
+        y=0
+        if x==nil then x,y,z=(inst._rider or inst).Transform:GetWorldPosition() end
+        cx,y,cz=AOMFarmWork.GetTileCenter(x,y,z)
+        seed_paid=seeding and AOMFarmWork.SeedTilePaid(cx,y,cz)
+        return PerformWork(inst,cx,y,cz,seed_paid)
+    end)
     -- 原版/第三方回调异常也不能留下临时碰撞标签。
     Result.Protect(result,function()
         if not had_noblock and inst.RemoveTag then inst:RemoveTag("NOBLOCK") end
     end)
     if result.changed then
-        Result.Protect(result,function()inst.components.finiteuses:Use(1)end)
+        if seeding then Result.Protect(result,function()AOMFarmWork.MarkSeedTilePaid(cx,y,cz)end) end
+        if not seed_paid then
+            Result.Protect(result,function()inst.components.finiteuses:Use(1)end)
+            Result.Protect(result,function()ConsumeFuel(inst,AOM.FUEL_PER_TICK)end)
+        end
         if item and (item.attachment_type~="seeder" or result.seed_tile_complete) then
             Result.Protect(result,function()Durability.UseAttachment(inst,item)end)
         end
@@ -259,11 +272,16 @@ function AOMDrive.WorkHere(inst,workx,workz)
         inst._aom_last_work_error=result.error
         if print then print("[Tractor] Work failed: "..result.error) end
     end
+    return result
+end
+
+function AOMDrive.WorkHere(inst,workx,workz)
+    local result=WorkHere(inst,workx,workz)
     return result.changed,result.reason,result.complete
 end
 
 ---------------------------------------------------------------------------
--- 行驶经过一格就完成本格工序。洒水、施肥按整格结算，播种按逐颗动作结算。
+-- 行驶经过一格就完成本格工序，播种逐颗执行、按地皮结算。
 ---------------------------------------------------------------------------
 
 StopForReason=function(inst,reason,message,force)
@@ -294,18 +312,17 @@ function AOMDrive.WorkTile(inst,cx,cz)
     local worked_any=false
     local limit=inst._attachment_type==AOM.TYPE.SEEDER and 10 or 1
     for _=1,limit do
-        if inst._attachment_type~=AOM.TYPE.IRRIGATOR and inst._attachment_type~=AOM.TYPE.FERTILIZER and GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
-        local worked,reason,ready=AOMDrive.WorkHere(inst,cx,cz)
+        local result=WorkHere(inst,cx,cz)
+        local worked,reason,ready=result.changed,result.reason,result.complete
+        local seed_pending=inst._attachment_type==AOM.TYPE.SEEDER and not result.seed_tile_complete
         local skip=inst._attachment_type==AOM.TYPE.PLOW and AOMFarmWork.IsPloughSkip(reason)
         local broken=inst._aom_broken_attachment_reason
         inst._aom_broken_attachment_reason=nil
         if reason=="WORK_ERROR" then
-            if worked then ConsumeFuel(inst,AOM.FUEL_PER_TICK) end
             StopForReason(inst,reason)
             return worked_any or worked,reason
         end
         if broken then
-            if worked then ConsumeFuel(inst,AOM.FUEL_PER_TICK) end
             return worked_any or worked,broken
         end
         if not worked then
@@ -313,9 +330,8 @@ function AOMDrive.WorkTile(inst,cx,cz)
             return worked_any,reason
         end
         worked_any=true
-        ConsumeFuel(inst,AOM.FUEL_PER_TICK)
         if ready==false and not skip then StopForReason(inst,reason);return true,reason end
-        if inst.components.finiteuses:GetUses()<=0 then
+        if inst.components.finiteuses:GetUses()<=0 and not seed_pending then
             StopForReason(inst,"BROKEN_CHASSIS");return true,"BROKEN_CHASSIS"
         end
         local usable,broken_reason=Durability.CanWork(inst)
@@ -323,7 +339,10 @@ function AOMDrive.WorkTile(inst,cx,cz)
         if not HasMaterials(inst) then
             StopForReason(inst,"EMPTY");return true,"EMPTY"
         end
-        if GetFuel(inst)<AOM.FUEL_PER_TICK then StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL" end
+        local fuel=GetFuel(inst)
+        if fuel<=0 or not seed_pending and fuel<AOM.FUEL_PER_TICK then
+            StopForReason(inst,"NO_FUEL");return worked_any,"NO_FUEL"
+        end
         if skip then return true,reason end
     end
     return worked_any
@@ -410,7 +429,6 @@ function AOMDrive.SetWorking(inst, on, stop_reason)
 end
 
 -- 播种策略循环切换：顺序 -> 巨大化·模版 -> 巨大化·最优 -> 顺序
-local STRATEGY_ORDER = { "SEQUENTIAL", "GIANT_TEMPLATE", "GIANT" }
 local STRATEGY_NAME = {
 	SEQUENTIAL = "顺序播种",
 	GIANT_TEMPLATE = "巨大化·模版",
@@ -427,13 +445,7 @@ function AOMDrive.CycleSeedStrategy(inst, doer)
 		return false
 	end
 	AOMDrive.SetWorking(inst,false)
-	local cur = AOMSeed.Normalize(inst._seed_strategy)
-	local idx = 1
-	for i, v in ipairs(STRATEGY_ORDER) do
-		if v == cur then idx = i end
-	end
-	idx = idx % #STRATEGY_ORDER + 1
-	inst._seed_strategy = STRATEGY_ORDER[idx]
+	inst._seed_strategy = AOMSeed.Next(inst._seed_strategy)
 	AOMBlock.ResetBlock(inst)
     SetPlanMessage(inst,nil)
 	-- 同步给客户端 HUD

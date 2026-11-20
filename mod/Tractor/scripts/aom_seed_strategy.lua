@@ -23,6 +23,8 @@ function AOMSeedStrategy.Normalize(mode)
 end
 
 function AOMSeedStrategy.IsGiant(mode)return mode == "GIANT" or mode == "GIANT_TEMPLATE" end
+local NEXT_MODE={SEQUENTIAL="GIANT_TEMPLATE",GIANT_TEMPLATE="GIANT",GIANT="SEQUENTIAL"}
+function AOMSeedStrategy.Next(mode)return NEXT_MODE[AOMSeedStrategy.Normalize(mode)]end
 
 function AOMSeedStrategy.GetCropOfSeedItem(item)
 	if item == nil or item.components.farmplantable == nil then
