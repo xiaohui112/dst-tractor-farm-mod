@@ -149,10 +149,10 @@ def save(name,build,anim,texture):
 
 def wheel_layers(sprites):
     # Vector rig: rotating brass spokes and bolt marks sit over the generated rims.
-    # Kept as editable SVG; no raster painting or fixed character is baked in.
-    wheels=[[(.23,.77,.10,.15),(.73,.86,.075,.085)],
-            [(.24,.75,.13,.15),(.75,.84,.075,.085)],
-            [(.24,.79,.10,.14),(.79,.79,.10,.14)],
+    # Centers and radii measured on the visible wheel hubs in the cropped sprites.
+    wheels=[[(43.5/248,211/288,8/248,21/288),(131/248,237.5/288,10/248,16/288)],
+            [(59.5/260,197/268,26/260,27/268),(193/260,219.5/268,19/260,19/268)],
+            [(156.5/239,215/282,8/239,22/282),(215/239,221/282,6/239,15/282)],
             [(.18,.84,.055,.10),(.82,.84,.055,.10)],
             [(.24,.80,.075,.13),(.76,.80,.075,.13)]]
     result=[]

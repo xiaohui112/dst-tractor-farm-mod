@@ -5,6 +5,7 @@ import struct
 import sys
 import unittest
 import wave
+import xml.etree.ElementTree as ET
 from zipfile import ZipFile
 
 import test_native_riding as riding
@@ -27,6 +28,18 @@ def build_frames(raw):
 
 
 class VehicleAssetTests(unittest.TestCase):
+    def test_wheel_spokes_rotate_around_both_measured_hubs(self):
+        hubs=[{(43.5,211.),(131.,237.5)}, {(59.5,197.),(193.,219.5)}, {(156.5,215.),(215.,221.)}]
+        rig=ROOT/'assets/directional-v2/rig'
+        for view,expected in enumerate(hubs):
+            for phase in range(12):
+                with self.subTest(view=view,phase=phase):
+                    svg=ET.parse(rig/f'wheel-{view}-{phase}.svg')
+                    spokes=svg.findall('{http://www.w3.org/2000/svg}path')
+                    origins={tuple(map(float,spoke.attrib['d'][1:].split(' L')[0].split())) for spoke in spokes}
+                    self.assertEqual(len(spokes),10)
+                    self.assertEqual(origins,expected)
+
     def test_tractor_and_every_attachment_include_distinct_front_and_rear_frames(self):
         for name,kinds in [('aom_tractor_chassis',['body']),
                            ('aom_attachment_shared',['plow','seeder','irrigator','fertilizer','weeder','harvester']),
@@ -164,14 +177,14 @@ motion.Update(t)
 assert(p.facing_count==8 and playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 for i=1,10 do motion.Update(t)end;assert(calls==1)
 p.x=1;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==1)
+assert(playing[motion.ENGINE]=='dontstarve/common/together/battery/on_LP' and gain==1)
 t._workstatus:set(true);p.x=2;motion.Update(t)
 assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/work' and gain==1)
 local n=calls;p.x=3;motion.Update(t);assert(calls==n)
 t._workstatus:set(false);p.x=4;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==1)
+assert(playing[motion.ENGINE]=='dontstarve/common/together/battery/on_LP' and gain==1)
 playing[motion.ENGINE]=nil;p.x=5;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive')
+assert(playing[motion.ENGINE]=='dontstarve/common/together/battery/on_LP')
 motion.Update(t);assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 t:SetFuel(0);motion.Update(t);assert(next(playing)==nil)
 t:SetFuel(10);motion.Update(t);assert(playing[motion.ENGINE])

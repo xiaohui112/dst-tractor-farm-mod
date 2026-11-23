@@ -37,8 +37,8 @@ description = chinese and [[
 	- 驾驶时可放置六种挂件和田边蓄水桶，蓄水桶与洒水机接近等高，悬停显示名称和余水。
 	- 「保留巨大」模式下，车辆经过完整巨大作物时暂时解除其人物碰撞，驶离后恢复。
 	- 播种机和收割机图标显示当前模式，悬停看下一档，空手左键切换。
-	- 正背向车轮去掉旋转线条，烟雾改从驾驶员右前方的烟筒口冒出。
-	- 驾驶时屏蔽骑乘脚步声，空驶继续用原行驶声并提高音量，移动作业播放「驾驶室轰鸣」。
+	- 侧面和斜向的旋转线条对准轮毂，正背向隐藏轮纹，烟雾从驾驶员右前方的烟筒口冒出。
+	- 驾驶时屏蔽骑乘脚步声，空驶播放薇诺娜发电机的运转声，移动作业播放「驾驶室轰鸣」。
 	
 	0.5.24 发布版本
 	拖拉机有七种配套设备，包括六种车载挂件和一座田边蓄水桶。
@@ -84,8 +84,8 @@ Work and control improvements
 - Place any of the six attachments or the Field Rain Barrel while driving. The barrel is about as tall as the Irrigator and shows its name and water level on hover.
 - In Keep Giants Whole mode, nearby intact giant produce temporarily lets the driver pass and regains collision when the tractor moves away.
 - Seeder and Harvester icons show the current mode and preview the next one on hover, with empty-cursor left click to switch.
-- Straight front and rear views drop the spinning wheel lines, and exhaust now comes from the driver's front-right pipe.
-- Driving mutes riding footsteps, makes the original travel loop louder, and plays the cab engine sound during moving work.
+- Wheel lines follow the hubs in side and diagonal views and are hidden from straight front and rear views. Exhaust comes from the driver's front-right pipe.
+- Driving mutes riding footsteps, uses Winona's Generator loop for travel, and plays the cab engine sound during moving work.
 
 0.5.24 release
 Seven pieces of farm equipment: six tractor attachments and a stationary Field Rain Barrel.

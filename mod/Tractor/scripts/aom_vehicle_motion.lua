@@ -1,6 +1,11 @@
 -- 所有客户端按同步骑手播放声音；声源在骑手上，避免隐藏底盘的坐标造成无声。
 local M={ENGINE="aom_tractor_engine"}
 local ENGINE_VOLUME={idle=.45,drive=1,work=1}
+local ENGINE_EVENT={
+    idle="aom_tractor_sfx/tractor/idle",
+    drive="dontstarve/common/together/battery/on_LP",
+    work="aom_tractor_sfx/tractor/work",
+}
 local HarvestClearance=require("aom_harvest_clearance")
 function M.EmitExhaust(inst)
     local rider=inst._rider
@@ -116,7 +121,7 @@ function M.Update(inst)
     end
     if event and (changed or emitter.PlayingSound and not emitter:PlayingSound(M.ENGINE)) then
         -- 同步骑手和本地声音可能异步就绪，丢失的循环需重新启动。
-        emitter:PlaySound("aom_tractor_sfx/tractor/"..event,M.ENGINE,ENGINE_VOLUME[event],true)
+        emitter:PlaySound(ENGINE_EVENT[event],M.ENGINE,ENGINE_VOLUME[event],true)
     end
 end
 
