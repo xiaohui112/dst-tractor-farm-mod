@@ -9,9 +9,34 @@
 local chinese = locale == nil or locale == "zh" or locale == "zhr" or locale == "zht"
 name = "Tractor"
 description = chinese and [[
-		0.5.28 更新
-	【新增】田边蓄水桶、海水过滤、拾取与取肥联动随身库存、保留巨大收割模式。
-	【优化】简化配方，挂件耐久 100→200，降低维修与油耗成本，空驶提速。作业按挂件选地，改进模式提示、动画与音效。
+	0.5.28 更新
+
+	【新增】
+	- 田边蓄水桶用木板、绳子和石砖各 2 份制作，容量 2,000 剂，下雨每秒蓄 10 剂，洒水机每秒取 80 剂，仅支持取水。
+	- 洒水机可在近岸每秒过滤 40 剂海水，每过滤 20 剂消耗 1 点挂件耐久。
+	- 自动拾取依次存入车仓、驾驶员物品栏和已装备背包，余量留在地上。
+	- 施肥机按同一顺序取用合适的肥料，播种机只从车仓取种，不想种的种子可以留在物品栏或背包里。
+	- 空手左键收割机图标可切换「全部收割」和「保留巨大」，保留模式会把完整巨大作物留在田里。
+
+	【配方优化】
+	- 拖拉机现需木板 ×3、燧石 ×4、齿轮 ×2、电子元件 ×2。
+	- 开垦机和除草机各需木板 ×2、燧石 ×2、绳子 ×2。
+	- 播种机现需木板 ×2、绳子 ×2、普通种子 ×5。
+	- 洒水机现需木板 ×2、绳子 ×2、水球 ×3。
+	- 施肥机现需木板 ×2、绳子 ×2、肥料桶 ×2。
+	- 收割机现需木板 ×2、燧石 ×2、齿轮 ×1。
+
+	【作业与操作优化】
+	- 六种挂件耐久从 100 提高到 200，旧挂件按比例迁移，燧石每份维修量从 10 提高到 50 点。
+	- 齿轮每份修复 200 点车体生命，木板每份修复 250 点底盘耐久。
+	- 锤拆拖拉机和车载挂件时，按新配方逐项减半、向下取整返还材料。
+	- 默认空驶速度提高到 6、作业速度为 3 世界单位/秒，新车有 600 油，行驶每 8 世界单位耗 1 油。
+	- 播种每格只扣 1 油和 1 底盘耐久，种完该格再扣 1 点播种机耐久。
+	- 洒水机出厂有 100 剂水，水箱容量 400 剂，池塘每秒补 80 剂，取消水壶和冰块应急补水。
+	- 六种挂件按各自作业点选地并显示效果，巨大化规划和落种也按播种机位置判断。
+	- 播种机和收割机图标显示当前模式，悬停看下一档，空手左键切换。
+	- 正背向车轮去掉旋转线条，烟雾改从驾驶员右前方的烟筒口冒出。
+	- 驾驶时屏蔽骑乘脚步声，空驶用原引擎声，移动作业播放「驾驶室轰鸣」。
 	
 	0.5.24 发布版本
 	拖拉机有七种配套设备，包括六种车载挂件和一座田边蓄水桶。
@@ -30,8 +55,33 @@ description = chinese and [[
 
 ]] or [[
 0.5.28 Update
-[New] Field Rain Barrel, seawater filtration, inventory and backpack support for pickup and fertilizer, and a Keep Giants Whole harvest mode.
-[Improved] Simpler recipes, attachment durability increased from 100 to 200, lower repair and fuel costs, and faster travel. Work follows the attached tool, with improved mode hints, animations, and sounds.
+
+New
+- The Field Rain Barrel costs 2 Boards, 2 Rope, and 2 Cut Stone, holds 2,000 doses, and collects 10 doses of rainwater per second for the Irrigator to draw at 80 per second.
+- The Irrigator filters 40 doses of coastal seawater per second, using 1 durability per 20 doses.
+- Automatic pickup fills tractor cargo, the driver's inventory, and the equipped backpack in that order, leaving overflow on the ground.
+- The Fertilizer Spreader looks for suitable fertilizer in the same order, while the Seeder takes seeds from tractor cargo.
+- Left-click the Harvester icon with an empty cursor to toggle Harvest All or Keep Giants Whole, which leaves intact giants in the field.
+
+Improved recipes
+- The Tractor now costs 3 Boards, 4 Flint, 2 Gears, and 2 Electrical Doodads.
+- The Land Clearer and Weeder each cost 2 Boards, 2 Flint, and 2 Rope.
+- The Seeder now costs 2 Boards, 2 Rope, and 5 Seeds.
+- The Irrigator now costs 2 Boards, 2 Rope, and 3 Water Balloons.
+- The Fertilizer Spreader now costs 2 Boards, 2 Rope, and 2 Buckets-o-poop.
+- The Harvester now costs 2 Boards, 2 Flint, and 1 Gear.
+
+Work and control improvements
+- Durability rises from 100 to 200 for all six attachments, existing tools keep their durability percentage, and Flint repairs 50 points instead of 10.
+- Each Gear restores 200 vehicle health and each Board restores 250 chassis durability.
+- Hammering the Tractor or an attachment refunds half of each new recipe ingredient, rounded down.
+- Default travel and work speeds are 6 and 3 units per second, with 600 starting fuel and 1 fuel spent per 8 units traveled.
+- Sowing costs 1 fuel and 1 chassis durability per tile, with 1 Seeder durability charged on completion.
+- The Irrigator starts with 100 of 400 doses, refills from ponds at 80 doses per second, and no longer refills from watering cans or ice.
+- Each attachment uses its own position for work and effects, including the Seeder's planning and planting.
+- Seeder and Harvester icons show the current mode and preview the next one on hover, with empty-cursor left click to switch.
+- Straight front and rear views drop the spinning wheel lines, and exhaust now comes from the driver's front-right pipe.
+- Driving mutes riding footsteps and switches between the original travel sound and the cab engine sound during moving work.
 
 0.5.24 release
 Seven pieces of farm equipment: six tractor attachments and a stationary Field Rain Barrel.
