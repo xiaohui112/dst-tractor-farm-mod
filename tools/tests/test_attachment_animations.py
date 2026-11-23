@@ -35,7 +35,7 @@ end
 
     def run_lua(self,s):self.lua.execute(s)
 
-    def test_all_six_work_one_tile_behind_the_driver_across_tile_boundaries(self):
+    def test_all_attachments_work_on_the_drivers_tile_and_show_effects_there(self):
         self.run_lua('''
 local store=t.components.aom_attachment_store
 store.GetSeedCount=function()return 10 end
@@ -54,21 +54,23 @@ for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvest
  player.Transform:SetRotation(0)
  player.Transform:SetPosition(2.5,0,0)
  t:SetWorking(true);Drive.TrackMovement(t)
- assert(#visited==1 and visited[1]==0,kind)
+ assert(#visited==1 and visited[1]==4,kind)
  local fx=item._aom_work_effects[1]
- local x,_,z=Mount.WorkPosition(t);assert(not fx.parent and fx.x==x and fx.z==z,kind)
+ assert(not fx.parent and fx.x==2.5 and fx.z==0,kind)
  if kind=='irrigator' or kind=='fertilizer' then
   assert(item._aom_effect_tile.x==visited[1],kind)
  end
+ player.Transform:SetRotation(225);Drive.TrackMovement(t)
+ assert(#visited==1,kind)
  player.Transform:SetPosition(5.9,0,0);Drive.TrackMovement(t)
  assert(#visited==1,kind)
  player.Transform:SetPosition(6.5,0,0);Drive.TrackMovement(t)
- assert(#visited==2 and visited[2]==4,kind)
+ assert(#visited==2 and visited[2]==8,kind)
  t:SetWorking(false);assert(act(item));item:Remove();player.Transform:SetPosition(0,0,0)
 end
 ''')
 
-    def test_pivot_uses_destination_and_old_water_effect_does_not_follow_to_dry_tile(self):
+    def test_pivot_keeps_the_tile_and_water_effect_does_not_follow_to_the_next_tile(self):
         self.run_lua('''
 local item=mounted('irrigator');t.components.aom_attachment_store.GetWater=function()return 40 end
 player.Transform:SetPosition(2,0,2);player.Transform:SetRotation(45)
@@ -78,9 +80,11 @@ Drive.WorkTile=function(_,cx,cz,x,z)
  if #visited==1 then Animation.Success(t,nil,x,z,cx,cz);return true end
 end
 t:SetWorking(true);Drive.TrackMovement(t)
-local fx=item._aom_stream;assert(fx and visited[1].x==0 and visited[1].z==8)
+local fx=item._aom_stream;assert(fx and visited[1].x==4 and visited[1].z==4)
 player.Transform:SetRotation(225);Drive.TrackMovement(t);Mount.UpdateVisual(item)
-assert(#visited==2 and visited[2].x==8 and visited[2].z==0)
+assert(#visited==1 and fx:IsValid())
+player.Transform:SetPosition(6,0,2);Drive.TrackMovement(t);Mount.UpdateVisual(item)
+assert(#visited==2 and visited[2].x==8 and visited[2].z==4)
 assert(not fx:IsValid() and not item._aom_stream)
 ''')
 
@@ -202,7 +206,7 @@ t:SetWorking(true);Animation.Success(t)
 local fx=item._aom_stream;local oldtask=item._aom_effect_task;local timeout=fx._aom_timeout
 clock=.4;Animation.Success(t)
 assert(item._aom_stream==fx and effects(item)==1 and oldtask.cancelled and timeout.cancelled)
-assert(not fx.parent and fx.x==0 and fx.y==0 and fx.z==4 and fx.rotation==90 and Mount.Rotation(item)==90)
+assert(not fx.parent and fx.x==0 and fx.y==0 and fx.z==0 and fx.rotation==90 and Mount.Rotation(item)==90)
 local current=item._aom_effect_task;current.fn(item)
 assert(not fx:IsValid() and effects(item)==0 and current.cancelled)
 assert(t._working and item._aom_working:value())

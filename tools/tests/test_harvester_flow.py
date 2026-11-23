@@ -18,6 +18,22 @@ class HarvesterFlowTests(unittest.TestCase):
     def run_lua(self, source):
         self.w.lua.execute(source)
 
+    def test_driver_harvests_only_the_current_tile_when_turning_in_place(self):
+        self.run_lua('''
+local driver=inst._rider
+local heading=0;driver.Transform.GetRotation=function()return heading end
+local ahead=crop('tomato',4,0,false)
+local diagonal=crop('tomato',4,-4,false)
+local behind=crop('tomato',-4,0,false)
+local under_driver=crop('tomato',0,0,false)
+Drive.SetWorking(inst,true);Drive.TrackMovement(inst)
+assert(ahead.valid and diagonal.valid and behind.valid and not under_driver.valid)
+heading=45;Drive.TrackMovement(inst)
+assert(ahead.valid and diagonal.valid and behind.valid)
+heading=180;Drive.TrackMovement(inst)
+assert(ahead.valid and diagonal.valid and behind.valid)
+''')
+
     def test_nine_giant_plants_are_picked_and_smashed_in_one_pass(self):
         self.run_lua('''
 for x=-1,1 do for z=-1,1 do crop('tomato',x,z,true)end end

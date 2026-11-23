@@ -2,4 +2,4 @@ Tractor working sound: Cab Tractor 02 by SFXMint (AI-generated).
 Source: https://sfxmint.com/sounds/tractor-02
 License: CC0 1.0 Universal / https://sfxmint.com/license
 Adaptations: mono conversion, circular loop crossfade, loudness matching.
-Idle and driving effects: original procedural synthesis.
+Idle and driving effects: original procedural synthesis. The driving loop is loudness-matched to the native farm-plow reference.

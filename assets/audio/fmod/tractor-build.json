@@ -1,6 +1,6 @@
 {
   "project": "aom_tractor_sfx",
-  "source": "idle/drive: original synthesis; work: SFXMint Cab Tractor 02, CC0 1.0",
+  "source": "idle/drive: original synthesis, drive loudness matched; work: SFXMint Cab Tractor 02, CC0 1.0",
   "events": [
     "tractor/idle",
     "tractor/drive",
@@ -48,13 +48,30 @@
         "target_offset": "0.31"
       },
       "wav_sha256": "a9aeb602d8863956f8c565bf5a4e922b89bb5e89eb16e744f3da030185a02906"
+    },
+    "drive": {
+      "gain_db": 7.5,
+      "measured": {
+        "input_i": "-15.85",
+        "input_tp": "-3.04",
+        "input_lra": "0.00",
+        "input_thresh": "-25.85",
+        "output_i": "-15.73",
+        "output_tp": "-3.00",
+        "output_lra": "0.00",
+        "output_thresh": "-25.73",
+        "normalization_type": "dynamic",
+        "target_offset": "0.19"
+      },
+      "wav_sha256": "e5a30c0d071195e818f17c0464e1b7bee65a79e7a27aeb8381cd195ac8fc54b1"
     }
   },
   "sample_rate": 44100,
   "channels": 1,
   "sha256": {
     "fev": "1911a7e8efec05ebc975e3cc6bbc20fb7be89ccd84c427f5dfd01c1b283c2f98",
-    "fsb": "4f3549dfcd8588306f5282d5729f4b63c70da26467e75895ae8154712938a4ca"
+    "fsb": "6af57f12d6c3f4aee1d2ec5c255bc0ca04869ab6b7501984093359dce6d9add1"
   },
-  "compiler_sha256": "0b3c375365bb89b442f15c3c944997f16a32f6eb1728f5b106dc9db19a87288e"
+  "compiler_sha256": "0b3c375365bb89b442f15c3c944997f16a32f6eb1728f5b106dc9db19a87288e",
+  "fsb_update": "Drive PCM replaced at the original sample offset. FEV, FSB headers, offsets and the other two PCM samples are unchanged."
 }

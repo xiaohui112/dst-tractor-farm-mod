@@ -103,7 +103,20 @@ class CalibratedAudioAssetsTests(unittest.TestCase):
 
     def test_pcm_bank_contains_exact_three_source_waves_and_default_gain(self):
         from music_bank import inspect_pcm_samples
-        fsb=(ROOT/'mod/Tractor/sound/aom_tractor_sfx.fsb').read_bytes()
+        bank=ROOT/'mod/Tractor/sound/aom_tractor_sfx'
+        fev=bank.with_suffix('.fev').read_bytes()
+        fsb=bank.with_suffix('.fsb').read_bytes()
+        manifest=json.loads((ROOT/'assets/audio/fmod/tractor-build.json').read_text())
+        self.assertIn(fsb[36:44],fev)
+        self.assertEqual(manifest['sha256'],{
+            'fev':hashlib.sha256(fev).hexdigest(),
+            'fsb':hashlib.sha256(fsb).hexdigest(),
+        })
+        calibration=manifest['loudness']
+        drive=calibration['drive']
+        self.assertLessEqual(abs(float(drive['measured']['input_i'])-calibration['target_lufs']),.5)
+        self.assertLessEqual(float(drive['measured']['input_tp']),-3)
+        self.assertEqual(drive['wav_sha256'],hashlib.sha256((ROOT/'assets/audio/tractor_drive.wav').read_bytes()).hexdigest())
         samples=inspect_pcm_samples(fsb)
         self.assertEqual(set(samples),{'tractor_idle','tractor_drive','tractor_work'})
         for name,entry in samples.items():

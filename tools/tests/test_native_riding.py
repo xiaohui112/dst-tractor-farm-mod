@@ -172,11 +172,11 @@ for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvest
   if calls[key] then return false,'NOTHING_TO_DO',true end
   calls[key]=true;return true,nil,true
  end
- p.Transform:SetPosition(4,0,0)
+ p.Transform:SetPosition(0,0,0)
  press_f(p);release_f(p)
  local task=t._worktask
  assert(t._working and task)
- task.fn(t);p.Transform:SetPosition(12,0,0);task.fn(t)
+ task.fn(t);p.Transform:SetPosition(8,0,0);task.fn(t)
  assert(calls['0:0'] and calls['4:0'] and calls['8:0'])
  for i=1,10 do task.fn(t)end
  assert(t._working and not task.cancelled and not p.attacks)

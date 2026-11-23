@@ -65,29 +65,28 @@ while #queue>0 do n=n+1;assert(n<20000);local fn=table.remove(queue,1);fn() end
 assert(inst._block and inst._block.total==15 and inst._block.done>0)
 ''')
 
- def test_preview_uses_seeder_tile_and_waits_if_it_left_the_planned_field(self):
+ def test_preview_uses_the_drivers_tile_and_waits_if_they_leave_the_planned_field(self):
   self.lua.execute('''dynfield(0,0);dynfield(8,0);dyninst({tomato=12,potato=12})
 local queue,preview={},nil
 inst.DoTaskInTime=function(_,delay,fn)
  if delay==2 then preview=fn else queue[#queue+1]=fn end
 end
-inst._rider.Transform=inst.Transform
-inst._working=true;inst.x=2.6 -- 车在4格，作业点在后方的0格。
+inst._working=true;inst.x=1.9 -- 驾驶员靠近当前地皮边缘，规划仍从 0 格开始。
 local ok,why=Drive.WorkHere(inst);assert(not ok and why=='PLANNING')
 while #queue>0 do table.remove(queue,1)() end
 local plan=inst._block
 assert(preview and #plan.tiles==1 and plan.tiles[1].x==0)
-inst.x=12;preview()
+inst.x=8;preview()
 assert(inst._block==plan and plan.done==0 and crop_count()==0)
 Drive.TrackMovement(inst);assert(plan.done==0)
-inst.x=2.6;Drive.TrackMovement(inst)
+inst.x=1.9;Drive.TrackMovement(inst)
 assert(plan.done>0 and inst._block==plan)
 ''')
 
- def test_background_preparation_selects_field_under_seeder(self):
+ def test_background_preparation_selects_field_under_the_driver(self):
   self.lua.execute('''dynfield(0,0);dynfield(8,0);dyninst({tomato=12,potato=12})
 local now=10;GetTimeRealSeconds=function()return now end
-inst._rider.Transform=inst.Transform;inst.x=2.6;inst._working=false
+inst.x=1.9;inst._working=false
 local started=false
 D.Start=function(_,x,z,background)assert(x==0 and z==0 and background);started=true end
 D.PrepareNearby(inst);assert(not started)
