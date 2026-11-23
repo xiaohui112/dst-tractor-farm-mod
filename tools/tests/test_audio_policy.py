@@ -38,11 +38,11 @@ function mode(value)t._music_mode_net:set(value);p.x=p.x+1;Motion.Update(t);cont
 for _,setting in ipairs({'on','off','mute','on'})do
  mode(setting)
  if setting=='on' then
-  assert(playing[Music.HANDLE] and not playing[Motion.ENGINE] and not playing[Motion.WORK])
+  assert(playing[Music.HANDLE] and not playing[Motion.ENGINE])
   assert(volumes[Music.HANDLE]==1)
  else
-  assert(not playing[Music.HANDLE] and playing[Motion.ENGINE] and playing[Motion.WORK])
-  assert(volumes[Motion.WORK]==1 and volumes[Motion.ENGINE]==.45)
+  assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tractor/work')
+  assert(volumes[Motion.ENGINE]==1)
  end
 end
 local n=calls;p.x=p.x+1;Motion.Update(t);controller:Update();assert(calls==n)
@@ -51,7 +51,7 @@ local n=calls;p.x=p.x+1;Motion.Update(t);controller:Update();assert(calls==n)
     def test_stationary_work_plays_only_music_but_stopping_work_restores_idle(self):
         self.run_lua('''
 mode('on');Motion.Update(t)
-assert(playing[Music.HANDLE] and not playing[Motion.ENGINE] and not playing[Motion.WORK])
+assert(playing[Music.HANDLE] and not playing[Motion.ENGINE])
 t._workstatus:set(false);Motion.Update(t);controller:Update()
 assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 ''')
@@ -59,10 +59,10 @@ assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tr
     def test_no_water_no_fuel_swap_and_dismount_do_not_leave_stale_music_or_effects(self):
         self.run_lua('''
 mode('on');t._water_net:set(0);p.x=p.x+1;Motion.Update(t);controller:Update()
-assert(not playing[Music.HANDLE] and playing[Motion.ENGINE] and playing[Motion.WORK])
+assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tractor/work')
 t._water_net:set(20);mode('on')
 t._atttype_net:set('harvester');p.x=p.x+1;Motion.Update(t);controller:Update()
-assert(not playing[Music.HANDLE] and playing[Motion.WORK])
+assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tractor/work')
 t:SetFuel(0);Motion.Update(t);controller:Update();assert(next(playing)==nil)
 t:SetFuel(10);mode('on')
 p.components.rider:ActualDismount();Motion.Update(t);controller:Update();assert(next(playing)==nil)
@@ -71,9 +71,9 @@ p.components.rider:ActualDismount();Motion.Update(t);controller:Update();assert(
     def test_missing_music_bank_keeps_tractor_effects_and_pause_resume_does_not_stack_them(self):
         self.run_lua('''
 Music.ready=false;mode('on')
-assert(not playing[Music.HANDLE] and playing[Motion.WORK])
+assert(not playing[Music.HANDLE] and playing[Motion.ENGINE]=='aom_tractor_sfx/tractor/work')
 Music.ready=true;mode('on');PAUSED=true;controller:Update();assert(next(playing)==nil)
-PAUSED=false;controller:Update();assert(playing[Music.HANDLE] and not playing[Motion.WORK])
+PAUSED=false;controller:Update();assert(playing[Music.HANDLE] and not playing[Motion.ENGINE])
 ''')
 
 

@@ -38,6 +38,7 @@ end
 function crop(cropname,x,z,oversized)
  local v=CreateEntity();v.prefab='farm_plant_'..cropname
  v.tags.farm_plant=true;v.components.farmplantstress={}
+ v.is_oversized=oversized
  v.Transform:SetPosition(x or 0,0,z or 0)
  v.components.pickable=Pickable(v)
  v.components.pickable:SetUp(nil)

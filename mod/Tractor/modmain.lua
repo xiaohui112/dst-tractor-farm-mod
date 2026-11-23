@@ -21,6 +21,7 @@ PrefabFiles = {
 	"aom_exhaust_puff",
 	"aom_attachment_work_fx",
     "aom_refill_hose",
+    "aom_rain_barrel",
 }
 
 Assets = {
@@ -37,6 +38,8 @@ Assets = {
 	Asset("IMAGE", "images/aom_attachment_inventory.tex"),
 	Asset("ATLAS", "images/aom_tractor_icons.xml"),
 	Asset("IMAGE", "images/aom_tractor_icons.tex"),
+	Asset("ATLAS", "images/aom_rain_barrel.xml"),
+	Asset("IMAGE", "images/aom_rain_barrel.tex"),
 
 }
 
@@ -210,16 +213,6 @@ AOM_DETACH.priority=3
 AOM_DETACH.mount_valid=true
 AOM_DETACH.do_not_locomote=true
 
-AddComponentAction("SCENE","inspectable",function(item,doer,actions,right)
-    if not right or not item:HasTag(AOM_TAG.ATTACHMENT) then return end
-    local rider=doer.replica and doer.replica.rider
-    local vehicle=rider and rider:IsRiding() and rider:GetMount()
-    if not vehicle or not vehicle:HasTag(AOM_TAG.TRACTOR) then return end
-    local owner=item._aom_vehicle and item._aom_vehicle:value()
-    if not owner then table.insert(actions,AOM_ATTACH)
-    elseif owner==vehicle then table.insert(actions,AOM_DETACH) end
-end)
-
 -- 客户端只用 prefab/tag 和已同步挂件判断提示，执行时仍由服务端校验组件和余量。
 -- 客户端拿不到容器里的挂件实体（_attachment:value() 恒为 nil），挂件类型改读同步过来的 net_string。
 local function GetClientAttachmentType(target)
@@ -236,6 +229,15 @@ end)
 AOM_POND_REFILL.distance=Irrigator.POND_DISTANCE
 AOM_POND_REFILL.priority=3
 AOM_POND_REFILL.mount_valid=true
+
+local AOM_BARREL_REFILL=AddAction("AOM_BARREL_REFILL",L("从蓄水桶取水"),function(act)
+    local ok,msg=Irrigator.RefillFromBarrel(act.doer,act.target)
+    if ok then Feedback.Say(act.doer,msg);return true end
+    return false,Feedback.Reason(msg)
+end)
+AOM_BARREL_REFILL.distance=Irrigator.POND_DISTANCE
+AOM_BARREL_REFILL.priority=3
+AOM_BARREL_REFILL.mount_valid=true
 
 local AOM_SEA_REFILL=AddAction("AOM_SEA_REFILL",L("过滤海水"),function(act)
     local ok,msg=Irrigator.RefillFromSea(act.doer,act:GetActionPoint())
@@ -255,6 +257,23 @@ local function CanShowRefill(doer)
         and not (vehicle._refilling_net and vehicle._refilling_net:value())
         and vehicle._water_net:value()<vehicle._watermax_net:value(),vehicle
 end
+
+AddComponentAction("SCENE","inspectable",function(item,doer,actions,right)
+    if not right then return end
+    if item:HasTag("aom_rain_barrel") then
+        if item._barrel_water_net and item._barrel_water_net:value()>0 and CanShowRefill(doer) then
+            table.insert(actions,AOM_BARREL_REFILL)
+        end
+        return
+    end
+    if not item:HasTag(AOM_TAG.ATTACHMENT) then return end
+    local rider=doer.replica and doer.replica.rider
+    local vehicle=rider and rider:IsRiding() and rider:GetMount()
+    if not vehicle or not vehicle:HasTag(AOM_TAG.TRACTOR) then return end
+    local owner=item._aom_vehicle and item._aom_vehicle:value()
+    if not owner then table.insert(actions,AOM_ATTACH)
+    elseif owner==vehicle then table.insert(actions,AOM_DETACH) end
+end)
 
 AddComponentAction("SCENE","watersource",function(pond,doer,actions,right)
     if right and pond:HasTag("pond") and pond:HasTag("watersource") and CanShowRefill(doer) then
@@ -332,6 +351,14 @@ AddModRPCHandler("aom_rpc", "AOM_SEED_MODE", function(player)
 	if tractor ~= nil then tractor:CycleSeedStrategy(player) end
 end)
 
+AddModRPCHandler("aom_rpc","AOM_HARVEST_MODE",function(player,target)
+    local tractor=DrivenForInput(player)
+    if not tractor or target~=tractor then return end
+    local inventory=player.components.inventory
+    if inventory and inventory:GetActiveItem() then return end
+    tractor:CycleHarvestMode(player)
+end)
+
 AddModRPCHandler("aom_rpc", "AOM_DETACH", function(player,target)
 	local tractor = GetDrivenTractor(player)
     if tractor and target and target~=tractor then Feedback.Say(player,Feedback.Text("INVALID_TARGET"));return end
@@ -392,7 +419,7 @@ AOM_STORAGE.strfn=function(act)
     return container and container:IsOpenedBy(act.doer) and "CLOSE" or "GENERIC"
 end
 GLOBAL.STRINGS.ACTIONS.AOM_STORAGE={GENERIC=L("打开仓库"),CLOSE=L("关闭仓库")}
-Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_DETACH,AOM_POND_REFILL,AOM_SEA_REFILL,AOM_STORAGE})
+Feedback.InstallActions({AOM_REFUEL,AOM_REPAIR,AOM_LOAD,AOM_ATTACH,AOM_DETACH,AOM_POND_REFILL,AOM_BARREL_REFILL,AOM_SEA_REFILL,AOM_STORAGE})
 local MouseInput=require("aom_mouse_input")
 AddClassPostConstruct("components/playeractionpicker",function(self)
     MouseInput.WrapPicker(self,AOM_STORAGE,AOM_SEA_REFILL,function(doer,point)
@@ -422,6 +449,7 @@ GLOBAL.AOM_RPC = {
     MAINTAIN=GetModRPC("aom_rpc","AOM_MAINTAIN"),
 	TOGGLE_WORK = GetModRPC("aom_rpc", "AOM_TOGGLE_WORK"),
 	SEED_MODE = GetModRPC("aom_rpc", "AOM_SEED_MODE"),
+    HARVEST_MODE = GetModRPC("aom_rpc","AOM_HARVEST_MODE"),
 	DETACH = GetModRPC("aom_rpc", "AOM_DETACH"),
 	STORAGE = GetModRPC("aom_rpc", "AOM_STORAGE"),
 	CLOSE_STORAGE = GetModRPC("aom_rpc", "AOM_CLOSE_STORAGE"),
@@ -432,7 +460,12 @@ GLOBAL.AOM_RPC = {
 local WorkInput=require("aom_work_input")
 if not GLOBAL.TheNet:IsDedicated() then WorkInput.Install() end
 AddClassPostConstruct("components/playercontroller",WorkInput.WrapController)
-AddStategraphPostInit("wilson",require("aom_vehicle_motion").ConfigureMountSounds)
+local VehicleMotion=require("aom_vehicle_motion")
+AddStategraphPostInit("wilson",function(sg)
+    VehicleMotion.ConfigureMountSounds(sg)
+    VehicleMotion.ConfigureDriveSounds(sg)
+end)
+AddStategraphPostInit("wilson_client",VehicleMotion.ConfigureDriveSounds)
 AddClassPostConstruct("widgets/hoverer",require("aom_machine_info").Install)
 
 ---------------------------------------------------------------------------
@@ -459,9 +492,9 @@ local containers=require("containers")
 containers.MAXITEMSLOTS=math.max(containers.MAXITEMSLOTS or 0,Cargo.SLOTS)
 AddClassPostConstruct("widgets/containerwidget",require("widgets/aom_cargo_widget").Install)
 local RECIPE_PRODUCT={aom_tractor_chassis="aom_tractor_chassis"}
-local function AddMachineRecipe(name,ingredients,tech)
+local function AddMachineRecipe(name,ingredients,tech,atlas)
     AddRecipe2(name,ingredients,tech,{product=RECIPE_PRODUCT[name] or name,placer=name.."_placer",min_spacing=2,
-        atlas="images/aom_tractor_icons.xml",image=name..".tex"},{"GARDENING"})
+        atlas=atlas or "images/aom_tractor_icons.xml",image=name..".tex"},{"GARDENING"})
 end
 
 AddMachineRecipe("aom_tractor_chassis", {
@@ -481,6 +514,10 @@ AddMachineRecipe("aom_seeder", {
 AddMachineRecipe("aom_irrigator", {
     Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("waterballoon", 3),
 }, TECH.SCIENCE_TWO)
+
+AddMachineRecipe("aom_rain_barrel", {
+    Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("cutstone", 2),
+}, TECH.SCIENCE_TWO, "images/aom_rain_barrel.xml")
 
 AddMachineRecipe("aom_fertilizer", {
     Ingredient("boards", 2), Ingredient("rope", 2), Ingredient("fertilizer", 2, nil, true),
@@ -517,6 +554,7 @@ local SHORT_ACTION_ACTIONS = {
 	AOM_LOAD,         -- 装料
 	AOM_ATTACH,       -- 装挂件
 	AOM_POND_REFILL,  -- 骑乘时在池塘边补满洒水机
+	AOM_BARREL_REFILL,
 	AOM_SEA_REFILL,   -- 骑乘时在岸上过滤海水
 }
 

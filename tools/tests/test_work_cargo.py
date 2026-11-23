@@ -120,6 +120,53 @@ assert(quantity(t,'spoiled_food')==1 and quantity(player,'tomato')==0)
 assert(t._fuel:value()==599 and t:GetAttachment().components.finiteuses:GetUses()==199)
 ''')
 
+    def test_keep_giants_harvests_whole_even_after_crossing_a_full_tile(self):
+        self.run_lua('''
+fill()
+local normal=crop('corn',0,0,false)
+local existing=giant('carrot',1,0)
+local giant_plant=crop('tomato',4,0,true)
+local other_normal=crop('corn',5,0,false)
+assert(t:CycleHarvestMode(player))
+t:SetWorking(true)
+assert(not Drive.WorkTile(t,0,0))
+assert(t._working and normal:IsValid() and existing:IsValid() and t._fuel:value()==600)
+assert(Drive.WorkTile(t,4,0))
+assert(not giant_plant:IsValid() and other_normal:IsValid() and t._working)
+local intact
+for _,item in ipairs(ENTITIES)do
+ if item:IsValid() and item.prefab=='tomato_oversized' then
+  assert(not intact);intact=item
+ end
+end
+assert(intact and intact.x==4 and intact.z==0 and not intact.components.inventoryitem.owner)
+assert(intact.components.workable:GetWorkLeft()==1 and existing.components.workable:GetWorkLeft()==1)
+assert(t._fuel:value()==599 and t.components.finiteuses:GetUses()==999)
+assert(t:GetAttachment().components.finiteuses:GetUses()==199)
+assert(not Drive.WorkTile(t,4,0) and intact:IsValid() and t._fuel:value()==599)
+''')
+
+    def test_keep_giants_stores_ordinary_harvest_and_respects_protection_when_full(self):
+        self.run_lua('''
+local normal=crop('corn',0,0,false)
+local giant_plant=crop('tomato',1,0,true)
+assert(t:CycleHarvestMode(player))
+assert(Drive.WorkTile(t,0,0) and not normal:IsValid() and not giant_plant:IsValid())
+assert(quantity(t,'corn')==1 and quantity(t,'corn_seeds')==1)
+assert(quantity(nil,'tomato_oversized')==1 and quantity(t,'tomato')==0)
+for slot=1,15 do
+ local item=t.components.container:RemoveItemBySlot(slot)
+ if item then item:Remove() end
+end
+fill()
+local protected=crop('tomato',4,0,true)
+require('aom_weed_defense').FindIvy=function(plant)return plant==protected end
+t:SetWorking(true)
+local changed,reason=Drive.WorkTile(t,4,0)
+assert(not changed and reason=='IVY_THREAT' and not t._working)
+assert(protected:IsValid() and t._fuel:value()==599)
+''')
+
     def test_weeding_collects_old_ground_items_and_new_drops_then_continues(self):
         self.run_lua('''
 local e=tool('aom_weeder');local a=weed(0,0);local b=weed(4,0)

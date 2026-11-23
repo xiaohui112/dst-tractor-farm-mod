@@ -80,6 +80,53 @@ local d=add_stock(material('tie',{0,24,0},3),5)
 assert(Fertilizer.Select(store,{99,0,100})==c)
 ''')
 
+    def test_one_tile_consumes_cargo_then_driver_pockets_then_equipped_backpack(self):
+        self.run_lua('''
+set_nutrients(100,98,83)
+local cargo=add_stock(material('cargo_fertilizer',{0,0,1},2),2)
+local personal=hold(material('personal_fertilizer',{0,2,8},1),1)
+local backpack=engine_entity()
+backpack.components.container=new_container(backpack,4)
+function farmer.components.inventory:GetOverflowContainer()return backpack.components.container end
+local bucket=material('backpack_bucket',{0,0,8},nil,3)
+assert(backpack.components.container:GiveItem(bucket,1))
+local applied={}
+for _,item in ipairs({cargo,personal,bucket})do
+ item.components.fertilizer.onappliedfn=function(e)applied[#applied+1]=e.prefab end
+end
+start_fertilizer();Drive.TrackMovement(inst)
+local a,b,c=nutrients()
+assert(a==100 and b==100 and c==100)
+assert(table.concat(applied,',')=='cargo_fertilizer,cargo_fertilizer,personal_fertilizer,backpack_bucket')
+assert(not cargo:IsValid() and not personal:IsValid() and bucket.components.finiteuses:GetUses()==2)
+assert(bucket.components.inventoryitem.owner==backpack and backpack.components.container:GetItemInSlot(1)==bucket)
+assert(inst._fuel:value()==799 and inst.components.finiteuses.used==1 and inst._working)
+''')
+
+    def test_empty_cargo_allows_f_with_backpack_and_unequipping_stops_access(self):
+        self.run_lua('''
+set_nutrients(100,100,92);set_nutrients(100,100,92,4,0)
+local backpack=engine_entity();backpack.components.container=new_container(backpack,4)
+local bag_slot=backpack.components.container
+function farmer.components.inventory:GetOverflowContainer()return bag_slot end
+farmer.components.rider={IsRiding=function()return true end,GetMount=function()return inst end}
+function inst:DoPeriodicTask(_,fn)return {fn=fn,Cancel=function()end}end
+local fertilizer=material('backpack_fertilizer',{0,0,8},2)
+assert(bag_slot:GiveItem(fertilizer,1) and store:GetFertilizerCount()==0)
+assert(Drive.ToggleWorking(inst,farmer));Drive.TrackMovement(inst)
+assert(fertilizer.components.stackable:StackSize()==1 and inst._working and inst._fuel:value()==799)
+local kept=hold(material('unsuitable_compost',{0,12,0},2),1)
+inst.Transform:SetPosition(4,0,0);Drive.TrackMovement(inst)
+assert(not fertilizer:IsValid() and kept.components.stackable:StackSize()==2 and inst._working and inst._fuel:value()==798)
+inst.Transform:SetPosition(8,0,0);set_nutrients(100,100,92,8,0)
+fertilizer=material('backpack_fertilizer',{0,0,8},2)
+assert(bag_slot:GiveItem(fertilizer,1))
+bag_slot=nil
+Drive.TrackMovement(inst)
+assert(fertilizer.components.stackable:StackSize()==2 and kept.components.stackable:StackSize()==2)
+assert(inst._working and inst._fuel:value()==798)
+''')
+
     def test_no_fertility_improvement_does_not_consume_anything(self):
         self.run_lua('''
 set_nutrients(100,100,100)

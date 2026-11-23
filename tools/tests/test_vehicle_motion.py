@@ -43,7 +43,22 @@ class VehicleAssetTests(unittest.TestCase):
                     frames={a['facing']:next(e['frame'] for e in a['frames'][0]['elements'] if e['symbol']==name_hash(kind)) for a in variants}
                     self.assertEqual(frames[8],3);self.assertEqual(frames[2],4)
 
-    def test_real_driver_run_has_wheel_frames_and_suspension_in_every_direction(self):
+    def test_wheel_lines_only_animate_when_the_wheel_faces_are_visible(self):
+        wheel=name_hash('aom_wheels')
+        for name in ('aom_tractor_chassis','aom_tractor_cabin','aom_tractor_driver',
+                     'aom_tractor_driver_075','aom_tractor_driver_125','aom_tractor_driver_150'):
+            with self.subTest(bank=name),ZipFile(ROOT/'mod/Tractor/anim'/(name+'.zip')) as z:
+                self.assertIsNone(z.testzip())
+                anim=parse_anim(z.read('anim.bin'))
+                for a in anim['animations']:
+                    wheels={e['frame'] for f in a['frames'] for e in f['elements'] if e['symbol']==wheel}
+                    if a['facing'] in (2,8):
+                        self.assertFalse(wheels,(a['name'],a['facing']))
+                    elif a['name']=='run_loop':
+                        self.assertGreater(len(wheels),3,a['facing'])
+                del anim
+
+    def test_real_driver_run_has_suspension_in_every_direction(self):
         with ZipFile(ROOT/'mod/Tractor/anim/aom_tractor_driver.zip') as z:
             with ZipFile(ROOT/'mod/Tractor/anim/aom_tractor_cabin.zip') as shared:
                 _,symbols=build_frames(shared.read('build.bin'))
@@ -52,9 +67,8 @@ class VehicleAssetTests(unittest.TestCase):
             for name in ['mount','dismount','idle_loop','run_pre','run_loop','run_pst']:
                 self.assertEqual({a['facing'] for a in anim['animations'] if a['name']==name},{5,48,192,2,8})
             for a in [a for a in anim['animations'] if a['name']=='run_loop']:
-                wheels=[next(e['frame'] for e in f['elements'] if e['symbol']==name_hash('aom_wheels')) for f in a['frames']]
                 body=[next(e['matrix'][5] for e in f['elements'] if e['symbol']==name_hash('aom_cabin_front')) for f in a['frames']]
-                self.assertGreater(len(set(wheels)),3);self.assertGreater(max(body)-min(body),2)
+                self.assertGreater(max(body)-min(body),2)
             for a in [a for a in anim['animations'] if a['name'].startswith(('run_','walk_','sprint_')) or a['name']=='idle_loop']:
                 reference=None
                 for f in a['frames']:
@@ -107,20 +121,55 @@ class VehicleMotionTests(unittest.TestCase):
     def setUp(self):
         engine=riding.NativeRidingTests();engine.setUp();self.lua=engine.lua
 
+    def test_only_tractor_mutes_mounted_steps_on_server_and_predicting_client(self):
+        self.lua.execute('''
+local function exercise(graph,predicted)
+ local played=0
+ local function sound()played=played+1 end
+ local function at(frame)return {time=frame*FRAMES,fn=sound}end
+ local start={at(0),at(5)}
+ local loop=predicted and {at(0),at(5)} or {at(0),at(1),at(8)}
+ local other=at(24)
+ loop[#loop+1]=other
+ local sg={states={run_start={timeline=start},run={timeline=loop}}}
+ SG_POST_FNS[graph](sg);SG_POST_FNS[graph](sg)
+ assert(other.fn==sound)
+ local mount
+ local driver={replica={},components={}}
+ local rider={GetMount=function()return mount end}
+ if predicted then driver.replica.rider=rider else driver.components.rider=rider end
+ local function run()
+  for _,event in ipairs(start)do event.fn(driver)end
+  for _,event in ipairs(loop)do event.fn(driver)end
+ end
+ mount=t;run();assert(played==1)
+ mount=make_player();run();assert(played==1+#start+#loop)
+ mount=nil;run();assert(played==1+2*(#start+#loop))
+end
+exercise('wilson',false)
+exercise('wilson_client',true)
+''')
+
     def test_engine_changes_idle_drive_work_without_duplicates_and_stops_on_empty_or_dismount(self):
         self.lua.execute('''
 local motion=require('aom_vehicle_motion')
-local playing={};local calls=0
-p.SoundEmitter.PlaySound=function(_,event,handle)playing[handle]=event;calls=calls+1 end
+local playing={};local calls=0;local gain
+p.SoundEmitter.PlaySound=function(_,event,handle,volume)
+ assert(next(playing)==nil);playing[handle]=event;calls=calls+1;gain=volume
+end
 p.SoundEmitter.KillSound=function(_,handle)playing[handle]=nil end
 assert(ACTIONS.MOUNT.fn({doer=p,target=t}));p.sg:GoToState('mounted_idle')
 motion.Update(t)
 assert(p.facing_count==8 and playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 for i=1,10 do motion.Update(t)end;assert(calls==1)
-t._workstatus:set(true);p.x=1;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and playing[motion.WORK])
-local n=calls;p.x=2;motion.Update(t);assert(calls==n)
-motion.Update(t);assert(not playing[motion.WORK] and playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
+p.x=1;motion.Update(t)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==.45)
+t._workstatus:set(true);p.x=2;motion.Update(t)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/work' and gain==1)
+local n=calls;p.x=3;motion.Update(t);assert(calls==n)
+t._workstatus:set(false);p.x=4;motion.Update(t)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==.45)
+motion.Update(t);assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 t:SetFuel(0);motion.Update(t);assert(next(playing)==nil)
 t:SetFuel(10);motion.Update(t);assert(playing[motion.ENGINE])
 p.components.rider:ActualDismount();motion.Update(t);assert(next(playing)==nil and p.facing_count==4)

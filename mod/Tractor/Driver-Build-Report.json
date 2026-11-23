@@ -36,12 +36,12 @@
     "aom_attachment_shared": "97b4b3e162918332109c32eec015b387e90647eefce52357b226b0fe36eb3652",
     "aom_attachment_fx": "6f0e9895124ecac8f2c3bc9d35ee8276b8735a323593c37831bcdce81aed7fc5",
     "aom_attachment_water": "981fbddf17060e38415bffb89e5282ecf65d2a926739685c1014c0a9d4110e9a",
-    "aom_tractor_chassis": "87bedeea224e98486b011037854e7a96176e7f335b52d2c44be6ec358c01fca8",
-    "aom_tractor_cabin": "eb9aefba60a66f2fbd101997910fc620e4e1fda77f13eaaa4b5f7c396e728849",
-    "aom_tractor_driver": "6c2740cdd296b151d284da0751feb219dcb9a7e51e19ac6f569f57396f2fef7f",
-    "aom_tractor_driver_075": "01d60d4460d1f73f1565b6945110242e94530cfcb2e9ce1acf7f9052abda542d",
-    "aom_tractor_driver_125": "e5d62a0ea3ae45730420e6b9884087c338269c58685e1ea4c9d3beabb9dc694e",
-    "aom_tractor_driver_150": "1a791629b255f4ac0b6210c56b4e83c0813171480f750320bac5a81c8060b121"
+    "aom_tractor_chassis": "d3919a0ce30cefacdf0fb5e78209b17497b1336306c75e28ff3b000589b88ba7",
+    "aom_tractor_cabin": "9ff9d488e23127ef4313b486ec29c2e77d6070f6b5acbd5bfa4c5c837a33a513",
+    "aom_tractor_driver": "4d1bbbaa9f2a7fe0e47e57f00ed61b8823cdb61b67639a94bcc1b53f576f6800",
+    "aom_tractor_driver_075": "45e3bf624c8bf528de75818b4faa82087552f2898b9da37fa91c8990e19a4213",
+    "aom_tractor_driver_125": "7c7f26aa308d96093a845a74018b5427d4c71a2464d7ca855e6fbead0fb9c365",
+    "aom_tractor_driver_150": "9959bdd4fbc6292e29cfc48117548405aa02f6afed22611a70aba34cf320f29a"
   },
   "game_validation": false
 }

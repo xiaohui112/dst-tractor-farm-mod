@@ -85,6 +85,8 @@ for _,scale in ipairs({1.875,2.5,3.125,3.75})do
  local old=package.loaded.aom_model_scale;package.loaded.aom_model_scale=scale
  local item=equipment('aom_harvester');assert(t:AttachAttachment(nil,item))
  assert(item.x==scale*.01 and item.bank=='aom_attachment_mounted')
+ local x,_,_,_,origin=Mount.WorkPosition(t)
+ assert(math.abs((x-origin)/scale-1.95/2.5)<1e-9)
  assert(t:DetachAttachment(nil));item:Remove();package.loaded.aom_model_scale=old
 end
 ''')

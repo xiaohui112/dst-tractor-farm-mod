@@ -194,6 +194,7 @@ local function OnSave(inst, data)
     if attachment and attachment:IsValid() then data.aom_attachment_record=attachment:GetSaveRecord() end
 	data.attachment_type = inst._attachment_type
 	data.seed_strategy = inst._seed_strategy
+    data.keep_oversized = inst._keep_oversized or nil
 	data.block = AOMBlock.OnSave(inst)
 end
 
@@ -201,6 +202,8 @@ local function OnLoad(inst, data)
 	if data == nil then return end
     -- 音乐以当前Mod配置为准，不恢复旧车的独立开关。
     inst._aom_attachment_record=data.aom_attachment_record
+    inst._keep_oversized=data.keep_oversized==true
+    inst._keep_oversized_net:set(inst._keep_oversized)
 	if data.fuel ~= nil then
 		SetFuel(inst, data.fuel)
 	end
@@ -376,6 +379,7 @@ local function fn()
 	inst._speedfactor_net=net_float(inst.GUID,"aom_tractor_chassis.speedfactor","aomspeeddirty")
 	-- 用 net_string 同步策略名（net_uint 无法在源码中确认存在，避免踩空）
 	inst._seedmode_net = net_string(inst.GUID, "aom_tractor_chassis.seedmode", "aomseedmodedirty")
+    inst._keep_oversized_net = net_bool(inst.GUID,"aom_tractor_chassis.keepoversized","aomharvestmodedirty")
     -- dirty 事件表示整组失效，监听者重读整组；共享事件不承诺跨 netvar 原子快照。
     -- 原因与参数需要一致快照，因此只使用一个载荷。
     inst._workstate_net = net_string(inst.GUID, "aom_tractor_chassis.workstate", "aomworkreasondirty")
@@ -506,6 +510,8 @@ local function fn()
 	inst._working = false
 	inst._seed_strategy = "SEQUENTIAL"
     inst._seedmode_net:set("SEQUENTIAL")
+    inst._keep_oversized=false
+    inst._keep_oversized_net:set(false)
 	inst._giant_planted = {}
 	inst._attachment_type = nil
 
@@ -517,6 +523,7 @@ local function fn()
 	inst.ToggleWorking = AOMDrive.ToggleWorking
 	inst.SetWorking = AOMDrive.SetWorking
 	inst.CycleSeedStrategy = AOMDrive.CycleSeedStrategy
+    inst.CycleHarvestMode = AOMDrive.CycleHarvestMode
 	inst.GetSeedStrategyName = AOMDrive.GetSeedStrategyName
 	inst.WorkHere = AOMDrive.WorkHere
 

@@ -367,13 +367,13 @@ press_f(player);release_f(player)
 assert(not t._working and string.find(require('aom_work_status').Describe(t),'近岸海面',1,true))
 ''')
 
-    def test_all_seven_recipes_require_alchemy_engine_for_first_unlock(self):
+    def test_all_eight_recipes_require_alchemy_engine_for_first_unlock(self):
         self.run_lua('''
 local n=0
 for name,tech in pairs(RECIPE_TECH)do assert(tech==TECH.SCIENCE_TWO,name);n=n+1 end
-assert(n==7 and RECIPE_RECORDS.aom_tractor_chassis.product=='aom_tractor_chassis')
+assert(n==8 and RECIPE_RECORDS.aom_tractor_chassis.product=='aom_tractor_chassis')
 for _,name in ipairs({'aom_tractor_chassis','aom_landclearer','aom_seeder','aom_irrigator',
- 'aom_fertilizer','aom_weeder','aom_harvester'})do assert(RECIPE_TECH[name]==TECH.SCIENCE_TWO)end
+ 'aom_fertilizer','aom_weeder','aom_harvester','aom_rain_barrel'})do assert(RECIPE_TECH[name]==TECH.SCIENCE_TWO)end
 ''')
 
     def test_sowing_payment_persists_on_soil_and_last_chassis_point_covers_complete_tile(self):

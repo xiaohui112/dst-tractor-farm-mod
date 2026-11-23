@@ -13,6 +13,13 @@ function M.Mark(vehicle)
     local result=vehicle and vehicle._aom_work_result
     if result then result.changed=true end
 end
+function M.MarkAt(vehicle,x,z)
+    local result=vehicle and vehicle._aom_work_result
+    if result then
+        result.changed=true
+        result.position=result.position or {x=x,z=z}
+    end
+end
 -- 原版回调可能在改动实体后抛错；无论是否抛错，都先观察真实结果。
 function M.Observe(vehicle,fn,changed)
     local ok,a,b,c=pcall(fn)
@@ -28,7 +35,7 @@ function M.Run(vehicle,fn)
     vehicle._aom_work_result=previous
     if ok then
         result.changed=result.changed or changed or false
-        result.reason=reason;result.complete=complete~=false;result.position=position
+        result.reason=reason;result.complete=complete~=false;result.position=position or result.position
     else
         result.reason="WORK_ERROR";result.error=tostring(changed)
     end

@@ -48,7 +48,7 @@ local WORK_MESSAGES={
     WATER_FAILED="本格补水未能完成，已保留实际浇水进度，请检查后按 F 重试",
 }
 local EMPTY_MESSAGES={seeder="种子不足，请补充后按 F 继续作业",
-    irrigator="水箱已空：停车右键池塘或近岸海面补水，再按 F 继续",
+    irrigator="水箱已空：停车右键蓄水桶、池塘或近岸海面补水，再按 F 继续",
     fertilizer="肥料不足，请补充后按 F 继续作业"}
 WORK_MESSAGES.WORK_ERROR="作业回调异常，已保留实际进度并停工；检查日志后按 F 重试"
 WORK_MESSAGES.DETACH_BLOCKED="配件已损坏，附近无空地；驶到空地后右键卸载并维修"

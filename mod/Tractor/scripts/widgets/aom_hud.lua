@@ -1,4 +1,4 @@
--- 仪表读 netvar/replica；播种机在原表盘显示当前模式和切换提示。
+-- 仪表读 netvar/replica；可切换的挂件共用模式标签和操作提示。
 local Widget=require("widgets/widget")
 local Dial=require("widgets/aom_badge")
 local Text=require("widgets/text")
@@ -6,7 +6,11 @@ local L=require("aom_locale").Text
 local Seed=require("aom_seed_strategy")
 local ATT={}
 for kind,def in pairs(require("aom_equipment_defs")) do ATT[kind]=def.prefab end
-local MODE={SEQUENTIAL="顺序",GIANT_TEMPLATE="巨大化·模版",GIANT="巨大化·最优"}
+local SEED_MODES={SEQUENTIAL="顺序",GIANT_TEMPLATE="巨大化·模版",GIANT="巨大化·最优"}
+local MODE_CONTROLS={
+    seeder={rpc="SEED_MODE",tip="播种策略：%s",hint="空手左键播种机图标，可切换巨大化配比"},
+    harvester={rpc="HARVEST_MODE",tip="收割模式：%s",hint="空手左键收割机图标，可切换是否保留巨大作物"},
+}
 local function Value(inst,key,default)
     local net=inst and inst[key]
     if net then return net:value() end
@@ -46,18 +50,19 @@ local AOMHud=Class(Widget,function(self,owner)
         local inventory=self.owner.replica and self.owner.replica.inventory
         if inventory and inventory:GetActiveItem() then
             self:Send(AOM_RPC.MAINTAIN,self.tractor,"tool")
-        elseif Value(self.tractor,"_atttype_net","")=="seeder" then
-            self:Send(AOM_RPC.SEED_MODE)
+        else
+            local control=MODE_CONTROLS[Value(self.tractor,"_atttype_net","")]
+            if control then self:Send(AOM_RPC[control.rpc],self.tractor) end
         end
     end)
     local tool=self.badges.tool
-    self.seed_mode=tool:AddChild(Text(UIFONT,18))
-    self.seed_mode:SetPosition(0,-64,0)
-    self.seed_cycle=tool:AddChild(Text(UIFONT,19,"↻"))
-    self.seed_cycle:SetPosition(24,22,0)
-    self.seed_hint=tool:AddChild(Text(UIFONT,19))
-    self.seed_hint:SetPosition(-48,48,0)
-    for _,label in ipairs({self.seed_mode,self.seed_cycle,self.seed_hint}) do
+    self.mode_label=tool:AddChild(Text(UIFONT,18))
+    self.mode_label:SetPosition(0,-64,0)
+    self.mode_cycle=tool:AddChild(Text(UIFONT,19,"↻"))
+    self.mode_cycle:SetPosition(24,22,0)
+    self.mode_hint=tool:AddChild(Text(UIFONT,19))
+    self.mode_hint:SetPosition(-48,48,0)
+    for _,label in ipairs({self.mode_label,self.mode_cycle,self.mode_hint}) do
         label:SetColour(1,.88,.65,1)
         label:SetClickable(false)
         Visible(label,false)
@@ -87,25 +92,31 @@ function AOMHud:Send(rpc,...)
         SendModRPCToServer(rpc,...)
     end
 end
-function AOMHud:RefreshSeedMode(seeder,mode)
-    Visible(self.seed_mode,seeder)
-    Visible(self.seed_cycle,seeder)
-    if not seeder then
-        Visible(self.seed_hint,false)
-        return
+function AOMHud:RefreshMode(kind,mode)
+    local control=MODE_CONTROLS[kind]
+    Visible(self.mode_label,control~=nil)
+    Visible(self.mode_cycle,control~=nil)
+    if kind~=self.mode_kind then
+        self.mode_kind=kind
+        Visible(self.mode_hint,false)
     end
-    self.seed_mode:SetString(L(MODE[Seed.Normalize(mode)]))
-    if not self.owner._aom_seed_hint_seen then
-        self.owner._aom_seed_hint_seen=true
-        self.seed_hint:SetString(L("空手左键播种机图标，可切换巨大化配比"))
-        Visible(self.seed_hint,true)
-        self.inst:DoTaskInTime(4,function()Visible(self.seed_hint,false)end)
+    if not control then return end
+    self.mode_label:SetString(L(mode))
+    local seen=self.owner._aom_mode_hints or {}
+    self.owner._aom_mode_hints=seen
+    if not seen[kind] then
+        seen[kind]=true
+        self.mode_hint:SetString(L(control.hint))
+        Visible(self.mode_hint,true)
+        self.inst:DoTaskInTime(4,function()
+            if self.mode_kind==kind then Visible(self.mode_hint,false) end
+        end)
     end
 end
 function AOMHud:Refresh(tractor)
     require("aom_plan_preview").Refresh(self,tractor)
     if not tractor or not tractor:IsValid() or self.owner:HasTag("playerghost")then
-        self:RefreshSeedMode(false)
+        self:RefreshMode("")
         self.tractor=nil;self:Hide();return
     end
     self.tractor=tractor
@@ -113,8 +124,18 @@ function AOMHud:Refresh(tractor)
     self._cargo_open=storage and storage:IsOpenedBy(self.owner) or false
     self.root:SetPosition(0,166,0)
     local kind=Value(tractor,"_atttype_net","")
-    local mode=Value(tractor,"_seedmode_net","SEQUENTIAL")
-    self:RefreshSeedMode(kind=="seeder",mode)
+    local mode,next_mode
+    if kind=="seeder" then
+        local strategy=Seed.Normalize(Value(tractor,"_seedmode_net","SEQUENTIAL"))
+        mode,next_mode=SEED_MODES[strategy],SEED_MODES[Seed.Next(strategy)]
+    elseif kind=="harvester" then
+        if Value(tractor,"_keep_oversized_net",false) then
+            mode,next_mode="保留巨大","全部收割"
+        else
+            mode,next_mode="全部收割","保留巨大"
+        end
+    end
+    self:RefreshMode(kind,mode)
     self.order=kind=="irrigator" and {"health","chassis","fuel","cargo","tool","water"} or {"health","chassis","fuel","cargo","tool"}
     Visible(self.badges.water,kind=="irrigator")
     self:MatchStatusScale()
@@ -133,9 +154,9 @@ function AOMHud:Refresh(tractor)
     self.badges.fuel:SetValue(fuel,800,L("燃料 %d/%d",fuel,800),nil,fuel<=0)
     if name then self.badges.tool:SetIcon("images/aom_attachment_inventory.xml",name..".tex")else self.badges.tool:SetIcon(nil)end
     local tool_tip=max>0 and att.."\n"..L("耐久 %d/%d",tool,max) or att
-    if kind=="seeder" then
-        tool_tip=tool_tip.."\n"..L("播种策略：%s",L(MODE[Seed.Normalize(mode)]))
-            .."\n"..L("空手左键切换 → %s",L(MODE[Seed.Next(mode)]))
+    if mode then
+        tool_tip=tool_tip.."\n"..L(MODE_CONTROLS[kind].tip,L(mode))
+            .."\n"..L("空手左键切换 → %s",L(next_mode))
     end
     self.badges.tool:SetValue(tool,max,tool_tip,max<=0 and "—" or nil,max>0 and tool<=0,max<=0)
     local full=code=="CARGO_FULL"

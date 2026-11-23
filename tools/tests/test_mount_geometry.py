@@ -17,43 +17,44 @@ class MountGeometryFlowTests(unittest.TestCase):
     setUp=world.WorldEquipmentTests.setUp
     run_lua=world.WorldEquipmentTests.run_lua
 
-    def test_all_six_emit_from_native_chimney_position_while_moving_and_working(self):
+    def test_all_six_use_the_right_exhaust_marker_while_moving_and_working(self):
         self.run_lua('''
 local Drive=require('aom_drive');ride()
 local store=t.components.aom_attachment_store
 store.GetWater=function()return 40 end;store.GetSeedCount=function()return 10 end
 store.GetFertilizerCount=function()return 10 end
 Drive.WorkTile=function()return false end
-player.AnimState.GetSymbolPosition=function(_,name)
- assert(name=='aom_driver_attachment_front');local x,_,z=player.Transform:GetWorldPosition()
- return x+1,8,z-2,true
+player.AnimState.GetSymbolPosition=function(_,symbol)
+ assert(symbol=='aom_driver_attachment_front')
+ local x,_,z=player.Transform:GetWorldPosition();return x+1,2.5,z+.5,true
 end
 local function puffs()
  local out={};for _,e in ipairs(ENTITIES)do if e.prefab=='aom_exhaust_puff' then out[#out+1]=e end end;return out
 end
 for _,name in ipairs({'aom_landclearer','aom_seeder','aom_irrigator','aom_fertilizer','aom_weeder','aom_harvester'})do
  local item=equipment(name);item.Transform:SetPosition(player.Transform:GetWorldPosition());assert(act(item))
+ item.AnimState.GetSymbolPosition=function()error('work smoke uses the exhaust')end
  local before=#puffs();t:SetWorking(true)
  for i=1,6 do local x,_,z=player.Transform:GetWorldPosition();player.Transform:SetPosition(x+.1,0,z);Drive.TrackMovement(t)end
  assert(#puffs()==before+2,name)
  local puff=puffs()[#puffs()];local x,_,z=player.Transform:GetWorldPosition()
- assert(math.abs(puff.x-(x+1))<.000001 and puff.y==8 and puff.z==z-2)
+ assert(math.abs(puff.x-(x+1))<.000001 and puff.y==2.5 and puff.z==z+.5)
  for i=1,10 do Drive.TrackMovement(t)end;assert(#puffs()==before+2)
  t:SetWorking(false);player.Transform:SetPosition(x+.1,0,z);Drive.TrackMovement(t);assert(#puffs()==before+2)
  assert(t:DetachAttachment(player));item:Remove()
 end
 ''')
 
-    def test_missing_driver_marker_uses_vehicle_marker_and_never_spawns_at_wrong_origin(self):
+    def test_missing_driver_marker_falls_back_to_the_chassis_exhaust_only(self):
         self.run_lua('''
 ride();local Motion=require('aom_vehicle_motion')
 player.AnimState.GetSymbolPosition=function()return 0,0,0,false end
 t.AnimState.GetSymbolPosition=function(_,name)assert(name=='attachment_front');return 12,9,14,true end
-local spawned={};local spawn=SpawnPrefab
-SpawnPrefab=function(name)local e=spawn(name);spawned[#spawned+1]=e;return e end
-Motion.EmitExhaust(t);assert(#spawned==1 and spawned[1].x==12 and spawned[1].y==9 and spawned[1].z==14)
+Motion.EmitExhaust(t)
+local fx=ENTITIES[#ENTITIES];assert(fx.prefab=='aom_exhaust_puff' and fx.x==12 and fx.y==9 and fx.z==14)
 t.AnimState.GetSymbolPosition=function()return 0,0,0,false end
-Motion.EmitExhaust(t);assert(#spawned==1)
+SpawnPrefab=function()error('unexpected smoke without a visible exhaust symbol')end
+Motion.EmitExhaust(t)
 ''')
 
     def test_all_six_switch_banks_on_mount_detach_and_remount_without_losing_durability(self):
@@ -123,7 +124,10 @@ class MountGeometryAssetTests(unittest.TestCase):
                         for x,y in zip(delta,previous):self.assertAlmostEqual(x,y,places=4)
 
     def test_all_driver_sizes_have_chimney_markers_in_every_direction_and_motion_frame(self):
-        names=['aom_tractor_driver','aom_tractor_driver_075','aom_tractor_driver_125','aom_tractor_driver_150','aom_tractor_chassis']
+        names=['aom_tractor_driver','aom_tractor_driver_075','aom_tractor_driver_125','aom_tractor_driver_150',
+               'aom_tractor_chassis','aom_tractor_cabin']
+        self.assertLess(LAYOUT['tractor']['exhaust'][3][0],.5)
+        self.assertGreater(LAYOUT['tractor']['exhaust'][4][0],.5)
         points=[]
         for i,view in enumerate(LAYOUT['views']):
             with Image.open(ART/'sprites/tractor'/(view+'.png')) as im:w,h=im.size

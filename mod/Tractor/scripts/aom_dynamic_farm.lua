@@ -12,6 +12,12 @@ local Packing=require('aom_seed_packing')
 local Neighbors=require('aom_farm_neighbors')
 local Grid=require('aom_farm_grid')
 local Budget=require('aom_plan_budget')
+local Mount=require('aom_attachment_mount')
+local function WorkTilePosition(inst)
+ local x,_,z=Mount.WorkPosition(inst)
+ local cx,_,cz=TheWorld.Map:GetTileCenterPoint(x,0,z)
+ return cx,cz,x,z
+end
 local function Key(x,z)return string.format('%.3f:%.3f',x,z)end
 local function Number(x)return type(x)=='number' and x==x and math.abs(x)<1000000 end
 local function Defs()return require('prefabs/farm_plant_defs').PLANT_DEFS end
@@ -339,17 +345,25 @@ function M.Start(inst,cx,cz,background)
      if inst._block~=b or not inst._working or inst._attachment_type~='seeder' or not Seed.IsGiant(inst._seed_strategy) then
       M.Cancel(inst,'STATE_CHANGED');return
      end
-     trace:RunBegin();trace:Stage('sow_dispatch')
-     local source=inst._rider or inst
-     local x,_,z=source.Transform:GetWorldPosition();x,_,z=TheWorld.Map:GetTileCenterPoint(x,0,z)
-     require('aom_drive').WorkTile(inst,x,z)
-     trace:RunEnd()
+     local cx,cz,x,z=WorkTilePosition(inst)
+     for _,tile in ipairs(b.tiles)do
+      if tile.x==cx and tile.z==cz then
+       trace:RunBegin();trace:Stage('sow_dispatch')
+       require('aom_drive').WorkTile(inst,cx,cz,x,z)
+       trace:RunEnd()
+       return
+      end
+     end
+     trace:Stage('await_sow_tile')
     end)
     return
    else inst._aom_dynamic_reason=why end
    Finish('failed');trace:Complete('failed',why)
    if template and why=='INPUT_CHANGED' and inst._working then M.Start(inst,cx,cz);return end
-   if inst._working then local x,_,z=inst.Transform:GetWorldPosition();x,_,z=TheWorld.Map:GetTileCenterPoint(x,0,z);require('aom_drive').WorkTile(inst,x,z)end
+   if inst._working then
+    local cx,cz,x,z=WorkTilePosition(inst)
+    if cx and cz then require('aom_drive').WorkTile(inst,cx,cz,x,z)end
+   end
   else
    Finish(yielded_for)
    inst._aom_job_scheduled=true;inst:DoTaskInTime(FRAMES or 1/30,Tick)
@@ -363,8 +377,8 @@ function M.PrepareNearby(inst)
  if inst._seed_strategy=='GIANT_TEMPLATE' then return end
  if not GetTimeRealSeconds or not inst._rider or inst._working or inst._block or inst._attachment_type~='seeder' then return end
  local now=GetTimeRealSeconds();if now<(inst._aom_prepare_after or 0)then return end;inst._aom_prepare_after=now+2
- local x,_,z=inst._rider.Transform:GetWorldPosition();x,_,z=TheWorld.Map:GetTileCenterPoint(x,0,z)
- local key=CurrentKey(inst,x,z)
+ local x,z=WorkTilePosition(inst)
+ local key=x and z and CurrentKey(inst,x,z)
  if key~=inst._aom_candidate_key then
   inst._aom_candidate_key=key
   if inst._aom_background then M.Cancel(inst,'BACKGROUND_INPUT_CHANGED')end

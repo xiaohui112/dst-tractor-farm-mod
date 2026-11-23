@@ -175,6 +175,7 @@ def check_animation_assets():
                                    {"plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"}),
         "aom_attachment_symbols": ({"empty", "plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"},
                                     {"empty", "plow", "seeder", "irrigator", "fertilizer", "weeder", "harvester"}),
+        "aom_rain_barrel": ({"idle"}, {"barrel"}),
     }
     for name, (animations, symbols) in expected.items():
         try:
@@ -561,26 +562,26 @@ def check_cross_refs():
             if "return" not in open(p, encoding="utf-8").read().splitlines()[-1]:
                 warn("组件文件 %s 最后一行不是 return，可能无法注册" % comp)
 
-    # 配方产物必须有对应 prefab
-    for m in re.finditer(r'AddMachineRecipe\("(\w+)"', main):
-        name = m.group(1)
-        found = any(
-            'MakeAttachment("%s"' % name in open(p, encoding="utf-8").read()
-            or 'Prefab("%s"' % name in open(p, encoding="utf-8").read()
-            for p in glob.glob(os.path.join(MOD, "scripts", "prefabs", "*.lua"))
-        )
-        if not found:
-            fail("配方产物没有对应 prefab: %s" % name)
+    # 配方产物可以用字面量或文件内的常量注册，图标可指定独立图集。
+    prefabs = set()
+    for path in (Path(MOD)/"scripts/prefabs").glob("*.lua"):
+        source = path.read_text(encoding="utf-8")
+        prefabs.update(re.findall(r'\b(?:Prefab|MakeAttachment)\("(\w+)"', source))
+        constants = dict(re.findall(r'\blocal\s+(\w+)\s*=\s*"(\w+)"', source))
+        for constant in re.findall(r'\bPrefab\((\w+)\s*,', source):
+            if constant in constants:
+                prefabs.add(constants[constant])
 
-    # 配方图标
-    for m in re.finditer(r'AddMachineRecipe\("(\w+)"', main):
-        name = m.group(1)
-        icon = os.path.join(MOD, "images", "aom_tractor_icons.xml")
-        if not os.path.exists(icon):
-            fail("配方图标图集缺失 images/aom_tractor_icons.xml")
+    recipes = re.findall(r'AddMachineRecipe\("(\w+)",\s*\{[^}]*\},\s*TECH\.\w+(?:,\s*"([^"]+)")?\)', main)
+    for name, atlas in recipes:
+        if name not in prefabs:
+            fail("配方产物没有对应 prefab: %s" % name)
+        atlas = atlas or "images/aom_tractor_icons.xml"
+        icon = Path(MOD)/atlas
+        if not icon.is_file():
+            fail("配方图标图集缺失 %s" % atlas)
         else:
-            xml = open(icon, encoding="utf-8").read()
-            if name + ".tex" not in xml:
+            if 'name="%s.tex"' % name not in icon.read_text(encoding="utf-8"):
                 fail("配方图集里没有 %s.tex 这个元素" % name)
 
     # 挂件图标

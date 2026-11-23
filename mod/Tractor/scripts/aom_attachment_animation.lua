@@ -10,6 +10,7 @@ local function ClearEffects(item)
     end
     item._aom_work_effects=nil
     item._aom_stream=nil
+    item._aom_effect_tile=nil
     item._aom_effect_until=nil
     item._aom_dirt_x,item._aom_dirt_z=nil,nil
 end
@@ -50,27 +51,50 @@ local function Track(item,fx)
     return fx
 end
 
-local function GroundEffect(item)
+local function GroundEffect(item,x,z)
     local fx=Track(item,SpawnPrefab("aom_work_soil"))
     if fx then
-        local x,_,z=item.Transform:GetWorldPosition()
         fx.Transform:SetPosition(x,0,z)
         fx.Transform:SetRotation(Mount.Rotation(item))
     end
 end
 
+local function WorkPointAndTile(vehicle)
+    local x,_,z=Mount.WorkPosition(vehicle)
+    local cx,_,cz=TheWorld.Map:GetTileCenterPoint(x,0,z)
+    return x,z,cx,cz
+end
+
+local function LeaveEffectTile(item,cx,cz)
+    local tile=item._aom_effect_tile
+    if tile and (cx~=tile.x or cz~=tile.z) then
+        if item._aom_stream and item._aom_stream:IsValid() then item._aom_stream:Remove() end
+        item._aom_stream,item._aom_effect_tile=nil,nil
+        item._aom_dirt_x,item._aom_dirt_z=nil,nil
+    end
+end
+
 -- 只在原版农业操作确实改动了地块后调用。失败/满水/无杂草不产生结果特效。
-function M.Success(vehicle,position)
+function M.Success(vehicle,position,x,z,cx,cz)
     if not TheWorld.ismastersim or not vehicle._working then return end
     local item=Mount.Get(vehicle)
     if not item or not item:IsValid() or not item._aom_anim_working then return end
     local kind=item.attachment_type
+    local work_x,work_z,work_cx,work_cz=WorkPointAndTile(vehicle)
+    LeaveEffectTile(item,work_cx,work_cz)
+    x,z,cx,cz=x or work_x,z or work_z,cx or work_cx,cz or work_cz
+    local at_work_point=cx==work_cx and cz==work_cz
+    if at_work_point then item._aom_effect_tile={x=cx,z=cz} end
     item._aom_effect_until=GetTime()+M.EFFECT_DURATION
     if item._aom_effect_task then item._aom_effect_task:Cancel() end
     item._aom_effect_task=item:DoTaskInTime(M.EFFECT_DURATION,function()ClearEffects(item)end)
-    if kind=="plow" then GroundEffect(item);return end
+    if kind=="plow" then
+        GroundEffect(item,x,z)
+        if at_work_point then item._aom_dirt_x,item._aom_dirt_z=x,z end
+        return
+    end
     local stream=kind=="irrigator" or kind=="fertilizer"
-    if stream and item._aom_stream and item._aom_stream:IsValid() then
+    if stream and at_work_point and item._aom_stream and item._aom_stream:IsValid() then
         local fx=item._aom_stream
         if fx._aom_timeout then fx._aom_timeout:Cancel() end
         fx._aom_timeout=fx:DoTaskInTime(1,fx.Remove)
@@ -79,7 +103,7 @@ function M.Success(vehicle,position)
     local fx=Track(item,SpawnPrefab("aom_work_"..kind))
     if not fx then return end
     fx.Transform:SetRotation(Mount.Rotation(item))
-    if stream then
+    if stream and at_work_point then
         fx.AnimState:SetBank(kind=="irrigator" and "aom_attachment_water_mounted" or "aom_attachment_fx_mounted")
         fx.AnimState:PlayAnimation(kind=="irrigator" and "spray" or "fertilizer",true)
         item._aom_stream=fx
@@ -87,9 +111,8 @@ function M.Success(vehicle,position)
         fx.Transform:SetPosition(0,0,0)
         fx.Transform:SetRotation(0) -- 子实体继承挂件方向，不能重复叠加世界角度。
     else
-        local x,y,z=item.Transform:GetWorldPosition()
-        if position then x,y,z=position.x,0,position.z end
-        fx.Transform:SetPosition(x,y,z)
+        if position then x,z=position.x,position.z end
+        fx.Transform:SetPosition(x,0,z)
     end
 end
 
@@ -103,14 +126,15 @@ function M.Update(item,vehicle)
         return
     end
     M.SetWorking(vehicle,true)
-    if item.attachment_type=="plow" and item._aom_effect_until
-        and GetTime()<item._aom_effect_until then
-        local x,_,z=item.Transform:GetWorldPosition()
+    if not item._aom_effect_tile then return end
+    local x,z,cx,cz=WorkPointAndTile(vehicle)
+    LeaveEffectTile(item,cx,cz)
+    if item.attachment_type=="plow" and GetTime()<(item._aom_effect_until or 0) then
         if item._aom_dirt_x and (x-item._aom_dirt_x)^2+(z-item._aom_dirt_z)^2>.12 then
-            GroundEffect(item)
+            GroundEffect(item,x,z)
+            item._aom_dirt_x,item._aom_dirt_z=x,z
         end
-        item._aom_dirt_x,item._aom_dirt_z=x,z
-    else item._aom_dirt_x,item._aom_dirt_z=nil,nil end
+    end
 end
 
 return M

@@ -532,7 +532,13 @@ function AOMFarmWork.Weed(x, y, z, doer, vehicle)
                 return changed,"WEEDING_INCOMPLETE",false
             end
             local before=w:GetWorkLeft()
-            local _,_,drops=Result.Observe(vehicle,function()return CaptureDrops(v,function()w:WorkedBy(doer,before)end)end, function()return not v:IsValid() or w:GetWorkLeft()<before end)
+            local px,_,pz=v.Transform:GetWorldPosition()
+            local _,_,drops=Result.Observe(vehicle,function()return CaptureDrops(v,function()w:WorkedBy(doer,before)end)end,
+                function()
+                    local cut=not v:IsValid() or w:GetWorkLeft()<before
+                    if cut then Result.MarkAt(vehicle,px,pz) end
+                    return cut
+                end)
             if not v:IsValid() or w:GetWorkLeft()<before then changed=true end
             collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops)
             if not collected then return changed,why,false end
@@ -552,7 +558,7 @@ function AOMFarmWork.Weed(x, y, z, doer, vehicle)
 end
 
 ---------------------------------------------------------------------------
--- 6) 收割机：原版采摘 + 巨大产物 HAMMER，产量与种子沿用原版回调。
+-- 6) 收割机：原版采摘，巨大产物可整颗保留或按原版 HAMMER 拆开。
 ---------------------------------------------------------------------------
 
 -- 只接管真实作物定义的巨大产物，不触碰同为 HAMMER 的建筑和打蜡装饰。
@@ -564,6 +570,14 @@ for crop,def in pairs(require("prefabs/farm_plant_defs").PLANT_DEFS) do
 end
 local function IsOversizedProduce(v)
     return v:IsValid() and v:HasTag("oversized_veggie") and OVERSIZED_PRODUCTS[v.prefab]==true
+end
+local function CanHarvestTarget(plant,vehicle,keep_oversized)
+    if keep_oversized then
+        if IsOversizedProduce(plant) then return false end
+        -- 完整产物会留在田里，成熟的巨大植株不需要预留货仓。
+        if plant.is_oversized and not Crops.IsRotten(plant) then return true end
+    end
+    return Cargo.CanHarvest(plant,vehicle)
 end
 local function FindOversizedProduce(x,y,z)
     local out={}
@@ -619,24 +633,30 @@ end
 
 -- 返回 changed, reason, ready；采摘与锤开在同一格内结算一次。
 function AOMFarmWork.Harvest(x, y, z, doer, vehicle)
+    local keep_oversized=vehicle and vehicle._keep_oversized
     -- 不让装不下的旧地面物/种子阻断其他仍可叠堆的作物。
     local collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,nil,true)
     if not collected then return false,why,false end
-    if not Cargo.HasSpace(vehicle) then return false,"CARGO_FULL",false end
+    if not keep_oversized and not Cargo.HasSpace(vehicle) then return false,"CARGO_FULL",false end
     local targets=FindMaturePlants(x,y,z,FIELD_RADIUS)
-    if #targets==0 and #FindOversizedProduce(x,y,z)==0 then return false,"NOTHING_TO_DO",true end
+    if #targets==0 and (keep_oversized or #FindOversizedProduce(x,y,z)==0) then return false,"NOTHING_TO_DO",true end
     if doer==nil then return false,"NO_WORKER",false end
     -- 采摘会调用原版护田广播。先检查所有待采株，不能采了一半才发现危险。
     for _,v in ipairs(targets) do
-        if Cargo.CanHarvest(v,vehicle) and WeedDefense.FindIvy(v,doer) then return false,"IVY_THREAT",false end
+        if CanHarvestTarget(v,vehicle,keep_oversized) and WeedDefense.FindIvy(v,doer) then return false,"IVY_THREAT",false end
     end
     local changed=false
     for _,v in ipairs(targets) do
-        if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) and Cargo.CanHarvest(v,vehicle) then
+        if v:IsValid() and SameTile(v,x,z) and CanHarvestPlant(v) and CanHarvestTarget(v,vehicle,keep_oversized) then
             if WeedDefense.FindIvy(v,doer) then return changed,"IVY_THREAT",false end
             local px,py,pz=v.Transform:GetWorldPosition()
             local p=v.components.pickable
-            local _,loot,drops=Result.Observe(vehicle,function()return PickForCargo(p,doer,vehicle,px,py,pz)end, function()return not v:IsValid() or v.components.pickable~=p or not p:CanBePicked() end)
+            local _,loot,drops=Result.Observe(vehicle,function()return PickForCargo(p,doer,vehicle,px,py,pz)end,
+                function()
+                    local picked=not v:IsValid() or v.components.pickable~=p or not p:CanBePicked()
+                    if picked then Result.MarkAt(vehicle,px,pz) end
+                    return picked
+                end)
             local picked=not v:IsValid() or v.components.pickable~=p or not p:CanBePicked()
             changed=changed or picked
             if not picked then return changed,"HARVEST_INCOMPLETE",false end
@@ -652,34 +672,42 @@ function AOMFarmWork.Harvest(x, y, z, doer, vehicle)
                         if not item:IsValid() or inventoryitem.owner~=nil then return changed,"HARVEST_INCOMPLETE",false end
                     end
                     item.Transform:SetPosition(px,py,pz)
-                    local worked,ready,giantdrops=BreakOversized(item,doer,vehicle)
-                    changed=changed or worked
-                    if not ready then return changed,"HARVEST_INCOMPLETE",false end
-                    for _,drop in ipairs(giantdrops or {}) do drops[#drops+1]=drop end
+                    if not keep_oversized then
+                        local worked,ready,giantdrops=BreakOversized(item,doer,vehicle)
+                        changed=changed or worked
+                        if not ready then return changed,"HARVEST_INCOMPLETE",false end
+                        for _,drop in ipairs(giantdrops or {}) do drops[#drops+1]=drop end
+                    end
                 end
             end
             collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,true)
             if not collected then return changed,why,false end
         end
     end
-    -- 再扫描同格地面，包含采摘回调直接落地的产物和此前已采下的巨大产物。
-    for _,v in ipairs(FindOversizedProduce(x,y,z)) do
-        if IsOversizedProduce(v) and SameTile(v,x,z) and Cargo.CanHarvest(v,vehicle) then
-            local item=v.components.inventoryitem
-            if item==nil or item.owner==nil then
-                local worked,ready,drops=BreakOversized(v,doer,vehicle)
-                changed=changed or worked
-                if not ready then return changed,"HARVEST_INCOMPLETE",false end
-                collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,true)
-                if not collected then return changed,why,false end
+    if not keep_oversized then
+        -- 再扫描同格地面，处理采摘回调或此前正常采收留下的巨大产物。
+        for _,v in ipairs(FindOversizedProduce(x,y,z)) do
+            if IsOversizedProduce(v) and SameTile(v,x,z) and Cargo.CanHarvest(v,vehicle) then
+                local item=v.components.inventoryitem
+                if item==nil or item.owner==nil then
+                    local px,_,pz=v.Transform:GetWorldPosition()
+                    local worked,ready,drops=BreakOversized(v,doer,vehicle)
+                    if worked then Result.MarkAt(vehicle,px,pz) end
+                    changed=changed or worked
+                    if not ready then return changed,"HARVEST_INCOMPLETE",false end
+                    collected,why=AOMFarmWork.CollectWorkItems(x,y,z,vehicle,drops,true)
+                    if not collected then return changed,why,false end
+                end
             end
         end
+        if not Cargo.HasSpace(vehicle) then return changed,"CARGO_FULL",false end
     end
-    if not Cargo.HasSpace(vehicle) then return changed,"CARGO_FULL",false end
     local remaining=FindMaturePlants(x,y,z,FIELD_RADIUS)
-    for _,v in ipairs(FindOversizedProduce(x,y,z))do remaining[#remaining+1]=v end
+    if not keep_oversized then
+        for _,v in ipairs(FindOversizedProduce(x,y,z))do remaining[#remaining+1]=v end
+    end
     for _,v in ipairs(remaining)do
-        if Cargo.CanHarvest(v,vehicle) then return changed,"HARVEST_INCOMPLETE",false end
+        if CanHarvestTarget(v,vehicle,keep_oversized) then return changed,"HARVEST_INCOMPLETE",false end
     end
     return changed,nil,true
 end

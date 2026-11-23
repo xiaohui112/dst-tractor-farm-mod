@@ -2,6 +2,8 @@
 local M={TARGET=100}
 local Locale=require("aom_locale")
 local L=Locale.Text
+local Cargo=require("aom_cargo")
+local EMPTY_NUTRIENTS={0,0,0}
 local function Number(n) return type(n)=="number" and n==n and n>=0 and n<math.huge end
 
 function M.Doses(item)
@@ -43,9 +45,20 @@ function M.Gain(item,n)
     return gain,total
 end
 
-function M.Select(store,n)
+function M.List(storage)
+    local items={}
+    if not storage or storage.readonlycontainer or not storage.GetItemInSlot then return items end
+    local slots=storage.GetNumSlots and storage:GetNumSlots() or storage.numslots or 0
+    for slot=1,slots do
+        local item=storage:GetItemInSlot(slot)
+        if item and item:IsValid() and item.components.fertilizer then items[#items+1]=item end
+    end
+    return items
+end
+
+local function SelectFrom(items,n)
     local best,efficiency,bestgain=nil,-1,-1
-    for _,item in ipairs(store:ListFertilizers()) do
+    for _,item in ipairs(items) do
         local gain,total=M.Gain(item,n)
         if gain>0 then
             local ratio=gain/total
@@ -55,6 +68,18 @@ function M.Select(store,n)
         end
     end
     return best
+end
+
+function M.Select(store,n,driver)
+    local cargo=store and SelectFrom(store:ListFertilizers(),n)
+    if cargo then return cargo end
+    local inventory,backpack=Cargo.DriverStorage(driver)
+    return SelectFrom(M.List(inventory),n) or SelectFrom(M.List(backpack),n)
+end
+
+function M.HasMaterials(inst)
+    local store=inst.components.aom_attachment_store
+    return (store and store:GetFertilizerCount()>0) or M.Select(nil,EMPTY_NUTRIENTS,inst._rider)~=nil
 end
 
 -- 先确认实际养分增加，再且仅再调用一次原版 OnApplied；不预先拆走多次用量物品。
@@ -101,11 +126,11 @@ function M.WorkTile(inst,x,z)
     local changed,played=false,false
     -- 原版三类养分按整数存储；每次必须至少增加1点，最多需3*100份。
     for _=1,3*M.TARGET do
-        local item=M.Select(store,n)
+        local item=M.Select(store,n,inst._rider)
         if not item then
             -- 某类养分无对应肥料不应关掉整台机器：余料仍可用于其他地块。
             -- 用空养分检查库存是否还有有效肥料，排除空桶、零养分或异常物品。
-            if M.Select(store,{0,0,0}) then
+            if M.Select(store,EMPTY_NUTRIENTS,inst._rider) then
                 inst._fertilizer_missing_text=nil;inst._fertilizer_missing_channels=nil
                 return changed,"NOTHING_TO_DO",true
             end

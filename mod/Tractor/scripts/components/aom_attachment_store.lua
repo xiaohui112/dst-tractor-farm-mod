@@ -155,15 +155,7 @@ end
 ---------------------------------------------------------------------------
 
 function AttachmentStore:ListFertilizers()
-    local out={}
-    local c=self.container
-    if c then
-        for i=1,c.numslots or 0 do
-            local item=c:GetItemInSlot(i)
-            if item and item:IsValid() and item.components.fertilizer then out[#out+1]=item end
-        end
-    end
-    return out
+    return require("aom_fertilizer").List(self.container)
 end
 
 -- 统计真实可施用次数，包含多次用量和堆叠；不把一桶肥料算作一次。

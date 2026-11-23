@@ -44,12 +44,14 @@ function M.SlotPositions(container,doer)
 end
 local function Container(vehicle)return vehicle and vehicle.components.container end
 local function Slots(c)return c.GetNumSlots and c:GetNumSlots() or c.numslots or 0 end
-local function Destinations(vehicle)
-    local cargo=Container(vehicle)
-    local driver=vehicle and vehicle._rider
+function M.DriverStorage(driver)
     local inventory=driver and driver:IsValid() and driver.components.inventory
     local backpack=inventory and inventory.GetOverflowContainer and inventory:GetOverflowContainer()
-    return cargo,inventory,backpack
+    return inventory,backpack
+end
+local function Destinations(vehicle)
+    local inventory,backpack=M.DriverStorage(vehicle and vehicle._rider)
+    return Container(vehicle),inventory,backpack
 end
 
 local function PutInContainer(container,item,picker,pos)

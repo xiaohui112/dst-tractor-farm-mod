@@ -35,6 +35,66 @@ end
 
     def run_lua(self,s):self.lua.execute(s)
 
+    def test_all_six_select_the_tool_tile_across_driver_boundary(self):
+        self.run_lua('''
+local store=t.components.aom_attachment_store
+store.GetSeedCount=function()return 10 end
+store.GetWater=function()return 40 end
+store.GetFertilizerCount=function()return 10 end
+for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester'})do
+ local item=mounted(kind);local front=kind=='harvester'
+ local visited={}
+ Drive.WorkTile=function(_,cx,cz,x,z)
+  local tile,_,tilez=TheWorld.Map:GetTileCenterPoint(x,0,z)
+  assert(cx==tile and cz==tilez,kind)
+  visited[#visited+1]=cx
+  Animation.Success(t,nil,x,z,cx,cz)
+  return true
+ end
+ player.Transform:SetRotation(0)
+ player.Transform:SetPosition(front and 1 or 2.5,0,0)
+ t:SetWorking(true);Drive.TrackMovement(t)
+ assert(#visited==1 and visited[1]==(front and 4 or 0),kind)
+ local fx=item._aom_work_effects[1]
+ if kind=='irrigator' or kind=='fertilizer' then
+  assert(fx.parent==item and item._aom_effect_tile.x==visited[1],kind)
+ else
+  local x,_,z=Mount.WorkPosition(t);assert(fx.x==x and fx.z==z,kind)
+ end
+ player.Transform:SetPosition(front and .5 or 3,0,0);Drive.TrackMovement(t)
+ assert(#visited==1,kind)
+ player.Transform:SetPosition(front and 0 or 4.5,0,0);Drive.TrackMovement(t)
+ assert(#visited==2 and visited[2]==(front and 0 or 4),kind)
+ t:SetWorking(false);assert(act(item));item:Remove();player.Transform:SetPosition(0,0,0)
+end
+''')
+
+    def test_pivot_uses_destination_and_old_water_effect_does_not_follow_to_dry_tile(self):
+        self.run_lua('''
+local item=mounted('irrigator');t.components.aom_attachment_store.GetWater=function()return 40 end
+player.Transform:SetPosition(2,0,2);player.Transform:SetRotation(45)
+local visited={}
+Drive.WorkTile=function(_,cx,cz,x,z)
+ visited[#visited+1]={x=cx,z=cz}
+ if #visited==1 then Animation.Success(t,nil,x,z,cx,cz);return true end
+end
+t:SetWorking(true);Drive.TrackMovement(t)
+local fx=item._aom_stream;assert(fx and visited[1].x==0 and visited[1].z==4)
+player.Transform:SetRotation(225);Drive.TrackMovement(t);Mount.UpdateVisual(item)
+assert(#visited==2 and visited[2].x==4 and visited[2].z==0)
+assert(not fx:IsValid() and not item._aom_stream)
+''')
+
+    def test_water_fx_for_swept_tile_stays_where_that_tile_was_worked(self):
+        self.run_lua('''
+local item=mounted('irrigator');player.Transform:SetPosition(6,0,0)
+t:SetWorking(true)
+Animation.Success(t,nil,1.1,0,0,0)
+local fx=item._aom_work_effects[1]
+assert(fx and fx.x==1.1 and fx.z==0 and not fx.parent)
+assert(not item._aom_stream)
+''')
+
     def test_all_six_start_once_then_stop_loop_and_remove_effects_immediately(self):
         self.run_lua('''
 for _,kind in ipairs({'plow','seeder','irrigator','fertilizer','weeder','harvester'})do

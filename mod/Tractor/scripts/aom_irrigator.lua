@@ -70,6 +70,22 @@ function M.RefillFromPond(doer,pond)
     return false,L("无法补水。")
 end
 
+function M.RefillFromBarrel(doer,barrel)
+    if not barrel or not barrel:IsValid() or barrel.prefab~="aom_rain_barrel" or not barrel:HasTag("aom_rain_barrel")
+        or not barrel.GetStoredWater or not barrel.SupplyWater then
+        return false,L("蓄水桶无法取水。")
+    end
+    local vehicle,tool=RefillEquipment(doer)
+    if not vehicle then return false,tool end
+    local distance=M.POND_DISTANCE+barrel:GetPhysicsRadius(0)+doer:GetPhysicsRadius(0)
+    if doer:GetDistanceSqToInst(barrel)>distance*distance then return false,L("请驾驶拖拉机靠近蓄水桶。") end
+    if barrel:GetStoredWater()<=0 then return false,L("蓄水桶没水了。") end
+    if require("aom_pond_refill").Start(vehicle,doer,barrel,tool) then
+        return true,L("正在补水；移动或下车中止")
+    end
+    return false,L("无法补水。")
+end
+
 function M.CanRefillAtSea(doer,point)
     if not point or not TheWorld.Map.IsOceanAtPoint then return false end
     local x,y,z=doer.Transform:GetWorldPosition()

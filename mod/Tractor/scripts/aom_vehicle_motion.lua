@@ -1,9 +1,10 @@
 -- 所有客户端按同步骑手播放声音；声源在骑手上，避免隐藏底盘的坐标造成无声。
-local M={ENGINE="aom_tractor_engine",WORK="aom_tractor_work",WORK_VOLUME=1}
+local M={ENGINE="aom_tractor_engine"}
+local ENGINE_VOLUME={idle=.45,drive=.45,work=1}
 function M.EmitExhaust(inst)
     local rider=inst._rider
     if not rider or not rider:IsValid() then return end
-    -- 驾驶bank的空前挂点现作为烟筒口定位符号，随视图和车身悬挂一起移动。
+    -- 两个 bank 的空前挂点标记同一根烟筒：正面画面左侧，背面画面右侧。
     local x,y,z,found=rider.AnimState:GetSymbolPosition("aom_driver_attachment_front",0,0,0)
     if not found then
         x,y,z,found=inst.AnimState:GetSymbolPosition("attachment_front",0,0,0)
@@ -12,6 +13,35 @@ function M.EmitExhaust(inst)
     local puff=SpawnPrefab("aom_exhaust_puff")
     if puff then puff.Transform:SetPosition(x,y,z) end
 end
+
+local function MuteForTractor(event)
+    if event._aom_drive_sounds_muted then return end
+    local original=event.fn
+    event.fn=function(inst,...)
+        local rider=inst.replica and inst.replica.rider or inst.components.rider
+        local mount=rider and rider:GetMount()
+        if mount and mount:IsValid() and mount:HasTag("aom_tractor") then return end
+        return original(inst,...)
+    end
+    event._aom_drive_sounds_muted=true
+end
+
+-- 服务端和预测客户端的骑乘音效帧不同。仅包裹原版骑乘 Foley／脚步回调。
+local DRIVE_SOUND_FRAMES={
+    run_start={0,5},
+    run={0,1,5,8},
+}
+function M.ConfigureDriveSounds(sg)
+    for name,frames in pairs(DRIVE_SOUND_FRAMES) do
+        local state=sg.states and sg.states[name]
+        for _,event in ipairs(state and state.timeline or {}) do
+            for _,frame in ipairs(frames) do
+                if event.time==frame*FRAMES then MuteForTractor(event);break end
+            end
+        end
+    end
+end
+
 -- 原版mount第14帧只播放坐骑叫声；拖拉机沿用时间线但不发牛叫。
 function M.ConfigureMountSounds(sg)
     local state=sg.states and sg.states.mount
@@ -34,7 +64,6 @@ local function Stop(inst)
         require("aom_driver_speech").Clear(rider,inst)
         if rider.SoundEmitter then
             rider.SoundEmitter:KillSound(M.ENGINE)
-            rider.SoundEmitter:KillSound(M.WORK)
         end
         local replica=rider.replica and rider.replica.rider
         local mount=replica and replica:GetMount()
@@ -43,7 +72,6 @@ local function Stop(inst)
     end
     inst._aom_motion_rider=nil
     inst._aom_engine_event=nil
-    inst._aom_work_sound=false
     inst._aom_motion_attachment=nil
     inst._aom_motion_x,inst._aom_motion_z=nil,nil
 end
@@ -72,17 +100,17 @@ function M.Update(inst)
     local emitter=rider.SoundEmitter
     if not emitter then return end
     local music=require("aom_irrigator_music").PlaysInsteadOfTractor(inst)
-    local event=not music and inst._fuel:value()>0 and (moving and "drive" or "idle") or nil
+    local event
+    if not music and inst._fuel:value()>0 then
+        if not moving then event="idle"
+        elseif inst._workstatus:value() then event="work"
+        else event="drive" end
+    end
     if event~=inst._aom_engine_event then
         emitter:KillSound(M.ENGINE)
-        if event then emitter:PlaySound("aom_tractor_sfx/tractor/"..event,M.ENGINE,.45) end
+        if event then emitter:PlaySound("aom_tractor_sfx/tractor/"..event,M.ENGINE,ENGINE_VOLUME[event]) end
         inst._aom_engine_event=event
     end
-    local working=event~=nil and moving and inst._workstatus:value()
-    if working and not inst._aom_work_sound then
-        emitter:PlaySound("aom_tractor_sfx/tractor/work",M.WORK,M.WORK_VOLUME)
-    elseif not working and inst._aom_work_sound then emitter:KillSound(M.WORK) end
-    inst._aom_work_sound=working
 end
 
 function M.Attach(inst)

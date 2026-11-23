@@ -193,7 +193,8 @@ def vehicle_layers(index,mask,phase=None,cabin=False):
         element(nose,index,*front,y_scale(index),fz)]
     es[1]['matrix'][5]+=jiggle;es[2]['matrix'][5]+=bob
     if cabin:es.append(element('aom_cabin_back',0,z=1))
-    if moving:es.append(element('aom_wheels',index*12+phase,y=bob,z=-.1))
+    if moving and mask not in (8,2):
+        es.append(element('aom_wheels',index*12+phase,y=bob,z=-.1))
     return es
 
 

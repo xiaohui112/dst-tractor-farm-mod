@@ -131,14 +131,56 @@ local dismiss
 function hud.inst:DoTaskInTime(seconds,fn)
  assert(seconds==4 and not dismiss);dismiss=fn
 end
-assert(not hud.seed_mode:IsVisible() and not hud.seed_hint:IsVisible())
+assert(not hud.mode_label:IsVisible() and not hud.mode_hint:IsVisible())
 attach('aom_seeder')
-assert(hud.seed_hint:IsVisible() and hud.seed_cycle:GetString()=='↻')
-assert(hud.seed_mode:IsVisible() and hud.seed_mode:GetString()=='顺序')
-click(hud.badges.tool);assert(hud.seed_mode:GetString()=='巨大化·模版')
-dismiss();assert(not hud.seed_hint:IsVisible())
-attach('aom_irrigator');assert(not hud.seed_mode:IsVisible() and not hud.seed_cycle:IsVisible())
-attach('aom_seeder');assert(not hud.seed_hint:IsVisible())
+assert(hud.mode_hint:IsVisible() and hud.mode_cycle:GetString()=='↻')
+assert(hud.mode_label:IsVisible() and hud.mode_label:GetString()=='顺序')
+click(hud.badges.tool);assert(hud.mode_label:GetString()=='巨大化·模版')
+dismiss();assert(not hud.mode_hint:IsVisible())
+attach('aom_irrigator');assert(not hud.mode_label:IsVisible() and not hud.mode_cycle:IsVisible())
+attach('aom_seeder');assert(not hud.mode_hint:IsVisible())
+''')
+
+    def test_harvester_mode_hint_is_independent_and_mode_persists_on_tractor(self):
+        self.run_lua('''
+local dismiss={}
+function hud.inst:DoTaskInTime(seconds,fn)
+ assert(seconds==4);dismiss[#dismiss+1]=fn
+end
+attach('aom_seeder')
+local harvester=attach('aom_harvester')
+assert(hud.mode_label:GetString()=='全部收割' and hud.mode_cycle:IsVisible())
+assert(hud.mode_hint:IsVisible() and string.find(hud.mode_hint:GetString(),'收割机'))
+dismiss[1]();assert(hud.mode_hint:IsVisible())
+assert(string.find(hud.badges.tool:GetTooltip(),'空手左键切换 → 保留巨大',1,true))
+t:SetWorking(true)
+click(hud.badges.tool)
+assert(t._keep_oversized and t._keep_oversized_net:value() and not t._working)
+assert(hud.mode_label:GetString()=='保留巨大')
+assert(string.find(hud.badges.tool:GetTooltip(),'空手左键切换 → 全部收割',1,true))
+dismiss[2]();assert(not hud.mode_hint:IsVisible())
+attach('aom_irrigator');attach('aom_harvester')
+assert(hud.mode_label:GetString()=='保留巨大' and not hud.mode_hint:IsVisible())
+local record=clone(t:GetSaveRecord())
+local restored=SpawnSaveRecord(record);assert(restored._keep_oversized_net:value() and not restored._working)
+record.data.keep_oversized=nil
+local legacy=SpawnSaveRecord(record);assert(not legacy._keep_oversized_net:value())
+click(hud.badges.tool);assert(hud.mode_label:GetString()=='全部收割' and not t._keep_oversized)
+''')
+
+    def test_harvest_mode_rpc_checks_target_driver_and_empty_hands(self):
+        self.run_lua('''
+local harvester=attach('aom_harvester')
+local other=SpawnPrefab('aom_tractor_chassis')
+RPCS.AOM_HARVEST_MODE(make_player(),t);RPCS.AOM_HARVEST_MODE(player,other)
+assert(not t._keep_oversized and not other._keep_oversized)
+local flint=SpawnPrefab('flint')
+player.components.inventory={GetActiveItem=function()return flint end}
+player.replica.inventory={GetActiveItem=function()return flint end}
+harvester.components.finiteuses:SetUses(100)
+RPCS.AOM_HARVEST_MODE(player,t);assert(not t._keep_oversized)
+click(hud.badges.tool)
+assert(not t._keep_oversized and not flint:IsValid() and harvester.components.finiteuses:GetUses()==150)
 ''')
 
     def test_world_music_mode_overrides_old_saved_per_vehicle_switch(self):

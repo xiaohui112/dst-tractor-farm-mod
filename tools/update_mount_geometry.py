@@ -40,6 +40,7 @@ def main():
         'aom_attachment_water':lambda d:mounted_bank(d,'aom_attachment_water','aom_attachment_water_mounted',lambda n:'irrigator'),
         'aom_attachment_fx':lambda d:mounted_bank(d,'aom_attachment_fx','aom_attachment_fx_mounted',lambda n:'fertilizer' if n=='fertilizer' else None),
         'aom_tractor_chassis':lambda d:exhaust_markers(d,'attachment_front'),
+        'aom_tractor_cabin':lambda d:exhaust_markers(d,'aom_driver_attachment_front'),
     }
     for name in ('aom_tractor_driver','aom_tractor_driver_075','aom_tractor_driver_125','aom_tractor_driver_150'):
         transforms[name]=lambda d:exhaust_markers(d,'aom_driver_attachment_front')
@@ -50,7 +51,7 @@ def main():
         keys.update({k:v for k,v in hashes.items() if k in keys})
         report['mount_geometry']='assets/directional-v2/mount-layout.json'
         path.write_text(json.dumps(report,indent=2)+'\n')
-    print('已更新8个动画文件的挂载/烟筒几何；贴图与发布安装包未改动。')
+    print(f'已更新{len(hashes)}个动画文件的挂载/烟筒几何；贴图与发布安装包未改动。')
 
 
 if __name__=='__main__':main()

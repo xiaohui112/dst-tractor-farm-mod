@@ -65,6 +65,34 @@ while #queue>0 do n=n+1;assert(n<20000);local fn=table.remove(queue,1);fn() end
 assert(inst._block and inst._block.total==15 and inst._block.done>0)
 ''')
 
+ def test_preview_uses_seeder_tile_and_waits_if_it_left_the_planned_field(self):
+  self.lua.execute('''dynfield(0,0);dynfield(8,0);dyninst({tomato=12,potato=12})
+local queue,preview={},nil
+inst.DoTaskInTime=function(_,delay,fn)
+ if delay==2 then preview=fn else queue[#queue+1]=fn end
+end
+inst._working=true;inst.x=2.6 -- 车在4格，落种口在0格。
+local ok,why=Drive.WorkHere(inst);assert(not ok and why=='PLANNING')
+while #queue>0 do table.remove(queue,1)() end
+local plan=inst._block
+assert(preview and #plan.tiles==1 and plan.tiles[1].x==0)
+inst.x=9;preview()
+assert(inst._block==plan and plan.done==0 and crop_count()==0)
+Drive.TrackMovement(inst);assert(plan.done==0)
+inst.x=2.6;Drive.TrackMovement(inst)
+assert(plan.done>0 and inst._block==plan)
+''')
+
+ def test_background_preparation_selects_field_under_seeder(self):
+  self.lua.execute('''dynfield(0,0);dynfield(8,0);dyninst({tomato=12,potato=12})
+local now=10;GetTimeRealSeconds=function()return now end
+inst.x=2.6;inst._working=false
+local started=false
+D.Start=function(_,x,z,background)assert(x==0 and z==0 and background);started=true end
+D.PrepareNearby(inst);assert(not started)
+now=12.1;D.PrepareNearby(inst);assert(started)
+''')
+
  def test_capacity_tail_can_borrow_without_wasting_two_holes(self):
   self.lua.execute("""dynfield(0,0);dynfield(4,0);dyninst({carrot=16,potato=4,tomato=4,corn=4})
 assert(Drive.WorkHere(inst));assert(inst._block.total==12 and D.Validate(inst._block))

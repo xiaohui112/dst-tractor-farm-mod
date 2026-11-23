@@ -2,6 +2,8 @@
 local M={RANGE=5}
 local PREFABS={aom_landclearer=true,aom_plow=true,aom_seeder=true,aom_irrigator=true,
     aom_fertilizer=true,aom_weeder=true,aom_harvester=true}
+-- 标准车体倍率下，驾驶座到工具接地中心的距离，单位为地图世界单位。
+local WORK_OFFSET={plow=-1.9,seeder=-1.8,irrigator=-1.75,fertilizer=-1.8,weeder=-1.9,harvester=1.95}
 function M.IsRecord(record)return record and PREFABS[record.prefab]==true end
 -- 读取时修复旧版留下的失效引用；先清空再通知，避免状态监听重入。
 function M.Current(vehicle)
@@ -27,6 +29,14 @@ function M.CanReach(doer,item)
 end
 local function Source(vehicle)
     return vehicle._rider or vehicle
+end
+function M.WorkPosition(vehicle)
+    local transform=Source(vehicle).Transform
+    local x,_,z=transform:GetWorldPosition()
+    local rotation=transform.GetRotation and transform:GetRotation() or 0
+    local reach=(WORK_OFFSET[vehicle._attachment_type] or 0)*require("aom_model_scale")/2.5
+    local radians=math.rad(rotation)
+    return x+reach*math.cos(radians),0,z-reach*math.sin(radians),rotation,x,z
 end
 -- 已挂设备使用父节点的连续变换，不以定时世界坐标重定位追赶车辆。
 function M.Rotation(item)

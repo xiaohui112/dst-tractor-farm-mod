@@ -23,6 +23,7 @@ local Profile = require("aom_work_profile")
 local Irrigator = require("aom_irrigator")
 local Fertilizer = require("aom_fertilizer")
 local AttachmentAnimation = require("aom_attachment_animation")
+local Mount = require("aom_attachment_mount")
 local Status=require("aom_work_status")
 local Result=require("aom_work_result")
 local Durability=require("aom_durability")
@@ -235,15 +236,16 @@ local function PerformWork(inst,cx,y,cz,seed_paid)
 end
 
 -- 异常也经过同一次实际进度结算。
-local function WorkHere(inst,workx,workz)
-    local item=require("aom_attachment_mount").Get(inst)
+local function WorkHere(inst,workx,workz,contact_x,contact_z)
+    local item=Mount.Get(inst)
     local seeding=inst._attachment_type==AOM.TYPE.SEEDER
     local cx,y,cz,seed_paid
     local had_noblock=inst.HasTag and inst:HasTag("NOBLOCK")
     local result=Result.Run(inst,function()
         local x,z=workx,workz
         y=0
-        if x==nil then x,y,z=(inst._rider or inst).Transform:GetWorldPosition() end
+        if x==nil then x,y,z=Mount.WorkPosition(inst) end
+        contact_x,contact_z=contact_x or x,contact_z or z
         cx,y,cz=AOMFarmWork.GetTileCenter(x,y,z)
         seed_paid=seeding and AOMFarmWork.SeedTilePaid(cx,y,cz)
         return PerformWork(inst,cx,y,cz,seed_paid)
@@ -261,7 +263,9 @@ local function WorkHere(inst,workx,workz)
         if item and (item.attachment_type~="seeder" or result.seed_tile_complete) then
             Result.Protect(result,function()Durability.UseAttachment(inst,item)end)
         end
-        Result.Protect(result,function()AttachmentAnimation.Success(inst,result.position)end)
+        Result.Protect(result,function()
+            AttachmentAnimation.Success(inst,result.position,contact_x,contact_z,cx,cz)
+        end)
         Result.Protect(result,function()
             if inst.AnimState:IsCurrentAnimation("idle") then
                 inst.AnimState:PlayAnimation("work");inst.AnimState:PushAnimation("idle",true)
@@ -299,20 +303,21 @@ AOMDrive.StopForReason=StopForReason
 
 -- 开始、每次采样和每次成功消耗后检查，最后一份刚好完成本格也立即停工。
 -- 开垦、除草和收割不需要种子/水/肥料，沿用各自耐久与燃料检查。
-local MATERIAL_READERS={seeds="GetSeedCount",water="GetWater",fertilizer="GetFertilizerCount"}
+local MATERIAL_READERS={seeds="GetSeedCount",water="GetWater"}
 local function HasMaterials(inst)
+    if inst._attachment_type==AOM.TYPE.FERTILIZER then return Fertilizer.HasMaterials(inst) end
     local def=require("aom_equipment_defs")[inst._attachment_type]
     local method=def and MATERIAL_READERS[def.material]
     local store=inst.components.aom_attachment_store
     return not method or store and store[method](store)>0
 end
 
-function AOMDrive.WorkTile(inst,cx,cz)
+function AOMDrive.WorkTile(inst,cx,cz,contact_x,contact_z)
     if not HasMaterials(inst) then StopForReason(inst,"EMPTY");return false,"EMPTY" end
     local worked_any=false
     local limit=inst._attachment_type==AOM.TYPE.SEEDER and 10 or 1
     for _=1,limit do
-        local result=WorkHere(inst,cx,cz)
+        local result=WorkHere(inst,cx,cz,contact_x,contact_z)
         local worked,reason,ready=result.changed,result.reason,result.complete
         local seed_pending=inst._attachment_type==AOM.TYPE.SEEDER and not result.seed_tile_complete
         local skip=inst._attachment_type==AOM.TYPE.PLOW and AOMFarmWork.IsPloughSkip(reason)
@@ -348,7 +353,7 @@ function AOMDrive.WorkTile(inst,cx,cz)
     return worked_any
 end
 
-local function WorkPosition(inst)
+local function TravelPosition(inst)
     return (inst._rider or inst).Transform:GetWorldPosition()
 end
 
@@ -357,7 +362,7 @@ end
 function AOMDrive.TrackTravel(inst)
     if not inst._rider then return end
     require("aom_dynamic_farm").PrepareNearby(inst)
-    local x,_,z=WorkPosition(inst)
+    local x,_,z=TravelPosition(inst)
     AOMBlock.RefreshNearby(inst)
     local ox,oz=inst._last_drive_x or x,inst._last_drive_z or z
     inst._last_drive_x,inst._last_drive_z=x,z
@@ -377,16 +382,23 @@ end
 function AOMDrive.TrackMovement(inst)
     if not inst._working or not inst._rider then AOMDrive.SetWorking(inst,false);return end
     if not HasMaterials(inst) then StopForReason(inst,"EMPTY");return end
-    local x,_,z=WorkPosition(inst)
+    local x,_,z,rotation,driver_x,driver_z=Mount.WorkPosition(inst)
     local ox,oz=inst._last_work_x or x,inst._last_work_z or z
-    local moved=(x-ox)^2+(z-oz)^2>.0001
+    local travel_sq=(driver_x-(inst._last_work_driver_x or driver_x))^2
+        +(driver_z-(inst._last_work_driver_z or driver_z))^2
+    local moved=travel_sq>.0001
+    local turn=math.abs((rotation-(inst._last_work_rotation or rotation)+180)%360-180)
+    -- 急转或原地转向时只处理转完后实际所在的一格，避免用弦扫过旁边地块。
+    if turn>=90 or turn>0 and not moved or travel_sq>Profile.MAX_SWEEP_DISTANCE^2 then ox,oz=x,z end
     local tiles=Profile.TraceTiles(TheWorld.Map,ox,oz,x,z)
     inst._last_work_x,inst._last_work_z=x,z
+    inst._last_work_rotation=rotation
+    inst._last_work_driver_x,inst._last_work_driver_z=driver_x,driver_z
     for _,p in ipairs(tiles) do
         local key=p.x..":"..p.z
         if key~=inst._last_work_tile then
             inst._last_work_tile=key
-            local worked=AOMDrive.WorkTile(inst,p.x,p.z)
+            local worked=AOMDrive.WorkTile(inst,p.x,p.z,p.contact_x,p.contact_z)
             inst._plough_loaded=inst._attachment_type==AOM.TYPE.PLOW and worked
             if not inst._working then return end
         end
@@ -406,6 +418,8 @@ function AOMDrive.SetWorking(inst, on, stop_reason)
     inst._workstatus:set(inst._working)
     if inst._worktask then inst._worktask:Cancel();inst._worktask=nil end
     inst._last_work_x,inst._last_work_z=nil,nil
+    inst._last_work_rotation=nil
+    inst._last_work_driver_x,inst._last_work_driver_z=nil,nil
     inst._last_work_tile=nil
     inst._plough_loaded=false
     inst._smoke_elapsed=0
@@ -423,8 +437,10 @@ function AOMDrive.SetWorking(inst, on, stop_reason)
         require('aom_plan_timing').Request(inst)
     end
     Status.Set(inst,nil)
-    local x,_,z=WorkPosition(inst)
+    local x,_,z,rotation,driver_x,driver_z=Mount.WorkPosition(inst)
     inst._last_work_x,inst._last_work_z=x,z
+    inst._last_work_rotation=rotation
+    inst._last_work_driver_x,inst._last_work_driver_z=driver_x,driver_z
     inst._worktask=inst:DoPeriodicTask(Profile.SAMPLE_INTERVAL,AOMDrive.TrackMovement)
 end
 
@@ -456,6 +472,16 @@ function AOMDrive.CycleSeedStrategy(inst, doer)
 		doer.components.talker:Say(L("播种策略：%s",AOMDrive.GetSeedStrategyName(inst)))
 	end
 	return true
+end
+
+function AOMDrive.CycleHarvestMode(inst,doer)
+    local tool=require("aom_attachment_mount").Get(inst)
+    if not tool or tool.attachment_type~=AOM.TYPE.HARVESTER then return false end
+    AOMDrive.SetWorking(inst,false)
+    inst._keep_oversized=not inst._keep_oversized
+    inst._keep_oversized_net:set(inst._keep_oversized)
+    require("aom_feedback").Say(doer,L("收割模式：%s",L(inst._keep_oversized and "保留巨大" or "全部收割")))
+    return true
 end
 
 function AOMDrive.ToggleWorking(inst, doer)
@@ -515,13 +541,13 @@ function AOMDrive.OnMounted(inst, data)
 	if inst.GetAttachment then require("aom_attachment_mount").UpdateVisual(inst:GetAttachment()) end
 	AOMDrive.SetWorking(inst,false)
 	if rider then
-		local x,_,z=WorkPosition(inst)
+		local x,_,z=TravelPosition(inst)
 		inst._last_drive_x,inst._last_drive_z=x,z
 		inst._drivetask=inst:DoPeriodicTask(Profile.SAMPLE_INTERVAL,AOMDrive.TrackTravel)
 		-- riderchanged发生在原版将玩家移到驾驶座之前；mounted才是落座后的起点。
 		inst._reset_driver_travel=function(_,event)
 			if event and event.target==inst and inst._rider==rider then
-				local sx,_,sz=WorkPosition(inst)
+				local sx,_,sz=TravelPosition(inst)
 				inst._last_drive_x,inst._last_drive_z=sx,sz
 			end
 		end
