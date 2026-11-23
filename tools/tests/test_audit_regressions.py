@@ -178,7 +178,7 @@ assert(t._fuel:value()==600 and t:GetAttachment().components.finiteuses:GetUses(
         self.lua.execute('''
 tool('aom_weeder');local e=weed(0,0)
 e.components.workable:SetOnFinishCallback(function()e:Remove();error('after dig')end)
-t:SetWorking(true);Drive.TrackMovement(t)
+player.Transform:SetPosition(4,0,0);t:SetWorking(true);Drive.TrackMovement(t)
 assert(not t._working and not e:IsValid() and t._fuel:value()==599)
 assert(t:GetAttachment().components.finiteuses:GetUses()==199)
 ''')

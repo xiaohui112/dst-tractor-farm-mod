@@ -2,6 +2,8 @@ local L=require("aom_locale").Text
 local NAME="aom_rain_barrel"
 local CAPACITY=2000
 local RAIN_RATE=10
+-- 240 像素高的桶与约 150 像素高的洒水机使用同一成品高度。
+local SCALE=require("aom_model_scale")*150/240
 local assets={Asset("ANIM","anim/aom_rain_barrel.zip")}
 
 local function SetWater(inst,amount)
@@ -82,10 +84,15 @@ local function fn()
     MakeObstaclePhysics(inst,.55)
     inst.AnimState:SetBank(NAME)
     inst.AnimState:SetBuild(NAME)
+    inst.AnimState:SetScale(SCALE,SCALE,SCALE)
     inst.AnimState:PlayAnimation("idle")
     inst:AddTag("structure")
     inst:AddTag(NAME)
     inst._barrel_water_net=net_float(inst.GUID,NAME..".water")
+    inst.inherentsceneaction=ACTIONS.LOOKAT -- 空手悬停也提供原版查看动作与名称。
+    inst.displaynamefn=function(item)
+        return STRINGS.NAMES.AOM_RAIN_BARREL.."\n"..L("水量 %d/%d",item._barrel_water_net:value(),CAPACITY)
+    end
     inst.entity:SetPristine()
     if not TheWorld.ismastersim then return inst end
 
@@ -114,4 +121,4 @@ local function fn()
     return inst
 end
 
-return Prefab(NAME,fn,assets),MakePlacer(NAME.."_placer",NAME,NAME,"idle")
+return Prefab(NAME,fn,assets),MakePlacer(NAME.."_placer",NAME,NAME,"idle",false,false,false,SCALE)

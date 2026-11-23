@@ -58,7 +58,7 @@ local plan=D.Build(inst,0,0);assert(plan.construction.cache_hit)
 
  def test_stable_nearby_input_prepares_without_spending_seeds(self):
   self.lua.execute('''
-prepare();inst._working=false;inst._rider=inst
+prepare();inst._working=false
 local now=0;GetTimeRealSeconds=function()return now end
 D.PrepareNearby(inst);assert(not inst._aom_dynamic_job)
 now=1;D.PrepareNearby(inst);assert(not inst._aom_dynamic_job)

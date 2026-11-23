@@ -33,10 +33,12 @@ description = chinese and [[
 	- 默认空驶速度提高到 6、作业速度为 3 世界单位/秒，新车有 600 油，行驶每 8 世界单位耗 1 油。
 	- 播种每格只扣 1 油和 1 底盘耐久，种完该格再扣 1 点播种机耐久。
 	- 洒水机出厂有 100 剂水，水箱容量 400 剂，池塘每秒补 80 剂，取消水壶和冰块应急补水。
-	- 六种挂件按各自作业点选地并显示效果，巨大化规划和落种也按播种机位置判断。
+	- 六种挂件统一处理驾驶员所在格的后方一格，巨大化规划和落种也按这格判断。
+	- 驾驶时可放置六种挂件和田边蓄水桶，蓄水桶与洒水机接近等高，悬停显示名称和余水。
+	- 「保留巨大」模式下，车辆经过完整巨大作物时暂时解除其人物碰撞，驶离后恢复。
 	- 播种机和收割机图标显示当前模式，悬停看下一档，空手左键切换。
 	- 正背向车轮去掉旋转线条，烟雾改从驾驶员右前方的烟筒口冒出。
-	- 驾驶时屏蔽骑乘脚步声，空驶用原引擎声，移动作业播放「驾驶室轰鸣」。
+	- 驾驶时屏蔽骑乘脚步声，空驶继续用原行驶声并提高音量，移动作业播放「驾驶室轰鸣」。
 	
 	0.5.24 发布版本
 	拖拉机有七种配套设备，包括六种车载挂件和一座田边蓄水桶。
@@ -78,10 +80,12 @@ Work and control improvements
 - Default travel and work speeds are 6 and 3 units per second, with 600 starting fuel and 1 fuel spent per 8 units traveled.
 - Sowing costs 1 fuel and 1 chassis durability per tile, with 1 Seeder durability charged on completion.
 - The Irrigator starts with 100 of 400 doses, refills from ponds at 80 doses per second, and no longer refills from watering cans or ice.
-- Each attachment uses its own position for work and effects, including the Seeder's planning and planting.
+- All six attachments work one tile behind the driver. Giant planning and sowing use the same tile.
+- Place any of the six attachments or the Field Rain Barrel while driving. The barrel is about as tall as the Irrigator and shows its name and water level on hover.
+- In Keep Giants Whole mode, nearby intact giant produce temporarily lets the driver pass and regains collision when the tractor moves away.
 - Seeder and Harvester icons show the current mode and preview the next one on hover, with empty-cursor left click to switch.
 - Straight front and rear views drop the spinning wheel lines, and exhaust now comes from the driver's front-right pipe.
-- Driving mutes riding footsteps and switches between the original travel sound and the cab engine sound during moving work.
+- Driving mutes riding footsteps, makes the original travel loop louder, and plays the cab engine sound during moving work.
 
 0.5.24 release
 Seven pieces of farm equipment: six tractor attachments and a stationary Field Rain Barrel.

@@ -31,7 +31,7 @@ TheFrontEnd={};PAUSED=false
 function IsPaused()return PAUSED end
 LAYER_BACKGROUND=1;LAYER_WORLD=2
 TUNING={};STRINGS={NAMES={},RECIPE_DESC={}};TECH={SCIENCE_ONE=1,SCIENCE_TWO=2}
-ACTIONS={MOUNT={},DISMOUNT={},RUMMAGE={},HAMMER={}}
+ACTIONS={MOUNT={},DISMOUNT={},RUMMAGE={},HAMMER={},LOOKAT={priority=-3,mount_valid=true}}
 Asset=noop;MakeObstaclePhysics=noop;SetPhysicsAttacker=noop;MakeInventoryPhysics=noop
 MakeInventoryFloatable=noop;MakeHauntableLaunch=noop
 function Prefab(name,fn)return {name=name,fn=fn}end
@@ -179,6 +179,7 @@ function AddStategraphActionHandler(sg,handler)table.insert(ACTION_HANDLERS,hand
 SG_POST_FNS={}
 function AddStategraphPostInit(name,fn)SG_POST_FNS[name]=fn end
 function AddClassPostConstruct(path,fn)POST_FNS[path]=fn end
+function AddComponentPostInit(name,fn)POST_FNS[name]=fn end
 AddRecipe2=noop;AddDeconstructRecipe=noop;Ingredient=noop
 -- 原版是 require 模块，不能用虚构的 GLOBAL.containers 掩盖加载错误。
 containers=nil

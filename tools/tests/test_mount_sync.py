@@ -79,14 +79,15 @@ Mount.UpdateVisual(item)
 assert(not item._aom_visual_parent and not item.physics_active)
 ''')
 
-    def test_front_offset_scales_consistently_for_all_four_model_options(self):
+    def test_front_mount_visual_scales_but_work_tile_stays_one_behind(self):
         self.run_lua('''
+ride();player.Transform:SetRotation(0)
 for _,scale in ipairs({1.875,2.5,3.125,3.75})do
  local old=package.loaded.aom_model_scale;package.loaded.aom_model_scale=scale
  local item=equipment('aom_harvester');assert(t:AttachAttachment(nil,item))
  assert(item.x==scale*.01 and item.bank=='aom_attachment_mounted')
  local x,_,_,_,origin=Mount.WorkPosition(t)
- assert(math.abs((x-origin)/scale-1.95/2.5)<1e-9)
+ assert(x==origin-4)
  assert(t:DetachAttachment(nil));item:Remove();package.loaded.aom_model_scale=old
 end
 ''')

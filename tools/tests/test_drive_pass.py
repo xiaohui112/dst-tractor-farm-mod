@@ -9,7 +9,7 @@ class DrivePassTests(unittest.TestCase):
         self.w.lua.execute('''
 Profile=require('aom_work_profile')
 function start_driver(inst)
- inst._rider={Transform=inst.Transform,components={},PushEvent=function()end,
+ inst._rider={Transform=driver_transform(inst),components={},PushEvent=function()end,
   IsValid=function()return true end,
   AnimState={GetSymbolPosition=function()return inst.x+1,.5,inst.z+2,true end}}
  inst.Transform.GetRotation=function()return 0 end

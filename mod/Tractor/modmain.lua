@@ -492,9 +492,12 @@ local containers=require("containers")
 containers.MAXITEMSLOTS=math.max(containers.MAXITEMSLOTS or 0,Cargo.SLOTS)
 AddClassPostConstruct("widgets/containerwidget",require("widgets/aom_cargo_widget").Install)
 local RECIPE_PRODUCT={aom_tractor_chassis="aom_tractor_chassis"}
+local MountedBuild=require("aom_mounted_build")
+AddComponentPostInit("builder",MountedBuild.Install)
 local function AddMachineRecipe(name,ingredients,tech,atlas)
     AddRecipe2(name,ingredients,tech,{product=RECIPE_PRODUCT[name] or name,placer=name.."_placer",min_spacing=2,
         atlas=atlas or "images/aom_tractor_icons.xml",image=name..".tex"},{"GARDENING"})
+    if name~="aom_tractor_chassis" then MountedBuild.Allow(name) end
 end
 
 AddMachineRecipe("aom_tractor_chassis", {

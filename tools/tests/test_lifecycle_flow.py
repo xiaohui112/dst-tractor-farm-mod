@@ -122,6 +122,7 @@ tool.components.finiteuses:SetUses(1)
 SpawnPrefab('farm_soil').Transform:SetPosition(0,0,0)
 local corner=SpawnPrefab('farm_soil');corner.Transform:SetPosition(1.99,0,1.99)
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
+player.Transform:SetPosition(4,0,0)
 RPCS.AOM_TOGGLE_WORK(player);require('aom_drive').TrackMovement(t)
 assert(tool.components.finiteuses:GetUses()==0 and not t._working and not corner:IsValid())
 assert(t.components.aom_attachment_store:GetSeedCount()==1 and t._fuel:value()==599)
@@ -133,9 +134,10 @@ local replacement=tool;assert(require('aom_durability').RepairAttachment(replace
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 assert(t:AttachAttachment(player,replacement))
 corner=SpawnPrefab('farm_soil');corner.Transform:SetPosition(1.99,0,1.99)
+player.Transform:SetPosition(4,0,0)
 RPCS.AOM_TOGGLE_WORK(player);require('aom_drive').TrackMovement(t)
 assert(not corner:IsValid() and replacement.components.finiteuses:GetUses()==49)
-assert(t._fuel:value()==598 and t.components.aom_attachment_store:GetSeedCount()==0)
+assert(t._fuel:value()==597.5 and t.components.aom_attachment_store:GetSeedCount()==0) -- 下车时另结算驶过的4单位。
 assert(t._seedcount_net:value()==0)
 ''')
 
@@ -149,22 +151,23 @@ for x=0,12,4 do SpawnPrefab('farm_soil').Transform:SetPosition(x,0,0)end
 assert(ACTIONS.MOUNT.fn({doer=player,target=t}));player.sg:GoToState('mounted_idle')
 local messages={}
 player.components.talker={Say=function(_,text)messages[#messages+1]=text end}
+player.Transform:SetPosition(4,0,0)
 press_f(player);release_f(player)
 local task=t._worktask
 for x=0,4,4 do
- player.Transform:SetPosition(x,0,0);task.fn(t)
+ player.Transform:SetPosition(x+4,0,0);task.fn(t)
  assert(t._working and t._worktask==task and not task.cancelled)
  for i=1,5 do task.fn(t)end
 end
 assert(t.components.aom_attachment_store:GetSeedCount()==1 and #messages==0)
-player.Transform:SetPosition(8,0,0);task.fn(t)
+player.Transform:SetPosition(12,0,0);task.fn(t)
 assert(not t._working and not t._worktask and task.cancelled)
 assert(t.components.aom_attachment_store:GetSeedCount()==0 and t._fuel:value()==597)
 assert(#messages==1 and string.find(messages[1],'种子不足'))
 local extra=SpawnPrefab('tomato_seeds');extra.components.stackable:SetStackSize(2)
 local load=prompt(extra,player,t)[1]
 assert(load.id=='AOM_LOAD' and load.fn({doer=player,target=t,invobject=extra}))
-player.Transform:SetPosition(12,0,0);press_f(player);release_f(player);t._worktask.fn(t)
+player.Transform:SetPosition(16,0,0);press_f(player);release_f(player);t._worktask.fn(t)
 assert(t._working and t.components.aom_attachment_store:GetSeedCount()==1)
 assert(t._fuel:value()==596 and not player.attacks)
 press_f(player);release_f(player);assert(not t._working and not t._worktask)

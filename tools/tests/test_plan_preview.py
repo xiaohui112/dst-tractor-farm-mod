@@ -42,6 +42,7 @@ end
 for x=-1,1 do for z=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x*4/3,0,z*4/3)end end
 t:CycleSeedStrategy(player)
 local queue={};t.DoTaskInTime=function(_,_,fn)queue[#queue+1]=fn end
+player.Transform:SetPosition(4,0,0)
 RPCS.AOM_TOGGLE_WORK(player);assert(t._working)
 require('aom_drive').TrackMovement(t)
 local steps=0;while #queue>0 do steps=steps+1;assert(steps<20000);table.remove(queue,1)() end

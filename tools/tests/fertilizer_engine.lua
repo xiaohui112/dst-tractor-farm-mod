@@ -119,7 +119,7 @@ inst._fertilizerstock_net={set=function(self,v)self.v=v end,value=function(self)
 inst:ListenForEvent('itemget',Fertilizer.Watch);inst:ListenForEvent('itemlose',Fertilizer.Watch)
 inst:ListenForEvent('stacksizechange',Fertilizer.Sync)
 inst:ListenForEvent('aom_load_changed',Fertilizer.Watch)
-farmer=engine_entity();farmer.Transform=inst.Transform;farmer.components.inventory=new_container(farmer,12)
+farmer=engine_entity();farmer.Transform=driver_transform(inst);farmer.components.inventory=new_container(farmer,12)
 inst._rider=farmer
 function set_nutrients(a,b,c,x,z)
  local tx,tz=TheWorld.Map:GetTileCoordsAtPoint(x or 0,0,z or 0)

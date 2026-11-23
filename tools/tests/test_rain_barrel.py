@@ -55,10 +55,13 @@ assert(recipe.product==name and recipe.placer==name..'_placer' and RECIPE_TECH[n
 assert(#RECIPE_FILTERS[name]==1 and RECIPE_FILTERS[name][1]=='GARDENING')
 local expected={boards=2,rope=2,cutstone=2}
 for _,item in ipairs(RECIPE_INGREDIENTS[name])do assert(expected[item.type]==item.amount);expected[item.type]=nil end
-assert(not next(expected) and SpawnPrefab(recipe.placer).components.placer)
+local placer=SpawnPrefab(recipe.placer)
+assert(not next(expected) and placer.components.placer)
+local tank=SpawnPrefab('aom_irrigator')
+assert(barrel.anim_scale[1]*240==tank.anim_scale[1]*150 and placer.transform_scale[1]==barrel.anim_scale[1])
 assert(barrel:HasTag('structure') and not barrel:HasTag('watersource') and not barrel.components.inventoryitem)
 assert(barrel.components.workable:GetWorkAction()==ACTIONS.HAMMER)
-assert(STRINGS.NAMES.AOM_RAIN_BARREL=='田边蓄水桶')
+assert(barrel:displaynamefn()=='田边蓄水桶'..string.char(10)..'水量 0/2000')
 assert(barrel.components.inspectable.getspecialdescription(barrel)=='水量 0/2000')
 barrel.components.workable:WorkedBy(player,4)
 assert(barrel.dropped_loot and not barrel:IsValid())
@@ -103,7 +106,10 @@ function barrel:is_a(kind)return kind==EntityScript end
 function barrel:CollectActions(kind,doer,actions,right)
  assert(kind=='SCENE');SCENE_HOOKS.inspectable(self,doer,actions,right)
 end
-local click=make_mouse_picker(player):GetRightClickActions(Vector3(2,0,0),barrel)[1]
+local picker=make_mouse_picker(player)
+local inspect=picker:GetLeftClickActions(Vector3(2,0,0),barrel)[1]
+assert(inspect and inspect.action==ACTIONS.LOOKAT and inspect.target==barrel)
+local click=picker:GetRightClickActions(Vector3(2,0,0),barrel)[1]
 assert(click.action==action and click:Do() and not take_water())
 assert(t._refilling_net:value() and not t._working)
 clock=start+.1;Refill.Update(t);assert(store:GetWater()==8);stored(1192)
@@ -139,6 +145,7 @@ local pedestrian=make_player();assert(#barrel_actions(pedestrian)==0 and not tak
 barrel.Transform:SetPosition(10,0,0);assert(not take_water());stored(100)
 local old=barrel;TheWorld.ismastersim=false
 barrel=SpawnPrefab('aom_rain_barrel');barrel._barrel_water_net:set(100)
+assert(barrel:displaynamefn()=='田边蓄水桶'..string.char(10)..'水量 100/2000')
 assert(barrel_actions()[1]==action and not take_water() and not barrel._rain_task and not barrel.components.inspectable)
 barrel:Remove();barrel=old;TheWorld.ismastersim=true
 barrel.Transform:SetPosition(2,0,0);assert(take_water())

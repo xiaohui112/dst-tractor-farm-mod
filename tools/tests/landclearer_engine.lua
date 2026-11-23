@@ -108,7 +108,7 @@ function make_flow_inst(counts,season)
  inst.components.container.slots[1]=tool
  inst._test_tools={plow=tool}
  local worker=CreateEntity();worker:AddTag('player')
- worker.Transform=inst.Transform
+ worker.Transform=driver_transform(inst)
  inst._rider=worker
  inst._seed_strategy='SEQUENTIAL'
  return inst

@@ -103,17 +103,9 @@ function M.Success(vehicle,position,x,z,cx,cz)
     local fx=Track(item,SpawnPrefab("aom_work_"..kind))
     if not fx then return end
     fx.Transform:SetRotation(Mount.Rotation(item))
-    if stream and at_work_point then
-        fx.AnimState:SetBank(kind=="irrigator" and "aom_attachment_water_mounted" or "aom_attachment_fx_mounted")
-        fx.AnimState:PlayAnimation(kind=="irrigator" and "spray" or "fertilizer",true)
-        item._aom_stream=fx
-        fx.entity:SetParent(item.entity)
-        fx.Transform:SetPosition(0,0,0)
-        fx.Transform:SetRotation(0) -- 子实体继承挂件方向，不能重复叠加世界角度。
-    else
-        if position then x,z=position.x,position.z end
-        fx.Transform:SetPosition(x,0,z)
-    end
+    if stream and at_work_point then item._aom_stream=fx end
+    if position then x,z=position.x,position.z end
+    fx.Transform:SetPosition(x,0,z)
 end
 
 -- 同一挂载更新任务还负责异常失联/换驾驶员时的停工，以及犁铲后短时土迹。

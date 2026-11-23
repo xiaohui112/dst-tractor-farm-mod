@@ -154,21 +154,24 @@ exercise('wilson_client',true)
         self.lua.execute('''
 local motion=require('aom_vehicle_motion')
 local playing={};local calls=0;local gain
-p.SoundEmitter.PlaySound=function(_,event,handle,volume)
- assert(next(playing)==nil);playing[handle]=event;calls=calls+1;gain=volume
+p.SoundEmitter.PlaySound=function(_,event,handle,volume,local_only)
+ assert(local_only and next(playing)==nil);playing[handle]=event;calls=calls+1;gain=volume
 end
 p.SoundEmitter.KillSound=function(_,handle)playing[handle]=nil end
+p.SoundEmitter.PlayingSound=function(_,handle)return playing[handle]~=nil end
 assert(ACTIONS.MOUNT.fn({doer=p,target=t}));p.sg:GoToState('mounted_idle')
 motion.Update(t)
 assert(p.facing_count==8 and playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 for i=1,10 do motion.Update(t)end;assert(calls==1)
 p.x=1;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==.45)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==1)
 t._workstatus:set(true);p.x=2;motion.Update(t)
 assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/work' and gain==1)
 local n=calls;p.x=3;motion.Update(t);assert(calls==n)
 t._workstatus:set(false);p.x=4;motion.Update(t)
-assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==.45)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive' and gain==1)
+playing[motion.ENGINE]=nil;p.x=5;motion.Update(t)
+assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/drive')
 motion.Update(t);assert(playing[motion.ENGINE]=='aom_tractor_sfx/tractor/idle')
 t:SetFuel(0);motion.Update(t);assert(next(playing)==nil)
 t:SetFuel(10);motion.Update(t);assert(playing[motion.ENGINE])
@@ -182,6 +185,47 @@ p.SoundEmitter.PlaySound=function()error('dedicated server must not play effects
 assert(ACTIONS.MOUNT.fn({doer=p,target=t}))
 require('aom_vehicle_motion').Update(t)
 assert(p.facing_count==8)
+''')
+
+    def test_keep_giant_clears_only_nearby_produce_collision_and_restores_it(self):
+        self.lua.execute('''
+local Motion=require('aom_vehicle_motion')
+COLLISION={OBSTACLES=512,CHARACTERS=1024}
+bit={band=function(mask,flag)return (math.floor(mask/flag)%2)*flag end}
+local function obstacle(name,x,tag)
+ local item=CreateEntity();item.prefab=name;item.Transform:SetPosition(x,0,0)
+ if tag then item:AddTag('oversized_veggie') end
+ local mask=1280
+ item.Physics={GetCollisionGroup=function()return 512 end,GetCollisionMask=function()return mask end,
+  ClearCollidesWith=function(_,flag)mask=mask-flag end,CollidesWith=function(_,flag)mask=mask+flag end}
+ return item
+end
+local fruit=obstacle('pumpkin_oversized',0,true)
+local far=obstacle('pumpkin_oversized',8,true)
+local wall=obstacle('wall_stone',0,false)
+local waxed=obstacle('pumpkin_oversized_waxed',0,true)
+local base_find=TheSim.FindEntities
+TheSim.FindEntities=function(self,x,y,z,r,tags,...)
+ if not tags or tags[1]~='oversized_veggie' then return base_find(self,x,y,z,r,tags,...) end
+ local nearby={}
+ for _,item in ipairs({fruit,far,wall,waxed}) do
+  if item:HasTag(tags[1]) and (item.x-x)^2+(item.z-z)^2<=r*r then nearby[#nearby+1]=item end
+ end
+ return nearby
+end
+assert(ACTIONS.MOUNT.fn({doer=p,target=t}));p.sg:GoToState('mounted_idle')
+t._atttype_net:set('harvester');Motion.Update(t)
+assert(fruit.Physics:GetCollisionMask()==1280)
+t._keep_oversized_net:set(true);Motion.Update(t)
+assert(fruit.Physics:GetCollisionMask()==256 and far.Physics:GetCollisionMask()==1280)
+assert(wall.Physics:GetCollisionMask()==1280 and waxed.Physics:GetCollisionMask()==1280)
+local second=make_tractor();local other=make_player()
+assert(ACTIONS.MOUNT.fn({doer=other,target=second}));other.sg:GoToState('mounted_idle')
+second._atttype_net:set('harvester');second._keep_oversized_net:set(true);Motion.Update(second)
+p.Transform:SetPosition(4,0,0);Motion.Update(t)
+assert(fruit.Physics:GetCollisionMask()==256)
+other.components.rider:ActualDismount();Motion.Update(second)
+assert(fruit.Physics:GetCollisionMask()==1280 and fruit.x==0 and fruit:IsValid())
 ''')
 
     def test_legacy_scale_options_migrate_to_new_default(self):

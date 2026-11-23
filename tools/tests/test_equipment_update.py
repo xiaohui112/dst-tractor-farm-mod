@@ -116,6 +116,7 @@ for _,kind in ipairs({'tomato','potato'})do
 end
 for x=-1,1 do for z=-1,1 do SpawnPrefab('farm_soil').Transform:SetPosition(x*4/3,0,z*4/3)end end
 local queue={};t.DoTaskInTime=function(_,delay,fn)queue[#queue+1]={delay=delay,fn=fn}end
+player.Transform:SetPosition(4,0,0)
 t:SetWorking(true);require('aom_drive').TrackMovement(t)
 while not t._block do assert(#queue>0);table.remove(queue,1).fn()end
 assert(t._block.done==0 and t.components.aom_attachment_store:GetSeedCount()==16)

@@ -77,6 +77,40 @@ assert(not t.components.container:GiveItem(tool,1,nil,false))
 assert(Mount.Owner(tool)==t and not tool.persists and not tool.physics_active)
 ''')
 
+    def test_mounted_build_uses_native_buffered_placement_for_equipment_only(self):
+        self.run_lua('''
+local rider=player.components.rider
+function GetValidRecipe(name)return RECIPE_RECORDS[name] end
+RECIPE_RECORDS.wall={placer='wall_placer'}
+local buffered,clear=true,true
+TheWorld.Map.CanDeployRecipeAtPoint=function(_,pos,recipe,rotation,doer)
+ assert(pos.x==4 and rotation==90 and doer==player and recipe.placer)
+ return clear
+end
+local built=0
+local builder={inst=player,IsBuildBuffered=function()return buffered end}
+builder.DoBuild=function(_,name,pt,rotation,skin)
+ local recipe=GetValidRecipe(name)
+ if recipe.placer and rider:IsRiding() then return false,'MOUNTED' end
+ assert(rider:IsRiding() and rider:GetMount()==t and recipe.placer and skin=='mock_skin')
+ built=built+1
+ return true
+end
+POST_FNS.builder(builder)
+ride()
+local pt=Vector3(4,0,0)
+for _,name in ipairs({'aom_landclearer','aom_seeder','aom_irrigator','aom_fertilizer','aom_weeder','aom_harvester','aom_rain_barrel'}) do
+ assert(builder:DoBuild(name,pt,90,'mock_skin'))
+end
+assert(built==7 and rider:IsRiding() and rawget(rider,'IsRiding')==nil)
+for _,name in ipairs({'wall','aom_tractor_chassis'}) do
+ local ok,reason=builder:DoBuild(name,pt,90);assert(not ok and reason=='MOUNTED')
+end
+clear=false;assert(not builder:DoBuild('aom_seeder',pt,90))
+clear=true;buffered=false;assert(not builder:DoBuild('aom_seeder',pt,90))
+assert(built==7 and rider:IsRiding())
+''')
+
     def test_right_click_world_device_mounts_then_right_click_attached_device_unmounts(self):
         self.run_lua('''
 local tool=equipment('aom_landclearer');local actions={}

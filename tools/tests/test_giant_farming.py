@@ -47,6 +47,12 @@ function Vector3(x,y,z)return {x=x,y=y,z=z,Get=function()return x,y,z end}end
 ENTITIES={};TILES={};PLANT_FAIL=false
 function center(v)return math.floor((v+2)/4)*4 end
 function tkey(x,z)return center(x)..':'..center(z)end
+-- 多数农业流程用 inst.x/z 表示要作业的点，向东驾驶时人物实际位于其东一格。
+function driver_transform(inst)
+ return {GetWorldPosition=function()return inst.x+4,0,inst.z end,
+  GetRotation=function()return 0 end,
+  SetPosition=function(_,x,y,z)inst.Transform:SetPosition(x-4,y,z)end}
+end
 function SpawnPrefab(name)
  local v={prefab=name,valid=true,x=0,z=0,components={},tags={}}
  if name=='farm_soil' then v.tags.soil=true elseif string.sub(name,1,11)=='farm_plant_' then v.tags.farm_plant=true elseif string.sub(name,1,5)=='weed_' then
@@ -131,7 +137,7 @@ function make_inst(counts,season)
  Use=function(_,n)uses[inst._attachment_type]=(uses[inst._attachment_type] or 60)-n end}}},
  {__index=function(_,k)if k=='attachment_type' then return inst._attachment_type end end})
  inst.components.container=c
- inst._rider={components={},Transform=inst.Transform,PushEvent=function()end}
+ inst._rider={components={},Transform=driver_transform(inst),PushEvent=function()end}
  local i=2;for crop,n in pairs(counts)do c.slots[i]=make_seed(crop,n);i=i+1 end
  inst.components.aom_attachment_store=Store(inst)
  inst.components.aom_attachment_store:SetMaterialContainer(c)

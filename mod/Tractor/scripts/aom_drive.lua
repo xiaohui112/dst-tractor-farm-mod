@@ -382,17 +382,17 @@ end
 function AOMDrive.TrackMovement(inst)
     if not inst._working or not inst._rider then AOMDrive.SetWorking(inst,false);return end
     if not HasMaterials(inst) then StopForReason(inst,"EMPTY");return end
-    local x,_,z,rotation,driver_x,driver_z=Mount.WorkPosition(inst)
+    local x,_,z,_,driver_x,driver_z=Mount.WorkPosition(inst)
     local ox,oz=inst._last_work_x or x,inst._last_work_z or z
-    local travel_sq=(driver_x-(inst._last_work_driver_x or driver_x))^2
-        +(driver_z-(inst._last_work_driver_z or driver_z))^2
+    local old_driver_x=inst._last_work_driver_x or driver_x
+    local old_driver_z=inst._last_work_driver_z or driver_z
+    local travel_sq=(driver_x-old_driver_x)^2+(driver_z-old_driver_z)^2
     local moved=travel_sq>.0001
-    local turn=math.abs((rotation-(inst._last_work_rotation or rotation)+180)%360-180)
-    -- 急转或原地转向时只处理转完后实际所在的一格，避免用弦扫过旁边地块。
-    if turn>=90 or turn>0 and not moved or travel_sq>Profile.MAX_SWEEP_DISTANCE^2 then ox,oz=x,z end
+    -- 换朝向会把作业点切到另一侧。此时只处理目标格，避免扫过中间未作业的格。
+    if math.abs((x-driver_x)-(ox-old_driver_x))>.01 or math.abs((z-driver_z)-(oz-old_driver_z))>.01
+        or travel_sq>Profile.MAX_SWEEP_DISTANCE^2 then ox,oz=x,z end
     local tiles=Profile.TraceTiles(TheWorld.Map,ox,oz,x,z)
     inst._last_work_x,inst._last_work_z=x,z
-    inst._last_work_rotation=rotation
     inst._last_work_driver_x,inst._last_work_driver_z=driver_x,driver_z
     for _,p in ipairs(tiles) do
         local key=p.x..":"..p.z
@@ -418,7 +418,6 @@ function AOMDrive.SetWorking(inst, on, stop_reason)
     inst._workstatus:set(inst._working)
     if inst._worktask then inst._worktask:Cancel();inst._worktask=nil end
     inst._last_work_x,inst._last_work_z=nil,nil
-    inst._last_work_rotation=nil
     inst._last_work_driver_x,inst._last_work_driver_z=nil,nil
     inst._last_work_tile=nil
     inst._plough_loaded=false
@@ -437,9 +436,8 @@ function AOMDrive.SetWorking(inst, on, stop_reason)
         require('aom_plan_timing').Request(inst)
     end
     Status.Set(inst,nil)
-    local x,_,z,rotation,driver_x,driver_z=Mount.WorkPosition(inst)
+    local x,_,z,_,driver_x,driver_z=Mount.WorkPosition(inst)
     inst._last_work_x,inst._last_work_z=x,z
-    inst._last_work_rotation=rotation
     inst._last_work_driver_x,inst._last_work_driver_z=driver_x,driver_z
     inst._worktask=inst:DoPeriodicTask(Profile.SAMPLE_INTERVAL,AOMDrive.TrackMovement)
 end
