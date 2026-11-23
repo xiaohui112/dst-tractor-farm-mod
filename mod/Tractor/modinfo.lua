@@ -9,6 +9,11 @@
 local chinese = locale == nil or locale == "zh" or locale == "zhr" or locale == "zht"
 name = "Tractor"
 description = chinese and [[
+		0.5.28 更新
+	【新增】田边蓄水桶、海水过滤、拾取与取肥联动随身库存、保留巨大收割模式。
+	【优化】简化配方，挂件耐久 100→200，降低维修与油耗成本，空驶提速。作业按挂件选地，改进模式提示、动画与音效。
+	
+	0.5.24 发布版本
 	拖拉机有七种配套设备，包括六种车载挂件和一座田边蓄水桶。
 
 	- 开垦机：一次作业铺农田、清残渣杂草、整出可直接播种的 3x3 坑位
@@ -21,7 +26,14 @@ description = chinese and [[
 
 	不加速、不改农业数值。
 	产量与原版完全一致，只把重复操作交给机器。
+
+
 ]] or [[
+0.5.28 Update
+[New] Field Rain Barrel, seawater filtration, inventory and backpack support for pickup and fertilizer, and a Keep Giants Whole harvest mode.
+[Improved] Simpler recipes, attachment durability increased from 100 to 200, lower repair and fuel costs, and faster travel. Work follows the attached tool, with improved mode hints, animations, and sounds.
+
+0.5.24 release
 Seven pieces of farm equipment: six tractor attachments and a stationary Field Rain Barrel.
 
 - Land Clearer: lays farm soil, clears debris and prepares a 3x3 planting grid.
@@ -68,6 +80,9 @@ configuration_options =
             { description = chinese and "16毫秒（默认）" or "16 ms (default)", data = 16 },
             { description = chinese and "24毫秒" or "24 ms", data = 24 },
             { description = chinese and "32毫秒" or "32 ms", data = 32 },
+            { description = chinese and "64毫秒" or "64 ms", data = 64 },
+            { description = chinese and "96毫秒" or "96 ms", data = 96 },
+            { description = chinese and "128毫秒" or "128 ms", data = 128 },
         },
         default = 16,
     },
