@@ -9,26 +9,28 @@
 local chinese = locale == nil or locale == "zh" or locale == "zhr" or locale == "zht"
 name = "Tractor"
 description = chinese and [[
-	把原版农具装上拖拉机。
+	拖拉机有七种配套设备，包括六种车载挂件和一座田边蓄水桶。
 
 	- 开垦机：一次作业铺农田、清残渣杂草、整出可直接播种的 3x3 坑位
 	- 播种机：对应种子播种（PLANTSEED）
-	- 洒水机：按需浇水，出厂100剂，可在池塘或海边补水
+	- 洒水机：按需浇水，出厂100剂，可从蓄水桶、池塘或近岸海面补水
 	- 施肥机：按需补齐三类养分，可从车仓、物品栏或背包取肥
 	- 除草机：DIG 杂草、残渣及无法采收的腐烂枯株
 	- 收割机：采摘成熟或腐烂作物，可切换拆分或整颗保留巨大作物
+	- 田边蓄水桶：固定建在地面，容量2000剂，下雨每秒蓄10剂，洒水机每秒取80剂
 
 	不加速、不改农业数值。
 	产量与原版完全一致，只把重复操作交给机器。
 ]] or [[
-Mount original farming tools on a tractor.
+Seven pieces of farm equipment: six tractor attachments and a stationary Field Rain Barrel.
 
 - Land Clearer: lays farm soil, clears debris and prepares a 3x3 planting grid.
 - Seeder: plants seeds in empty farm soil.
-- Irrigator: starts with 100 doses, waters soil as needed, and refills at ponds or the coast.
+- Irrigator: starts with 100 doses, waters soil as needed, and refills at rain barrels, ponds, or the coast.
 - Fertilizer Spreader: replenishes soil nutrients using fertilizer from cargo, pockets, or the equipped backpack.
 - Weeder: digs up weeds, detritus and unharvestable rotten or dead crop remains.
 - Harvester: harvests ripe or rotten crops, with modes to break or keep giant produce whole.
+- Field Rain Barrel: holds 2,000 doses, collects 10 doses per second in the rain, and supplies an irrigator at 80 doses per second.
 
 Original farming rates and yields are preserved; the tractor automates repeated actions.
 ]]
